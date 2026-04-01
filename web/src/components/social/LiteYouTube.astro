@@ -1,0 +1,88 @@
+---
+/**
+ * LiteYouTube — Componente facade per embed YouTube
+ * Carica solo la thumbnail come sfondo, sostituisce con iframe al click.
+ * Usa youtube-nocookie.com per privacy-enhanced mode.
+ */
+
+interface Props {
+  videoId: string;
+  title: string;
+}
+
+const { videoId, title } = Astro.props;
+
+// Thumbnail YouTube ad alta qualita
+const thumbnailUrl = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+---
+
+<div
+  class="lite-youtube"
+  data-lite-youtube
+  data-video-id={videoId}
+  style={`background-image: url('${thumbnailUrl}'); aspect-ratio: 16/9; border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; position: relative; background-size: cover; background-position: center;`}
+  aria-label={`Play: ${title}`}
+  role="button"
+  tabindex="0"
+>
+  {/* Overlay scuro per contrasto col bottone play */}
+  <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.3); transition: background var(--transition-fast);" class="lite-youtube__overlay"></div>
+
+  {/* Bottone play — cerchio rosso con triangolo bianco */}
+  <div class="lite-youtube__play" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 1;">
+    <svg width="68" height="48" viewBox="0 0 68 48">
+      <path d="M66.52 7.74c-.78-2.93-2.49-5.41-5.42-6.19C55.79.13 34 0 34 0S12.21.13 6.9 1.55C3.97 2.33 2.27 4.81 1.48 7.74.06 13.05 0 24 0 24s.06 10.95 1.48 16.26c.78 2.93 2.49 5.41 5.42 6.19C12.21 47.87 34 48 34 48s21.79-.13 27.1-1.55c2.93-.78 4.64-3.26 5.42-6.19C67.94 34.95 68 24 68 24s-.06-10.95-1.48-16.26z" fill="#FF0000"></path>
+      <path d="M45 24L27 14v20" fill="#fff"></path>
+    </svg>
+  </div>
+</div>
+
+<script>
+  // Gestione click e tastiera per LiteYouTube — sostituisce con iframe al click
+  function handleLiteYouTube(container: HTMLElement) {
+    const videoId = container.dataset.videoId;
+    if (!videoId) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.width = '100%';
+    iframe.height = '100%';
+    iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1`;
+    iframe.allow = 'autoplay; encrypted-media';
+    iframe.allowFullscreen = true;
+    iframe.frameBorder = '0';
+    iframe.style.position = 'absolute';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+
+    // Sostituisci il contenuto con l'iframe
+    container.innerHTML = '';
+    container.appendChild(iframe);
+    container.style.cursor = 'default';
+  }
+
+  document.addEventListener('click', (e) => {
+    const container = (e.target as HTMLElement).closest('[data-lite-youtube]') as HTMLElement | null;
+    if (!container) return;
+    handleLiteYouTube(container);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const container = (e.target as HTMLElement).closest('[data-lite-youtube]') as HTMLElement | null;
+    if (!container) return;
+    e.preventDefault();
+    handleLiteYouTube(container);
+  });
+</script>
+
+<style>
+  .lite-youtube:hover .lite-youtube__overlay {
+    background: rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .lite-youtube:hover .lite-youtube__play svg path:first-child {
+    fill: #cc0000;
+  }
+</style>

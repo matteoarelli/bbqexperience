@@ -1,0 +1,83 @@
+---
+/**
+ * LiteInstagramEmbed — Componente facade per embed Instagram
+ * Mostra un placeholder con icona Instagram, carica l'iframe embed al click.
+ * Zero iframe iniziale per performance ottimale.
+ */
+
+interface Props {
+  postUrl: string;
+}
+
+const { postUrl } = Astro.props;
+
+// Tronca l'URL per la visualizzazione nel placeholder
+const displayUrl = postUrl.length > 45 ? postUrl.substring(0, 45) + '...' : postUrl;
+---
+
+<div
+  class="lite-instagram"
+  data-lite-instagram
+  data-post-url={postUrl}
+  style="max-width: 540px; margin: 0 auto; background: var(--color-bg-secondary); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer;"
+  aria-label="View Instagram post"
+  role="button"
+  tabindex="0"
+>
+  {/* Contenuto placeholder */}
+  <div class="lite-instagram__placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-8); gap: var(--space-4); min-height: 200px;">
+    {/* Icona Instagram */}
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text-muted);">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+    </svg>
+
+    <span style="font-family: var(--font-heading); font-size: var(--text-base); font-weight: 700; color: var(--color-text-primary);">
+      View on Instagram
+    </span>
+
+    <span style="font-size: var(--text-sm); color: var(--color-text-muted); word-break: break-all; text-align: center;">
+      {displayUrl}
+    </span>
+  </div>
+
+  {/* Bordo gradiente Instagram in basso */}
+  <div style="height: 3px; background: linear-gradient(90deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);"></div>
+</div>
+
+<script>
+  // Gestione click per LiteInstagramEmbed — carica iframe embed al click
+  function handleLiteInstagram(container: HTMLElement) {
+    const postUrl = container.dataset.postUrl;
+    if (!postUrl) return;
+
+    const iframe = document.createElement('iframe');
+    iframe.src = `${postUrl}embed/`;
+    iframe.width = '100%';
+    iframe.height = '480';
+    iframe.frameBorder = '0';
+    iframe.scrolling = 'no';
+    iframe.style.border = 'none';
+
+    // Imposta min-height per prevenire layout shift
+    container.style.minHeight = '480px';
+    container.innerHTML = '';
+    container.appendChild(iframe);
+    container.style.cursor = 'default';
+  }
+
+  document.addEventListener('click', (e) => {
+    const container = (e.target as HTMLElement).closest('[data-lite-instagram]') as HTMLElement | null;
+    if (!container) return;
+    handleLiteInstagram(container);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const container = (e.target as HTMLElement).closest('[data-lite-instagram]') as HTMLElement | null;
+    if (!container) return;
+    e.preventDefault();
+    handleLiteInstagram(container);
+  });
+</script>
