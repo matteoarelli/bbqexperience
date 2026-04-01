@@ -81,7 +81,7 @@ Plans:
   5. Review pages output valid Product + Review + AggregateRating Schema.org JSON-LD verified via Google Rich Results Test
 **Plans**: 2 plans
 Plans:
-- [ ] 04-01-PLAN.md — Review components (ScoreCard, SpecsTable, ProsConsCard, VerdictCard) + Schema.org JSON-LD + full page templates
+- [x] 04-01-PLAN.md — Review components (ScoreCard, SpecsTable, ProsConsCard, VerdictCard) + Schema.org JSON-LD + full page templates
 - [ ] 04-02-PLAN.md — Photo gallery with lightbox + visual verification checkpoint
 **UI hint**: yes
 

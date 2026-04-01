@@ -9,14 +9,14 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Reviews
 
-- [ ] **REV-01**: User can view product review with overall score and per-category scores (build quality, performance, value, ease of use)
-- [ ] **REV-02**: User can read editorial deep-dive opinion on each reviewed product
-- [ ] **REV-03**: User can view technical specifications table with pros/cons for each product
+- [x] **REV-01**: User can view product review with overall score and per-category scores (build quality, performance, value, ease of use)
+- [x] **REV-02**: User can read editorial deep-dive opinion on each reviewed product
+- [x] **REV-03**: User can view technical specifications table with pros/cons for each product
 - [ ] **REV-04**: User can browse product photo gallery with zoom/lightbox
-- [ ] **REV-05**: User can view condensed review verdict card (score, one-line verdict, pros/cons, product photo)
+- [x] **REV-05**: User can view condensed review verdict card (score, one-line verdict, pros/cons, product photo)
 - [ ] **REV-06**: User can compare 2-5 reviewed products side-by-side across all scoring categories and specs
 - [ ] **REV-07**: User can see animated scoring visualizations (radial progress bars, flame-themed gauges) on review pages
-- [ ] **REV-08**: Review pages include Product + Review + AggregateRating Schema.org structured data (JSON-LD)
+- [x] **REV-08**: Review pages include Product + Review + AggregateRating Schema.org structured data (JSON-LD)
 
 ### Recipes
 
@@ -116,14 +116,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| REV-01 | Phase 4 | Pending |
-| REV-02 | Phase 4 | Pending |
-| REV-03 | Phase 4 | Pending |
+| REV-01 | Phase 4 | Complete |
+| REV-02 | Phase 4 | Complete |
+| REV-03 | Phase 4 | Complete |
 | REV-04 | Phase 4 | Pending |
-| REV-05 | Phase 4 | Pending |
+| REV-05 | Phase 4 | Complete |
 | REV-06 | Phase 8 | Pending |
 | REV-07 | Phase 8 | Pending |
-| REV-08 | Phase 4 | Pending |
+| REV-08 | Phase 4 | Complete |
 | REC-01 | Phase 5 | Pending |
 | REC-02 | Phase 5 | Pending |
 | REC-03 | Phase 5 | Pending |
