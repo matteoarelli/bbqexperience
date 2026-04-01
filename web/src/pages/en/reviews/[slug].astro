@@ -15,6 +15,7 @@ import ScoreCard from '@components/review/ScoreCard.astro';
 import SpecsTable from '@components/review/SpecsTable.astro';
 import ProsConsCard from '@components/review/ProsConsCard.astro';
 import VerdictCard from '@components/review/VerdictCard.astro';
+import PhotoGallery from '@components/review/PhotoGallery.astro';
 import ReviewJsonLd from '@components/review/ReviewJsonLd.astro';
 
 export const prerender = false;
@@ -94,6 +95,13 @@ const siteUrl = import.meta.env.SITE || 'https://bbqexperience.it';
         class="w-full rounded-[var(--radius-lg)] mb-[var(--space-12)]"
         data-animate
       />
+    )}
+
+    <!-- Galleria foto -->
+    {review.gallery && review.gallery.length > 1 && (
+      <div class="mb-[var(--space-12)]">
+        <PhotoGallery images={review.gallery} title={getTranslation(t, 'review.gallery')} />
+      </div>
     )}
 
     <!-- Punteggi -->
