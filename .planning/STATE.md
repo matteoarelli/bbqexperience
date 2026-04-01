@@ -64,6 +64,8 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 05 P01 | 4min | 2 tasks | 9 files |
 | Phase 06 P01 | 4min | 2 tasks | 12 files |
 | Phase 04 P02 | 2min | 1 tasks | 4 files |
+| Phase 05 P02 | 5min | 2 tasks | 7 files |
+| Phase 05 P03 | 2min | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -98,6 +100,10 @@ Recent decisions affecting current work:
 - [Phase 06]: Tutorial listing pages use prerender=true (static), detail pages use SSR for preview support
 - [Phase 06]: ContentLayout adds h2 IDs via regex for section navigation and reading progress
 - [Phase 04]: Lightbox uses vanilla JS script tag for zero-bundle overhead on static grid
+- [Phase 05]: Svelte 5 runes ($state, $derived, $effect, $bindable) for all recipe interactive components
+- [Phase 05]: CookMode uses Wake Lock API with graceful fallback for unsupported browsers
+- [Phase 05]: QR code for print via external API (api.qrserver.com) to avoid npm dependency
+- [Phase 05]: no-print/print-only CSS class convention for print visibility control
 
 ### Pending Todos
 
@@ -111,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T19:55:15.170Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-04-01T19:58:22Z
+Stopped at: Completed 05-02-PLAN.md and 05-03-PLAN.md
 Resume file: None

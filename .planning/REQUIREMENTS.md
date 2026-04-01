@@ -23,10 +23,10 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **REC-01**: User can view recipe with ingredients list, step-by-step instructions, prep/cook/total time, difficulty level, servings
 - [x] **REC-02**: User can see photos for each recipe step
 - [x] **REC-03**: User can click "Jump to Recipe" button to skip editorial intro
-- [ ] **REC-04**: User can activate Cook Mode (keep-screen-awake, large text, step-by-step progression, minimal UI)
-- [ ] **REC-05**: User can adjust serving size and see ingredients recalculate automatically
-- [ ] **REC-06**: User can print a clean recipe card (ingredients + steps only, QR code back to full page)
-- [ ] **REC-07**: User can toggle between metric and imperial units across recipe content
+- [x] **REC-04**: User can activate Cook Mode (keep-screen-awake, large text, step-by-step progression, minimal UI)
+- [x] **REC-05**: User can adjust serving size and see ingredients recalculate automatically
+- [x] **REC-06**: User can print a clean recipe card (ingredients + steps only, QR code back to full page)
+- [x] **REC-07**: User can toggle between metric and imperial units across recipe content
 - [x] **REC-08**: Recipe pages include Recipe Schema.org structured data (JSON-LD) with prepTime, cookTime, ingredients, instructions
 
 ### Content
