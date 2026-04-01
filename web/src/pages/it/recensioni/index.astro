@@ -1,0 +1,184 @@
+---
+/**
+ * Pagina listing recensioni (IT) — griglia di recensioni con filtro categoria prodotto
+ * SSR per supportare filtro categoria dinamico via query param.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import ArticleCard from '@components/content/ArticleCard.astro';
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiReview } from '@lib/types';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+export const prerender = false;
+
+const locale: Locale = 'it';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+
+// Categorie prodotto disponibili per il filtro
+const categories = ['grill', 'smoker', 'accessory', 'fuel', 'thermometer', 'other'] as const;
+const activeCategory = Astro.url.searchParams.get('category') || null;
+
+// Recupera le recensioni con filtro categoria opzionale
+const fetchOptions: Parameters<typeof fetchCollection>[1] = {
+  locale,
+  populate: 'gallery,product',
+  sort: 'published_date:desc',
+  pageSize: 25,
+};
+
+if (activeCategory && categories.includes(activeCategory as typeof categories[number])) {
+  fetchOptions.filters = { product: { category: { $eq: activeCategory } } };
+}
+
+const response = await fetchCollection<StrapiReview>('reviews', fetchOptions);
+const reviews = response.data;
+const reviewRoute = localizedRoutes.reviews[locale];
+
+// Breadcrumbs
+const breadcrumbItems = [
+  { label: t('content.home'), href: `/${locale}/` },
+  { label: t('content.reviews') },
+];
+---
+
+<BaseLayout
+  title={`${t('content.reviews')} - ${t('site.name')}`}
+  description={t('site.description')}
+  locale={locale}
+  canonicalPath={`/${locale}/${reviewRoute}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${reviewRoute}/`} />
+
+  <section class="container-bbq py-12">
+    <Breadcrumbs items={breadcrumbItems} locale={locale} />
+
+    <h1 class="page-title">{t('content.allReviews')}</h1>
+
+    {/* Barra filtro categorie prodotto */}
+    <div class="category-filter">
+      <a
+        href={`/${locale}/${reviewRoute}/`}
+        class:list={['filter-btn', { 'filter-btn--active': !activeCategory }]}
+      >
+        {t('content.allCategories')}
+      </a>
+      {categories.map((cat) => (
+        <a
+          href={`/${locale}/${reviewRoute}/?category=${cat}`}
+          class:list={['filter-btn', { 'filter-btn--active': activeCategory === cat }]}
+        >
+          {t(`content.${cat}`)}
+        </a>
+      ))}
+    </div>
+
+    {reviews.length > 0 ? (
+      <div class="review-grid" data-animate>
+        {reviews.map((review) => (
+          <ArticleCard
+            title={review.title}
+            excerpt={review.excerpt}
+            slug={review.slug}
+            href={`/${locale}/${reviewRoute}/${review.slug}/`}
+            coverImage={review.gallery?.[0] ?? null}
+            category={review.product?.category ?? null}
+            readingTime={null}
+            publishedDate={review.published_date}
+            locale={locale}
+            translations={translations}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state" data-animate>
+        <p class="empty-text">{t('content.noArticles')}</p>
+      </div>
+    )}
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .page-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-6);
+  }
+
+  .category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-8);
+  }
+
+  .filter-btn {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-muted);
+    background-color: transparent;
+    transition: all var(--transition-fast);
+  }
+
+  .filter-btn:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-secondary);
+  }
+
+  .filter-btn--active {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+    border-color: var(--color-accent-fire);
+  }
+
+  .filter-btn--active:hover {
+    background-color: var(--color-accent-ember);
+    border-color: var(--color-accent-ember);
+    color: var(--color-text-inverse);
+  }
+
+  .review-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .review-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .review-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-24) 0;
+  }
+
+  .empty-text {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+  }
+</style>
