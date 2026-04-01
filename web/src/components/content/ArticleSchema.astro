@@ -34,13 +34,17 @@ const jsonLd: Record<string, unknown> = {
   description: description,
   url: url,
   author: {
-    '@type': 'Person',
+    '@type': authorName === 'BBQ Experience' ? 'Organization' : 'Person',
     name: authorName,
   },
   publisher: {
     '@type': 'Organization',
     name: 'BBQ Experience',
     url: 'https://bbqexperience.com',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://bbqexperience.com/logo.png',
+    },
   },
   inLanguage: locale,
   mainEntityOfPage: {
@@ -58,7 +62,10 @@ if (dateModified) {
 }
 
 if (imageUrl) {
-  jsonLd.image = imageUrl;
+  jsonLd.image = {
+    '@type': 'ImageObject',
+    url: imageUrl,
+  };
 }
 ---
 

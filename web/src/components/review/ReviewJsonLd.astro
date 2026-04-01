@@ -14,30 +14,34 @@ interface Props {
 
 const { review, productImageUrl, locale, siteUrl } = Astro.props;
 
+// Null guard su score_overall (default 0 se undefined)
+const ratingValue = review.score_overall ?? 0;
+
 // Costruisci l'oggetto JSON-LD seguendo le specifiche Schema.org
 const jsonLd: Record<string, unknown> = {
   '@context': 'https://schema.org',
   '@type': 'Product',
   name: review.product?.name || review.title,
   description: review.excerpt || '',
+  url: `${siteUrl}/${locale}/reviews/${review.slug}`,
   review: {
     '@type': 'Review',
     reviewRating: {
       '@type': 'Rating',
-      ratingValue: review.score_overall,
+      ratingValue: ratingValue,
       bestRating: 10,
       worstRating: 0,
     },
     author: {
-      '@type': 'Person',
+      '@type': 'Organization',
       name: 'BBQ Experience',
     },
     reviewBody: review.verdict || '',
-    datePublished: review.published_date || review.publishedAt || '',
+    datePublished: review.published_date || review.publishedAt || undefined,
   },
   aggregateRating: {
     '@type': 'AggregateRating',
-    ratingValue: review.score_overall,
+    ratingValue: ratingValue,
     bestRating: 10,
     worstRating: 0,
     ratingCount: 1,
@@ -64,4 +68,4 @@ if (review.product?.category) {
 }
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+<script type="application/ld+json" set:html={JSON.stringify(JSON.parse(JSON.stringify(jsonLd)))} />

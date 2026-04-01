@@ -23,6 +23,18 @@ const {
 const siteUrl = 'https://bbqexperience.com';
 const locales = ['en', 'it', 'es'];
 
+// Mappa locale breve -> formato OG con underscore
+const ogLocaleMap: Record<string, string> = {
+  en: 'en_US',
+  it: 'it_IT',
+  es: 'es_ES',
+};
+
+// Assicura che ogImage sia un URL assoluto
+const absoluteOgImage = ogImage
+  ? ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
+  : '';
+
 // URL canonico per la locale corrente
 const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}`;
 ---
@@ -51,14 +63,14 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}`;
 <meta property="og:type" content={type} />
 <meta property="og:url" content={canonicalUrl} />
 <meta property="og:site_name" content="BBQ Experience" />
-<meta property="og:locale" content={locale} />
+<meta property="og:locale" content={ogLocaleMap[locale] || locale} />
 {locales.filter((l) => l !== locale).map((altLocale) => (
-  <meta property="og:locale:alternate" content={altLocale} />
+  <meta property="og:locale:alternate" content={ogLocaleMap[altLocale] || altLocale} />
 ))}
-{ogImage && <meta property="og:image" content={ogImage} />}
+{absoluteOgImage && <meta property="og:image" content={absoluteOgImage} />}
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
-{ogImage && <meta name="twitter:image" content={ogImage} />}
+{absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}

@@ -16,8 +16,11 @@ interface Props {
 
 const { items, siteUrl = 'https://bbqexperience.com' } = Astro.props;
 
+// Non renderizzare se meno di 2 elementi (breadcrumb non significativo)
+const shouldRender = items.length >= 2;
+
 // Costruisci l'oggetto JSON-LD BreadcrumbList
-const jsonLd = {
+const jsonLd = shouldRender ? {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: items.map((item, index) => {
@@ -28,11 +31,12 @@ const jsonLd = {
     };
     // Aggiungi URL solo se l'elemento ha href (l'ultimo elemento e la pagina corrente, senza URL per Google)
     if (item.href) {
-      listItem.item = `${siteUrl}${item.href}`;
+      // Guard: se l'href è già un URL assoluto, non anteporre siteUrl
+      listItem.item = item.href.startsWith('http') ? item.href : `${siteUrl}${item.href}`;
     }
     return listItem;
   }),
-};
+} : null;
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+{shouldRender && jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
