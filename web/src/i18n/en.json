@@ -1,0 +1,62 @@
+{
+  "site": {
+    "name": "BBQ Experience",
+    "tagline": "The most complete BBQ review destination online",
+    "description": "In-depth BBQ product reviews, recipes, tutorials and news from the BBQ Experience community"
+  },
+  "nav": {
+    "home": "Home",
+    "reviews": "Reviews",
+    "recipes": "Recipes",
+    "tutorials": "Tutorials",
+    "blog": "Blog",
+    "about": "About",
+    "search": "Search"
+  },
+  "common": {
+    "readMore": "Read more",
+    "viewAll": "View all",
+    "share": "Share",
+    "backToTop": "Back to top",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "notFound": "Page not found",
+    "language": "Language",
+    "followUs": "Follow us on Instagram",
+    "copyright": "All rights reserved"
+  },
+  "hero": {
+    "title": "BBQ EXPERIENCE",
+    "subtitle": "The most complete BBQ review destination online",
+    "cta": "Explore Reviews"
+  },
+  "review": {
+    "overallScore": "Overall Score",
+    "buildQuality": "Build Quality",
+    "performance": "Performance",
+    "value": "Value for Money",
+    "easeOfUse": "Ease of Use",
+    "verdict": "Our Verdict",
+    "pros": "Pros",
+    "cons": "Cons",
+    "specs": "Specifications"
+  },
+  "recipe": {
+    "prepTime": "Prep Time",
+    "cookTime": "Cook Time",
+    "totalTime": "Total Time",
+    "servings": "Servings",
+    "difficulty": "Difficulty",
+    "ingredients": "Ingredients",
+    "instructions": "Instructions",
+    "jumpToRecipe": "Jump to Recipe",
+    "cookMode": "Cook Mode",
+    "print": "Print Recipe"
+  },
+  "footer": {
+    "about": "Independent BBQ reviews, recipes and tutorials for the grilling community.",
+    "sections": "Sections",
+    "connect": "Connect",
+    "legal": "Legal"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "site": {
+    "name": "BBQ Experience",
+    "tagline": "El destino mas completo para resenas de BBQ",
+    "description": "Resenas detalladas de productos BBQ, recetas, tutoriales y noticias de la comunidad BBQ Experience"
+  },
+  "nav": {
+    "home": "Inicio",
+    "reviews": "Resenas",
+    "recipes": "Recetas",
+    "tutorials": "Tutoriales",
+    "blog": "Blog",
+    "about": "Sobre Nosotros",
+    "search": "Buscar"
+  },
+  "common": {
+    "readMore": "Leer mas",
+    "viewAll": "Ver todos",
+    "share": "Compartir",
+    "backToTop": "Volver arriba",
+    "loading": "Cargando...",
+    "error": "Algo salio mal",
+    "notFound": "Pagina no encontrada",
+    "language": "Idioma",
+    "followUs": "Siguenos en Instagram",
+    "copyright": "Todos los derechos reservados"
+  },
+  "hero": {
+    "title": "BBQ EXPERIENCE",
+    "subtitle": "El destino mas completo para resenas de BBQ",
+    "cta": "Explorar Resenas"
+  },
+  "review": {
+    "overallScore": "Puntuacion General",
+    "buildQuality": "Calidad de Construccion",
+    "performance": "Rendimiento",
+    "value": "Relacion Calidad-Precio",
+    "easeOfUse": "Facilidad de Uso",
+    "verdict": "Nuestro Veredicto",
+    "pros": "Ventajas",
+    "cons": "Desventajas",
+    "specs": "Especificaciones"
+  },
+  "recipe": {
+    "prepTime": "Preparacion",
+    "cookTime": "Coccion",
+    "totalTime": "Tiempo Total",
+    "servings": "Porciones",
+    "difficulty": "Dificultad",
+    "ingredients": "Ingredientes",
+    "instructions": "Instrucciones",
+    "jumpToRecipe": "Ir a la Receta",
+    "cookMode": "Modo Cocina",
+    "print": "Imprimir Receta"
+  },
+  "footer": {
+    "about": "Resenas independientes de BBQ, recetas y tutoriales para la comunidad del grilling.",
+    "sections": "Secciones",
+    "connect": "Conectar",
+    "legal": "Legal"
+  }
+}

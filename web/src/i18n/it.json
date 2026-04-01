@@ -1,0 +1,62 @@
+{
+  "site": {
+    "name": "BBQ Experience",
+    "tagline": "La destinazione piu completa per le recensioni BBQ",
+    "description": "Recensioni approfondite di prodotti BBQ, ricette, tutorial e notizie dalla community BBQ Experience"
+  },
+  "nav": {
+    "home": "Home",
+    "reviews": "Recensioni",
+    "recipes": "Ricette",
+    "tutorials": "Guide",
+    "blog": "Blog",
+    "about": "Chi Siamo",
+    "search": "Cerca"
+  },
+  "common": {
+    "readMore": "Leggi tutto",
+    "viewAll": "Vedi tutti",
+    "share": "Condividi",
+    "backToTop": "Torna su",
+    "loading": "Caricamento...",
+    "error": "Qualcosa e andato storto",
+    "notFound": "Pagina non trovata",
+    "language": "Lingua",
+    "followUs": "Seguici su Instagram",
+    "copyright": "Tutti i diritti riservati"
+  },
+  "hero": {
+    "title": "BBQ EXPERIENCE",
+    "subtitle": "La destinazione piu completa per le recensioni BBQ",
+    "cta": "Esplora le Recensioni"
+  },
+  "review": {
+    "overallScore": "Punteggio Generale",
+    "buildQuality": "Qualita Costruttiva",
+    "performance": "Prestazioni",
+    "value": "Rapporto Qualita-Prezzo",
+    "easeOfUse": "Facilita d'Uso",
+    "verdict": "Il Nostro Verdetto",
+    "pros": "Pro",
+    "cons": "Contro",
+    "specs": "Specifiche"
+  },
+  "recipe": {
+    "prepTime": "Preparazione",
+    "cookTime": "Cottura",
+    "totalTime": "Tempo Totale",
+    "servings": "Porzioni",
+    "difficulty": "Difficolta",
+    "ingredients": "Ingredienti",
+    "instructions": "Procedimento",
+    "jumpToRecipe": "Vai alla Ricetta",
+    "cookMode": "Modalita Cottura",
+    "print": "Stampa Ricetta"
+  },
+  "footer": {
+    "about": "Recensioni BBQ indipendenti, ricette e tutorial per la community del grilling.",
+    "sections": "Sezioni",
+    "connect": "Collegati",
+    "legal": "Note Legali"
+  }
+}
