@@ -1,0 +1,53 @@
+---
+/**
+ * SpecsTable — Tabella specifiche tecniche del prodotto
+ * Righe alternate con chiave-valore dalle specifiche del prodotto
+ */
+interface Props {
+  specifications: Record<string, unknown> | null;
+  title: string;
+}
+
+const { specifications, title } = Astro.props;
+
+// Se non ci sono specifiche, non renderizzare nulla
+const entries = specifications ? Object.entries(specifications) : [];
+---
+
+{entries.length > 0 && (
+  <section data-animate>
+    <h2
+      class="text-2xl uppercase tracking-wider mb-6"
+      style="font-family: var(--font-heading); color: var(--color-text-primary);"
+    >
+      {title}
+    </h2>
+
+    <div class="overflow-x-auto rounded-[var(--radius-lg)]">
+      <table class="w-full border-collapse">
+        <tbody>
+          {entries.map(([key, value], index) => (
+            <tr
+              class={index % 2 === 0
+                ? 'bg-[var(--color-bg-secondary)]'
+                : 'bg-[var(--color-bg-tertiary)]'}
+            >
+              <td
+                class="px-4 py-3 font-medium capitalize w-1/3"
+                style="color: var(--color-text-muted);"
+              >
+                {key.replace(/_/g, ' ')}
+              </td>
+              <td
+                class="px-4 py-3"
+                style="color: var(--color-text-primary);"
+              >
+                {String(value ?? '')}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+)}

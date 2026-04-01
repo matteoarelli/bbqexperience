@@ -1,0 +1,77 @@
+---
+/**
+ * ProsConsCard — Mostra pro e contro in layout a 2 colonne
+ * Con icone colorate (verde per pro, rosso per contro)
+ */
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  pros: string[] | null;
+  cons: string[] | null;
+  translations: Record<string, any>;
+}
+
+const { pros, cons, translations } = Astro.props;
+
+const hasPros = pros && pros.length > 0;
+const hasCons = cons && cons.length > 0;
+---
+
+{(hasPros || hasCons) && (
+  <section
+    class="bg-[var(--color-bg-secondary)] rounded-[var(--radius-lg)] p-6 md:p-8"
+    data-animate
+  >
+    <div class="grid md:grid-cols-2 gap-6">
+      {/* Colonna Pro */}
+      {hasPros && (
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-green-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+            </svg>
+            <h3
+              class="text-lg font-bold uppercase tracking-wider"
+              style="font-family: var(--font-heading); color: var(--color-text-primary);"
+            >
+              {getTranslation(translations, 'review.pros')}
+            </h3>
+          </div>
+          <ul class="space-y-2">
+            {pros!.map((pro) => (
+              <li class="flex items-start gap-2" style="color: var(--color-text-secondary);">
+                <span class="mt-2 w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                <span>{pro}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Colonna Contro */}
+      {hasCons && (
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5 text-red-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+            <h3
+              class="text-lg font-bold uppercase tracking-wider"
+              style="font-family: var(--font-heading); color: var(--color-text-primary);"
+            >
+              {getTranslation(translations, 'review.cons')}
+            </h3>
+          </div>
+          <ul class="space-y-2">
+            {cons!.map((con) => (
+              <li class="flex items-start gap-2" style="color: var(--color-text-secondary);">
+                <span class="mt-2 w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                <span>{con}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </section>
+)}

@@ -1,0 +1,91 @@
+---
+/**
+ * ScoreCard — Mostra il punteggio complessivo e i 4 punteggi per categoria
+ * Cerchio grande con punteggio totale + barre orizzontali per ogni categoria
+ */
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  overall: number;
+  buildQuality: number | null;
+  performance: number | null;
+  value: number | null;
+  easeOfUse: number | null;
+  translations: Record<string, any>;
+}
+
+const { overall, buildQuality, performance, value, easeOfUse, translations } = Astro.props;
+
+// Categorie con i rispettivi punteggi e chiavi di traduzione
+const categories = [
+  { key: 'review.buildQuality', score: buildQuality },
+  { key: 'review.performance', score: performance },
+  { key: 'review.value', score: value },
+  { key: 'review.easeOfUse', score: easeOfUse },
+].filter((c) => c.score !== null && c.score !== undefined);
+---
+
+<section
+  class="bg-[var(--color-bg-secondary)] rounded-[var(--radius-lg)] p-6 md:p-8"
+  data-animate
+>
+  <!-- Punteggio complessivo — cerchio grande -->
+  <div class="flex flex-col items-center mb-8">
+    <div
+      class="w-28 h-28 rounded-full border-4 flex flex-col items-center justify-center"
+      style="border-color: var(--color-accent-fire);"
+    >
+      <span
+        class="text-5xl font-bold leading-none"
+        style="font-family: var(--font-heading); color: var(--color-accent-amber);"
+      >
+        {overall}
+      </span>
+      <span
+        class="text-sm leading-none mt-1"
+        style="color: var(--color-text-muted);"
+      >
+        /10
+      </span>
+    </div>
+    <span
+      class="mt-3 text-sm uppercase tracking-wider"
+      style="font-family: var(--font-heading); color: var(--color-text-muted);"
+    >
+      {getTranslation(translations, 'review.overallScore')}
+    </span>
+  </div>
+
+  <!-- Barre punteggio per categoria -->
+  {categories.length > 0 && (
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {categories.map((cat) => (
+        <div class="flex flex-col gap-1">
+          <div class="flex justify-between items-center">
+            <span
+              class="text-sm"
+              style="color: var(--color-text-muted); font-family: var(--font-body);"
+            >
+              {getTranslation(translations, cat.key)}
+            </span>
+            <span
+              class="text-sm font-bold"
+              style="color: var(--color-text-primary); font-family: var(--font-heading);"
+            >
+              {cat.score}
+            </span>
+          </div>
+          <div
+            class="w-full h-2 rounded-full overflow-hidden"
+            style="background-color: var(--color-bg-tertiary);"
+          >
+            <div
+              class="h-full rounded-full transition-all duration-500"
+              style={`width: ${((cat.score as number) / 10) * 100}%; background-color: var(--color-accent-fire);`}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
