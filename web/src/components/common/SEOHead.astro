@@ -1,0 +1,60 @@
+---
+/**
+ * Componente SEO Head — genera meta tags per hreflang, canonical, Open Graph e Twitter Card
+ */
+interface Props {
+  title: string;
+  description: string;
+  locale?: string;
+  canonicalPath?: string;
+  ogImage?: string;
+  type?: string;
+}
+
+const {
+  title,
+  description,
+  locale = 'en',
+  canonicalPath = '',
+  ogImage = '',
+  type = 'website',
+} = Astro.props;
+
+const siteUrl = 'https://bbqexperience.com';
+const locales = ['en', 'it', 'es'];
+
+// URL canonico per la locale corrente
+const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}`;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0D0D0D" />
+<meta name="generator" content={Astro.generator} />
+
+<title>{title}</title>
+<meta name="description" content={description} />
+
+<!-- Canonical -->
+<link rel="canonical" href={canonicalUrl} />
+
+<!-- Hreflang per tutte le lingue supportate -->
+{locales.map((lang) => (
+  <link rel="alternate" hreflang={lang} href={`${siteUrl}/${lang}${canonicalPath}`} />
+))}
+<link rel="alternate" hreflang="x-default" href={`${siteUrl}/en${canonicalPath}`} />
+
+<!-- Open Graph -->
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:site_name" content="BBQ Experience" />
+<meta property="og:locale" content={locale} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{ogImage && <meta name="twitter:image" content={ogImage} />}

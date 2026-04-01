@@ -1,0 +1,51 @@
+---
+/**
+ * Layout base — struttura HTML con SEO head, dark theme, e slot per header/footer
+ */
+import SEOHead from '@components/common/SEOHead.astro';
+import '@styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  locale?: string;
+  canonicalPath?: string;
+  ogImage?: string;
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  locale = 'en',
+  canonicalPath = '',
+  ogImage = '',
+  class: className = '',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={locale} dir="ltr">
+  <head>
+    <SEOHead
+      title={title}
+      description={description}
+      locale={locale}
+      canonicalPath={canonicalPath}
+      ogImage={ogImage}
+    />
+  </head>
+  <body>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-accent-fire)] focus:text-[var(--color-text-inverse)] focus:rounded-md">
+      Skip to content
+    </a>
+
+    <slot name="header" />
+
+    <main id="main-content" class={className}>
+      <slot />
+    </main>
+
+    <slot name="footer" />
+  </body>
+</html>
