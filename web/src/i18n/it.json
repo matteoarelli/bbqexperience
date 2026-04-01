@@ -89,6 +89,22 @@
     "home": "Home",
     "searchPlaceholder": "Cerca articoli..."
   },
+  "comparison": {
+    "title": "Confronta Prodotti BBQ",
+    "description": "Confronta griglie, affumicatori e accessori BBQ fianco a fianco su tutte le categorie di punteggio",
+    "searchPlaceholder": "Cerca recensioni da confrontare...",
+    "addProduct": "Aggiungi",
+    "removeProduct": "Rimuovi",
+    "selectedCount": "{count} di {max} prodotti selezionati",
+    "minProducts": "Seleziona almeno 2 prodotti per confrontare",
+    "scores": "Punteggi",
+    "specs": "Specifiche",
+    "verdict": "Verdetto",
+    "copyLink": "Copia link confronto",
+    "linkCopied": "Link copiato!",
+    "noResults": "Nessuna recensione trovata",
+    "winner": "Migliore"
+  },
   "theme": {
     "toggle": "Cambia tema",
     "dark": "Modalita scura",

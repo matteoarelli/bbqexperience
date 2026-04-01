@@ -1,0 +1,75 @@
+---
+/**
+ * Pagina confronto prodotti (EN) — Strumento interattivo per comparare recensioni BBQ
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import ComparisonTool from '@components/comparison/ComparisonTool.svelte';
+import { STRAPI_URL } from '@lib/strapi';
+import { loadTranslations, getTranslation } from '@lib/i18n';
+
+export const prerender = false;
+
+const locale = 'en';
+const t = await loadTranslations(locale);
+
+// Leggi IDs iniziali da query string per URL condivisi
+const idsParam = Astro.url.searchParams.get('ids') || '';
+const initialIds = idsParam ? idsParam.split(',').filter(Boolean) : [];
+
+// Raccogli tutte le label necessarie per il componente Svelte
+const labels = {
+  searchPlaceholder: getTranslation(t, 'comparison.searchPlaceholder'),
+  addProduct: getTranslation(t, 'comparison.addProduct'),
+  removeProduct: getTranslation(t, 'comparison.removeProduct'),
+  minProducts: getTranslation(t, 'comparison.minProducts'),
+  scores: getTranslation(t, 'comparison.scores'),
+  specs: getTranslation(t, 'comparison.specs'),
+  verdict: getTranslation(t, 'comparison.verdict'),
+  copyLink: getTranslation(t, 'comparison.copyLink'),
+  linkCopied: getTranslation(t, 'comparison.linkCopied'),
+  noResults: getTranslation(t, 'comparison.noResults'),
+  winner: getTranslation(t, 'comparison.winner'),
+  selectedCount: getTranslation(t, 'comparison.selectedCount'),
+  overallScore: getTranslation(t, 'review.overallScore'),
+  buildQuality: getTranslation(t, 'review.buildQuality'),
+  performance: getTranslation(t, 'review.performance'),
+  value: getTranslation(t, 'review.value'),
+  easeOfUse: getTranslation(t, 'review.easeOfUse'),
+  pros: getTranslation(t, 'review.pros'),
+  cons: getTranslation(t, 'review.cons'),
+  brand: getTranslation(t, 'review.brand'),
+  category: getTranslation(t, 'review.category'),
+  priceRange: getTranslation(t, 'review.priceRange'),
+  loading: getTranslation(t, 'common.loading'),
+};
+---
+
+<BaseLayout
+  title={getTranslation(t, 'comparison.title')}
+  description={getTranslation(t, 'comparison.description')}
+  locale={locale}
+  canonicalPath="/compare/"
+>
+  <Header slot="header" locale={locale} translations={t} currentPath={Astro.url.pathname} />
+
+  <div class="container-bbq py-[var(--space-12)]">
+    <h1
+      class="text-[var(--text-3xl)] uppercase tracking-tight mb-[var(--space-8)]"
+      style="font-family: var(--font-heading); color: var(--color-text-primary);"
+    >
+      {getTranslation(t, 'comparison.title')}
+    </h1>
+
+    <ComparisonTool
+      client:load
+      strapiUrl={STRAPI_URL}
+      locale={locale}
+      labels={labels}
+      initialIds={initialIds}
+    />
+  </div>
+
+  <Footer slot="footer" locale={locale} translations={t} />
+</BaseLayout>

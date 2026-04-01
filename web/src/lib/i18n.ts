@@ -17,6 +17,7 @@ export const localizedRoutes: Record<string, Record<Locale, string>> = {
   tutorials: { en: 'tutorials', it: 'guide', es: 'tutoriales' },
   blog: { en: 'blog', it: 'blog', es: 'blog' },
   about: { en: 'about', it: 'chi-siamo', es: 'sobre-nosotros' },
+  compare: { en: 'compare', it: 'confronta', es: 'comparar' },
 };
 
 /**

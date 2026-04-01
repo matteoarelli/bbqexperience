@@ -89,6 +89,22 @@
     "home": "Inicio",
     "searchPlaceholder": "Buscar articulos..."
   },
+  "comparison": {
+    "title": "Comparar Productos BBQ",
+    "description": "Compara parrillas, ahumadores y accesorios BBQ lado a lado en todas las categorias de puntuacion",
+    "searchPlaceholder": "Buscar resenas para comparar...",
+    "addProduct": "Agregar",
+    "removeProduct": "Eliminar",
+    "selectedCount": "{count} de {max} productos seleccionados",
+    "minProducts": "Selecciona al menos 2 productos para comparar",
+    "scores": "Puntuaciones",
+    "specs": "Especificaciones",
+    "verdict": "Veredicto",
+    "copyLink": "Copiar enlace de comparacion",
+    "linkCopied": "Enlace copiado!",
+    "noResults": "No se encontraron resenas",
+    "winner": "Mejor"
+  },
   "theme": {
     "toggle": "Cambiar tema",
     "dark": "Modo oscuro",
