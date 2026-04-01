@@ -13,6 +13,8 @@ ENV PATH=/opt/node_modules/.bin:$PATH
 WORKDIR /opt/app
 COPY . .
 RUN npm run build
+# Copia schema.json nella directory dist (non inclusi dalla compilazione TS)
+RUN find src -name "schema.json" -exec sh -c 'mkdir -p "dist/$(dirname "$1")" && cp "$1" "dist/$1"' _ {} \;
 
 # Immagine finale di produzione
 FROM node:22-alpine
