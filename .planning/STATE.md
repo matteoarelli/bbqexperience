@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-04-01T19:49:40.084Z"
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-04-01T19:49:49.866Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 9
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 03 P02 | 3min | 3 tasks | 9 files |
 | Phase 06 P02 | 3min | 2 tasks | 4 files |
 | Phase 04-review-pages P01 | 4min | 3 tasks | 11 files |
+| Phase 05 P01 | 4min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,8 @@ Recent decisions affecting current work:
 - [Phase 06]: Pagefind loaded lazily on first search interaction for zero-JS default
 - [Phase 04-review-pages]: Header/Footer require translations and currentPath props from page level
 - [Phase 04-review-pages]: Schema.org JSON-LD conditionally omits null fields for cleaner structured data
+- [Phase 05]: Fixed deprecated output: 'hybrid' to output: 'static' for Astro 6 compatibility
+- [Phase 05]: Svelte 5 integration installed early for recipe interactive islands in Plan 02
 
 ### Pending Todos
 
@@ -103,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T19:49:18.177Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-04-01T19:49:49.862Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None

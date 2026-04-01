@@ -97,7 +97,7 @@ Plans:
   5. User can print a clean recipe card (ingredients + steps only) with a QR code linking back to the full page
 **Plans**: 3 plans
 Plans:
-- [ ] 05-01-PLAN.md — Recipe page template with Svelte 5 setup, layout, components, and JSON-LD structured data
+- [x] 05-01-PLAN.md — Recipe page template with Svelte 5 setup, layout, components, and JSON-LD structured data
 - [ ] 05-02-PLAN.md — Interactive Svelte 5 islands: serving adjuster, unit toggle, cook mode
 - [ ] 05-03-PLAN.md — Print recipe card with QR code and print stylesheet
 **UI hint**: yes
