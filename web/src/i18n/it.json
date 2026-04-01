@@ -89,6 +89,11 @@
     "home": "Home",
     "searchPlaceholder": "Cerca articoli..."
   },
+  "theme": {
+    "toggle": "Cambia tema",
+    "dark": "Modalita scura",
+    "light": "Modalita chiara"
+  },
   "footer": {
     "about": "Recensioni BBQ indipendenti, ricette e tutorial per la community del grilling.",
     "sections": "Sezioni",
