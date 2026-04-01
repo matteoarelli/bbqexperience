@@ -1,0 +1,176 @@
+---
+// Menu mobile con hamburger e pannello slide-in — BBQ Experience
+import { getTranslation, localizedRoutes, locales, localeNames, getLocalizedPath } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+  currentPath: string;
+}
+
+const { locale, translations, currentPath } = Astro.props;
+
+// Link di navigazione principali
+const navLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
+---
+
+<!-- Bottone hamburger — visibile solo su mobile -->
+<button
+  id="mobile-menu-toggle"
+  class="lg:hidden relative z-50 flex flex-col items-center justify-center w-10 h-10"
+  aria-label="Menu"
+  aria-expanded="false"
+  aria-controls="mobile-menu-panel"
+>
+  <span class="hamburger-bar"></span>
+  <span class="hamburger-bar"></span>
+  <span class="hamburger-bar"></span>
+</button>
+
+<!-- Pannello slide-in a schermo intero -->
+<div
+  id="mobile-menu-panel"
+  class="mobile-panel"
+  aria-hidden="true"
+>
+  <nav class="flex flex-col items-center justify-center h-full gap-8">
+    {navLinks.map((key) => (
+      <a
+        href={`/${locale}/${localizedRoutes[key][locale]}/`}
+        class="mobile-nav-link"
+      >
+        {getTranslation(translations, `nav.${key}`)}
+      </a>
+    ))}
+
+    <!-- Separatore -->
+    <div class="w-16 h-0.5 my-4" style="background: linear-gradient(90deg, var(--color-accent-fire), var(--color-accent-amber));"></div>
+
+    <!-- Selezione lingua -->
+    <div class="flex gap-6">
+      {locales.map((loc) => (
+        <a
+          href={getLocalizedPath(currentPath, loc)}
+          class="mobile-lang-link"
+          aria-current={loc === locale ? 'page' : undefined}
+          style={loc === locale ? 'color: var(--color-accent-fire); font-weight: 700;' : ''}
+        >
+          {localeNames[loc]}
+        </a>
+      ))}
+    </div>
+  </nav>
+</div>
+
+<style>
+  .hamburger-bar {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background-color: var(--color-text-primary);
+    transition: transform var(--transition-base), opacity var(--transition-base);
+  }
+
+  .hamburger-bar + .hamburger-bar {
+    margin-top: 6px;
+  }
+
+  /* Stato aperto — X */
+  .menu-open .hamburger-bar:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .menu-open .hamburger-bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-open .hamburger-bar:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  .mobile-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background-color: rgba(13, 13, 13, 0.98);
+    transform: translateX(100%);
+    transition: transform 300ms ease;
+  }
+
+  .mobile-panel.is-open {
+    transform: translateX(0);
+  }
+
+  .mobile-nav-link {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .mobile-nav-link:hover {
+    color: var(--color-accent-fire);
+  }
+
+  .mobile-lang-link {
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .mobile-lang-link:hover {
+    color: var(--color-text-primary);
+  }
+</style>
+
+<script>
+  // Logica toggle menu mobile
+  const toggle = document.getElementById('mobile-menu-toggle');
+  const panel = document.getElementById('mobile-menu-panel');
+
+  if (toggle && panel) {
+    function openMenu() {
+      toggle!.classList.add('menu-open');
+      toggle!.setAttribute('aria-expanded', 'true');
+      panel!.classList.add('is-open');
+      panel!.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      toggle!.classList.remove('menu-open');
+      toggle!.setAttribute('aria-expanded', 'false');
+      panel!.classList.remove('is-open');
+      panel!.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    // Toggle al click sull'hamburger
+    toggle.addEventListener('click', () => {
+      const isOpen = toggle.getAttribute('aria-expanded') === 'true';
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    // Chiudi al click su un link
+    panel.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => closeMenu());
+    });
+
+    // Chiudi con Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMenu();
+    });
+  }
+</script>

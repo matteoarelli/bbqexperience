@@ -11,7 +11,7 @@ interface Props {
 const { currentLocale, currentPath } = Astro.props;
 ---
 
-<div style="position:fixed;top:0;right:0;padding:1rem;z-index:50;">
+<div style="position:relative;">
   <nav aria-label="Language selector" style="display:inline-flex;gap:1rem;font-size:0.875rem;text-transform:uppercase;letter-spacing:0.05em;">
     {locales.map((locale) => (
       <a

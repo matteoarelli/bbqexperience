@@ -1,0 +1,134 @@
+---
+// Footer del sito — sezioni, social, copyright
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { locale, translations } = Astro.props;
+
+const currentYear = new Date().getFullYear();
+
+// Link di navigazione per il footer
+const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
+---
+
+<footer style="background-color: var(--color-bg-primary); border-top: 1px solid var(--color-border-subtle); padding-top: var(--space-16); padding-bottom: var(--space-8);">
+  <div class="container-bbq">
+    <!-- Griglia principale: 1 col mobile, 4 col desktop -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-12 lg:gap-8">
+
+      <!-- Colonna 1: Logo + descrizione -->
+      <div>
+        <a href={`/${locale}/`} class="inline-flex items-center gap-0 mb-4" style="text-decoration: none;">
+          <span style="font-family: var(--font-heading); font-size: var(--text-xl); font-weight: 900; text-transform: uppercase; color: var(--color-accent-fire);">BBQ</span>
+          <span style="font-family: var(--font-heading); font-size: var(--text-xl); font-weight: 900; text-transform: uppercase; color: var(--color-text-primary);">EXP</span>
+        </a>
+        <p class="footer-text mt-4">
+          {getTranslation(translations, 'footer.about')}
+        </p>
+      </div>
+
+      <!-- Colonna 2: Sezioni -->
+      <div>
+        <h4 class="footer-heading">{getTranslation(translations, 'footer.sections')}</h4>
+        <ul class="space-y-3">
+          {sectionLinks.map((key) => (
+            <li>
+              <a
+                href={`/${locale}/${localizedRoutes[key][locale]}/`}
+                class="footer-link"
+              >
+                {getTranslation(translations, `nav.${key}`)}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Colonna 3: Connect / Social -->
+      <div>
+        <h4 class="footer-heading">{getTranslation(translations, 'footer.connect')}</h4>
+        <ul class="space-y-3">
+          <li>
+            <a
+              href="https://instagram.com/bbqexperience"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="footer-link inline-flex items-center gap-2"
+            >
+              <!-- Icona Instagram (SVG inline) -->
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+              Instagram
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://instagram.com/bbqexperience"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="footer-link"
+            >
+              {getTranslation(translations, 'common.followUs')}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Colonna 4: Legal -->
+      <div>
+        <h4 class="footer-heading">{getTranslation(translations, 'footer.legal')}</h4>
+        <ul class="space-y-3">
+          <li><a href={`/${locale}/privacy/`} class="footer-link">Privacy Policy</a></li>
+          <li><a href={`/${locale}/terms/`} class="footer-link">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Barra inferiore -->
+    <div class="border-t mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4" style="border-color: var(--color-border-subtle);">
+      <p class="footer-text text-center sm:text-left">
+        &copy; {currentYear} BBQ Experience. {getTranslation(translations, 'common.copyright')}
+      </p>
+      <p style="color: var(--color-accent-fire); font-family: var(--font-heading); font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.05em;">
+        Made with fire 🔥
+      </p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent-fire);
+    margin-bottom: var(--space-4);
+  }
+
+  .footer-link {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    transition: color var(--transition-fast);
+  }
+
+  .footer-link:hover {
+    color: var(--color-text-primary);
+  }
+
+  .footer-text {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+</style>

@@ -1,0 +1,42 @@
+---
+// Navigazione desktop — BBQ Experience
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { locale, translations } = Astro.props;
+
+// Link di navigazione principali
+const navLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
+---
+
+<nav role="navigation" aria-label="Main navigation" class="hidden lg:flex items-center gap-8">
+  {navLinks.map((key) => (
+    <a
+      href={`/${locale}/${localizedRoutes[key][locale]}/`}
+      class="nav-link"
+    >
+      {getTranslation(translations, `nav.${key}`)}
+    </a>
+  ))}
+</nav>
+
+<style>
+  .nav-link {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+    transition: color var(--transition-fast);
+    text-decoration: none;
+  }
+
+  .nav-link:hover {
+    color: var(--color-accent-fire);
+  }
+</style>
