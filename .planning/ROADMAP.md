@@ -67,7 +67,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 03-01-PLAN.md — Strapi API client, TypeScript types, and media URL helpers
-- [ ] 03-02-PLAN.md — Draft preview system with hybrid SSR and review page template
+- [x] 03-02-PLAN.md — Draft preview system with hybrid SSR and review page template
 
 ### Phase 4: Review Pages
 **Goal**: Users can read the most complete BBQ product reviews online -- with structured scoring, editorial deep-dives, technical specs, photo galleries, and verdict cards

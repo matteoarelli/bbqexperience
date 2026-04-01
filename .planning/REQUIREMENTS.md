@@ -74,7 +74,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CMS-02**: CMS supports multilingual content entry (EN, IT, ES) per content item
 - [x] **CMS-03**: CMS has media library with image upload, optimization, and management
 - [x] **CMS-04**: Content changes trigger automatic site rebuild and deploy via webhook
-- [ ] **CMS-05**: Author can preview draft content before publishing
+- [x] **CMS-05**: Author can preview draft content before publishing
 
 ## v2 Requirements
 
@@ -163,7 +163,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CMS-02 | Phase 3 | Complete |
 | CMS-03 | Phase 3 | Complete |
 | CMS-04 | Phase 1 | Complete |
-| CMS-05 | Phase 3 | Pending |
+| CMS-05 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 48 total
