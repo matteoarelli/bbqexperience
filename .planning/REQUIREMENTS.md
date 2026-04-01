@@ -1,0 +1,175 @@
+# Requirements: BBQ Experience
+
+**Defined:** 2026-04-01
+**Core Value:** The most complete, visually striking, and trustworthy BBQ product review destination online
+
+## v1 Requirements
+
+Requirements for initial release. Each maps to roadmap phases.
+
+### Reviews
+
+- [ ] **REV-01**: User can view product review with overall score and per-category scores (build quality, performance, value, ease of use)
+- [ ] **REV-02**: User can read editorial deep-dive opinion on each reviewed product
+- [ ] **REV-03**: User can view technical specifications table with pros/cons for each product
+- [ ] **REV-04**: User can browse product photo gallery with zoom/lightbox
+- [ ] **REV-05**: User can view condensed review verdict card (score, one-line verdict, pros/cons, product photo)
+- [ ] **REV-06**: User can compare 2-5 reviewed products side-by-side across all scoring categories and specs
+- [ ] **REV-07**: User can see animated scoring visualizations (radial progress bars, flame-themed gauges) on review pages
+- [ ] **REV-08**: Review pages include Product + Review + AggregateRating Schema.org structured data (JSON-LD)
+
+### Recipes
+
+- [ ] **REC-01**: User can view recipe with ingredients list, step-by-step instructions, prep/cook/total time, difficulty level, servings
+- [ ] **REC-02**: User can see photos for each recipe step
+- [ ] **REC-03**: User can click "Jump to Recipe" button to skip editorial intro
+- [ ] **REC-04**: User can activate Cook Mode (keep-screen-awake, large text, step-by-step progression, minimal UI)
+- [ ] **REC-05**: User can adjust serving size and see ingredients recalculate automatically
+- [ ] **REC-06**: User can print a clean recipe card (ingredients + steps only, QR code back to full page)
+- [ ] **REC-07**: User can toggle between metric and imperial units across recipe content
+- [ ] **REC-08**: Recipe pages include Recipe Schema.org structured data (JSON-LD) with prepTime, cookTime, ingredients, instructions
+
+### Content
+
+- [ ] **CNT-01**: User can browse tutorial/guide articles covering BBQ techniques, equipment selection, and knowledge
+- [ ] **CNT-02**: User can browse blog/news articles about BBQ world updates, events, and trends
+- [ ] **CNT-03**: User can navigate content via categories and taxonomy (product type, meat type, technique, etc.)
+- [ ] **CNT-04**: User can navigate via breadcrumb trail on all content pages
+- [ ] **CNT-05**: User can see reading time estimate on all article pages
+- [ ] **CNT-06**: User can search content by keyword with results filtered by content type (reviews, recipes, tutorials, blog)
+- [ ] **CNT-07**: User sees related content suggestions cross-linking reviews ↔ recipes ↔ tutorials
+- [ ] **CNT-08**: User sees featured/seasonal content curated by author on homepage hero section
+- [ ] **CNT-09**: User can see reading progress indicator (sticky bar) on long-form content with section navigation
+- [ ] **CNT-10**: Tutorial and blog pages include Article Schema.org structured data (JSON-LD)
+
+### Design & UX
+
+- [ ] **DES-01**: Site has bold/street BBQ design with dark theme default (dark grays, fire/amber/smoke accents)
+- [ ] **DES-02**: Site features scroll-triggered animations, micro-interactions, and kinetic typography for WOW factor
+- [ ] **DES-03**: Site is responsive mobile-first (designed for phone screens where IG traffic lands)
+- [ ] **DES-04**: Site achieves 90+ Lighthouse score across all metrics (Performance, Accessibility, Best Practices, SEO)
+- [ ] **DES-05**: Images served in WebP/AVIF with lazy loading, responsive srcset, and proper alt text
+- [ ] **DES-06**: User can toggle between dark mode (default) and light mode
+- [ ] **DES-07**: Branded 404 error page with search and navigation
+- [ ] **DES-08**: All pages include social sharing buttons (copy link, WhatsApp, Instagram, X)
+
+### Instagram & Media
+
+- [ ] **IGM-01**: Homepage and relevant pages display curated Instagram posts/reels from BBQ Experience account
+- [ ] **IGM-02**: Author can embed specific IG posts/reels within review and recipe articles
+- [ ] **IGM-03**: Site includes CTAs driving readers to follow/engage on Instagram
+- [ ] **IGM-04**: YouTube and Instagram reels can be embedded within any content (lite-embed for performance)
+
+### Multilingual & SEO
+
+- [ ] **SEO-01**: Site supports English (primary), Italian, and Spanish with language switcher
+- [ ] **SEO-02**: Clean localized URL structure (/en/, /it/, /es/) with proper hreflang and canonical tags
+- [ ] **SEO-03**: Per-locale XML sitemaps submitted to search engines
+- [ ] **SEO-04**: BreadcrumbList Schema.org structured data on all pages
+- [ ] **SEO-05**: Open Graph and Twitter Card meta tags for social sharing previews on all content
+
+### CMS & Admin
+
+- [ ] **CMS-01**: Author can create/edit/publish all content types (reviews, recipes, tutorials, blog) via headless CMS
+- [ ] **CMS-02**: CMS supports multilingual content entry (EN, IT, ES) per content item
+- [ ] **CMS-03**: CMS has media library with image upload, optimization, and management
+- [ ] **CMS-04**: Content changes trigger automatic site rebuild and deploy via webhook
+- [ ] **CMS-05**: Author can preview draft content before publishing
+
+## v2 Requirements
+
+Deferred to future release. Tracked but not in current roadmap.
+
+### Monetization
+
+- **MON-01**: Affiliate links on reviewed products (Amazon, specialty stores)
+- **MON-02**: Sponsored content support with clear labeling
+- **MON-03**: Newsletter signup with email marketing integration
+
+### Enhanced Features
+
+- **ENH-01**: Nutrition information on recipes
+- **ENH-02**: Affiliate price tracking / price comparison widgets
+- **ENH-03**: PWA support for offline recipe access
+- **ENH-04**: Video reviews (own YouTube channel integration)
+
+## Out of Scope
+
+Explicitly excluded. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| User accounts / registration | Community lives on Instagram. Adds auth complexity, GDPR overhead, security liability for zero value |
+| Comment system | Requires moderation single author can't sustain. Comments on review sites become arguments |
+| Forum / community features | Community already exists on Instagram (74k). Building parallel community fragments engagement |
+| E-commerce / product sales | Distracts from editorial authority. Adds payment/inventory/shipping complexity |
+| Ad placements | Destroys premium editorial feel, hurts Core Web Vitals, undermines review trust |
+| AI chatbot / recommendation engine | Over-engineering for content site. Good taxonomy + search handles discovery |
+| Real-time features | No use case for single-author editorial site |
+| User reviews / ratings | Undermines editorial authority. One expert voice is the brand |
+| Multi-author workflow | Single author. Multi-author adds unnecessary roles/permissions complexity |
+| Mobile app | Web-first, responsive design covers mobile |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| REV-01 | TBD | Pending |
+| REV-02 | TBD | Pending |
+| REV-03 | TBD | Pending |
+| REV-04 | TBD | Pending |
+| REV-05 | TBD | Pending |
+| REV-06 | TBD | Pending |
+| REV-07 | TBD | Pending |
+| REV-08 | TBD | Pending |
+| REC-01 | TBD | Pending |
+| REC-02 | TBD | Pending |
+| REC-03 | TBD | Pending |
+| REC-04 | TBD | Pending |
+| REC-05 | TBD | Pending |
+| REC-06 | TBD | Pending |
+| REC-07 | TBD | Pending |
+| REC-08 | TBD | Pending |
+| CNT-01 | TBD | Pending |
+| CNT-02 | TBD | Pending |
+| CNT-03 | TBD | Pending |
+| CNT-04 | TBD | Pending |
+| CNT-05 | TBD | Pending |
+| CNT-06 | TBD | Pending |
+| CNT-07 | TBD | Pending |
+| CNT-08 | TBD | Pending |
+| CNT-09 | TBD | Pending |
+| CNT-10 | TBD | Pending |
+| DES-01 | TBD | Pending |
+| DES-02 | TBD | Pending |
+| DES-03 | TBD | Pending |
+| DES-04 | TBD | Pending |
+| DES-05 | TBD | Pending |
+| DES-06 | TBD | Pending |
+| DES-07 | TBD | Pending |
+| DES-08 | TBD | Pending |
+| IGM-01 | TBD | Pending |
+| IGM-02 | TBD | Pending |
+| IGM-03 | TBD | Pending |
+| IGM-04 | TBD | Pending |
+| SEO-01 | TBD | Pending |
+| SEO-02 | TBD | Pending |
+| SEO-03 | TBD | Pending |
+| SEO-04 | TBD | Pending |
+| SEO-05 | TBD | Pending |
+| CMS-01 | TBD | Pending |
+| CMS-02 | TBD | Pending |
+| CMS-03 | TBD | Pending |
+| CMS-04 | TBD | Pending |
+| CMS-05 | TBD | Pending |
+
+**Coverage:**
+- v1 requirements: 45 total
+- Mapped to phases: 0
+- Unmapped: 45 ⚠️
+
+---
+*Requirements defined: 2026-04-01*
+*Last updated: 2026-04-01 after initial definition*
