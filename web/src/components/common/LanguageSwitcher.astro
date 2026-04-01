@@ -1,0 +1,28 @@
+---
+// Componente per il cambio lingua — BBQ Experience
+import { locales, localeNames, getLocalizedPath } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  currentLocale: Locale;
+  currentPath: string;
+}
+
+const { currentLocale, currentPath } = Astro.props;
+---
+
+<div style="position:fixed;top:0;right:0;padding:1rem;z-index:50;">
+  <nav aria-label="Language selector" style="display:inline-flex;gap:1rem;font-size:0.875rem;text-transform:uppercase;letter-spacing:0.05em;">
+    {locales.map((locale) => (
+      <a
+        href={getLocalizedPath(currentPath, locale)}
+        aria-current={locale === currentLocale ? 'page' : undefined}
+        style={locale === currentLocale
+          ? 'color:#F97316;font-weight:700;text-decoration:none;'
+          : 'color:#A8A29E;text-decoration:none;'}
+      >
+        {localeNames[locale]}
+      </a>
+    ))}
+  </nav>
+</div>

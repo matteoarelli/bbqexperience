@@ -1,0 +1,28 @@
+---
+// Homepage espanola — BBQ Experience
+import { getTranslation, loadTranslations } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+import LanguageSwitcher from '@components/common/LanguageSwitcher.astro';
+
+const locale: Locale = 'es';
+const t = await loadTranslations(locale);
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{getTranslation(t, 'site.name')} - {getTranslation(t, 'site.tagline')}</title>
+    <link rel="alternate" hreflang="en" href="https://bbqexperience.com/en/" />
+    <link rel="alternate" hreflang="it" href="https://bbqexperience.com/it/" />
+    <link rel="alternate" hreflang="es" href="https://bbqexperience.com/es/" />
+    <link rel="alternate" hreflang="x-default" href="https://bbqexperience.com/en/" />
+  </head>
+  <body style="background:#0D0D0D;color:#F5F5F4;font-family:system-ui;margin:0;">
+    <LanguageSwitcher currentLocale={locale} currentPath="/es/" />
+    <main style="max-width:1280px;margin:0 auto;padding:2rem;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+      <h1 style="font-size:3rem;font-weight:900;text-transform:uppercase;">{getTranslation(t, 'hero.title')}</h1>
+      <p style="font-size:1.25rem;color:#D6D3D1;margin-top:1rem;">{getTranslation(t, 'hero.subtitle')}</p>
+    </main>
+  </body>
+</html>
