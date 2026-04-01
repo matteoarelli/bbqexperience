@@ -1,0 +1,64 @@
+---
+/**
+ * Istruzioni della ricetta — lista numerata con foto opzionali per ogni passaggio
+ */
+import type { RecipeInstruction } from '@lib/types';
+import { getStrapiMediaURL, getStrapiMediaAlt } from '@lib/media';
+
+interface Props {
+  instructions: RecipeInstruction[] | null;
+}
+
+const { instructions } = Astro.props;
+
+// Non renderizzare nulla se non ci sono istruzioni
+if (!instructions || instructions.length === 0) {
+  return;
+}
+
+// Ordina per numero di step
+const sortedSteps = [...instructions].sort((a, b) => a.step - b.step);
+---
+
+<ol class="space-y-8 list-none p-0 m-0">
+  {sortedSteps.map((instruction) => {
+    const stepImageUrl = instruction.image ? getStrapiMediaURL(instruction.image) : null;
+    const stepImageAlt = instruction.image ? getStrapiMediaAlt(instruction.image) || `Step ${instruction.step}` : '';
+
+    return (
+      <li class="flex gap-4">
+        {/* Cerchio con numero dello step */}
+        <div
+          class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
+          style={`
+            background-color: var(--color-accent-fire);
+            color: var(--color-text-inverse);
+            font-family: var(--font-heading);
+          `}
+        >
+          {instruction.step}
+        </div>
+
+        <div class="flex-1 min-w-0">
+          {/* Testo dell'istruzione */}
+          <p
+            class="leading-relaxed"
+            style="color: var(--color-text-primary); font-family: var(--font-body);"
+          >
+            {instruction.text}
+          </p>
+
+          {/* Immagine opzionale dello step */}
+          {stepImageUrl && (
+            <img
+              src={stepImageUrl}
+              alt={stepImageAlt}
+              class="mt-3 w-full max-w-full rounded-lg object-cover"
+              loading="lazy"
+            />
+          )}
+        </div>
+      </li>
+    );
+  })}
+</ol>

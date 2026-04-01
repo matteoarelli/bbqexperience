@@ -1,0 +1,128 @@
+---
+/**
+ * Header della ricetta — immagine di copertina, titolo, metadati (tempi, difficolta, porzioni)
+ */
+import type { StrapiMedia } from '@lib/types';
+import { getStrapiMediaURL, getStrapiMediaAlt } from '@lib/media';
+
+interface Props {
+  title: string;
+  coverImage: StrapiMedia | null;
+  prepTime: number | null;
+  cookTime: number | null;
+  totalTime: number | null;
+  difficulty: string | null;
+  servings: number | null;
+  meatType: string | null;
+  technique: string | null;
+}
+
+const {
+  title,
+  coverImage,
+  prepTime,
+  cookTime,
+  totalTime,
+  difficulty,
+  servings,
+  meatType,
+  technique,
+} = Astro.props;
+
+const coverUrl = getStrapiMediaURL(coverImage);
+const coverAlt = getStrapiMediaAlt(coverImage) || title;
+
+// Formatta minuti in stringa leggibile
+function formatTime(minutes: number): string {
+  if (minutes < 60) return `${minutes} min`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}min` : `${h}h`;
+}
+
+// Colori per i badge di difficolta
+const difficultyColors: Record<string, string> = {
+  easy: 'bg-green-600 text-green-100',
+  medium: 'bg-amber-600 text-amber-100',
+  hard: 'bg-orange-600 text-orange-100',
+  expert: 'bg-red-600 text-red-100',
+};
+
+const difficultyClass = difficulty ? difficultyColors[difficulty] || '' : '';
+---
+
+<header class="mb-8">
+  {coverUrl && (
+    <img
+      src={coverUrl}
+      alt={coverAlt}
+      class="w-full rounded-lg aspect-video object-cover mb-6"
+      loading="eager"
+    />
+  )}
+
+  <h1
+    class="text-3xl font-bold mb-4 uppercase tracking-wide"
+    style="font-family: var(--font-heading); color: var(--color-text-primary);"
+  >
+    {title}
+  </h1>
+
+  <!-- Barra metadati -->
+  <div class="flex flex-wrap items-center gap-4 text-sm" style="color: var(--color-text-secondary);">
+    {prepTime != null && (
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
+        </svg>
+        <span>Prep: {formatTime(prepTime)}</span>
+      </div>
+    )}
+
+    {cookTime != null && (
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+        </svg>
+        <span>Cook: {formatTime(cookTime)}</span>
+      </div>
+    )}
+
+    {totalTime != null && (
+      <div class="flex items-center gap-1.5 font-semibold" style="color: var(--color-accent-amber);">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Total: {formatTime(totalTime)}</span>
+      </div>
+    )}
+
+    {difficulty && (
+      <span class={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${difficultyClass}`}>
+        {difficulty}
+      </span>
+    )}
+
+    {servings != null && (
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span>{servings} servings</span>
+      </div>
+    )}
+
+    {meatType && (
+      <span class="px-2 py-0.5 rounded text-xs uppercase tracking-wider" style="background-color: var(--color-bg-tertiary);">
+        {meatType}
+      </span>
+    )}
+
+    {technique && (
+      <span class="px-2 py-0.5 rounded text-xs uppercase tracking-wider" style="background-color: var(--color-bg-tertiary);">
+        {technique}
+      </span>
+    )}
+  </div>
+</header>

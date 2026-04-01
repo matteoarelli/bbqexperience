@@ -1,0 +1,87 @@
+---
+/**
+ * Schema.org Recipe JSON-LD — dati strutturati per i motori di ricerca
+ * Genera markup conforme a https://schema.org/Recipe
+ */
+import type { StrapiRecipe, StrapiEntity } from '@lib/types';
+import { getStrapiMediaURL } from '@lib/media';
+
+interface Props {
+  recipe: StrapiRecipe & StrapiEntity;
+  locale: string;
+  siteUrl?: string;
+}
+
+const { recipe, locale, siteUrl = 'https://bbqexperience.com' } = Astro.props;
+
+/**
+ * Converte minuti in formato ISO 8601 duration (es. 90 -> "PT1H30M")
+ */
+function minutesToISO8601(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h > 0 && m > 0) return `PT${h}H${m}M`;
+  if (h > 0) return `PT${h}H`;
+  return `PT${m}M`;
+}
+
+// Costruisci l'URL assoluto dell'immagine di copertina
+const coverImageUrl = getStrapiMediaURL(recipe.cover_image);
+const absoluteImageUrl = coverImageUrl
+  ? coverImageUrl.startsWith('http')
+    ? coverImageUrl
+    : `${siteUrl}${coverImageUrl}`
+  : undefined;
+
+// Formatta gli ingredienti come array di stringhe
+const recipeIngredients = recipe.ingredients
+  ? recipe.ingredients.map((ing) => `${ing.quantity} ${ing.unit} ${ing.name}`.trim())
+  : [];
+
+// Formatta le istruzioni come array di HowToStep
+const recipeInstructions = recipe.instructions
+  ? recipe.instructions
+      .sort((a, b) => a.step - b.step)
+      .map((inst) => {
+        const stepImage = inst.image ? getStrapiMediaURL(inst.image) : undefined;
+        const step: Record<string, unknown> = {
+          '@type': 'HowToStep',
+          name: `Step ${inst.step}`,
+          text: inst.text,
+        };
+        if (stepImage) {
+          step.image = stepImage.startsWith('http') ? stepImage : `${siteUrl}${stepImage}`;
+        }
+        return step;
+      })
+  : [];
+
+// Assembla l'oggetto JSON-LD
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Recipe',
+  name: recipe.title,
+  description: recipe.excerpt || undefined,
+  image: absoluteImageUrl,
+  author: {
+    '@type': 'Organization',
+    name: 'BBQ Experience',
+  },
+  datePublished: recipe.published_date || undefined,
+  recipeCategory: recipe.technique || undefined,
+  recipeIngredient: recipeIngredients.length > 0 ? recipeIngredients : undefined,
+  recipeInstructions: recipeInstructions.length > 0 ? recipeInstructions : undefined,
+  inLanguage: locale,
+};
+
+// Aggiungi campi opzionali solo se presenti
+if (recipe.prep_time != null) jsonLd.prepTime = minutesToISO8601(recipe.prep_time);
+if (recipe.cook_time != null) jsonLd.cookTime = minutesToISO8601(recipe.cook_time);
+if (recipe.total_time != null) jsonLd.totalTime = minutesToISO8601(recipe.total_time);
+if (recipe.servings != null) jsonLd.recipeYield = `${recipe.servings} servings`;
+
+// Rimuovi campi undefined per un JSON pulito
+const cleanJsonLd = JSON.parse(JSON.stringify(jsonLd));
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(cleanJsonLd, null, 2)} />

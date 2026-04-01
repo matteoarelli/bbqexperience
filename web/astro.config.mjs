@@ -6,7 +6,7 @@ import node from '@astrojs/node';
 
 export default defineConfig({
   site: 'https://bbqexperience.com',
-  output: 'hybrid',
+  output: 'static',
   adapter: node({ mode: 'standalone' }),
   integrations: [sitemap(), svelte()],
   vite: {
