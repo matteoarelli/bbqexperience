@@ -1,0 +1,79 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+/* Import font */
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/oswald";
+
+/* Tema globale BBQ Experience */
+@layer base {
+  html {
+    font-family: var(--font-body);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100dvh;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--color-text-primary);
+  }
+
+  a {
+    color: var(--color-accent-fire);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  a:hover {
+    color: var(--color-accent-amber);
+  }
+
+  ::selection {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+/* Utilita personalizzate */
+@layer utilities {
+  .container-bbq {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--container-padding);
+  }
+
+  .text-gradient-fire {
+    background: linear-gradient(135deg, var(--color-accent-fire), var(--color-accent-amber));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bg-gradient-dark {
+    background: linear-gradient(180deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+  }
+
+  .border-glow-fire {
+    border: 1px solid var(--color-accent-fire);
+    box-shadow: var(--shadow-glow-fire);
+  }
+}

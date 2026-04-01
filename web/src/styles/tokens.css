@@ -1,0 +1,84 @@
+/* Token di design — BBQ Experience palette */
+:root {
+  /* Colori primari — dark theme */
+  --color-bg-primary: #0D0D0D;
+  --color-bg-secondary: #1A1A1A;
+  --color-bg-tertiary: #262626;
+  --color-bg-elevated: #2D2D2D;
+
+  /* Colori accento — fuoco/ambra/fumo */
+  --color-accent-fire: #F97316;
+  --color-accent-amber: #F59E0B;
+  --color-accent-ember: #EA580C;
+  --color-accent-smoke: #78716C;
+  --color-accent-ash: #A8A29E;
+  --color-accent-gold: #FCD34D;
+
+  /* Testo */
+  --color-text-primary: #F5F5F4;
+  --color-text-secondary: #D6D3D1;
+  --color-text-muted: #A8A29E;
+  --color-text-inverse: #0D0D0D;
+
+  /* Bordi e separatori */
+  --color-border-default: #404040;
+  --color-border-subtle: #2D2D2D;
+  --color-border-accent: #F97316;
+
+  /* Spaziatura (sistema a 4px) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* Tipografia */
+  --font-heading: 'Oswald Variable', 'Impact', sans-serif;
+  --font-body: 'Inter Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Font sizes (fluid scale) */
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --text-base: clamp(1rem, 0.925rem + 0.375vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.625vw, 1.375rem);
+  --text-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.625rem);
+  --text-2xl: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+  --text-3xl: clamp(1.875rem, 1.4rem + 2.375vw, 3rem);
+  --text-4xl: clamp(2.25rem, 1.5rem + 3.75vw, 4.5rem);
+  --text-5xl: clamp(3rem, 2rem + 5vw, 6rem);
+
+  /* Raggi bordo */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Ombre */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+  --shadow-glow-fire: 0 0 20px rgba(249, 115, 22, 0.3);
+  --shadow-glow-amber: 0 0 20px rgba(245, 158, 11, 0.3);
+
+  /* Transizioni */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* Breakpoints (riferimento, Tailwind li gestisce) */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+
+  /* Container */
+  --container-max: 1280px;
+  --container-padding: var(--space-4);
+}
