@@ -142,7 +142,11 @@ Plans:
   1. User can select 2-5 reviewed products and compare them side-by-side across all scoring categories and specifications
   2. Review pages display animated scoring visualizations (radial progress bars, flame-themed gauges) that animate on scroll
   3. User can toggle between dark mode (default) and light mode, with preference persisted across sessions
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 08-01-PLAN.md — Dark/light mode toggle with light theme tokens and localStorage persistence
+- [ ] 08-02-PLAN.md — Animated scoring visualizations (FlameGauge + radial progress bars) on review pages
+- [ ] 08-03-PLAN.md — Product comparison tool with side-by-side table and shareable URLs
 **UI hint**: yes
 
 ### Phase 9: SEO Audit, Performance & Launch
@@ -172,5 +176,5 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 | 5. Recipe Pages | 3/3 | Complete | 2026-04-01 |
 | 6. Content Pages & Discovery | 0/4 | Planning complete | - |
 | 7. Instagram & Social Integration | 0/2 | Planning complete | - |
-| 8. Product Comparison & Advanced Interactions | 0/TBD | Not started | - |
+| 8. Product Comparison & Advanced Interactions | 0/3 | Planning complete | - |
 | 9. SEO Audit, Performance & Launch | 0/TBD | Not started | - |
