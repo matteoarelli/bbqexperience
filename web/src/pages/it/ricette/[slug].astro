@@ -1,0 +1,122 @@
+---
+/**
+ * Pagina ricetta (IT) — Template completo con intro editoriale, ingredienti,
+ * istruzioni passo-passo, e dati strutturati JSON-LD per SEO.
+ * SSR per supportare la modalita anteprima con contenuti draft.
+ */
+import { fetchBySlug } from '@lib/strapi';
+import type { StrapiRecipe } from '@lib/types';
+import { getStrapiMediaURL } from '@lib/media';
+import { getContentStatus } from '@lib/preview';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import JumpToRecipe from '@components/recipe/JumpToRecipe.astro';
+import RecipeHeader from '@components/recipe/RecipeHeader.astro';
+import RecipeInstructions from '@components/recipe/RecipeInstructions.astro';
+import RecipeJsonLd from '@components/recipe/RecipeJsonLd.astro';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const status = getContentStatus(Astro.cookies);
+const recipe = await fetchBySlug<StrapiRecipe>('recipes', slug!, {
+  locale: 'it',
+  populate: '*',
+  status,
+});
+
+if (!recipe) {
+  return Astro.redirect('/it/');
+}
+
+const coverImageUrl = getStrapiMediaURL(recipe.cover_image);
+const pageTitle = recipe.seo_title || recipe.title;
+const pageDescription = recipe.seo_description || recipe.excerpt || '';
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  locale="it"
+  canonicalPath={`/it/ricette/${recipe.slug}`}
+  ogImage={coverImageUrl || ''}
+>
+  {status === 'draft' && (
+    <div class="bg-amber-500 text-black text-center py-2 px-4 font-bold text-sm">
+      MODALITA ANTEPRIMA — Questo contenuto non e pubblicato
+      <a href="/api/preview?action=exit" class="underline ml-4">Esci dall'anteprima</a>
+    </div>
+  )}
+
+  <article class="max-w-3xl mx-auto px-4 py-12" style="color: var(--color-text-primary);">
+    <JumpToRecipe label="Vai alla Ricetta" totalTime={recipe.total_time} />
+
+    {/* Sezione intro editoriale */}
+    {recipe.editorial_intro && (
+      <div
+        class="prose prose-invert max-w-none mb-12"
+        style="color: var(--color-text-secondary);"
+        set:html={recipe.editorial_intro}
+      />
+    )}
+
+    {/* Card ricetta principale */}
+    <div id="recipe-card" class="rounded-xl p-6 md:p-8" style="background-color: var(--color-bg-secondary); border: 1px solid var(--color-border-subtle);">
+      <RecipeHeader
+        title={recipe.title}
+        coverImage={recipe.cover_image}
+        prepTime={recipe.prep_time}
+        cookTime={recipe.cook_time}
+        totalTime={recipe.total_time}
+        difficulty={recipe.difficulty}
+        servings={recipe.servings}
+        meatType={recipe.meat_type}
+        technique={recipe.technique}
+      />
+
+      {/* Sezione ingredienti */}
+      {recipe.ingredients && recipe.ingredients.length > 0 && (
+        <section class="mb-10" id="ingredients-section">
+          <h2
+            class="text-2xl font-bold mb-4 uppercase tracking-wide"
+            style="font-family: var(--font-heading); color: var(--color-accent-amber);"
+          >
+            Ingredienti
+          </h2>
+          <div
+            id="recipe-ingredients-mount"
+            data-ingredients={JSON.stringify(recipe.ingredients)}
+            data-servings={recipe.servings?.toString()}
+          >
+            <ul class="space-y-2" style="color: var(--color-text-primary);">
+              {recipe.ingredients.map((ing) => (
+                <li class="flex items-baseline gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2" style="background-color: var(--color-accent-fire);" />
+                  <span>
+                    {ing.quantity && <strong>{ing.quantity}</strong>}
+                    {ing.unit && <span class="ml-1" style="color: var(--color-text-muted);">{ing.unit}</span>}
+                    <span class="ml-1">{ing.name}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* Sezione istruzioni */}
+      {recipe.instructions && recipe.instructions.length > 0 && (
+        <section class="mb-6">
+          <h2
+            class="text-2xl font-bold mb-6 uppercase tracking-wide"
+            style="font-family: var(--font-heading); color: var(--color-accent-amber);"
+          >
+            Istruzioni
+          </h2>
+          <RecipeInstructions instructions={recipe.instructions} />
+        </section>
+      )}
+    </div>
+
+    <RecipeJsonLd recipe={recipe} locale="it" />
+  </article>
+</BaseLayout>
