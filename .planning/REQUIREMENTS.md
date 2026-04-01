@@ -116,60 +116,60 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| REV-01 | TBD | Pending |
-| REV-02 | TBD | Pending |
-| REV-03 | TBD | Pending |
-| REV-04 | TBD | Pending |
-| REV-05 | TBD | Pending |
-| REV-06 | TBD | Pending |
-| REV-07 | TBD | Pending |
-| REV-08 | TBD | Pending |
-| REC-01 | TBD | Pending |
-| REC-02 | TBD | Pending |
-| REC-03 | TBD | Pending |
-| REC-04 | TBD | Pending |
-| REC-05 | TBD | Pending |
-| REC-06 | TBD | Pending |
-| REC-07 | TBD | Pending |
-| REC-08 | TBD | Pending |
-| CNT-01 | TBD | Pending |
-| CNT-02 | TBD | Pending |
-| CNT-03 | TBD | Pending |
-| CNT-04 | TBD | Pending |
-| CNT-05 | TBD | Pending |
-| CNT-06 | TBD | Pending |
-| CNT-07 | TBD | Pending |
-| CNT-08 | TBD | Pending |
-| CNT-09 | TBD | Pending |
-| CNT-10 | TBD | Pending |
-| DES-01 | TBD | Pending |
-| DES-02 | TBD | Pending |
-| DES-03 | TBD | Pending |
-| DES-04 | TBD | Pending |
-| DES-05 | TBD | Pending |
-| DES-06 | TBD | Pending |
-| DES-07 | TBD | Pending |
-| DES-08 | TBD | Pending |
-| IGM-01 | TBD | Pending |
-| IGM-02 | TBD | Pending |
-| IGM-03 | TBD | Pending |
-| IGM-04 | TBD | Pending |
-| SEO-01 | TBD | Pending |
-| SEO-02 | TBD | Pending |
-| SEO-03 | TBD | Pending |
-| SEO-04 | TBD | Pending |
-| SEO-05 | TBD | Pending |
-| CMS-01 | TBD | Pending |
-| CMS-02 | TBD | Pending |
-| CMS-03 | TBD | Pending |
-| CMS-04 | TBD | Pending |
-| CMS-05 | TBD | Pending |
+| REV-01 | Phase 4 | Pending |
+| REV-02 | Phase 4 | Pending |
+| REV-03 | Phase 4 | Pending |
+| REV-04 | Phase 4 | Pending |
+| REV-05 | Phase 4 | Pending |
+| REV-06 | Phase 8 | Pending |
+| REV-07 | Phase 8 | Pending |
+| REV-08 | Phase 4 | Pending |
+| REC-01 | Phase 5 | Pending |
+| REC-02 | Phase 5 | Pending |
+| REC-03 | Phase 5 | Pending |
+| REC-04 | Phase 5 | Pending |
+| REC-05 | Phase 5 | Pending |
+| REC-06 | Phase 5 | Pending |
+| REC-07 | Phase 5 | Pending |
+| REC-08 | Phase 5 | Pending |
+| CNT-01 | Phase 6 | Pending |
+| CNT-02 | Phase 6 | Pending |
+| CNT-03 | Phase 6 | Pending |
+| CNT-04 | Phase 6 | Pending |
+| CNT-05 | Phase 6 | Pending |
+| CNT-06 | Phase 6 | Pending |
+| CNT-07 | Phase 6 | Pending |
+| CNT-08 | Phase 6 | Pending |
+| CNT-09 | Phase 6 | Pending |
+| CNT-10 | Phase 6 | Pending |
+| DES-01 | Phase 2 | Pending |
+| DES-02 | Phase 2 | Pending |
+| DES-03 | Phase 2 | Pending |
+| DES-04 | Phase 9 | Pending |
+| DES-05 | Phase 2 | Pending |
+| DES-06 | Phase 8 | Pending |
+| DES-07 | Phase 9 | Pending |
+| DES-08 | Phase 7 | Pending |
+| IGM-01 | Phase 7 | Pending |
+| IGM-02 | Phase 7 | Pending |
+| IGM-03 | Phase 7 | Pending |
+| IGM-04 | Phase 7 | Pending |
+| SEO-01 | Phase 2 | Pending |
+| SEO-02 | Phase 2 | Pending |
+| SEO-03 | Phase 9 | Pending |
+| SEO-04 | Phase 9 | Pending |
+| SEO-05 | Phase 9 | Pending |
+| CMS-01 | Phase 3 | Pending |
+| CMS-02 | Phase 3 | Pending |
+| CMS-03 | Phase 3 | Pending |
+| CMS-04 | Phase 1 | Pending |
+| CMS-05 | Phase 3 | Pending |
 
 **Coverage:**
-- v1 requirements: 45 total
-- Mapped to phases: 0
-- Unmapped: 45 ⚠️
+- v1 requirements: 48 total
+- Mapped to phases: 48
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-01*
-*Last updated: 2026-04-01 after initial definition*
+*Last updated: 2026-04-01 after roadmap creation*
