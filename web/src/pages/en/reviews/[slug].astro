@@ -41,7 +41,7 @@ if (!review) {
 const coverImage = getStrapiMediaURL(review.gallery?.[0]);
 const coverImageAlt = getStrapiMediaAlt(review.gallery?.[0]) || review.title;
 const productImage = review.product?.images?.[0] ? getStrapiMediaURL(review.product.images[0]) : coverImage;
-const siteUrl = import.meta.env.SITE || 'https://bbqexperience.it';
+const siteUrl = import.meta.env.SITE || 'https://bbqexperience.com';
 const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience.com').href;
 
 // Breadcrumbs

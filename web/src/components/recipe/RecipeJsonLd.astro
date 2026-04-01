@@ -31,7 +31,7 @@ const absoluteImageUrl = coverImageUrl
   ? coverImageUrl.startsWith('http')
     ? coverImageUrl
     : `${siteUrl}${coverImageUrl}`
-  : 'https://bbqexperience.com/placeholder-recipe.png';
+  : undefined;
 
 // Formatta gli ingredienti come array di stringhe
 const recipeIngredients = recipe.ingredients

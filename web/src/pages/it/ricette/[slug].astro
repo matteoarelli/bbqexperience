@@ -19,6 +19,8 @@ import PrintRecipeCard from '@components/recipe/PrintRecipeCard.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
 import { loadTranslations, getTranslation } from '@lib/i18n';
 import '@styles/print.css';
 
@@ -57,6 +59,8 @@ const breadcrumbItems = [
   canonicalPath={`/it/ricette/${recipe.slug}`}
   ogImage={coverImageUrl || ''}
 >
+  <Header slot="header" locale="it" translations={translations} currentPath={Astro.url.pathname} />
+
   {status === 'draft' && (
     <div class="bg-amber-500 text-black text-center py-2 px-4 font-bold text-sm">
       MODALITA ANTEPRIMA — Questo contenuto non e pubblicato
@@ -144,4 +148,6 @@ const breadcrumbItems = [
     <RecipeJsonLd recipe={recipe} locale="it" />
     <BreadcrumbJsonLd items={breadcrumbItems} />
   </article>
+
+  <Footer slot="footer" locale="it" translations={translations} />
 </BaseLayout>
