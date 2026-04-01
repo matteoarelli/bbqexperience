@@ -75,6 +75,10 @@
 
   function activate() {
     isActive = true;
+    // Focus sull'overlay dopo il rendering
+    setTimeout(() => {
+      document.querySelector<HTMLElement>('.cook-mode-overlay')?.focus();
+    }, 50);
   }
 
   function deactivate() {
@@ -125,7 +129,7 @@
     onclick={activate}
   >
     <!-- Icona fiamma -->
-    <svg class="cook-mode-btn__icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+    <svg class="cook-mode-btn__icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
       <path d="M12 23c-3.866 0-7-3.134-7-7 0-3.5 2.5-6.5 4-8 .5 2 2 3 2 3s-.5-2.5 1-5c1.5 2.5 2 4 2 4s1-1.5 1.5-3c2 3 3.5 5.5 3.5 9 0 3.866-3.134 7-7 7zm0-2c2.76 0 5-2.24 5-5 0-2.5-1.5-4.5-2.5-6-.5 1-1 1.5-1.5 2-.5-1-1-2.5-1.5-3.5C10 10.5 9 12 9 16c0 2.76 2.24 5 5 5h-2z"/>
     </svg>
     {labels.cookMode}
@@ -135,6 +139,10 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="cook-mode-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Cook Mode"
+    tabindex="-1"
     ontouchstart={handleTouchStart}
     ontouchend={handleTouchEnd}
   >
@@ -150,7 +158,7 @@
         onclick={deactivate}
         aria-label={labels.exit}
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
@@ -194,6 +202,7 @@
             class:active={i === currentStep}
             onclick={() => goToStep(i)}
             aria-label="{labels.step} {i + 1}"
+            aria-current={i === currentStep ? 'step' : undefined}
           ></button>
         {/each}
       </div>

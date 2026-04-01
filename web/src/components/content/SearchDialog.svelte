@@ -196,11 +196,8 @@
     class="search-backdrop"
     onclick={onBackdropClick}
     onkeydown={onKeydown}
-    role="dialog"
-    aria-modal="true"
-    aria-label={t('searchPlaceholder', 'Search')}
   >
-    <div class="search-dialog">
+    <div class="search-dialog" role="dialog" aria-modal="true" aria-label={t('searchPlaceholder', 'Search')}>
       <!-- Input di ricerca -->
       <div class="search-input-wrapper">
         <svg
@@ -224,6 +221,7 @@
           type="search"
           class="search-input"
           placeholder={t('searchPlaceholder', 'Search articles, recipes, reviews...')}
+          aria-label={t('searchPlaceholder', 'Search articles, recipes, reviews...')}
           value={query}
           oninput={onInput}
           onkeydown={onKeydown}
@@ -241,6 +239,7 @@
             class:search-filter-btn--active={activeFilter === key}
             onclick={() => (activeFilter = key as ContentFilter)}
             type="button"
+            aria-pressed={activeFilter === key}
           >
             {label}
           </button>
