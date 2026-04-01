@@ -39,7 +39,16 @@
     "verdict": "Il Nostro Verdetto",
     "pros": "Pro",
     "cons": "Contro",
-    "specs": "Specifiche"
+    "specs": "Specifiche Tecniche",
+    "gallery": "Galleria Foto",
+    "verdictCard": "Il Verdetto",
+    "score": "Punteggio",
+    "outOf": "su 10",
+    "category": "Categoria",
+    "priceRange": "Fascia di Prezzo",
+    "brand": "Marca",
+    "publishedOn": "Pubblicato il",
+    "noSpecs": "Nessuna specifica disponibile"
   },
   "recipe": {
     "prepTime": "Preparazione",

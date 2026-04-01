@@ -39,7 +39,16 @@
     "verdict": "Nuestro Veredicto",
     "pros": "Ventajas",
     "cons": "Desventajas",
-    "specs": "Especificaciones"
+    "specs": "Especificaciones",
+    "gallery": "Galeria de Fotos",
+    "verdictCard": "El Veredicto",
+    "score": "Puntuacion",
+    "outOf": "de 10",
+    "category": "Categoria",
+    "priceRange": "Rango de Precio",
+    "brand": "Marca",
+    "publishedOn": "Publicado el",
+    "noSpecs": "No hay especificaciones disponibles"
   },
   "recipe": {
     "prepTime": "Preparacion",

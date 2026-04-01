@@ -39,7 +39,16 @@
     "verdict": "Our Verdict",
     "pros": "Pros",
     "cons": "Cons",
-    "specs": "Specifications"
+    "specs": "Specifications",
+    "gallery": "Photo Gallery",
+    "verdictCard": "The Verdict",
+    "score": "Score",
+    "outOf": "out of 10",
+    "category": "Category",
+    "priceRange": "Price Range",
+    "brand": "Brand",
+    "publishedOn": "Published on",
+    "noSpecs": "No specifications available"
   },
   "recipe": {
     "prepTime": "Prep Time",
