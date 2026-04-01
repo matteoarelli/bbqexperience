@@ -82,7 +82,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 04-01-PLAN.md — Review components (ScoreCard, SpecsTable, ProsConsCard, VerdictCard) + Schema.org JSON-LD + full page templates
-- [ ] 04-02-PLAN.md — Photo gallery with lightbox + visual verification checkpoint
+- [x] 04-02-PLAN.md — Photo gallery with lightbox + visual verification checkpoint
 **UI hint**: yes
 
 ### Phase 5: Recipe Pages

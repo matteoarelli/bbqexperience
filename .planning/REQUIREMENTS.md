@@ -12,7 +12,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **REV-01**: User can view product review with overall score and per-category scores (build quality, performance, value, ease of use)
 - [x] **REV-02**: User can read editorial deep-dive opinion on each reviewed product
 - [x] **REV-03**: User can view technical specifications table with pros/cons for each product
-- [ ] **REV-04**: User can browse product photo gallery with zoom/lightbox
+- [x] **REV-04**: User can browse product photo gallery with zoom/lightbox
 - [x] **REV-05**: User can view condensed review verdict card (score, one-line verdict, pros/cons, product photo)
 - [ ] **REV-06**: User can compare 2-5 reviewed products side-by-side across all scoring categories and specs
 - [ ] **REV-07**: User can see animated scoring visualizations (radial progress bars, flame-themed gauges) on review pages
@@ -119,7 +119,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REV-01 | Phase 4 | Complete |
 | REV-02 | Phase 4 | Complete |
 | REV-03 | Phase 4 | Complete |
-| REV-04 | Phase 4 | Pending |
+| REV-04 | Phase 4 | Complete |
 | REV-05 | Phase 4 | Complete |
 | REV-06 | Phase 8 | Pending |
 | REV-07 | Phase 8 | Pending |
