@@ -10,6 +10,7 @@ import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ContentLayout from '@components/content/ContentLayout.astro';
 import ArticleSchema from '@components/content/ArticleSchema.astro';
 import RelatedContent from '@components/content/RelatedContent.astro';
+import SocialShareBar from '@components/social/SocialShareBar.astro';
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiBlogPost } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
@@ -41,6 +42,7 @@ const seoTitle = post.seo_title || post.title;
 const seoDescription = post.seo_description || post.excerpt || '';
 const canonicalUrl = `https://bbqexperience.com/${locale}/${blogRoute}/${post.slug}/`;
 const coverImageUrl = getStrapiMediaURL(post.cover_image);
+const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience.com').href;
 
 // Breadcrumbs
 const breadcrumbItems = [
@@ -90,6 +92,10 @@ const breadcrumbItems = [
 
       <RelatedContent slot="related" locale={locale} translations={translations} currentSlug={post.slug} currentType="blog-post" />
     </ContentLayout>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">
+    <SocialShareBar url={pageUrl} title={post.title} locale={locale} translations={translations} />
   </div>
 
   <Footer slot="footer" locale={locale} translations={translations} />

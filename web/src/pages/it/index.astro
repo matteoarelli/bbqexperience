@@ -4,6 +4,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
 import FeaturedHero from '@components/content/FeaturedHero.astro';
+import InstagramFeed from '@components/social/InstagramFeed.astro';
 import { loadTranslations, getTranslation } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
@@ -21,6 +22,12 @@ const t = (key: string) => getTranslation(translations, key);
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/`} />
 
   <FeaturedHero locale={locale} translations={translations} />
+
+  <section style="padding: var(--space-16) 0;">
+    <div class="container-bbq">
+      <InstagramFeed locale={locale} translations={translations} maxPosts={6} />
+    </div>
+  </section>
 
   <Footer slot="footer" locale={locale} translations={translations} />
 </BaseLayout>

@@ -16,6 +16,8 @@ import RecipeJsonLd from '@components/recipe/RecipeJsonLd.astro';
 import RecipeInteractive from '@components/recipe/RecipeInteractive.svelte';
 import CookMode from '@components/recipe/CookMode.svelte';
 import PrintRecipeCard from '@components/recipe/PrintRecipeCard.astro';
+import SocialShareBar from '@components/social/SocialShareBar.astro';
+import { loadTranslations } from '@lib/i18n';
 import '@styles/print.css';
 
 export const prerender = false;
@@ -35,6 +37,8 @@ if (!recipe) {
 const coverImageUrl = getStrapiMediaURL(recipe.cover_image);
 const pageTitle = recipe.seo_title || recipe.title;
 const pageDescription = recipe.seo_description || recipe.excerpt || '';
+const translations = await loadTranslations('es');
+const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience.com').href;
 ---
 
 <BaseLayout
@@ -119,6 +123,11 @@ const pageDescription = recipe.seo_description || recipe.excerpt || '';
           />
         </section>
       )}
+    </div>
+
+    <!-- Condivisione social -->
+    <div style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">
+      <SocialShareBar url={pageUrl} title={recipe.title} locale="es" translations={translations} />
     </div>
 
     <RecipeJsonLd recipe={recipe} locale="es" />
