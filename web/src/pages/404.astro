@@ -1,0 +1,213 @@
+---
+/**
+ * Pagina 404 — pagina errore branded con ricerca e navigazione
+ * Rileva la locale dall'URL e mostra testo tradotto con stile BBQ Experience.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import SearchDialog from '@components/content/SearchDialog.svelte';
+import { loadTranslations, getTranslation, getLocaleFromPath, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+// Rileva la locale dal path URL, default 'en'
+const locale: Locale = getLocaleFromPath(Astro.url.pathname);
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+
+// Link di navigazione per la sezione "esplora contenuti"
+const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
+---
+
+<BaseLayout
+  title={`${t('error.title')} - ${t('site.name')}`}
+  description={t('error.message')}
+  locale={locale}
+  canonicalPath="/404"
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={Astro.url.pathname} />
+
+  <section class="error-page">
+    <div class="error-container">
+      <!-- Heading 404 grande -->
+      <h1 class="error-heading" data-animate>{t('error.heading')}</h1>
+
+      <!-- Sottotitolo -->
+      <h2 class="error-subtitle">{t('error.title')}</h2>
+
+      <!-- Messaggio descrittivo -->
+      <p class="error-message">{t('error.message')}</p>
+
+      <!-- Sezione ricerca -->
+      <div class="search-section">
+        <p class="section-label">{t('error.searchPrompt')}</p>
+        <div class="search-button-wrapper">
+          <SearchDialog
+            locale={locale}
+            translations={{
+              searchPlaceholder: t('content.searchPlaceholder'),
+              noArticles: t('content.noArticles'),
+            }}
+            client:load
+          />
+        </div>
+      </div>
+
+      <!-- Sezione navigazione contenuti -->
+      <div class="browse-section">
+        <p class="section-label">{t('error.browsePrompt')}</p>
+        <div class="nav-grid">
+          {navSections.map((key) => (
+            <a
+              href={`/${locale}/${localizedRoutes[key][locale]}/`}
+              class="nav-card"
+              data-animate
+            >
+              {t(`nav.${key}`)}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      <!-- Link torna alla homepage -->
+      <a href={`/${locale}/`} class="back-home-link">
+        {t('error.backHome')}
+      </a>
+    </div>
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .error-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: var(--space-16) var(--space-4);
+    text-align: center;
+  }
+
+  .error-container {
+    max-width: 640px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  .error-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-5xl);
+    font-weight: 900;
+    color: var(--color-accent-fire);
+    line-height: 1;
+    margin: 0;
+  }
+
+  .error-subtitle {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .error-message {
+    font-size: var(--text-base);
+    color: var(--color-text-muted);
+    max-width: 480px;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .search-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+  }
+
+  .section-label {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .search-button-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  .browse-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  .nav-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    width: 100%;
+    max-width: 480px;
+  }
+
+  @media (min-width: 640px) {
+    .nav-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .nav-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-lg);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    transition: border-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .nav-card:hover {
+    border-color: var(--color-accent-fire);
+    color: var(--color-accent-fire);
+  }
+
+  .back-home-link {
+    display: inline-block;
+    margin-top: var(--space-6);
+    padding: var(--space-3) var(--space-6);
+    border: 2px solid var(--color-accent-fire);
+    border-radius: var(--radius-md);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent-fire);
+    text-decoration: none;
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+  }
+
+  .back-home-link:hover {
+    background-color: var(--color-accent-fire);
+    color: white;
+  }
+</style>

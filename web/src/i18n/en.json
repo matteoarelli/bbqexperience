@@ -116,6 +116,14 @@
     "connect": "Connect",
     "legal": "Legal"
   },
+  "error": {
+    "title": "Page Not Found",
+    "heading": "404",
+    "message": "The page you're looking for doesn't exist or has been moved.",
+    "searchPrompt": "Try searching for what you need:",
+    "browsePrompt": "Or browse our content:",
+    "backHome": "Back to Homepage"
+  },
   "social": {
     "share": "Share",
     "copyLink": "Copy Link",

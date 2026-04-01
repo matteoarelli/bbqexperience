@@ -116,6 +116,14 @@
     "connect": "Collegati",
     "legal": "Note Legali"
   },
+  "error": {
+    "title": "Pagina Non Trovata",
+    "heading": "404",
+    "message": "La pagina che stai cercando non esiste o e stata spostata.",
+    "searchPrompt": "Prova a cercare quello che ti serve:",
+    "browsePrompt": "Oppure esplora i nostri contenuti:",
+    "backHome": "Torna alla Homepage"
+  },
   "social": {
     "share": "Condividi",
     "copyLink": "Copia Link",

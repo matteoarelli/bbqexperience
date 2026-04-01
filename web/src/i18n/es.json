@@ -116,6 +116,14 @@
     "connect": "Conectar",
     "legal": "Legal"
   },
+  "error": {
+    "title": "Pagina No Encontrada",
+    "heading": "404",
+    "message": "La pagina que buscas no existe o ha sido movida.",
+    "searchPrompt": "Intenta buscar lo que necesitas:",
+    "browsePrompt": "O explora nuestro contenido:",
+    "backHome": "Volver a la Pagina Principal"
+  },
   "social": {
     "share": "Compartir",
     "copyLink": "Copiar Enlace",
