@@ -48,7 +48,11 @@ Plans:
   3. Navigating to /en/, /it/, /es/ renders locale-specific content with a working language switcher
   4. Images are served in WebP/AVIF format with lazy loading and responsive srcset attributes
   5. hreflang and canonical tags are correctly set on every page for all three locales
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 02-01-PLAN.md — Design system foundation: Tailwind 4 + dark theme tokens + BaseLayout with SEO tags + image component
+- [ ] 02-02-PLAN.md — i18n routing: locale-prefixed pages, translation strings, language switcher
+- [ ] 02-03-PLAN.md — UI shell: Header, Footer, Nav, Hero with GSAP animations + visual checkpoint
 **UI hint**: yes
 
 ### Phase 3: CMS Authoring Workflow
@@ -144,7 +148,7 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Deploy Pipeline | 0/2 | Planning complete | - |
-| 2. Design System & Frontend Scaffold | 0/TBD | Not started | - |
+| 2. Design System & Frontend Scaffold | 0/3 | Planning complete | - |
 | 3. CMS Authoring Workflow | 0/TBD | Not started | - |
 | 4. Review Pages | 0/TBD | Not started | - |
 | 5. Recipe Pages | 0/TBD | Not started | - |
