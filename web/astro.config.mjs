@@ -6,7 +6,7 @@ import node from '@astrojs/node';
 
 export default defineConfig({
   site: 'https://bbqexperience.com',
-  output: 'static',
+  output: 'server',
   adapter: node({ mode: 'standalone' }),
   integrations: [
     sitemap({
@@ -19,6 +19,11 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        external: ['/pagefind/pagefind.js'],
+      },
+    },
   },
   i18n: {
     defaultLocale: 'en',

@@ -25,11 +25,12 @@
     selectedIds,
     maxProducts = 5,
     labels,
-  }: Props = $props();
-
-  // Callback per eventi (passati dal parent)
-  let onselect: ((id: string) => void) | undefined = $props().onselect;
-  let onremove: ((id: string) => void) | undefined = $props().onremove;
+    onselect,
+    onremove,
+  }: Props & {
+    onselect?: (id: string) => void;
+    onremove?: (id: string) => void;
+  } = $props();
 
   // Stato interno della ricerca
   let query = $state('');
