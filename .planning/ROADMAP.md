@@ -160,7 +160,7 @@ Plans:
   4. A branded 404 error page with search and navigation is displayed for missing URLs
 **Plans**: 2 plans
 Plans:
-- [ ] 09-01-PLAN.md — BreadcrumbList JSON-LD, ogImage on all pages, per-locale sitemap config
+- [x] 09-01-PLAN.md — BreadcrumbList JSON-LD, ogImage on all pages, per-locale sitemap config
 - [x] 09-02-PLAN.md — Branded 404 page with search/navigation + Lighthouse audit fixes
 **UI hint**: yes
 
