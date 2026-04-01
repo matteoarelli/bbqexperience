@@ -1,0 +1,54 @@
+version: '3.8'
+services:
+  strapi:
+    build:
+      context: ./cms
+      dockerfile: Dockerfile
+    container_name: bbqexperience-strapi-dev
+    restart: unless-stopped
+    ports:
+      - "1337:1337"
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: bbqexperience
+      DATABASE_USERNAME: bbqexperience
+      DATABASE_PASSWORD: bbqexperience_dev
+      JWT_SECRET: dev-jwt-secret-change-in-prod
+      ADMIN_JWT_SECRET: dev-admin-jwt-secret-change-in-prod
+      APP_KEYS: dev-key1,dev-key2,dev-key3,dev-key4
+      API_TOKEN_SALT: dev-api-token-salt
+      TRANSFER_TOKEN_SALT: dev-transfer-token-salt
+      NODE_ENV: development
+      REBUILD_SECRET_TOKEN: dev-rebuild-secret
+    volumes:
+      - ./cms:/opt/app
+      - strapi_node_modules:/opt/app/node_modules
+      - ./cms/public/uploads:/opt/app/public/uploads
+    depends_on:
+      - postgres
+    networks:
+      - bbq-dev
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: bbqexperience-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bbqexperience
+      POSTGRES_USER: bbqexperience
+      POSTGRES_PASSWORD: bbqexperience_dev
+    volumes:
+      - bbq_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - bbq-dev
+
+volumes:
+  bbq_pgdata:
+  strapi_node_modules:
+
+networks:
+  bbq-dev:
