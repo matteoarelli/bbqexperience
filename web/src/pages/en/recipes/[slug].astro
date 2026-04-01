@@ -15,6 +15,8 @@ import RecipeInstructions from '@components/recipe/RecipeInstructions.astro';
 import RecipeJsonLd from '@components/recipe/RecipeJsonLd.astro';
 import RecipeInteractive from '@components/recipe/RecipeInteractive.svelte';
 import CookMode from '@components/recipe/CookMode.svelte';
+import PrintRecipeCard from '@components/recipe/PrintRecipeCard.astro';
+import '@styles/print.css';
 
 export const prerender = false;
 
@@ -50,12 +52,14 @@ const pageDescription = recipe.seo_description || recipe.excerpt || '';
   )}
 
   <article class="max-w-3xl mx-auto px-4 py-12" style="color: var(--color-text-primary);">
-    <JumpToRecipe label="Jump to Recipe" totalTime={recipe.total_time} />
+    <div class="no-print">
+      <JumpToRecipe label="Jump to Recipe" totalTime={recipe.total_time} />
+    </div>
 
-    {/* Sezione intro editoriale */}
+    {/* Sezione intro editoriale (nascosta in stampa) */}
     {recipe.editorial_intro && (
       <div
-        class="prose prose-invert max-w-none mb-12"
+        class="prose prose-invert max-w-none mb-12 no-print"
         style="color: var(--color-text-secondary);"
         set:html={recipe.editorial_intro}
       />
@@ -73,6 +77,11 @@ const pageDescription = recipe.seo_description || recipe.excerpt || '';
         servings={recipe.servings}
         meatType={recipe.meat_type}
         technique={recipe.technique}
+      />
+
+      <PrintRecipeCard
+        recipeUrl={`https://bbqexperience.com/en/recipes/${recipe.slug}`}
+        label="Print Recipe"
       />
 
       {/* Sezione ingredienti — isola interattiva Svelte */}

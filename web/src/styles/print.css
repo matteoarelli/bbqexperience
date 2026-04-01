@@ -1,0 +1,108 @@
+/* Stili per la stampa — BBQ Experience
+   Nasconde UI chrome, mostra solo contenuto ricetta con QR code */
+
+/* Elementi nascosti in stampa (navigazione, controlli interattivi, ecc.) */
+.no-print {
+  /* Visibile normalmente */
+}
+
+/* Elementi visibili solo in stampa (QR code, ecc.) */
+.print-only {
+  display: none !important;
+}
+
+@media print {
+  /* Nascondi elementi marcati no-print */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Mostra elementi print-only */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Reset sfondo e colori per stampa a inchiostro */
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Reset testi */
+  * {
+    color: black !important;
+    text-shadow: none !important;
+  }
+
+  /* Rimuovi ombre, bordi arrotondati per stampa pulita */
+  * {
+    box-shadow: none !important;
+  }
+
+  /* Immagini: larghezza massima e no page break interno */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Card ricetta: evita page break prima */
+  #recipe-card {
+    page-break-before: avoid;
+    background: white !important;
+    border: 1px solid #ccc !important;
+    border-radius: 0 !important;
+    padding: 1rem !important;
+  }
+
+  /* Istruzioni: evita page break interno per singolo step */
+  #recipe-card ol li,
+  #recipe-card .space-y-8 > li {
+    page-break-inside: avoid;
+  }
+
+  /* Link: rimuovi decorazione, non espandere URL */
+  a {
+    text-decoration: none !important;
+  }
+
+  /* Nascondi header/footer/nav del sito */
+  header,
+  footer,
+  nav {
+    display: none !important;
+  }
+
+  /* Area QR code per stampa */
+  .print-qr {
+    margin-top: 2rem;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+
+  .print-qr img {
+    display: inline-block !important;
+    width: 100px;
+    height: 100px;
+  }
+
+  .print-qr p {
+    font-size: 9pt;
+    margin-top: 0.25rem;
+  }
+
+  /* Titoli in stampa */
+  h1, h2, h3 {
+    color: black !important;
+    page-break-after: avoid;
+  }
+
+  /* Intestazioni sezione ricetta */
+  h2 {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 0.25rem;
+  }
+}
