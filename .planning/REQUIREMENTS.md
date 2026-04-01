@@ -62,8 +62,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Multilingual & SEO
 
-- [ ] **SEO-01**: Site supports English (primary), Italian, and Spanish with language switcher
-- [ ] **SEO-02**: Clean localized URL structure (/en/, /it/, /es/) with proper hreflang and canonical tags
+- [x] **SEO-01**: Site supports English (primary), Italian, and Spanish with language switcher
+- [x] **SEO-02**: Clean localized URL structure (/en/, /it/, /es/) with proper hreflang and canonical tags
 - [ ] **SEO-03**: Per-locale XML sitemaps submitted to search engines
 - [ ] **SEO-04**: BreadcrumbList Schema.org structured data on all pages
 - [ ] **SEO-05**: Open Graph and Twitter Card meta tags for social sharing previews on all content
@@ -154,8 +154,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IGM-02 | Phase 7 | Pending |
 | IGM-03 | Phase 7 | Pending |
 | IGM-04 | Phase 7 | Pending |
-| SEO-01 | Phase 2 | Pending |
-| SEO-02 | Phase 2 | Pending |
+| SEO-01 | Phase 2 | Complete |
+| SEO-02 | Phase 2 | Complete |
 | SEO-03 | Phase 9 | Pending |
 | SEO-04 | Phase 9 | Pending |
 | SEO-05 | Phase 9 | Pending |

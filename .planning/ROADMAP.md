@@ -50,8 +50,8 @@ Plans:
   5. hreflang and canonical tags are correctly set on every page for all three locales
 **Plans**: 3 plans
 Plans:
-- [ ] 02-01-PLAN.md — Design system foundation: Tailwind 4 + dark theme tokens + BaseLayout with SEO tags + image component
-- [ ] 02-02-PLAN.md — i18n routing: locale-prefixed pages, translation strings, language switcher
+- [x] 02-01-PLAN.md — Design system foundation: Tailwind 4 + dark theme tokens + BaseLayout with SEO tags + image component
+- [x] 02-02-PLAN.md — i18n routing: locale-prefixed pages, translation strings, language switcher
 - [ ] 02-03-PLAN.md — UI shell: Header, Footer, Nav, Hero with GSAP animations + visual checkpoint
 **UI hint**: yes
 
