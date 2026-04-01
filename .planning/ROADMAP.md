@@ -64,7 +64,10 @@ Plans:
   2. Author can enter content in EN, IT, and ES for any content item from a single editing interface
   3. Author can upload images to a media library that automatically optimizes and manages assets
   4. Author can preview draft content on the frontend before publishing
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 03-01-PLAN.md — Strapi API client, TypeScript types, and media URL helpers
+- [ ] 03-02-PLAN.md — Draft preview system with hybrid SSR and review page template
 
 ### Phase 4: Review Pages
 **Goal**: Users can read the most complete BBQ product reviews online -- with structured scoring, editorial deep-dives, technical specs, photo galleries, and verdict cards
@@ -149,7 +152,7 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Deploy Pipeline | 0/2 | Planning complete | - |
 | 2. Design System & Frontend Scaffold | 0/3 | Planning complete | - |
-| 3. CMS Authoring Workflow | 0/TBD | Not started | - |
+| 3. CMS Authoring Workflow | 0/2 | Planning complete | - |
 | 4. Review Pages | 0/TBD | Not started | - |
 | 5. Recipe Pages | 0/TBD | Not started | - |
 | 6. Content Pages & Discovery | 0/TBD | Not started | - |
