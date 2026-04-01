@@ -1,0 +1,143 @@
+---
+// Card singola per un post Instagram — mostra immagine, caption e link al post
+import type { Locale } from '@lib/i18n';
+import type { StrapiInstagramPost, StrapiEntity } from '@lib/types';
+import { getStrapiMediaURL } from '@lib/media';
+
+interface Props {
+  post: StrapiInstagramPost & StrapiEntity;
+  locale: Locale;
+}
+
+const { post } = Astro.props;
+
+// Immagine: preferisci cached_image da Strapi, fallback a media_url originale
+const imageUrl = getStrapiMediaURL(post.cached_image) ?? post.media_url ?? '';
+const isVideo = post.media_type === 'VIDEO';
+const isCarousel = post.media_type === 'CAROUSEL_ALBUM';
+// Per i video, usa thumbnail_url se disponibile
+const displayUrl = isVideo && post.thumbnail_url ? post.thumbnail_url : imageUrl;
+// Caption troncato per l'alt text
+const altText = post.caption?.substring(0, 100) ?? 'Instagram post';
+---
+
+<a
+  href={post.permalink ?? '#'}
+  target="_blank"
+  rel="noopener noreferrer"
+  class="instagram-card"
+>
+  <div class="instagram-card__image-wrapper">
+    <img
+      src={displayUrl}
+      alt={altText}
+      loading="lazy"
+      class="instagram-card__image"
+    />
+
+    {/* Overlay icona per video o carousel */}
+    {isVideo && (
+      <div class="instagram-card__type-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+      </div>
+    )}
+    {isCarousel && (
+      <div class="instagram-card__type-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="2" width="16" height="16" rx="2"></rect>
+          <rect x="6" y="6" width="16" height="16" rx="2"></rect>
+        </svg>
+      </div>
+    )}
+
+    {/* Icona Instagram brand mark in alto a destra */}
+    <div class="instagram-card__brand">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+      </svg>
+    </div>
+  </div>
+
+  {/* Caption con line-clamp a 2 righe */}
+  {post.caption && (
+    <p class="instagram-card__caption">{post.caption}</p>
+  )}
+</a>
+
+<style>
+  .instagram-card {
+    display: block;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base);
+  }
+
+  .instagram-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent-fire);
+    box-shadow: var(--shadow-glow-fire);
+  }
+
+  .instagram-card__image-wrapper {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+  }
+
+  .instagram-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .instagram-card:hover .instagram-card__image {
+    transform: scale(1.05);
+  }
+
+  .instagram-card__type-icon {
+    position: absolute;
+    bottom: var(--space-2);
+    left: var(--space-2);
+    color: var(--color-text-primary);
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: var(--radius-sm);
+    padding: var(--space-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .instagram-card__brand {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    color: var(--color-text-muted);
+    opacity: 0.6;
+    transition: opacity var(--transition-fast);
+  }
+
+  .instagram-card:hover .instagram-card__brand {
+    opacity: 1;
+    color: var(--color-text-primary);
+  }
+
+  .instagram-card__caption {
+    padding: var(--space-3);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
+  }
+</style>

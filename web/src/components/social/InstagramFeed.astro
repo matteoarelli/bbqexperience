@@ -1,0 +1,129 @@
+---
+// Griglia di post Instagram curati — recupera i post da Strapi e li mostra in griglia responsive
+import type { Locale } from '@lib/i18n';
+import { getTranslation } from '@lib/i18n';
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiInstagramPost } from '@lib/types';
+import InstagramCard from './InstagramCard.astro';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+  maxPosts?: number;
+}
+
+const { locale, translations, maxPosts = 6 } = Astro.props;
+
+// Recupera post curati da Strapi — instagram-posts NON e localizzato,
+// quindi passiamo locale: 'en' esplicitamente (default Strapi)
+let posts: (StrapiInstagramPost & import('@lib/types').StrapiEntity)[] = [];
+
+try {
+  const response = await fetchCollection<StrapiInstagramPost>('instagram-posts', {
+    filters: { curated: { $eq: true } },
+    populate: 'cached_image',
+    sort: 'timestamp:desc',
+    pageSize: maxPosts,
+    locale: 'en',
+  });
+  posts = response.data;
+} catch {
+  // Fallback silenzioso se Strapi non e raggiungibile
+  posts = [];
+}
+
+// Se non ci sono post, non renderizzare nulla
+if (posts.length === 0) return;
+---
+
+<section class="instagram-feed" data-animate>
+  <div class="container-bbq">
+    {/* Intestazione sezione */}
+    <div class="instagram-feed__header">
+      <h2 class="instagram-feed__title">
+        {getTranslation(translations, 'social.instagramTitle')}
+      </h2>
+    </div>
+
+    {/* Griglia post: 2 col mobile, 3 col da md in su */}
+    <div class="instagram-feed__grid">
+      {posts.map((post) => (
+        <InstagramCard post={post} locale={locale} />
+      ))}
+    </div>
+
+    {/* Link "Seguici su Instagram" */}
+    <div class="instagram-feed__footer">
+      <a
+        href="https://instagram.com/bbqexperience"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="instagram-feed__follow-link"
+      >
+        {/* Icona Instagram */}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+        {getTranslation(translations, 'social.followOnInstagram')}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .instagram-feed {
+    padding: var(--space-16) 0;
+  }
+
+  .instagram-feed__header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+  }
+
+  .instagram-feed__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  .instagram-feed__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .instagram-feed__grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .instagram-feed__footer {
+    text-align: center;
+    margin-top: var(--space-8);
+  }
+
+  .instagram-feed__follow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-accent-fire);
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color var(--transition-fast);
+  }
+
+  .instagram-feed__follow-link:hover {
+    color: var(--color-accent-amber);
+  }
+</style>
