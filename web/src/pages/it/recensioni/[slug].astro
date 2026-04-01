@@ -1,33 +1,51 @@
 ---
 /**
- * Pagina recensione (IT) — Template minimale che prova il pipeline CMS-to-frontend.
- * SSR per supportare la modalita anteprima con contenuti draft.
- * La fase 4 ricostruira il design completo con scoring UI, galleria, verdict cards.
+ * Pagina recensione (IT) — Esperienza completa con scoring, editorial, specs, verdict
+ * SSR per supportare la modalita anteprima con contenuti draft
  */
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiReview } from '@lib/types';
-import { getStrapiMediaURL } from '@lib/media';
+import { getStrapiMediaURL, getStrapiMediaAlt } from '@lib/media';
 import { getContentStatus } from '@lib/preview';
+import { loadTranslations, getTranslation } from '@lib/i18n';
 import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import ScoreCard from '@components/review/ScoreCard.astro';
+import SpecsTable from '@components/review/SpecsTable.astro';
+import ProsConsCard from '@components/review/ProsConsCard.astro';
+import VerdictCard from '@components/review/VerdictCard.astro';
+import ReviewJsonLd from '@components/review/ReviewJsonLd.astro';
 
 export const prerender = false;
 
+const locale = 'it';
 const { slug } = Astro.params;
 const status = getContentStatus(Astro.cookies);
+const t = await loadTranslations(locale);
+
 const review = await fetchBySlug<StrapiReview>('reviews', slug!, {
-  locale: 'it',
+  locale,
   populate: '*',
   status,
 });
 
 if (!review) {
-  return Astro.redirect('/it/');
+  return Astro.redirect(`/${locale}/`);
 }
 
 const coverImage = getStrapiMediaURL(review.gallery?.[0]);
+const coverImageAlt = getStrapiMediaAlt(review.gallery?.[0]) || review.title;
+const productImage = review.product?.images?.[0] ? getStrapiMediaURL(review.product.images[0]) : coverImage;
+const siteUrl = import.meta.env.SITE || 'https://bbqexperience.it';
 ---
 
-<BaseLayout title={review.title} description={review.excerpt || ''} locale="it">
+<BaseLayout
+  title={review.seo_title || review.title}
+  description={review.seo_description || review.excerpt || ''}
+  locale={locale}
+  canonicalPath={`/${locale}/recensioni/${review.slug}/`}
+>
   {Astro.locals.isPreview && (
     <div class="bg-amber-500 text-black text-center py-2 px-4 font-bold text-sm">
       MODALITA ANTEPRIMA — Questo contenuto non e pubblicato
@@ -35,36 +53,113 @@ const coverImage = getStrapiMediaURL(review.gallery?.[0]);
     </div>
   )}
 
-  <article class="max-w-3xl mx-auto px-4 py-12">
-    <h1 class="text-4xl font-bold mb-4">{review.title}</h1>
+  <Header slot="header" locale={locale} translations={t} currentPath={Astro.url.pathname} />
+
+  <article class="max-w-4xl mx-auto px-[var(--container-padding)] py-[var(--space-12)]">
+    <!-- Titolo e metadati -->
+    <h1
+      class="text-[var(--text-4xl)] uppercase tracking-tight mb-[var(--space-4)]"
+      style="font-family: var(--font-heading); color: var(--color-text-primary);"
+      data-animate
+    >
+      {review.title}
+    </h1>
+
+    <div class="flex flex-wrap gap-3 mb-[var(--space-4)]" style="color: var(--color-text-muted); font-size: var(--text-sm);">
+      {review.published_date && (
+        <span>{getTranslation(t, 'review.publishedOn')} {new Date(review.published_date).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+      )}
+      {review.product?.brand && (
+        <span>| {review.product.brand}</span>
+      )}
+      {review.product?.category && (
+        <span>| {review.product.category}</span>
+      )}
+    </div>
 
     {review.excerpt && (
-      <p class="text-lg text-gray-400 mb-8">{review.excerpt}</p>
+      <p
+        class="text-[var(--text-lg)] mb-[var(--space-8)]"
+        style="color: var(--color-text-secondary);"
+        data-animate
+      >
+        {review.excerpt}
+      </p>
     )}
 
     {coverImage && (
       <img
         src={coverImage}
-        alt={review.gallery?.[0]?.alternativeText || review.title}
-        class="w-full rounded-lg mb-8"
+        alt={coverImageAlt}
+        class="w-full rounded-[var(--radius-lg)] mb-[var(--space-12)]"
+        data-animate
       />
     )}
 
+    <!-- Punteggi -->
+    <div class="mb-[var(--space-12)]">
+      <ScoreCard
+        overall={review.score_overall}
+        buildQuality={review.score_build_quality}
+        performance={review.score_performance}
+        value={review.score_value}
+        easeOfUse={review.score_ease_of_use}
+        translations={t}
+      />
+    </div>
+
+    <!-- Contenuto editoriale -->
     {review.editorial_content && (
-      <div class="prose prose-invert max-w-none mb-8" set:html={review.editorial_content} />
+      <div
+        class="prose prose-invert prose-lg max-w-none mb-[var(--space-12)]"
+        set:html={review.editorial_content}
+        data-animate
+      />
     )}
 
-    {review.score_overall != null && (
-      <div class="bg-gray-800 rounded-lg p-6 mb-8 text-center">
-        <span class="text-5xl font-bold text-amber-500">{review.score_overall}</span>
-        <span class="text-xl text-gray-400">/10</span>
-      </div>
-    )}
+    <!-- Specifiche tecniche -->
+    <div class="mb-[var(--space-12)]">
+      <SpecsTable
+        specifications={review.product?.specifications || null}
+        title={getTranslation(t, 'review.specs')}
+      />
+    </div>
 
-    {review.verdict && (
-      <blockquote class="border-l-4 border-amber-500 pl-4 italic text-gray-300 mb-8">
-        {review.verdict}
-      </blockquote>
-    )}
+    <!-- Pro e Contro -->
+    <div class="mb-[var(--space-12)]">
+      <ProsConsCard
+        pros={review.pros}
+        cons={review.cons}
+        translations={t}
+      />
+    </div>
+
+    <!-- Verdetto finale -->
+    <div class="mb-[var(--space-12)]">
+      <VerdictCard
+        overall={review.score_overall}
+        verdict={review.verdict}
+        pros={review.pros}
+        cons={review.cons}
+        productName={review.product?.name || review.title}
+        productImage={productImage}
+        productImageAlt={coverImageAlt}
+        translations={t}
+      />
+    </div>
   </article>
+
+  <Footer slot="footer" locale={locale} translations={t} />
+
+  <ReviewJsonLd
+    review={review}
+    productImageUrl={productImage}
+    locale={locale}
+    siteUrl={siteUrl}
+  />
 </BaseLayout>
+
+<script>
+  import { initScrollAnimations } from '@lib/animations';
+  document.addEventListener('DOMContentLoaded', initScrollAnimations);
+</script>
