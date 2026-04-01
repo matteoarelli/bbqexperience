@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. The i18n plugin is configured with EN (default), IT, and ES locales
 **Plans**: 2 plans
 Plans:
-- [ ] 01-01-PLAN.md — Create Strapi CMS project with content types, config, Dockerfile, and Astro scaffold
+- [x] 01-01-PLAN.md — Create Strapi CMS project with content types, config, Dockerfile, and Astro scaffold
 - [ ] 01-02-PLAN.md — Deploy to Hetzner server with webhook pipeline and verify end-to-end
 
 ### Phase 2: Design System & Frontend Scaffold
