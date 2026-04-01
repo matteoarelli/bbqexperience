@@ -9,6 +9,7 @@ import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ContentLayout from '@components/content/ContentLayout.astro';
 import ArticleSchema from '@components/content/ArticleSchema.astro';
+import RelatedContent from '@components/content/RelatedContent.astro';
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiBlogPost } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
@@ -86,6 +87,8 @@ const breadcrumbItems = [
       translations={translations}
     >
       <Breadcrumbs slot="breadcrumbs" items={breadcrumbItems} locale={locale} />
+
+      <RelatedContent slot="related" locale={locale} translations={translations} currentSlug={post.slug} currentType="blog-post" />
     </ContentLayout>
   </div>
 

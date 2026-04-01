@@ -7,6 +7,7 @@ import type { Locale } from '@lib/i18n';
 import type { StrapiMedia } from '@lib/types';
 import { getStrapiMediaURL } from '@lib/media';
 import { getTranslation } from '@lib/i18n';
+import ReadingProgress from '@components/content/ReadingProgress.svelte';
 
 interface Props {
   title: string;
@@ -70,6 +71,8 @@ function addHeadingIds(html: string): string {
 
 const processedContent = content ? addHeadingIds(content) : null;
 ---
+
+<ReadingProgress locale={locale} client:idle />
 
 <article class="content-layout">
   <!-- Slot breadcrumbs -->

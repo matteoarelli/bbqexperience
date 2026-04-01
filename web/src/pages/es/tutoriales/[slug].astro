@@ -9,6 +9,7 @@ import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ContentLayout from '@components/content/ContentLayout.astro';
 import ArticleSchema from '@components/content/ArticleSchema.astro';
+import RelatedContent from '@components/content/RelatedContent.astro';
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiTutorial } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
@@ -104,6 +105,8 @@ const difficultyColors: Record<string, string> = {
           </span>
         </div>
       )}
+
+      <RelatedContent slot="related" locale={locale} translations={translations} currentSlug={tutorial.slug} currentType="tutorial" />
     </ContentLayout>
   </div>
 

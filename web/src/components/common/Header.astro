@@ -3,6 +3,7 @@
 import Nav from '@components/common/Nav.astro';
 import LanguageSwitcher from '@components/common/LanguageSwitcher.astro';
 import MobileMenu from '@components/common/MobileMenu.astro';
+import SearchDialog from '@components/content/SearchDialog.svelte';
 import type { Locale } from '@lib/i18n';
 
 interface Props {
@@ -25,8 +26,16 @@ const { locale, translations, currentPath } = Astro.props;
     <!-- Navigazione desktop (centro) -->
     <Nav locale={locale} translations={translations} />
 
-    <!-- Destra: language switcher (desktop) + hamburger (mobile) -->
+    <!-- Destra: search + language switcher (desktop) + hamburger (mobile) -->
     <div class="flex items-center gap-4">
+      <SearchDialog
+        locale={locale}
+        translations={{
+          searchPlaceholder: translations?.content?.searchPlaceholder || 'Search',
+          noArticles: translations?.content?.noArticles || 'No results found.',
+        }}
+        client:idle
+      />
       <div class="hidden lg:block">
         <LanguageSwitcher currentLocale={locale} currentPath={currentPath} />
       </div>

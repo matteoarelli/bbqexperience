@@ -3,7 +3,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
-import Hero from '@components/common/Hero.astro';
+import FeaturedHero from '@components/content/FeaturedHero.astro';
 import { loadTranslations, getTranslation } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
@@ -20,23 +20,7 @@ const t = (key: string) => getTranslation(translations, key);
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/`} />
 
-  <Hero
-    title={t('hero.title')}
-    subtitle={t('hero.subtitle')}
-    ctaText={t('hero.cta')}
-    ctaHref={`/${locale}/recensioni/`}
-    locale={locale}
-  />
-
-  <!-- Sezione placeholder per contenuti futuri -->
-  <section class="container-bbq py-24" data-animate>
-    <h2 class="text-center" style="font-family: var(--font-heading); font-size: var(--text-3xl);">
-      {t('common.loading')}
-    </h2>
-    <p class="text-center mt-4" style="color: var(--color-text-muted);">
-      Le sezioni di contenuto saranno aggiunte nelle fasi future.
-    </p>
-  </section>
+  <FeaturedHero locale={locale} translations={translations} />
 
   <Footer slot="footer" locale={locale} translations={translations} />
 </BaseLayout>
