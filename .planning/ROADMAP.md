@@ -146,7 +146,7 @@ Plans:
 Plans:
 - [x] 08-01-PLAN.md — Dark/light mode toggle with light theme tokens and localStorage persistence
 - [x] 08-02-PLAN.md — Animated scoring visualizations (FlameGauge + radial progress bars) on review pages
-- [ ] 08-03-PLAN.md — Product comparison tool with side-by-side table and shareable URLs
+- [x] 08-03-PLAN.md — Product comparison tool with side-by-side table and shareable URLs
 **UI hint**: yes
 
 ### Phase 9: SEO Audit, Performance & Launch
