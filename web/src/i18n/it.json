@@ -99,5 +99,18 @@
     "sections": "Sezioni",
     "connect": "Collegati",
     "legal": "Note Legali"
+  },
+  "social": {
+    "share": "Condividi",
+    "copyLink": "Copia Link",
+    "copied": "Copiato!",
+    "shareWhatsApp": "WhatsApp",
+    "shareInstagram": "Instagram",
+    "shareX": "X",
+    "instagramTitle": "Dal Nostro Instagram",
+    "followOnInstagram": "Seguici su Instagram",
+    "ctaTitle": "Unisciti a 74K+ Appassionati di BBQ",
+    "ctaSubtitle": "Seguici su Instagram per contenuti BBQ quotidiani, consigli e dietro le quinte",
+    "ctaButton": "Segui @bbqexperience"
   }
 }

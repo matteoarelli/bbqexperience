@@ -1,0 +1,105 @@
+---
+// Banner CTA per seguire BBQ Experience su Instagram — gradiente fuoco
+import type { Locale } from '@lib/i18n';
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { translations } = Astro.props;
+---
+
+<section class="follow-cta" data-animate>
+  <div class="container-bbq">
+    <div class="follow-cta__content">
+      {/* Icona Instagram grande */}
+      <div class="follow-cta__icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </div>
+
+      {/* Testo principale */}
+      <h2 class="follow-cta__title">
+        {getTranslation(translations, 'social.ctaTitle')}
+      </h2>
+      <p class="follow-cta__subtitle">
+        {getTranslation(translations, 'social.ctaSubtitle')}
+      </p>
+
+      {/* Bottone follow */}
+      <a
+        href="https://instagram.com/bbqexperience"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="follow-cta__button"
+      >
+        {getTranslation(translations, 'social.ctaButton')}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .follow-cta {
+    background: linear-gradient(135deg, var(--color-accent-fire), var(--color-accent-ember));
+    padding: var(--space-16) 0;
+  }
+
+  .follow-cta__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+  }
+
+  .follow-cta__icon {
+    color: white;
+    opacity: 0.9;
+  }
+
+  .follow-cta__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: white;
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  .follow-cta__subtitle {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 480px;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .follow-cta__button {
+    display: inline-block;
+    padding: var(--space-3) var(--space-8);
+    border: 2px solid white;
+    border-radius: var(--radius-full);
+    color: white;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    background: transparent;
+    transition: background var(--transition-fast), color var(--transition-fast);
+    margin-top: var(--space-2);
+  }
+
+  .follow-cta__button:hover {
+    background: white;
+    color: var(--color-text-inverse);
+  }
+</style>

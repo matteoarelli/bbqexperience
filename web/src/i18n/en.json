@@ -89,6 +89,22 @@
     "home": "Home",
     "searchPlaceholder": "Search articles..."
   },
+  "comparison": {
+    "title": "Compare BBQ Products",
+    "description": "Compare BBQ grills, smokers and accessories side-by-side across all scoring categories",
+    "searchPlaceholder": "Search reviews to compare...",
+    "addProduct": "Add",
+    "removeProduct": "Remove",
+    "selectedCount": "{count} of {max} products selected",
+    "minProducts": "Select at least 2 products to compare",
+    "scores": "Scores",
+    "specs": "Specifications",
+    "verdict": "Verdict",
+    "copyLink": "Copy comparison link",
+    "linkCopied": "Link copied!",
+    "noResults": "No reviews found",
+    "winner": "Best"
+  },
   "theme": {
     "toggle": "Toggle theme",
     "dark": "Dark mode",
@@ -99,5 +115,18 @@
     "sections": "Sections",
     "connect": "Connect",
     "legal": "Legal"
+  },
+  "social": {
+    "share": "Share",
+    "copyLink": "Copy Link",
+    "copied": "Copied!",
+    "shareWhatsApp": "WhatsApp",
+    "shareInstagram": "Instagram",
+    "shareX": "X",
+    "instagramTitle": "From Our Instagram",
+    "followOnInstagram": "Follow on Instagram",
+    "ctaTitle": "Join 74K+ BBQ Enthusiasts",
+    "ctaSubtitle": "Follow us on Instagram for daily BBQ content, tips, and behind-the-scenes",
+    "ctaButton": "Follow @bbqexperience"
   }
 }
