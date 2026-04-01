@@ -92,7 +92,11 @@ Plans:
   3. User can activate Cook Mode (screen stays awake, large text, step-by-step progression, minimal UI)
   4. User can adjust serving size and see ingredients recalculate; user can toggle between metric and imperial units
   5. User can print a clean recipe card (ingredients + steps only) with a QR code linking back to the full page
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 05-01-PLAN.md — Recipe page template with Svelte 5 setup, layout, components, and JSON-LD structured data
+- [ ] 05-02-PLAN.md — Interactive Svelte 5 islands: serving adjuster, unit toggle, cook mode
+- [ ] 05-03-PLAN.md — Print recipe card with QR code and print stylesheet
 **UI hint**: yes
 
 ### Phase 6: Content Pages & Discovery
@@ -154,7 +158,7 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 | 2. Design System & Frontend Scaffold | 0/3 | Planning complete | - |
 | 3. CMS Authoring Workflow | 0/2 | Planning complete | - |
 | 4. Review Pages | 0/TBD | Not started | - |
-| 5. Recipe Pages | 0/TBD | Not started | - |
+| 5. Recipe Pages | 0/3 | Planning complete | - |
 | 6. Content Pages & Discovery | 0/TBD | Not started | - |
 | 7. Instagram & Social Integration | 0/TBD | Not started | - |
 | 8. Product Comparison & Advanced Interactions | 0/TBD | Not started | - |
