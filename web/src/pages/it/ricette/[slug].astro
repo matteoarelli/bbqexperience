@@ -13,6 +13,8 @@ import JumpToRecipe from '@components/recipe/JumpToRecipe.astro';
 import RecipeHeader from '@components/recipe/RecipeHeader.astro';
 import RecipeInstructions from '@components/recipe/RecipeInstructions.astro';
 import RecipeJsonLd from '@components/recipe/RecipeJsonLd.astro';
+import RecipeInteractive from '@components/recipe/RecipeInteractive.svelte';
+import CookMode from '@components/recipe/CookMode.svelte';
 
 export const prerender = false;
 
@@ -73,33 +75,15 @@ const pageDescription = recipe.seo_description || recipe.excerpt || '';
         technique={recipe.technique}
       />
 
-      {/* Sezione ingredienti */}
+      {/* Sezione ingredienti — isola interattiva Svelte */}
       {recipe.ingredients && recipe.ingredients.length > 0 && (
         <section class="mb-10" id="ingredients-section">
-          <h2
-            class="text-2xl font-bold mb-4 uppercase tracking-wide"
-            style="font-family: var(--font-heading); color: var(--color-accent-amber);"
-          >
-            Ingredienti
-          </h2>
-          <div
-            id="recipe-ingredients-mount"
-            data-ingredients={JSON.stringify(recipe.ingredients)}
-            data-servings={recipe.servings?.toString()}
-          >
-            <ul class="space-y-2" style="color: var(--color-text-primary);">
-              {recipe.ingredients.map((ing) => (
-                <li class="flex items-baseline gap-2">
-                  <span class="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-2" style="background-color: var(--color-accent-fire);" />
-                  <span>
-                    {ing.quantity && <strong>{ing.quantity}</strong>}
-                    {ing.unit && <span class="ml-1" style="color: var(--color-text-muted);">{ing.unit}</span>}
-                    <span class="ml-1">{ing.name}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <RecipeInteractive
+            client:visible
+            ingredients={recipe.ingredients || []}
+            baseServings={recipe.servings || 4}
+            labels={{ servings: "Porzioni", metric: "Metrico", imperial: "Imperiale", ingredients: "Ingredienti" }}
+          />
         </section>
       )}
 
@@ -113,6 +97,17 @@ const pageDescription = recipe.seo_description || recipe.excerpt || '';
             Istruzioni
           </h2>
           <RecipeInstructions instructions={recipe.instructions} />
+
+          <CookMode
+            client:visible
+            instructions={(recipe.instructions || []).map((inst) => ({
+              step: inst.step,
+              text: inst.text,
+              imageUrl: inst.image ? getStrapiMediaURL(inst.image) ?? undefined : undefined,
+            }))}
+            recipeName={recipe.title}
+            labels={{ cookMode: "Modalita Cottura", step: "Passo", of: "di", prev: "Precedente", next: "Successivo", finish: "Fine", exit: "Esci" }}
+          />
         </section>
       )}
     </div>
