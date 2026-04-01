@@ -31,11 +31,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Content
 
-- [ ] **CNT-01**: User can browse tutorial/guide articles covering BBQ techniques, equipment selection, and knowledge
+- [x] **CNT-01**: User can browse tutorial/guide articles covering BBQ techniques, equipment selection, and knowledge
 - [ ] **CNT-02**: User can browse blog/news articles about BBQ world updates, events, and trends
 - [ ] **CNT-03**: User can navigate content via categories and taxonomy (product type, meat type, technique, etc.)
-- [ ] **CNT-04**: User can navigate via breadcrumb trail on all content pages
-- [ ] **CNT-05**: User can see reading time estimate on all article pages
+- [x] **CNT-04**: User can navigate via breadcrumb trail on all content pages
+- [x] **CNT-05**: User can see reading time estimate on all article pages
 - [x] **CNT-06**: User can search content by keyword with results filtered by content type (reviews, recipes, tutorials, blog)
 - [ ] **CNT-07**: User sees related content suggestions cross-linking reviews ↔ recipes ↔ tutorials
 - [ ] **CNT-08**: User sees featured/seasonal content curated by author on homepage hero section
@@ -132,11 +132,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REC-06 | Phase 5 | Pending |
 | REC-07 | Phase 5 | Pending |
 | REC-08 | Phase 5 | Complete |
-| CNT-01 | Phase 6 | Pending |
+| CNT-01 | Phase 6 | Complete |
 | CNT-02 | Phase 6 | Pending |
 | CNT-03 | Phase 6 | Pending |
-| CNT-04 | Phase 6 | Pending |
-| CNT-05 | Phase 6 | Pending |
+| CNT-04 | Phase 6 | Complete |
+| CNT-05 | Phase 6 | Complete |
 | CNT-06 | Phase 6 | Complete |
 | CNT-07 | Phase 6 | Pending |
 | CNT-08 | Phase 6 | Pending |

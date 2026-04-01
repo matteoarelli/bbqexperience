@@ -114,7 +114,7 @@ Plans:
   5. User sees featured/seasonal content on the homepage hero, reading time estimates on articles, and a reading progress indicator with section navigation on long-form content
 **Plans**: 4 plans
 Plans:
-- [ ] 06-01-PLAN.md — Shared content components (Breadcrumbs, ArticleCard, ContentLayout) + Tutorial pages for 3 locales
+- [x] 06-01-PLAN.md — Shared content components (Breadcrumbs, ArticleCard, ContentLayout) + Tutorial pages for 3 locales
 - [x] 06-02-PLAN.md — Svelte integration + ReadingProgress island + Pagefind SearchDialog island
 - [ ] 06-03-PLAN.md — Blog pages for 3 locales + Category filtering + Article Schema.org JSON-LD
 - [ ] 06-04-PLAN.md — Related content cross-linking + Featured homepage hero + Wiring all islands into pages
