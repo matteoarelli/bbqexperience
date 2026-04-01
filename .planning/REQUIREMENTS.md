@@ -44,11 +44,11 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Design & UX
 
-- [ ] **DES-01**: Site has bold/street BBQ design with dark theme default (dark grays, fire/amber/smoke accents)
+- [x] **DES-01**: Site has bold/street BBQ design with dark theme default (dark grays, fire/amber/smoke accents)
 - [ ] **DES-02**: Site features scroll-triggered animations, micro-interactions, and kinetic typography for WOW factor
-- [ ] **DES-03**: Site is responsive mobile-first (designed for phone screens where IG traffic lands)
+- [x] **DES-03**: Site is responsive mobile-first (designed for phone screens where IG traffic lands)
 - [ ] **DES-04**: Site achieves 90+ Lighthouse score across all metrics (Performance, Accessibility, Best Practices, SEO)
-- [ ] **DES-05**: Images served in WebP/AVIF with lazy loading, responsive srcset, and proper alt text
+- [x] **DES-05**: Images served in WebP/AVIF with lazy loading, responsive srcset, and proper alt text
 - [ ] **DES-06**: User can toggle between dark mode (default) and light mode
 - [ ] **DES-07**: Branded 404 error page with search and navigation
 - [ ] **DES-08**: All pages include social sharing buttons (copy link, WhatsApp, Instagram, X)
@@ -142,11 +142,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CNT-08 | Phase 6 | Pending |
 | CNT-09 | Phase 6 | Pending |
 | CNT-10 | Phase 6 | Pending |
-| DES-01 | Phase 2 | Pending |
+| DES-01 | Phase 2 | Complete |
 | DES-02 | Phase 2 | Pending |
-| DES-03 | Phase 2 | Pending |
+| DES-03 | Phase 2 | Complete |
 | DES-04 | Phase 9 | Pending |
-| DES-05 | Phase 2 | Pending |
+| DES-05 | Phase 2 | Complete |
 | DES-06 | Phase 8 | Pending |
 | DES-07 | Phase 9 | Pending |
 | DES-08 | Phase 7 | Pending |
