@@ -131,7 +131,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 07-01-PLAN.md — Instagram feed components, social sharing buttons, follow CTA, and i18n translations
-- [ ] 07-02-PLAN.md — Lite-embed components for YouTube/Instagram + wiring social components into all pages
+- [x] 07-02-PLAN.md — Lite-embed components for YouTube/Instagram + wiring social components into all pages
 **UI hint**: yes
 
 ### Phase 8: Product Comparison & Advanced Interactions

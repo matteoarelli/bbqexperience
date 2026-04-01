@@ -56,9 +56,9 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Instagram & Media
 
 - [x] **IGM-01**: Homepage and relevant pages display curated Instagram posts/reels from BBQ Experience account
-- [ ] **IGM-02**: Author can embed specific IG posts/reels within review and recipe articles
+- [x] **IGM-02**: Author can embed specific IG posts/reels within review and recipe articles
 - [x] **IGM-03**: Site includes CTAs driving readers to follow/engage on Instagram
-- [ ] **IGM-04**: YouTube and Instagram reels can be embedded within any content (lite-embed for performance)
+- [x] **IGM-04**: YouTube and Instagram reels can be embedded within any content (lite-embed for performance)
 
 ### Multilingual & SEO
 
@@ -151,9 +151,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DES-07 | Phase 9 | Pending |
 | DES-08 | Phase 7 | Complete |
 | IGM-01 | Phase 7 | Complete |
-| IGM-02 | Phase 7 | Pending |
+| IGM-02 | Phase 7 | Complete |
 | IGM-03 | Phase 7 | Complete |
-| IGM-04 | Phase 7 | Pending |
+| IGM-04 | Phase 7 | Complete |
 | SEO-01 | Phase 2 | Complete |
 | SEO-02 | Phase 2 | Complete |
 | SEO-03 | Phase 9 | Pending |
