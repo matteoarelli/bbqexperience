@@ -130,7 +130,7 @@ Plans:
   3. All content pages include social sharing buttons (copy link, WhatsApp, Instagram, X) and CTAs driving readers to follow on Instagram
 **Plans**: 2 plans
 Plans:
-- [ ] 07-01-PLAN.md — Instagram feed components, social sharing buttons, follow CTA, and i18n translations
+- [x] 07-01-PLAN.md — Instagram feed components, social sharing buttons, follow CTA, and i18n translations
 - [ ] 07-02-PLAN.md — Lite-embed components for YouTube/Instagram + wiring social components into all pages
 **UI hint**: yes
 

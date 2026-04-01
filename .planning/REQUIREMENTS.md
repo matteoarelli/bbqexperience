@@ -51,13 +51,13 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **DES-05**: Images served in WebP/AVIF with lazy loading, responsive srcset, and proper alt text
 - [x] **DES-06**: User can toggle between dark mode (default) and light mode
 - [ ] **DES-07**: Branded 404 error page with search and navigation
-- [ ] **DES-08**: All pages include social sharing buttons (copy link, WhatsApp, Instagram, X)
+- [x] **DES-08**: All pages include social sharing buttons (copy link, WhatsApp, Instagram, X)
 
 ### Instagram & Media
 
-- [ ] **IGM-01**: Homepage and relevant pages display curated Instagram posts/reels from BBQ Experience account
+- [x] **IGM-01**: Homepage and relevant pages display curated Instagram posts/reels from BBQ Experience account
 - [ ] **IGM-02**: Author can embed specific IG posts/reels within review and recipe articles
-- [ ] **IGM-03**: Site includes CTAs driving readers to follow/engage on Instagram
+- [x] **IGM-03**: Site includes CTAs driving readers to follow/engage on Instagram
 - [ ] **IGM-04**: YouTube and Instagram reels can be embedded within any content (lite-embed for performance)
 
 ### Multilingual & SEO
@@ -149,10 +149,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DES-05 | Phase 2 | Complete |
 | DES-06 | Phase 8 | Complete |
 | DES-07 | Phase 9 | Pending |
-| DES-08 | Phase 7 | Pending |
-| IGM-01 | Phase 7 | Pending |
+| DES-08 | Phase 7 | Complete |
+| IGM-01 | Phase 7 | Complete |
 | IGM-02 | Phase 7 | Pending |
-| IGM-03 | Phase 7 | Pending |
+| IGM-03 | Phase 7 | Complete |
 | IGM-04 | Phase 7 | Pending |
 | SEO-01 | Phase 2 | Complete |
 | SEO-02 | Phase 2 | Complete |
