@@ -79,7 +79,10 @@ Plans:
   3. User can browse a product photo gallery with zoom/lightbox functionality
   4. User sees a condensed verdict card (score, one-line verdict, pros/cons, product photo) that summarizes each review
   5. Review pages output valid Product + Review + AggregateRating Schema.org JSON-LD verified via Google Rich Results Test
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 04-01-PLAN.md — Review components (ScoreCard, SpecsTable, ProsConsCard, VerdictCard) + Schema.org JSON-LD + full page templates
+- [ ] 04-02-PLAN.md — Photo gallery with lightbox + visual verification checkpoint
 **UI hint**: yes
 
 ### Phase 5: Recipe Pages
@@ -162,7 +165,7 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 | 1. Infrastructure & Deploy Pipeline | 0/2 | Planning complete | - |
 | 2. Design System & Frontend Scaffold | 0/3 | Planning complete | - |
 | 3. CMS Authoring Workflow | 0/2 | Planning complete | - |
-| 4. Review Pages | 0/TBD | Not started | - |
+| 4. Review Pages | 0/2 | Planning complete | - |
 | 5. Recipe Pages | 0/3 | Planning complete | - |
 | 6. Content Pages & Discovery | 0/4 | Planning complete | - |
 | 7. Instagram & Social Integration | 0/TBD | Not started | - |
