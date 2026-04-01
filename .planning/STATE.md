@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-04-01T15:58:16.183Z"
+status: verifying
+stopped_at: "Completed 01-02-PLAN.md (checkpoint pending: DNS + admin setup)"
+last_updated: "2026-04-01T16:19:44.311Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 9
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 Phase: 01 (infrastructure-deploy-pipeline) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-01
 
 Progress: [░░░░░░░░░░] 0%
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01 P01 | 4min | 2 tasks | 43 files |
+| Phase 01 P02 | 19min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,9 @@ Recent decisions affecting current work:
 - [Roadmap]: Instagram data cached in Strapi via cron sync, never live API calls at page load
 - [Phase 01]: Dual database config: PostgreSQL for production, better-sqlite3 for local dev
 - [Phase 01]: Review scoring uses decimal type (0-10) for 5 categories: overall, build quality, performance, value, ease of use
+- [Phase 01]: Used shared PostgreSQL container for Strapi (not dedicated) - follows server pattern
+- [Phase 01]: Strapi version updated to 5.41.1 (5.40.0 did not exist on npm)
+- [Phase 01]: Astro builds run in temporary Docker container on internal network
 
 ### Pending Todos
 
@@ -79,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T15:58:16.179Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-04-01T16:19:44.307Z
+Stopped at: Completed 01-02-PLAN.md (checkpoint pending: DNS + admin setup)
 Resume file: None

@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 2 plans
 Plans:
 - [x] 01-01-PLAN.md — Create Strapi CMS project with content types, config, Dockerfile, and Astro scaffold
-- [ ] 01-02-PLAN.md — Deploy to Hetzner server with webhook pipeline and verify end-to-end
+- [x] 01-02-PLAN.md — Deploy to Hetzner server with webhook pipeline and verify end-to-end
 
 ### Phase 2: Design System & Frontend Scaffold
 **Goal**: Users see a bold, street-culture BBQ design with dark theme, smooth animations, responsive mobile-first layout, and locale-prefixed URL routing across all pages
