@@ -31,6 +31,7 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}`;
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="theme-color" content="#0D0D0D" />
 <meta name="generator" content={Astro.generator} />
+<meta name="robots" content="index, follow" />
 
 <title>{title}</title>
 <meta name="description" content={description} />
@@ -51,6 +52,9 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}`;
 <meta property="og:url" content={canonicalUrl} />
 <meta property="og:site_name" content="BBQ Experience" />
 <meta property="og:locale" content={locale} />
+{locales.filter((l) => l !== locale).map((altLocale) => (
+  <meta property="og:locale:alternate" content={altLocale} />
+))}
 {ogImage && <meta property="og:image" content={ogImage} />}
 
 <!-- Twitter Card -->
