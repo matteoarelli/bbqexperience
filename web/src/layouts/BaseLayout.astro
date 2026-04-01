@@ -3,6 +3,8 @@
  * Layout base — struttura HTML con SEO head, dark theme, e slot per header/footer
  */
 import SEOHead from '@components/common/SEOHead.astro';
+import ThemeToggle from '@components/common/ThemeToggle.svelte';
+import { loadTranslations, getTranslation } from '@lib/i18n';
 import '@styles/global.css';
 
 interface Props {
@@ -22,11 +24,19 @@ const {
   ogImage = '',
   class: className = '',
 } = Astro.props;
+
+const translations = await loadTranslations(locale as any);
 ---
 
 <!doctype html>
 <html lang={locale} dir="ltr">
   <head>
+    <script is:inline>
+      (function(){
+        var t = localStorage.getItem('bbq-theme');
+        if (t === 'light') document.documentElement.dataset.theme = 'light';
+      })();
+    </script>
     <SEOHead
       title={title}
       description={description}
@@ -39,6 +49,10 @@ const {
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-accent-fire)] focus:text-[var(--color-text-inverse)] focus:rounded-md">
       Skip to content
     </a>
+
+    <div class="fixed top-4 right-4 z-50">
+      <ThemeToggle client:load label={getTranslation(translations, 'theme.toggle')} />
+    </div>
 
     <slot name="header" />
 

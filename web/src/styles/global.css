@@ -51,6 +51,21 @@
     height: auto;
     display: block;
   }
+
+  /* Schema colore per UI nativa del browser (scrollbar, form controls) */
+  html[data-theme="light"] {
+    color-scheme: light;
+  }
+  html:not([data-theme="light"]) {
+    color-scheme: dark;
+  }
+
+  /* Prose invert fix per tema chiaro */
+  [data-theme="light"] .prose-invert {
+    --tw-prose-body: var(--color-text-primary);
+    --tw-prose-headings: var(--color-text-primary);
+    --tw-prose-links: var(--color-accent-fire);
+  }
 }
 
 /* Utilita personalizzate */
