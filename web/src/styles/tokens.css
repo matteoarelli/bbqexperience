@@ -20,6 +20,10 @@
   --color-text-muted: #A8A29E;
   --color-text-inverse: #0D0D0D;
 
+  /* Feedback — positivo/negativo */
+  --color-positive: #22c55e;
+  --color-negative: #ef4444;
+
   /* Bordi e separatori */
   --color-border-default: #404040;
   --color-border-subtle: #2D2D2D;
@@ -104,6 +108,10 @@
   --color-text-secondary: #44403C;
   --color-text-muted: #78716C;
   --color-text-inverse: #FAFAF9;
+
+  /* Feedback — positivo/negativo (più scuri per contrasto su chiaro) */
+  --color-positive: #16a34a;
+  --color-negative: #dc2626;
 
   /* Bordi e separatori */
   --color-border-default: #D6D3D1;

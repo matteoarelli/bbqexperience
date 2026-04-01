@@ -128,13 +128,13 @@
 
   .reading-progress__bar {
     height: 3px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--color-border-subtle);
     width: 100%;
   }
 
   .reading-progress__fill {
     height: 100%;
-    background: linear-gradient(90deg, #f97316, #f59e0b);
+    background: linear-gradient(90deg, var(--color-accent-fire), var(--color-accent-amber));
     transition: width 100ms linear;
   }
 
@@ -142,9 +142,9 @@
     display: flex;
     gap: 0;
     overflow-x: auto;
-    background: rgba(13, 13, 13, 0.95);
+    background: color-mix(in srgb, var(--color-bg-primary) 95%, transparent);
     backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--color-border-subtle);
     padding: 0 1rem;
     scrollbar-width: none;
   }
@@ -158,7 +158,7 @@
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 500;
-    color: #737373;
+    color: var(--color-text-muted);
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
@@ -170,11 +170,11 @@
   }
 
   .reading-progress__section-btn:hover {
-    color: #f5f5f5;
+    color: var(--color-text-primary);
   }
 
   .reading-progress__section-btn--active {
-    color: #f97316;
-    border-bottom-color: #f97316;
+    color: var(--color-accent-fire);
+    border-bottom-color: var(--color-accent-fire);
   }
 </style>

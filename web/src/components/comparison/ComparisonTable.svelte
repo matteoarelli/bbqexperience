@@ -331,7 +331,7 @@
   }
 
   .score-cell.winner {
-    background-color: rgba(249, 115, 22, 0.15);
+    background-color: color-mix(in srgb, var(--color-accent-fire) 15%, transparent);
     font-weight: bold;
     color: var(--color-accent-fire);
   }
@@ -405,13 +405,13 @@
 
   .pros-list li::before {
     content: '+ ';
-    color: #22c55e;
+    color: var(--color-positive);
     font-weight: 700;
   }
 
   .cons-list li::before {
     content: '- ';
-    color: #ef4444;
+    color: var(--color-negative);
     font-weight: 700;
   }
 
