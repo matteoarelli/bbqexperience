@@ -11,7 +11,7 @@ import { loadTranslations, getTranslation } from '@lib/i18n';
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
-import ScoreCard from '@components/review/ScoreCard.astro';
+import AnimatedScoreCard from '@components/review/AnimatedScoreCard.svelte';
 import SpecsTable from '@components/review/SpecsTable.astro';
 import ProsConsCard from '@components/review/ProsConsCard.astro';
 import VerdictCard from '@components/review/VerdictCard.astro';
@@ -106,13 +106,20 @@ const siteUrl = import.meta.env.SITE || 'https://bbqexperience.it';
 
     <!-- Punteggi -->
     <div class="mb-[var(--space-12)]">
-      <ScoreCard
+      <AnimatedScoreCard
+        client:visible
         overall={review.score_overall}
         buildQuality={review.score_build_quality}
         performance={review.score_performance}
         value={review.score_value}
         easeOfUse={review.score_ease_of_use}
-        translations={t}
+        labels={{
+          overall: getTranslation(t, 'review.overallScore'),
+          buildQuality: getTranslation(t, 'review.buildQuality'),
+          performance: getTranslation(t, 'review.performance'),
+          value: getTranslation(t, 'review.value'),
+          easeOfUse: getTranslation(t, 'review.easeOfUse'),
+        }}
       />
     </div>
 
