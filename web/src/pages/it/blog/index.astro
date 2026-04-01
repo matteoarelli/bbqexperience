@@ -1,0 +1,164 @@
+---
+/**
+ * Pagina listing blog (IT) — griglia di articoli blog con post in evidenza
+ * SSR per supportare filtro categoria via query param.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import ArticleCard from '@components/content/ArticleCard.astro';
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiBlogPost } from '@lib/types';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+export const prerender = true;
+
+const locale: Locale = 'it';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+
+// Recupera i blog post ordinati per data pubblicazione
+const response = await fetchCollection<StrapiBlogPost>('blog-posts', {
+  locale,
+  populate: 'cover_image',
+  sort: 'published_date:desc',
+  pageSize: 25,
+});
+
+const posts = response.data;
+const blogRoute = localizedRoutes.blog[locale];
+
+// Separa post in evidenza dai normali
+const featuredPosts = posts.filter((p) => p.featured);
+const regularPosts = posts.filter((p) => !p.featured);
+
+// Breadcrumbs
+const breadcrumbItems = [
+  { label: t('content.home'), href: `/${locale}/` },
+  { label: t('content.blog') },
+];
+---
+
+<BaseLayout
+  title={`${t('content.blog')} - ${t('site.name')}`}
+  description={t('site.description')}
+  locale={locale}
+  canonicalPath={`/${locale}/${blogRoute}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${blogRoute}/`} />
+
+  <section class="container-bbq py-12">
+    <Breadcrumbs items={breadcrumbItems} locale={locale} />
+
+    <h1 class="page-title">{t('content.allPosts')}</h1>
+
+    {featuredPosts.length > 0 && (
+      <div class="featured-section" data-animate>
+        <div class="featured-grid">
+          {featuredPosts.map((post) => (
+            <ArticleCard
+              title={post.title}
+              excerpt={post.excerpt}
+              slug={post.slug}
+              href={`/${locale}/${blogRoute}/${post.slug}/`}
+              coverImage={post.cover_image}
+              category={post.category}
+              readingTime={post.reading_time}
+              publishedDate={post.published_date}
+              locale={locale}
+              translations={translations}
+            />
+          ))}
+        </div>
+      </div>
+    )}
+
+    {regularPosts.length > 0 ? (
+      <div class="blog-grid" data-animate>
+        {regularPosts.map((post) => (
+          <ArticleCard
+            title={post.title}
+            excerpt={post.excerpt}
+            slug={post.slug}
+            href={`/${locale}/${blogRoute}/${post.slug}/`}
+            coverImage={post.cover_image}
+            category={post.category}
+            readingTime={post.reading_time}
+            publishedDate={post.published_date}
+            locale={locale}
+            translations={translations}
+          />
+        ))}
+      </div>
+    ) : featuredPosts.length === 0 && (
+      <div class="empty-state" data-animate>
+        <p class="empty-text">{t('content.noArticles')}</p>
+      </div>
+    )}
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .page-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-8);
+  }
+
+  .featured-section {
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .featured-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .featured-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .featured-grid :global(:first-child) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .blog-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .blog-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-24) 0;
+  }
+
+  .empty-text {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+  }
+</style>

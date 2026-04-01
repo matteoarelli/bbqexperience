@@ -1,0 +1,96 @@
+---
+/**
+ * Pagina dettaglio blog post (IT) — articolo completo con breadcrumbs e metadata
+ * SSR per supportare la modalita anteprima con contenuti draft.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import ContentLayout from '@components/content/ContentLayout.astro';
+import { fetchBySlug } from '@lib/strapi';
+import type { StrapiBlogPost } from '@lib/types';
+import { getContentStatus } from '@lib/preview';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+export const prerender = false;
+
+const locale: Locale = 'it';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+
+const { slug } = Astro.params;
+const status = getContentStatus(Astro.cookies);
+
+const post = await fetchBySlug<StrapiBlogPost>('blog-posts', slug!, {
+  locale,
+  populate: 'cover_image',
+  status,
+});
+
+if (!post) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const blogRoute = localizedRoutes.blog[locale];
+const seoTitle = post.seo_title || post.title;
+const seoDescription = post.seo_description || post.excerpt || '';
+
+// Breadcrumbs
+const breadcrumbItems = [
+  { label: t('content.home'), href: `/${locale}/` },
+  { label: t('content.blog'), href: `/${locale}/${blogRoute}/` },
+  { label: post.title },
+];
+---
+
+<BaseLayout
+  title={`${seoTitle} - ${t('site.name')}`}
+  description={seoDescription}
+  locale={locale}
+  canonicalPath={`/${locale}/${blogRoute}/${post.slug}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${blogRoute}/${post.slug}/`} />
+
+  {Astro.locals.isPreview && (
+    <div class="preview-banner">
+      MODALITA ANTEPRIMA — Questo contenuto non e pubblicato
+      <a href="/api/preview?action=exit" class="preview-exit">Esci dall'anteprima</a>
+    </div>
+  )}
+
+  <div data-pagefind-body>
+    <ContentLayout
+      title={post.title}
+      content={post.content}
+      coverImage={post.cover_image}
+      readingTime={post.reading_time}
+      publishedDate={post.published_date}
+      category={post.category}
+      locale={locale}
+      translations={translations}
+    >
+      <Breadcrumbs slot="breadcrumbs" items={breadcrumbItems} locale={locale} />
+    </ContentLayout>
+  </div>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .preview-banner {
+    background-color: #f59e0b;
+    color: #000;
+    text-align: center;
+    padding: var(--space-2) var(--space-4);
+    font-weight: 700;
+    font-size: var(--text-sm);
+  }
+
+  .preview-exit {
+    color: #000;
+    text-decoration: underline;
+    margin-left: var(--space-4);
+  }
+</style>
