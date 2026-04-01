@@ -1,0 +1,117 @@
+---
+/**
+ * Pagina listing tutorial (ES) — griglia di tutoriales con card
+ * Pagina statica generata a build time.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import ArticleCard from '@components/content/ArticleCard.astro';
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiTutorial } from '@lib/types';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+export const prerender = true;
+
+const locale: Locale = 'es';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+
+// Recupera i tutorial ordinati per data pubblicazione
+const response = await fetchCollection<StrapiTutorial>('tutorials', {
+  locale,
+  populate: 'cover_image',
+  sort: 'published_date:desc',
+  pageSize: 25,
+});
+
+const tutorials = response.data;
+const tutorialRoute = localizedRoutes.tutorials[locale];
+
+// Breadcrumbs
+const breadcrumbItems = [
+  { label: t('content.home'), href: `/${locale}/` },
+  { label: t('content.tutorials') },
+];
+---
+
+<BaseLayout
+  title={`${t('content.tutorials')} - ${t('site.name')}`}
+  description={t('site.description')}
+  locale={locale}
+  canonicalPath={`/${locale}/${tutorialRoute}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${tutorialRoute}/`} />
+
+  <section class="container-bbq py-12">
+    <Breadcrumbs items={breadcrumbItems} locale={locale} />
+
+    <h1 class="page-title">{t('content.allTutorials')}</h1>
+
+    {tutorials.length > 0 ? (
+      <div class="tutorial-grid" data-animate>
+        {tutorials.map((tutorial) => (
+          <ArticleCard
+            title={tutorial.title}
+            excerpt={tutorial.excerpt}
+            slug={tutorial.slug}
+            href={`/${locale}/${tutorialRoute}/${tutorial.slug}/`}
+            coverImage={tutorial.cover_image}
+            category={tutorial.category}
+            readingTime={tutorial.reading_time}
+            publishedDate={tutorial.published_date}
+            locale={locale}
+            translations={translations}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state" data-animate>
+        <p class="empty-text">{t('content.noArticles')}</p>
+      </div>
+    )}
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .page-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-8);
+  }
+
+  .tutorial-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .tutorial-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tutorial-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-24) 0;
+  }
+
+  .empty-text {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+  }
+</style>
