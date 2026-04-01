@@ -36,10 +36,10 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **CNT-03**: User can navigate content via categories and taxonomy (product type, meat type, technique, etc.)
 - [ ] **CNT-04**: User can navigate via breadcrumb trail on all content pages
 - [ ] **CNT-05**: User can see reading time estimate on all article pages
-- [ ] **CNT-06**: User can search content by keyword with results filtered by content type (reviews, recipes, tutorials, blog)
+- [x] **CNT-06**: User can search content by keyword with results filtered by content type (reviews, recipes, tutorials, blog)
 - [ ] **CNT-07**: User sees related content suggestions cross-linking reviews ↔ recipes ↔ tutorials
 - [ ] **CNT-08**: User sees featured/seasonal content curated by author on homepage hero section
-- [ ] **CNT-09**: User can see reading progress indicator (sticky bar) on long-form content with section navigation
+- [x] **CNT-09**: User can see reading progress indicator (sticky bar) on long-form content with section navigation
 - [ ] **CNT-10**: Tutorial and blog pages include Article Schema.org structured data (JSON-LD)
 
 ### Design & UX
@@ -137,10 +137,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CNT-03 | Phase 6 | Pending |
 | CNT-04 | Phase 6 | Pending |
 | CNT-05 | Phase 6 | Pending |
-| CNT-06 | Phase 6 | Pending |
+| CNT-06 | Phase 6 | Complete |
 | CNT-07 | Phase 6 | Pending |
 | CNT-08 | Phase 6 | Pending |
-| CNT-09 | Phase 6 | Pending |
+| CNT-09 | Phase 6 | Complete |
 | CNT-10 | Phase 6 | Pending |
 | DES-01 | Phase 2 | Complete |
 | DES-02 | Phase 2 | Complete |
