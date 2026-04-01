@@ -109,7 +109,12 @@ Plans:
   3. User can search content by keyword with results filtered by content type (reviews, recipes, tutorials, blog)
   4. User sees related content suggestions cross-linking reviews, recipes, and tutorials on every content page
   5. User sees featured/seasonal content on the homepage hero, reading time estimates on articles, and a reading progress indicator with section navigation on long-form content
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 06-01-PLAN.md — Shared content components (Breadcrumbs, ArticleCard, ContentLayout) + Tutorial pages for 3 locales
+- [ ] 06-02-PLAN.md — Svelte integration + ReadingProgress island + Pagefind SearchDialog island
+- [ ] 06-03-PLAN.md — Blog pages for 3 locales + Category filtering + Article Schema.org JSON-LD
+- [ ] 06-04-PLAN.md — Related content cross-linking + Featured homepage hero + Wiring all islands into pages
 **UI hint**: yes
 
 ### Phase 7: Instagram & Social Integration
@@ -159,7 +164,7 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 | 3. CMS Authoring Workflow | 0/2 | Planning complete | - |
 | 4. Review Pages | 0/TBD | Not started | - |
 | 5. Recipe Pages | 0/3 | Planning complete | - |
-| 6. Content Pages & Discovery | 0/TBD | Not started | - |
+| 6. Content Pages & Discovery | 0/4 | Planning complete | - |
 | 7. Instagram & Social Integration | 0/TBD | Not started | - |
 | 8. Product Comparison & Advanced Interactions | 0/TBD | Not started | - |
 | 9. SEO Audit, Performance & Launch | 0/TBD | Not started | - |
