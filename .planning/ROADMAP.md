@@ -66,7 +66,7 @@ Plans:
   4. Author can preview draft content on the frontend before publishing
 **Plans**: 2 plans
 Plans:
-- [ ] 03-01-PLAN.md — Strapi API client, TypeScript types, and media URL helpers
+- [x] 03-01-PLAN.md — Strapi API client, TypeScript types, and media URL helpers
 - [ ] 03-02-PLAN.md — Draft preview system with hybrid SSR and review page template
 
 ### Phase 4: Review Pages

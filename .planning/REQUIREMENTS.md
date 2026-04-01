@@ -70,9 +70,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### CMS & Admin
 
-- [ ] **CMS-01**: Author can create/edit/publish all content types (reviews, recipes, tutorials, blog) via headless CMS
-- [ ] **CMS-02**: CMS supports multilingual content entry (EN, IT, ES) per content item
-- [ ] **CMS-03**: CMS has media library with image upload, optimization, and management
+- [x] **CMS-01**: Author can create/edit/publish all content types (reviews, recipes, tutorials, blog) via headless CMS
+- [x] **CMS-02**: CMS supports multilingual content entry (EN, IT, ES) per content item
+- [x] **CMS-03**: CMS has media library with image upload, optimization, and management
 - [x] **CMS-04**: Content changes trigger automatic site rebuild and deploy via webhook
 - [ ] **CMS-05**: Author can preview draft content before publishing
 
@@ -159,9 +159,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEO-03 | Phase 9 | Pending |
 | SEO-04 | Phase 9 | Pending |
 | SEO-05 | Phase 9 | Pending |
-| CMS-01 | Phase 3 | Pending |
-| CMS-02 | Phase 3 | Pending |
-| CMS-03 | Phase 3 | Pending |
+| CMS-01 | Phase 3 | Complete |
+| CMS-02 | Phase 3 | Complete |
+| CMS-03 | Phase 3 | Complete |
 | CMS-04 | Phase 1 | Complete |
 | CMS-05 | Phase 3 | Pending |
 
