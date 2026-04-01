@@ -128,7 +128,10 @@ Plans:
   1. Homepage and relevant pages display curated Instagram posts/reels from the BBQ Experience account (loaded from local cache, not live API)
   2. Author can embed specific IG posts/reels and YouTube videos within review and recipe articles using lite-embed for performance
   3. All content pages include social sharing buttons (copy link, WhatsApp, Instagram, X) and CTAs driving readers to follow on Instagram
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Instagram feed components, social sharing buttons, follow CTA, and i18n translations
+- [ ] 07-02-PLAN.md — Lite-embed components for YouTube/Instagram + wiring social components into all pages
 **UI hint**: yes
 
 ### Phase 8: Product Comparison & Advanced Interactions
@@ -168,6 +171,6 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 | 4. Review Pages | 0/2 | Planning complete | - |
 | 5. Recipe Pages | 3/3 | Complete | 2026-04-01 |
 | 6. Content Pages & Discovery | 0/4 | Planning complete | - |
-| 7. Instagram & Social Integration | 0/TBD | Not started | - |
+| 7. Instagram & Social Integration | 0/2 | Planning complete | - |
 | 8. Product Comparison & Advanced Interactions | 0/TBD | Not started | - |
 | 9. SEO Audit, Performance & Launch | 0/TBD | Not started | - |
