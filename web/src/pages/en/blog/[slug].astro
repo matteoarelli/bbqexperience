@@ -8,11 +8,13 @@ import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ContentLayout from '@components/content/ContentLayout.astro';
+import ArticleSchema from '@components/content/ArticleSchema.astro';
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiBlogPost } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
+import { getStrapiMediaURL } from '@lib/media';
 
 export const prerender = false;
 
@@ -36,6 +38,8 @@ if (!post) {
 const blogRoute = localizedRoutes.blog[locale];
 const seoTitle = post.seo_title || post.title;
 const seoDescription = post.seo_description || post.excerpt || '';
+const canonicalUrl = `https://bbqexperience.com/${locale}/${blogRoute}/${post.slug}/`;
+const coverImageUrl = getStrapiMediaURL(post.cover_image);
 
 // Breadcrumbs
 const breadcrumbItems = [
@@ -52,6 +56,16 @@ const breadcrumbItems = [
   canonicalPath={`/${locale}/${blogRoute}/${post.slug}/`}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${blogRoute}/${post.slug}/`} />
+
+  <ArticleSchema
+    title={seoTitle}
+    description={seoDescription}
+    url={canonicalUrl}
+    datePublished={post.published_date}
+    dateModified={post.updatedAt}
+    imageUrl={coverImageUrl}
+    locale={locale}
+  />
 
   {Astro.locals.isPreview && (
     <div class="preview-banner">

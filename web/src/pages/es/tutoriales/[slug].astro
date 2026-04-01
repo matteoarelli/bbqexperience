@@ -8,11 +8,13 @@ import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ContentLayout from '@components/content/ContentLayout.astro';
+import ArticleSchema from '@components/content/ArticleSchema.astro';
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiTutorial } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
+import { getStrapiMediaURL } from '@lib/media';
 
 export const prerender = false;
 
@@ -36,6 +38,8 @@ if (!tutorial) {
 const tutorialRoute = localizedRoutes.tutorials[locale];
 const seoTitle = tutorial.seo_title || tutorial.title;
 const seoDescription = tutorial.seo_description || tutorial.excerpt || '';
+const canonicalUrl = `https://bbqexperience.com/${locale}/${tutorialRoute}/${tutorial.slug}/`;
+const coverImageUrl = getStrapiMediaURL(tutorial.cover_image);
 
 // Breadcrumbs
 const breadcrumbItems = [
@@ -60,6 +64,16 @@ const difficultyColors: Record<string, string> = {
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${tutorialRoute}/${tutorial.slug}/`} />
 
+  <ArticleSchema
+    title={seoTitle}
+    description={seoDescription}
+    url={canonicalUrl}
+    datePublished={tutorial.published_date}
+    dateModified={tutorial.updatedAt}
+    imageUrl={coverImageUrl}
+    locale={locale}
+  />
+
   {Astro.locals.isPreview && (
     <div class="preview-banner">
       MODO PREVIEW — Este contenido no esta publicado
@@ -67,29 +81,31 @@ const difficultyColors: Record<string, string> = {
     </div>
   )}
 
-  <ContentLayout
-    title={tutorial.title}
-    content={tutorial.content}
-    coverImage={tutorial.cover_image}
-    readingTime={tutorial.reading_time}
-    publishedDate={tutorial.published_date}
-    category={tutorial.category}
-    locale={locale}
-    translations={translations}
-  >
-    <Breadcrumbs slot="breadcrumbs" items={breadcrumbItems} locale={locale} />
+  <div data-pagefind-body>
+    <ContentLayout
+      title={tutorial.title}
+      content={tutorial.content}
+      coverImage={tutorial.cover_image}
+      readingTime={tutorial.reading_time}
+      publishedDate={tutorial.published_date}
+      category={tutorial.category}
+      locale={locale}
+      translations={translations}
+    >
+      <Breadcrumbs slot="breadcrumbs" items={breadcrumbItems} locale={locale} />
 
-    {tutorial.difficulty && (
-      <div slot="badges" class="difficulty-badge-row">
-        <span
-          class="difficulty-badge"
-          style={`background-color: ${difficultyColors[tutorial.difficulty] || 'var(--color-accent-fire)'};`}
-        >
-          {t(`content.${tutorial.difficulty}`)}
-        </span>
-      </div>
-    )}
-  </ContentLayout>
+      {tutorial.difficulty && (
+        <div slot="badges" class="difficulty-badge-row">
+          <span
+            class="difficulty-badge"
+            style={`background-color: ${difficultyColors[tutorial.difficulty] || 'var(--color-accent-fire)'};`}
+          >
+            {t(`content.${tutorial.difficulty}`)}
+          </span>
+        </div>
+      )}
+    </ContentLayout>
+  </div>
 
   <Footer slot="footer" locale={locale} translations={translations} />
 </BaseLayout>

@@ -1,7 +1,7 @@
 ---
 /**
- * Pagina listing blog (ES) — griglia di articulos blog con post destacados
- * SSR para soportar filtro categoria via query param.
+ * Pagina listing blog (ES) — griglia di articulos blog con filtro categoria y post destacados
+ * SSR para soportar filtro categoria dinamico via query param.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
@@ -13,26 +13,35 @@ import type { StrapiBlogPost } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
-export const prerender = true;
+export const prerender = false;
 
 const locale: Locale = 'es';
 const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);
 
-// Recupera i blog post ordinati per data pubblicazione
-const response = await fetchCollection<StrapiBlogPost>('blog-posts', {
+// Categorie disponibili per il blog
+const categories = ['news', 'events', 'trends', 'tips', 'culture'] as const;
+const activeCategory = Astro.url.searchParams.get('category') || null;
+
+// Recupera i blog post con filtro categoria opzionale
+const fetchOptions: Parameters<typeof fetchCollection>[1] = {
   locale,
   populate: 'cover_image',
   sort: 'published_date:desc',
   pageSize: 25,
-});
+};
 
+if (activeCategory && categories.includes(activeCategory as typeof categories[number])) {
+  fetchOptions.filters = { category: { $eq: activeCategory } };
+}
+
+const response = await fetchCollection<StrapiBlogPost>('blog-posts', fetchOptions);
 const posts = response.data;
 const blogRoute = localizedRoutes.blog[locale];
 
-// Separa post in evidenza dai normali
-const featuredPosts = posts.filter((p) => p.featured);
-const regularPosts = posts.filter((p) => !p.featured);
+// Separa post in evidenza dai normali (solo se non c'e filtro attivo)
+const featuredPosts = activeCategory ? [] : posts.filter((p) => p.featured);
+const regularPosts = activeCategory ? posts : posts.filter((p) => !p.featured);
 
 // Breadcrumbs
 const breadcrumbItems = [
@@ -53,6 +62,23 @@ const breadcrumbItems = [
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
 
     <h1 class="page-title">{t('content.allPosts')}</h1>
+
+    <div class="category-filter">
+      <a
+        href={`/${locale}/${blogRoute}/`}
+        class:list={['filter-btn', { 'filter-btn--active': !activeCategory }]}
+      >
+        {t('content.allCategories')}
+      </a>
+      {categories.map((cat) => (
+        <a
+          href={`/${locale}/${blogRoute}/?category=${cat}`}
+          class:list={['filter-btn', { 'filter-btn--active': activeCategory === cat }]}
+        >
+          {t(`content.${cat}`)}
+        </a>
+      ))}
+    </div>
 
     {featuredPosts.length > 0 && (
       <div class="featured-section" data-animate>
@@ -109,7 +135,47 @@ const breadcrumbItems = [
     font-weight: 900;
     text-transform: uppercase;
     color: var(--color-text-primary);
+    margin-bottom: var(--space-6);
+  }
+
+  .category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
     margin-bottom: var(--space-8);
+  }
+
+  .filter-btn {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-muted);
+    background-color: transparent;
+    transition: all var(--transition-fast);
+  }
+
+  .filter-btn:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-secondary);
+  }
+
+  .filter-btn--active {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+    border-color: var(--color-accent-fire);
+  }
+
+  .filter-btn--active:hover {
+    background-color: var(--color-accent-ember);
+    border-color: var(--color-accent-ember);
+    color: var(--color-text-inverse);
   }
 
   .featured-section {

@@ -1,7 +1,7 @@
 ---
 /**
- * Pagina listing tutorial (IT) — griglia di guide con card
- * Pagina statica generata a build time.
+ * Pagina listing tutorial (IT) — griglia di guide con filtro categoria
+ * SSR per supportare filtro categoria dinamico via query param.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
@@ -13,20 +13,29 @@ import type { StrapiTutorial } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
-export const prerender = true;
+export const prerender = false;
 
 const locale: Locale = 'it';
 const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);
 
-// Recupera i tutorial ordinati per data pubblicazione
-const response = await fetchCollection<StrapiTutorial>('tutorials', {
+// Categorie disponibili per i tutorial
+const categories = ['technique', 'equipment', 'knowledge', 'safety'] as const;
+const activeCategory = Astro.url.searchParams.get('category') || null;
+
+// Recupera i tutorial con filtro categoria opzionale
+const fetchOptions: Parameters<typeof fetchCollection>[1] = {
   locale,
   populate: 'cover_image',
   sort: 'published_date:desc',
   pageSize: 25,
-});
+};
 
+if (activeCategory && categories.includes(activeCategory as typeof categories[number])) {
+  fetchOptions.filters = { category: { $eq: activeCategory } };
+}
+
+const response = await fetchCollection<StrapiTutorial>('tutorials', fetchOptions);
 const tutorials = response.data;
 const tutorialRoute = localizedRoutes.tutorials[locale];
 
@@ -49,6 +58,23 @@ const breadcrumbItems = [
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
 
     <h1 class="page-title">{t('content.allTutorials')}</h1>
+
+    <div class="category-filter">
+      <a
+        href={`/${locale}/${tutorialRoute}/`}
+        class:list={['filter-btn', { 'filter-btn--active': !activeCategory }]}
+      >
+        {t('content.allCategories')}
+      </a>
+      {categories.map((cat) => (
+        <a
+          href={`/${locale}/${tutorialRoute}/?category=${cat}`}
+          class:list={['filter-btn', { 'filter-btn--active': activeCategory === cat }]}
+        >
+          {t(`content.${cat}`)}
+        </a>
+      ))}
+    </div>
 
     {tutorials.length > 0 ? (
       <div class="tutorial-grid" data-animate>
@@ -84,7 +110,47 @@ const breadcrumbItems = [
     font-weight: 900;
     text-transform: uppercase;
     color: var(--color-text-primary);
+    margin-bottom: var(--space-6);
+  }
+
+  .category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
     margin-bottom: var(--space-8);
+  }
+
+  .filter-btn {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-muted);
+    background-color: transparent;
+    transition: all var(--transition-fast);
+  }
+
+  .filter-btn:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-secondary);
+  }
+
+  .filter-btn--active {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+    border-color: var(--color-accent-fire);
+  }
+
+  .filter-btn--active:hover {
+    background-color: var(--color-accent-ember);
+    border-color: var(--color-accent-ember);
+    color: var(--color-text-inverse);
   }
 
   .tutorial-grid {

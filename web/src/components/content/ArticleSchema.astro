@@ -1,0 +1,65 @@
+---
+/**
+ * ArticleSchema — Componente JSON-LD Schema.org per articoli
+ * Genera structured data di tipo Article per SEO rich results.
+ * Omette i campi null dall'output JSON-LD.
+ */
+interface Props {
+  title: string;
+  description: string;
+  url: string;
+  datePublished: string | null;
+  dateModified: string | null;
+  authorName?: string;
+  imageUrl: string | null;
+  locale: string;
+}
+
+const {
+  title,
+  description,
+  url,
+  datePublished,
+  dateModified,
+  authorName = 'BBQ Experience',
+  imageUrl,
+  locale,
+} = Astro.props;
+
+// Costruisci l'oggetto JSON-LD omettendo i campi null
+const jsonLd: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description: description,
+  url: url,
+  author: {
+    '@type': 'Person',
+    name: authorName,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'BBQ Experience',
+    url: 'https://bbqexperience.com',
+  },
+  inLanguage: locale,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': url,
+  },
+};
+
+if (datePublished) {
+  jsonLd.datePublished = datePublished;
+}
+
+if (dateModified) {
+  jsonLd.dateModified = dateModified;
+}
+
+if (imageUrl) {
+  jsonLd.image = imageUrl;
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
