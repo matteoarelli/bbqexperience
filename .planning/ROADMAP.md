@@ -158,7 +158,10 @@ Plans:
   2. Per-locale XML sitemaps are generated and submitted to search engines
   3. BreadcrumbList Schema.org structured data renders on all pages; Open Graph and Twitter Card meta tags generate correct social sharing previews
   4. A branded 404 error page with search and navigation is displayed for missing URLs
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 09-01-PLAN.md — BreadcrumbList JSON-LD, ogImage on all pages, per-locale sitemap config
+- [ ] 09-02-PLAN.md — Branded 404 page with search/navigation + Lighthouse audit fixes
 **UI hint**: yes
 
 ## Progress
@@ -177,4 +180,4 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 | 6. Content Pages & Discovery | 0/4 | Planning complete | - |
 | 7. Instagram & Social Integration | 0/2 | Planning complete | - |
 | 8. Product Comparison & Advanced Interactions | 0/3 | Planning complete | - |
-| 9. SEO Audit, Performance & Launch | 0/TBD | Not started | - |
+| 9. SEO Audit, Performance & Launch | 0/2 | Planning complete | - |
