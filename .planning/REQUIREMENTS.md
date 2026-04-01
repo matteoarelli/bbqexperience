@@ -15,7 +15,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **REV-04**: User can browse product photo gallery with zoom/lightbox
 - [x] **REV-05**: User can view condensed review verdict card (score, one-line verdict, pros/cons, product photo)
 - [ ] **REV-06**: User can compare 2-5 reviewed products side-by-side across all scoring categories and specs
-- [ ] **REV-07**: User can see animated scoring visualizations (radial progress bars, flame-themed gauges) on review pages
+- [x] **REV-07**: User can see animated scoring visualizations (radial progress bars, flame-themed gauges) on review pages
 - [x] **REV-08**: Review pages include Product + Review + AggregateRating Schema.org structured data (JSON-LD)
 
 ### Recipes
@@ -122,7 +122,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REV-04 | Phase 4 | Complete |
 | REV-05 | Phase 4 | Complete |
 | REV-06 | Phase 8 | Pending |
-| REV-07 | Phase 8 | Pending |
+| REV-07 | Phase 8 | Complete |
 | REV-08 | Phase 4 | Complete |
 | REC-01 | Phase 5 | Complete |
 | REC-02 | Phase 5 | Complete |

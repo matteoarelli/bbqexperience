@@ -144,8 +144,8 @@ Plans:
   3. User can toggle between dark mode (default) and light mode, with preference persisted across sessions
 **Plans**: 3 plans
 Plans:
-- [ ] 08-01-PLAN.md — Dark/light mode toggle with light theme tokens and localStorage persistence
-- [ ] 08-02-PLAN.md — Animated scoring visualizations (FlameGauge + radial progress bars) on review pages
+- [x] 08-01-PLAN.md — Dark/light mode toggle with light theme tokens and localStorage persistence
+- [x] 08-02-PLAN.md — Animated scoring visualizations (FlameGauge + radial progress bars) on review pages
 - [ ] 08-03-PLAN.md — Product comparison tool with side-by-side table and shareable URLs
 **UI hint**: yes
 
