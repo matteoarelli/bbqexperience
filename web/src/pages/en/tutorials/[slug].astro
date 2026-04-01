@@ -9,7 +9,7 @@ import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ContentLayout from '@components/content/ContentLayout.astro';
 import ArticleSchema from '@components/content/ArticleSchema.astro';
-import { fetchBySlug, STRAPI_URL } from '@lib/strapi';
+import { fetchBySlug } from '@lib/strapi';
 import type { StrapiTutorial } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';

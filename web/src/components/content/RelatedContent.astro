@@ -1,0 +1,219 @@
+---
+/**
+ * RelatedContent — sezione contenuti correlati cross-tipo
+ * Mostra articoli da tutorial, recensioni e ricette per scoperta contenuti.
+ * Esclude l'articolo corrente per evitare auto-referenza.
+ */
+import type { Locale } from '@lib/i18n';
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiTutorial, StrapiReview, StrapiRecipe } from '@lib/types';
+import ArticleCard from '@components/content/ArticleCard.astro';
+import { getStrapiMediaURL } from '@lib/media';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+  currentSlug: string;
+  currentType: 'tutorial' | 'blog-post';
+}
+
+const { locale, translations, currentSlug, currentType } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+
+// Recupera contenuti recenti da diversi tipi
+const [tutorialsRes, reviewsRes, recipesRes] = await Promise.all([
+  fetchCollection<StrapiTutorial>('tutorials', {
+    locale,
+    pageSize: 4,
+    sort: 'published_date:desc',
+    populate: 'cover_image',
+  }),
+  fetchCollection<StrapiReview>('reviews', {
+    locale,
+    pageSize: 3,
+    sort: 'published_date:desc',
+    populate: 'gallery',
+  }),
+  fetchCollection<StrapiRecipe>('recipes', {
+    locale,
+    pageSize: 3,
+    sort: 'published_date:desc',
+    populate: 'cover_image',
+  }),
+]);
+
+// Struttura unificata per i contenuti correlati
+interface RelatedItem {
+  title: string;
+  excerpt: string | null;
+  slug: string;
+  href: string;
+  coverImage: any;
+  category: string | null;
+  readingTime: number | null;
+  publishedDate: string | null;
+  contentType: string;
+}
+
+const tutorialRoute = localizedRoutes.tutorials[locale];
+const reviewRoute = localizedRoutes.reviews[locale];
+const recipeRoute = localizedRoutes.recipes[locale];
+
+// Combina i risultati escludendo l'articolo corrente
+const allItems: RelatedItem[] = [];
+
+for (const tutorial of tutorialsRes.data) {
+  if (currentType === 'tutorial' && tutorial.slug === currentSlug) continue;
+  allItems.push({
+    title: tutorial.title,
+    excerpt: tutorial.excerpt,
+    slug: tutorial.slug,
+    href: `/${locale}/${tutorialRoute}/${tutorial.slug}/`,
+    coverImage: tutorial.cover_image,
+    category: tutorial.category,
+    readingTime: tutorial.reading_time,
+    publishedDate: tutorial.published_date,
+    contentType: t('content.tutorials'),
+  });
+}
+
+for (const review of reviewsRes.data) {
+  allItems.push({
+    title: review.title,
+    excerpt: review.excerpt,
+    slug: review.slug,
+    href: `/${locale}/${reviewRoute}/${review.slug}/`,
+    coverImage: review.gallery?.[0] || null,
+    category: null,
+    readingTime: null,
+    publishedDate: review.published_date,
+    contentType: t('nav.reviews'),
+  });
+}
+
+for (const recipe of recipesRes.data) {
+  allItems.push({
+    title: recipe.title,
+    excerpt: recipe.excerpt,
+    slug: recipe.slug,
+    href: `/${locale}/${recipeRoute}/${recipe.slug}/`,
+    coverImage: recipe.cover_image,
+    category: recipe.technique,
+    readingTime: null,
+    publishedDate: recipe.published_date,
+    contentType: t('nav.recipes'),
+  });
+}
+
+// Mescola e prendi i primi 6
+const shuffled = allItems.sort(() => Math.random() - 0.5).slice(0, 6);
+---
+
+{shuffled.length > 0 && (
+  <section class="related-content">
+    <div class="related-header">
+      <h2 class="related-title">{t('content.relatedContent')}</h2>
+    </div>
+
+    <div class="related-grid">
+      {shuffled.map((item) => (
+        <div class="related-item">
+          <span class="related-type-badge">{item.contentType}</span>
+          <ArticleCard
+            title={item.title}
+            excerpt={item.excerpt}
+            slug={item.slug}
+            href={item.href}
+            coverImage={item.coverImage}
+            category={item.category}
+            readingTime={item.readingTime}
+            publishedDate={item.publishedDate}
+            locale={locale}
+            translations={translations}
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .related-content {
+    margin-top: var(--space-16);
+    padding-top: var(--space-12);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .related-header {
+    margin-bottom: var(--space-8);
+  }
+
+  .related-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  .related-grid {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-4);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+
+  .related-grid::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .related-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .related-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+
+  .related-item {
+    flex: 0 0 280px;
+    scroll-snap-align: start;
+    position: relative;
+  }
+
+  .related-type-badge {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 10;
+    background-color: rgba(13, 13, 13, 0.85);
+    color: var(--color-accent-fire);
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(249, 115, 22, 0.2);
+  }
+
+  @media (min-width: 1024px) {
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      overflow-x: visible;
+      scroll-snap-type: none;
+    }
+
+    .related-item {
+      flex: auto;
+    }
+  }
+</style>
