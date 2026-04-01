@@ -49,7 +49,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **DES-03**: Site is responsive mobile-first (designed for phone screens where IG traffic lands)
 - [ ] **DES-04**: Site achieves 90+ Lighthouse score across all metrics (Performance, Accessibility, Best Practices, SEO)
 - [x] **DES-05**: Images served in WebP/AVIF with lazy loading, responsive srcset, and proper alt text
-- [ ] **DES-06**: User can toggle between dark mode (default) and light mode
+- [x] **DES-06**: User can toggle between dark mode (default) and light mode
 - [ ] **DES-07**: Branded 404 error page with search and navigation
 - [ ] **DES-08**: All pages include social sharing buttons (copy link, WhatsApp, Instagram, X)
 
@@ -147,7 +147,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DES-03 | Phase 2 | Complete |
 | DES-04 | Phase 9 | Pending |
 | DES-05 | Phase 2 | Complete |
-| DES-06 | Phase 8 | Pending |
+| DES-06 | Phase 8 | Complete |
 | DES-07 | Phase 9 | Pending |
 | DES-08 | Phase 7 | Pending |
 | IGM-01 | Phase 7 | Pending |
