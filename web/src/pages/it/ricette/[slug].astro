@@ -17,7 +17,9 @@ import RecipeInteractive from '@components/recipe/RecipeInteractive.svelte';
 import CookMode from '@components/recipe/CookMode.svelte';
 import PrintRecipeCard from '@components/recipe/PrintRecipeCard.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
-import { loadTranslations } from '@lib/i18n';
+import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
+import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import { loadTranslations, getTranslation } from '@lib/i18n';
 import '@styles/print.css';
 
 export const prerender = false;
@@ -39,6 +41,13 @@ const pageTitle = recipe.seo_title || recipe.title;
 const pageDescription = recipe.seo_description || recipe.excerpt || '';
 const translations = await loadTranslations('it');
 const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience.com').href;
+
+// Breadcrumbs
+const breadcrumbItems = [
+  { label: getTranslation(translations, 'content.home'), href: '/it/' },
+  { label: getTranslation(translations, 'nav.recipes'), href: '/it/ricette/' },
+  { label: recipe.title },
+];
 ---
 
 <BaseLayout
@@ -56,6 +65,8 @@ const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience
   )}
 
   <article class="max-w-3xl mx-auto px-4 py-12" style="color: var(--color-text-primary);">
+    <Breadcrumbs items={breadcrumbItems} locale="it" />
+
     <div class="no-print">
       <JumpToRecipe label="Vai alla Ricetta" totalTime={recipe.total_time} />
     </div>
@@ -131,5 +142,6 @@ const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience
     </div>
 
     <RecipeJsonLd recipe={recipe} locale="it" />
+    <BreadcrumbJsonLd items={breadcrumbItems} />
   </article>
 </BaseLayout>

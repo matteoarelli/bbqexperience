@@ -11,6 +11,7 @@ import ContentLayout from '@components/content/ContentLayout.astro';
 import ArticleSchema from '@components/content/ArticleSchema.astro';
 import RelatedContent from '@components/content/RelatedContent.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
+import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiTutorial } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
@@ -64,6 +65,7 @@ const difficultyColors: Record<string, string> = {
   description={seoDescription}
   locale={locale}
   canonicalPath={`/${locale}/${tutorialRoute}/${tutorial.slug}/`}
+  ogImage={coverImageUrl || ''}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${tutorialRoute}/${tutorial.slug}/`} />
 
@@ -115,6 +117,8 @@ const difficultyColors: Record<string, string> = {
   <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">
     <SocialShareBar url={pageUrl} title={tutorial.title} locale={locale} translations={translations} />
   </div>
+
+  <BreadcrumbJsonLd items={breadcrumbItems} />
 
   <Footer slot="footer" locale={locale} translations={translations} />
 </BaseLayout>

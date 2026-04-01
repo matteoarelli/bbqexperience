@@ -18,6 +18,8 @@ import VerdictCard from '@components/review/VerdictCard.astro';
 import PhotoGallery from '@components/review/PhotoGallery.astro';
 import ReviewJsonLd from '@components/review/ReviewJsonLd.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
+import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
+import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 
 export const prerender = false;
 
@@ -41,6 +43,13 @@ const coverImageAlt = getStrapiMediaAlt(review.gallery?.[0]) || review.title;
 const productImage = review.product?.images?.[0] ? getStrapiMediaURL(review.product.images[0]) : coverImage;
 const siteUrl = import.meta.env.SITE || 'https://bbqexperience.it';
 const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience.com').href;
+
+// Breadcrumbs
+const breadcrumbItems = [
+  { label: getTranslation(t, 'content.home'), href: `/${locale}/` },
+  { label: getTranslation(t, 'nav.reviews'), href: `/${locale}/resenas/` },
+  { label: review.title },
+];
 ---
 
 <BaseLayout
@@ -48,6 +57,7 @@ const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience
   description={review.seo_description || review.excerpt || ''}
   locale={locale}
   canonicalPath={`/${locale}/resenas/${review.slug}/`}
+  ogImage={coverImage || ''}
 >
   {Astro.locals.isPreview && (
     <div class="bg-amber-500 text-black text-center py-2 px-4 font-bold text-sm">
@@ -59,6 +69,8 @@ const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience
   <Header slot="header" locale={locale} translations={t} currentPath={Astro.url.pathname} />
 
   <article class="max-w-4xl mx-auto px-[var(--container-padding)] py-[var(--space-12)]">
+    <Breadcrumbs items={breadcrumbItems} locale={locale} />
+
     <!-- Titolo e metadati -->
     <h1
       class="text-[var(--text-4xl)] uppercase tracking-tight mb-[var(--space-4)]"
@@ -179,6 +191,7 @@ const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience
     locale={locale}
     siteUrl={siteUrl}
   />
+  <BreadcrumbJsonLd items={breadcrumbItems} />
 </BaseLayout>
 
 <script>
