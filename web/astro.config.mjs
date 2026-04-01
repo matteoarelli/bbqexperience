@@ -8,7 +8,15 @@ export default defineConfig({
   site: 'https://bbqexperience.com',
   output: 'static',
   adapter: node({ mode: 'standalone' }),
-  integrations: [sitemap(), svelte()],
+  integrations: [
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: { en: 'en', it: 'it', es: 'es' },
+      },
+    }),
+    svelte(),
+  ],
   vite: {
     plugins: [tailwindcss()],
   },
