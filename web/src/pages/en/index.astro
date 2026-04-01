@@ -1,27 +1,42 @@
 ---
 // Homepage inglese — BBQ Experience
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getTranslation, loadTranslations } from '@lib/i18n';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import Hero from '@components/common/Hero.astro';
+import { loadTranslations, getTranslation } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
 const locale: Locale = 'en';
-const t = await loadTranslations(locale);
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
 ---
 
 <BaseLayout
-  title={`${getTranslation(t, 'site.name')} - ${getTranslation(t, 'site.tagline')}`}
-  description="The most complete BBQ review destination online."
-  locale="en"
+  title={`${t('site.name')} - ${t('site.tagline')}`}
+  description={t('site.description')}
+  locale={locale}
   canonicalPath="/"
 >
-  <section class="min-h-screen flex items-center justify-center bg-gradient-dark">
-    <div class="container-bbq text-center">
-      <h1 class="text-gradient-fire" style={`font-size: var(--text-5xl); font-family: var(--font-heading);`}>
-        {getTranslation(t, 'hero.title')}
-      </h1>
-      <p style={`font-size: var(--text-lg); color: var(--color-text-secondary); margin-top: var(--space-6);`}>
-        {getTranslation(t, 'hero.subtitle')}
-      </p>
-    </div>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/`} />
+
+  <Hero
+    title={t('hero.title')}
+    subtitle={t('hero.subtitle')}
+    ctaText={t('hero.cta')}
+    ctaHref={`/${locale}/reviews/`}
+    locale={locale}
+  />
+
+  <!-- Sezione placeholder per contenuti futuri -->
+  <section class="container-bbq py-24" data-animate>
+    <h2 class="text-center" style="font-family: var(--font-heading); font-size: var(--text-3xl);">
+      {t('common.loading')}
+    </h2>
+    <p class="text-center mt-4" style="color: var(--color-text-muted);">
+      Content sections will be added in future phases.
+    </p>
   </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
 </BaseLayout>

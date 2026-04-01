@@ -1,28 +1,42 @@
 ---
 // Homepage espanola — BBQ Experience
-import { getTranslation, loadTranslations } from '@lib/i18n';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import Hero from '@components/common/Hero.astro';
+import { loadTranslations, getTranslation } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
-import LanguageSwitcher from '@components/common/LanguageSwitcher.astro';
 
 const locale: Locale = 'es';
-const t = await loadTranslations(locale);
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{getTranslation(t, 'site.name')} - {getTranslation(t, 'site.tagline')}</title>
-    <link rel="alternate" hreflang="en" href="https://bbqexperience.com/en/" />
-    <link rel="alternate" hreflang="it" href="https://bbqexperience.com/it/" />
-    <link rel="alternate" hreflang="es" href="https://bbqexperience.com/es/" />
-    <link rel="alternate" hreflang="x-default" href="https://bbqexperience.com/en/" />
-  </head>
-  <body style="background:#0D0D0D;color:#F5F5F4;font-family:system-ui;margin:0;">
-    <LanguageSwitcher currentLocale={locale} currentPath="/es/" />
-    <main style="max-width:1280px;margin:0 auto;padding:2rem;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-      <h1 style="font-size:3rem;font-weight:900;text-transform:uppercase;">{getTranslation(t, 'hero.title')}</h1>
-      <p style="font-size:1.25rem;color:#D6D3D1;margin-top:1rem;">{getTranslation(t, 'hero.subtitle')}</p>
-    </main>
-  </body>
-</html>
+<BaseLayout
+  title={`${t('site.name')} - ${t('site.tagline')}`}
+  description={t('site.description')}
+  locale={locale}
+  canonicalPath="/"
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/`} />
+
+  <Hero
+    title={t('hero.title')}
+    subtitle={t('hero.subtitle')}
+    ctaText={t('hero.cta')}
+    ctaHref={`/${locale}/resenas/`}
+    locale={locale}
+  />
+
+  <!-- Sezione placeholder para contenidos futuros -->
+  <section class="container-bbq py-24" data-animate>
+    <h2 class="text-center" style="font-family: var(--font-heading); font-size: var(--text-3xl);">
+      {t('common.loading')}
+    </h2>
+    <p class="text-center mt-4" style="color: var(--color-text-muted);">
+      Las secciones de contenido se agregaran en fases futuras.
+    </p>
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>

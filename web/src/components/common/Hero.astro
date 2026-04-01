@@ -1,0 +1,68 @@
+---
+// Sezione hero homepage — titolo animato BBQ Experience con gradiente fuoco
+interface Props {
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaHref: string;
+  locale: string;
+}
+
+const { title, subtitle, ctaText, ctaHref } = Astro.props;
+
+// Separa "BBQ" da "EXPERIENCE" nel titolo per stile differenziato
+const titleParts = title.split(' ');
+const firstWord = titleParts[0] || 'BBQ';
+const restWords = titleParts.slice(1).join(' ') || 'EXPERIENCE';
+---
+
+<section class="hero-section flex items-center justify-center relative overflow-hidden" style="min-height: 90vh;">
+  <!-- Background con gradiente radiale fuoco -->
+  <div class="absolute inset-0" style="background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.15) 0%, transparent 60%), linear-gradient(180deg, #0D0D0D 0%, #1A1A1A 100%);"></div>
+
+  <!-- Contenuto -->
+  <div class="container-bbq text-center relative z-10">
+    <h1 class="hero-title" data-animate style="font-family: var(--font-heading); font-size: var(--text-5xl); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1;">
+      <span class="text-gradient-fire">{firstWord}</span>
+      <br />
+      <span style="color: var(--color-text-primary);">{restWords}</span>
+    </h1>
+
+    <p class="mt-6 mx-auto" data-animate data-animate-delay="0.2" style="font-size: var(--text-xl); color: var(--color-text-secondary); max-width: 42rem;">
+      {subtitle}
+    </p>
+
+    <a
+      href={ctaHref}
+      class="hero-cta inline-block mt-8 px-8 py-4 rounded-lg font-bold uppercase tracking-wider"
+      data-animate
+      data-animate-delay="0.4"
+      style="background-color: var(--color-accent-fire); color: var(--color-text-inverse); font-size: var(--text-base); transition: background-color var(--transition-base);"
+    >
+      {ctaText}
+    </a>
+
+    <!-- Elemento decorativo — linea gradiente -->
+    <div
+      class="mx-auto mt-12"
+      data-animate
+      data-animate-delay="0.6"
+      style="width: 6rem; height: 0.25rem; background: linear-gradient(90deg, var(--color-accent-fire), var(--color-accent-amber));"
+    ></div>
+  </div>
+</section>
+
+<style>
+  .hero-cta:hover {
+    background-color: var(--color-accent-ember) !important;
+  }
+</style>
+
+<script>
+  // Inizializza le animazioni GSAP di scroll sulla hero
+  import { initScrollAnimations } from '../../lib/animations';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initScrollAnimations();
+  });
+</script>
