@@ -1,0 +1,70 @@
+---
+/**
+ * Pagina recensione (ES) — Template minimale che prova il pipeline CMS-to-frontend.
+ * SSR per supportare la modalita anteprima con contenuti draft.
+ * La fase 4 ricostruira il design completo con scoring UI, galleria, verdict cards.
+ */
+import { fetchBySlug } from '@lib/strapi';
+import type { StrapiReview } from '@lib/types';
+import { getStrapiMediaURL } from '@lib/media';
+import { getContentStatus } from '@lib/preview';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const status = getContentStatus(Astro.cookies);
+const review = await fetchBySlug<StrapiReview>('reviews', slug!, {
+  locale: 'es',
+  populate: '*',
+  status,
+});
+
+if (!review) {
+  return Astro.redirect('/es/');
+}
+
+const coverImage = getStrapiMediaURL(review.gallery?.[0]);
+---
+
+<BaseLayout title={review.title} description={review.excerpt || ''} locale="es">
+  {Astro.locals.isPreview && (
+    <div class="bg-amber-500 text-black text-center py-2 px-4 font-bold text-sm">
+      MODO VISTA PREVIA — Este contenido no esta publicado
+      <a href="/api/preview?action=exit" class="underline ml-4">Salir de vista previa</a>
+    </div>
+  )}
+
+  <article class="max-w-3xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold mb-4">{review.title}</h1>
+
+    {review.excerpt && (
+      <p class="text-lg text-gray-400 mb-8">{review.excerpt}</p>
+    )}
+
+    {coverImage && (
+      <img
+        src={coverImage}
+        alt={review.gallery?.[0]?.alternativeText || review.title}
+        class="w-full rounded-lg mb-8"
+      />
+    )}
+
+    {review.editorial_content && (
+      <div class="prose prose-invert max-w-none mb-8" set:html={review.editorial_content} />
+    )}
+
+    {review.score_overall != null && (
+      <div class="bg-gray-800 rounded-lg p-6 mb-8 text-center">
+        <span class="text-5xl font-bold text-amber-500">{review.score_overall}</span>
+        <span class="text-xl text-gray-400">/10</span>
+      </div>
+    )}
+
+    {review.verdict && (
+      <blockquote class="border-l-4 border-amber-500 pl-4 italic text-gray-300 mb-8">
+        {review.verdict}
+      </blockquote>
+    )}
+  </article>
+</BaseLayout>
