@@ -33,7 +33,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. All content types (Product, Review, Recipe, Tutorial, BlogPost, InstagramPost) exist in Strapi with correct field structures
   3. A content change in Strapi triggers a webhook that initiates an Astro site rebuild and deploy automatically
   4. The i18n plugin is configured with EN (default), IT, and ES locales
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Create Strapi CMS project with content types, config, Dockerfile, and Astro scaffold
+- [ ] 01-02-PLAN.md — Deploy to Hetzner server with webhook pipeline and verify end-to-end
 
 ### Phase 2: Design System & Frontend Scaffold
 **Goal**: Users see a bold, street-culture BBQ design with dark theme, smooth animations, responsive mobile-first layout, and locale-prefixed URL routing across all pages
@@ -140,7 +143,7 @@ Note: Phases 4, 5, 6 can execute in parallel (all depend on 2+3, not each other)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure & Deploy Pipeline | 0/TBD | Not started | - |
+| 1. Infrastructure & Deploy Pipeline | 0/2 | Planning complete | - |
 | 2. Design System & Frontend Scaffold | 0/TBD | Not started | - |
 | 3. CMS Authoring Workflow | 0/TBD | Not started | - |
 | 4. Review Pages | 0/TBD | Not started | - |
