@@ -1,0 +1,62 @@
+{
+  "kind": "collectionType",
+  "collectionName": "products",
+  "info": {
+    "singularName": "product",
+    "pluralName": "products",
+    "displayName": "Product",
+    "description": "Prodotti BBQ: griglie, affumicatori, accessori"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": true
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "pluginOptions": {
+        "i18n": { "localized": true }
+      }
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
+    },
+    "brand": {
+      "type": "string",
+      "pluginOptions": {
+        "i18n": { "localized": false }
+      }
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["grill", "smoker", "accessory", "fuel", "thermometer", "other"]
+    },
+    "price_range": {
+      "type": "enumeration",
+      "enum": ["budget", "mid-range", "premium", "luxury"]
+    },
+    "description": {
+      "type": "richtext",
+      "pluginOptions": {
+        "i18n": { "localized": true }
+      }
+    },
+    "specifications": {
+      "type": "json"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images"]
+    },
+    "affiliate_url": {
+      "type": "string"
+    }
+  }
+}

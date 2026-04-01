@@ -1,0 +1,24 @@
+{
+  "name": "bbqexperience-cms",
+  "private": true,
+  "version": "1.0.0",
+  "description": "BBQ Experience - Strapi 5 CMS",
+  "type": "commonjs",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "dependencies": {
+    "@strapi/strapi": "5.40.0",
+    "@strapi/plugin-cloud": "5.40.0",
+    "@strapi/plugin-users-permissions": "5.40.0",
+    "@strapi/plugin-i18n": "5.40.0",
+    "pg": "^8.13.0",
+    "better-sqlite3": "11.8.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

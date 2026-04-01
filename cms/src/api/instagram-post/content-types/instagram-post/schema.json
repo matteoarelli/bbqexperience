@@ -1,0 +1,53 @@
+{
+  "kind": "collectionType",
+  "collectionName": "instagram_posts",
+  "info": {
+    "singularName": "instagram-post",
+    "pluralName": "instagram-posts",
+    "displayName": "InstagramPost",
+    "description": "Cache locale dei post Instagram per visualizzazione sul sito"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "instagram_id": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "media_type": {
+      "type": "enumeration",
+      "enum": ["IMAGE", "VIDEO", "CAROUSEL_ALBUM"]
+    },
+    "media_url": {
+      "type": "string"
+    },
+    "thumbnail_url": {
+      "type": "string"
+    },
+    "permalink": {
+      "type": "string"
+    },
+    "caption": {
+      "type": "text"
+    },
+    "timestamp": {
+      "type": "datetime"
+    },
+    "cached_image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "curated": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}
