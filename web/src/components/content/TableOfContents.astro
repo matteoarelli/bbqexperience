@@ -1,0 +1,185 @@
+---
+/**
+ * Indice dei contenuti — estrae h2/h3 dall'HTML e genera navigazione ancorata.
+ * Sidebar sticky su desktop, pannello collassabile su mobile.
+ */
+
+interface TocHeading {
+  id: string;
+  text: string;
+  level: 2 | 3;
+}
+
+interface Props {
+  content: string;
+  title?: string;
+}
+
+const { content, title = 'Table of Contents' } = Astro.props;
+
+// Estrai h2 e h3 dal contenuto HTML
+const headingRegex = /<h([23])([^>]*)id="([^"]*)"[^>]*>(.*?)<\/h[23]>/gi;
+const headings: TocHeading[] = [];
+let match: RegExpExecArray | null;
+
+while ((match = headingRegex.exec(content)) !== null) {
+  const plainText = match[4].replace(/<[^>]+>/g, '');
+  headings.push({
+    id: match[3],
+    text: plainText,
+    level: parseInt(match[1]) as 2 | 3,
+  });
+}
+
+// Mostra solo se ci sono almeno 3 heading
+const showToc = headings.length >= 3;
+---
+
+{showToc && (
+  <nav class="toc" aria-label={title}>
+    <details class="toc__mobile" open>
+      <summary class="toc__toggle">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"></line>
+          <line x1="8" y1="12" x2="21" y2="12"></line>
+          <line x1="8" y1="18" x2="21" y2="18"></line>
+          <line x1="3" y1="6" x2="3.01" y2="6"></line>
+          <line x1="3" y1="12" x2="3.01" y2="12"></line>
+          <line x1="3" y1="18" x2="3.01" y2="18"></line>
+        </svg>
+        {title}
+      </summary>
+      <ol class="toc__list">
+        {headings.map((heading) => (
+          <li class={`toc__item toc__item--h${heading.level}`}>
+            <a href={`#${heading.id}`} class="toc__link">{heading.text}</a>
+          </li>
+        ))}
+      </ol>
+    </details>
+  </nav>
+)}
+
+<style>
+  .toc {
+    margin-bottom: var(--space-8);
+  }
+
+  .toc__mobile {
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .toc__toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent-fire);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .toc__toggle::-webkit-details-marker {
+    display: none;
+  }
+
+  .toc__toggle::marker {
+    display: none;
+    content: '';
+  }
+
+  .toc__list {
+    list-style: none;
+    padding: 0 var(--space-4) var(--space-4) var(--space-4);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .toc__item--h3 {
+    padding-left: var(--space-4);
+  }
+
+  .toc__link {
+    display: block;
+    padding: var(--space-1) var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.4;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+  }
+
+  .toc__link:hover {
+    color: var(--color-text-primary);
+    border-left-color: var(--color-accent-fire);
+    background-color: var(--color-bg-tertiary);
+  }
+
+  /* Desktop: sidebar sticky aperta di default */
+  @media (min-width: 1280px) {
+    .toc {
+      position: sticky;
+      top: calc(80px + var(--space-8));
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      margin-bottom: 0;
+    }
+
+    .toc__mobile[open] > .toc__toggle {
+      border-bottom: 1px solid var(--color-border-subtle);
+    }
+  }
+</style>
+
+<script>
+  // Evidenzia la sezione attiva durante lo scroll
+  function initTocHighlight() {
+    const links = document.querySelectorAll('.toc__link');
+    if (!links.length) return;
+
+    const headingIds = Array.from(links).map(link =>
+      link.getAttribute('href')?.replace('#', '') || ''
+    );
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            links.forEach(link => link.classList.remove('toc__link--active'));
+            const activeLink = document.querySelector(`.toc__link[href="#${entry.target.id}"]`);
+            activeLink?.classList.add('toc__link--active');
+          }
+        }
+      },
+      { rootMargin: '-80px 0px -60% 0px', threshold: 0 }
+    );
+
+    headingIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initTocHighlight);
+</script>
+
+<style is:global>
+  .toc__link--active {
+    color: var(--color-text-primary) !important;
+    border-left-color: var(--color-accent-fire) !important;
+    background-color: var(--color-bg-tertiary) !important;
+  }
+</style>

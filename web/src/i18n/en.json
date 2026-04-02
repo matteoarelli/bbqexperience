@@ -65,7 +65,10 @@
     "priceRange": "Price Range",
     "brand": "Brand",
     "publishedOn": "Published on",
-    "noSpecs": "No specifications available"
+    "noSpecs": "No specifications available",
+    "buyNow": "Buy Now",
+    "checkPrice": "Check Price",
+    "affiliateDisclaimer": "This is an affiliate link. We may earn a commission at no extra cost to you."
   },
   "recipe": {
     "prepTime": "Prep Time",
@@ -129,7 +132,9 @@
     "featuredContent": "Featured Content",
     "relatedContent": "Related Content",
     "home": "Home",
-    "searchPlaceholder": "Search articles..."
+    "searchPlaceholder": "Search articles...",
+    "lastUpdated": "Last updated:",
+    "tableOfContents": "Table of Contents"
   },
   "comparison": {
     "title": "Compare BBQ Products",

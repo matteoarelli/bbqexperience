@@ -1,0 +1,42 @@
+---
+/**
+ * Componente "Ultimo aggiornamento" — mostra la data di ultima modifica in testo secondario.
+ */
+import type { Locale } from '@lib/i18n';
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  date: string;
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { date, locale, translations } = Astro.props;
+
+const formattedDate = new Date(date).toLocaleDateString(locale, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+
+const label = getTranslation(translations, 'content.lastUpdated');
+---
+
+<p class="last-updated">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1 4v6h6"></path>
+    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+  </svg>
+  {label} {formattedDate}
+</p>
+
+<style>
+  .last-updated {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    margin: 0 0 var(--space-4) 0;
+  }
+</style>

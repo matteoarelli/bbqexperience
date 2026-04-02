@@ -15,7 +15,7 @@ interface Props {
 const { locale, translations, currentPath } = Astro.props;
 ---
 
-<header class="sticky top-0 z-30 backdrop-blur-md" style="background-color: rgba(13, 13, 13, 0.8); border-bottom: 1px solid var(--color-border-subtle);">
+<header class="sticky top-0 z-30 backdrop-blur-md" style="background-color: color-mix(in srgb, var(--color-bg-primary) 80%, transparent); border-bottom: 1px solid var(--color-border-subtle);">
   <div class="container-bbq flex justify-between items-center h-16 lg:h-20">
     <!-- Logo -->
     <a href={`/${locale}/`} class="flex items-center gap-0 no-underline" style="text-decoration: none;">

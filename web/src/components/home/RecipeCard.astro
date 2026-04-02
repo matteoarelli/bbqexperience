@@ -27,6 +27,8 @@ const difficultyLabel = recipe.difficulty ? t(`content.${recipe.difficulty}`) : 
         src={imageUrl}
         alt={recipe.cover_image?.alternativeText || recipe.title}
         class="recipe-card__image"
+        width="640"
+        height="400"
         loading="lazy"
         decoding="async"
       />

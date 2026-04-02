@@ -65,7 +65,10 @@
     "priceRange": "Fascia di Prezzo",
     "brand": "Marca",
     "publishedOn": "Pubblicato il",
-    "noSpecs": "Nessuna specifica disponibile"
+    "noSpecs": "Nessuna specifica disponibile",
+    "buyNow": "Acquista Ora",
+    "checkPrice": "Verifica il Prezzo",
+    "affiliateDisclaimer": "Questo e un link affiliato. Potremmo ricevere una commissione senza costi aggiuntivi per te."
   },
   "recipe": {
     "prepTime": "Preparazione",
@@ -129,7 +132,9 @@
     "featuredContent": "Contenuti in Evidenza",
     "relatedContent": "Contenuti Correlati",
     "home": "Home",
-    "searchPlaceholder": "Cerca articoli..."
+    "searchPlaceholder": "Cerca articoli...",
+    "lastUpdated": "Ultimo aggiornamento:",
+    "tableOfContents": "Indice dei Contenuti"
   },
   "comparison": {
     "title": "Confronta Prodotti BBQ",

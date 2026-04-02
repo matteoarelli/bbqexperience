@@ -20,6 +20,7 @@ import ReviewJsonLd from '@components/review/ReviewJsonLd.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import LastUpdated from '@components/content/LastUpdated.astro';
 
 export const prerender = false;
 
@@ -91,6 +92,10 @@ const breadcrumbItems = [
         <span>| {review.product.category}</span>
       )}
     </div>
+
+    {review.updatedAt && (
+      <LastUpdated date={review.updatedAt} locale={locale} translations={t} />
+    )}
 
     {review.excerpt && (
       <p
@@ -177,6 +182,21 @@ const breadcrumbItems = [
       />
     </div>
 
+    <!-- Pulsante affiliato -->
+    {review.product?.affiliate_url && (
+      <div class="mb-[var(--space-12)] text-center">
+        <a
+          href={review.product.affiliate_url}
+          target="_blank"
+          rel="noopener noreferrer nofollow sponsored"
+          class="affiliate-btn"
+        >
+          {getTranslation(t, 'review.checkPrice')}
+        </a>
+        <p class="affiliate-disclaimer">{getTranslation(t, 'review.affiliateDisclaimer')}</p>
+      </div>
+    )}
+
     <!-- Condivisione social -->
     <div style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">
       <SocialShareBar url={pageUrl} title={review.title} locale={locale} translations={t} />
@@ -193,6 +213,34 @@ const breadcrumbItems = [
   />
   <BreadcrumbJsonLd items={breadcrumbItems} />
 </BaseLayout>
+
+<style>
+  .affiliate-btn {
+    display: inline-block;
+    background-color: var(--color-accent-fire);
+    color: white;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: background-color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+  }
+  .affiliate-btn:hover {
+    background-color: var(--color-accent-amber);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+  }
+  .affiliate-disclaimer {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    margin-top: var(--space-2);
+  }
+</style>
 
 <script>
   import { initScrollAnimations } from '@lib/animations';

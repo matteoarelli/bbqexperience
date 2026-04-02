@@ -31,7 +31,10 @@ const altText = post.caption?.substring(0, 100) ?? 'Instagram post';
     <img
       src={displayUrl}
       alt={altText}
+      width="640"
+      height="640"
       loading="lazy"
+      decoding="async"
       class="instagram-card__image"
     />
 

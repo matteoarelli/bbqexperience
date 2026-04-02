@@ -8,6 +8,8 @@ import type { StrapiMedia } from '@lib/types';
 import { getStrapiMediaURL } from '@lib/media';
 import { getTranslation } from '@lib/i18n';
 import ReadingProgress from '@components/content/ReadingProgress.svelte';
+import TableOfContents from '@components/content/TableOfContents.astro';
+import LastUpdated from '@components/content/LastUpdated.astro';
 
 interface Props {
   title: string;
@@ -15,6 +17,7 @@ interface Props {
   coverImage: StrapiMedia | null;
   readingTime: number | null;
   publishedDate: string | null;
+  updatedAt?: string | null;
   category: string | null;
   locale: Locale;
   translations: Record<string, any>;
@@ -26,6 +29,7 @@ const {
   coverImage,
   readingTime,
   publishedDate,
+  updatedAt,
   category,
   locale,
   translations,
@@ -58,14 +62,14 @@ const categoryText = category
  * Converte il testo dell'heading in un slug URL-friendly.
  */
 function addHeadingIds(html: string): string {
-  return html.replace(/<h2([^>]*)>(.*?)<\/h2>/gi, (_match, attrs, text) => {
+  return html.replace(/<h([23])([^>]*)>(.*?)<\/h[23]>/gi, (_match, level, attrs, text) => {
     const plainText = text.replace(/<[^>]+>/g, '');
     const id = plainText
       .toLowerCase()
       .trim()
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-');
-    return `<h2${attrs} id="${id}">${text}</h2>`;
+    return `<h${level}${attrs} id="${id}">${text}</h${level}>`;
   });
 }
 
@@ -131,6 +135,19 @@ const processedContent = content ? addHeadingIds(content) : null;
           </span>
         )}
       </div>
+
+      {/* Data ultimo aggiornamento */}
+      {updatedAt && (
+        <LastUpdated date={updatedAt} locale={locale} translations={translations} />
+      )}
+
+      {/* Indice dei contenuti (solo se 3+ heading) */}
+      {processedContent && (
+        <TableOfContents
+          content={processedContent}
+          title={getTranslation(translations, 'content.tableOfContents')}
+        />
+      )}
 
       <!-- Contenuto articolo (rich text da CMS) -->
       {processedContent && (

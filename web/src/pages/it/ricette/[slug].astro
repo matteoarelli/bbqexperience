@@ -21,6 +21,7 @@ import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
+import LastUpdated from '@components/content/LastUpdated.astro';
 import { loadTranslations, getTranslation } from '@lib/i18n';
 import '@styles/print.css';
 
@@ -70,6 +71,10 @@ const breadcrumbItems = [
 
   <article class="max-w-3xl mx-auto px-4 py-12" style="color: var(--color-text-primary);">
     <Breadcrumbs items={breadcrumbItems} locale="it" />
+
+    {recipe.updatedAt && (
+      <LastUpdated date={recipe.updatedAt} locale="it" translations={translations} />
+    )}
 
     <div class="no-print">
       <JumpToRecipe label="Vai alla Ricetta" totalTime={recipe.total_time} />
