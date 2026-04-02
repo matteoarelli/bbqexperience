@@ -40,12 +40,12 @@
     blog: { en: 'blog', it: 'blog', es: 'blog' },
   };
 
-  /* Mappa colori badge per tipo */
+  /* Mappa colori badge per tipo — usa CSS custom properties per theme-awareness */
   const badgeColors: Record<string, { bg: string; text: string; border: string }> = {
-    review: { bg: 'rgba(249, 115, 22, 0.12)', text: '#f97316', border: 'rgba(249, 115, 22, 0.25)' },
-    recipe: { bg: 'rgba(245, 158, 11, 0.12)', text: '#f59e0b', border: 'rgba(245, 158, 11, 0.25)' },
-    tutorial: { bg: 'rgba(156, 163, 175, 0.12)', text: '#9ca3af', border: 'rgba(156, 163, 175, 0.25)' },
-    blog: { bg: 'rgba(239, 68, 68, 0.12)', text: '#ef4444', border: 'rgba(239, 68, 68, 0.25)' },
+    review: { bg: 'color-mix(in srgb, var(--color-accent-fire) 12%, transparent)', text: 'var(--color-accent-fire)', border: 'color-mix(in srgb, var(--color-accent-fire) 25%, transparent)' },
+    recipe: { bg: 'color-mix(in srgb, var(--color-accent-amber) 12%, transparent)', text: 'var(--color-accent-amber)', border: 'color-mix(in srgb, var(--color-accent-amber) 25%, transparent)' },
+    tutorial: { bg: 'color-mix(in srgb, var(--color-accent-smoke) 12%, transparent)', text: 'var(--color-accent-smoke)', border: 'color-mix(in srgb, var(--color-accent-smoke) 25%, transparent)' },
+    blog: { bg: 'color-mix(in srgb, var(--color-accent-ember) 12%, transparent)', text: 'var(--color-accent-ember)', border: 'color-mix(in srgb, var(--color-accent-ember) 25%, transparent)' },
   };
 
   /* Label tipo tradotta */
@@ -186,8 +186,8 @@
   }
 
   .clear-btn:hover {
-    color: #ef4444;
-    border-color: #ef4444;
+    color: var(--color-negative);
+    border-color: var(--color-negative);
   }
 
   .bookmarks-grid {
@@ -258,7 +258,7 @@
   }
 
   .remove-btn:hover {
-    color: #ef4444;
+    color: var(--color-negative);
   }
 
   .bookmark-link {
