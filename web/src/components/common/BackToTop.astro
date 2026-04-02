@@ -1,8 +1,9 @@
 ---
 /**
- * BackToTop — Bottone fisso "torna su" in basso a destra
- * Appare dopo 500px di scroll. Smooth scroll al click.
- * Accessibile con aria-label.
+ * BackToTop — Bottone fisso "torna su" con anello di progresso circolare (SVG)
+ * L'anello si riempie man mano che l'utente scrolla (0% in cima, 100% in fondo).
+ * La freccia appare dentro l'anello. Colore accento fuoco.
+ * Visibile dopo 500px di scroll. Accessibile con aria-label.
  */
 ---
 
@@ -13,22 +14,63 @@
   title="Back to top"
   style="display: none;"
 >
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Anello di progresso SVG -->
+  <svg class="progress-ring" width="48" height="48" viewBox="0 0 48 48">
+    <!-- Traccia di sfondo -->
+    <circle
+      class="progress-ring__bg"
+      cx="24" cy="24" r="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="3"
+      opacity="0.15"
+    />
+    <!-- Anello progresso -->
+    <circle
+      class="progress-ring__circle"
+      cx="24" cy="24" r="20"
+      fill="none"
+      stroke="var(--color-accent-fire)"
+      stroke-width="3"
+      stroke-linecap="round"
+      transform="rotate(-90 24 24)"
+    />
+  </svg>
+  <!-- Freccia su -->
+  <svg class="arrow-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
     <path d="M18 15l-6-6-6 6"/>
   </svg>
 </button>
 
 <script>
-  // Mostra/nasconde il bottone "torna su" in base allo scroll
+  // Gestione anello di progresso e visibilita bottone "torna su"
   (function () {
     const btn = document.getElementById('back-to-top');
     if (!btn) return;
 
+    const circle = btn.querySelector<SVGCircleElement>('.progress-ring__circle');
+    if (!circle) return;
+
     const THRESHOLD = 500;
+    const RADIUS = 20;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
     let visible = false;
 
-    function toggle() {
-      const shouldShow = window.scrollY > THRESHOLD;
+    // Imposta il tratteggio iniziale (vuoto)
+    circle.style.strokeDasharray = `${CIRCUMFERENCE}`;
+    circle.style.strokeDashoffset = `${CIRCUMFERENCE}`;
+
+    function update() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+      // Calcola progresso scroll (0-1)
+      const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+      const offset = CIRCUMFERENCE - progress * CIRCUMFERENCE;
+      circle!.style.strokeDashoffset = `${offset}`;
+
+      // Mostra/nasconde il bottone
+      const shouldShow = scrollTop > THRESHOLD;
       if (shouldShow === visible) return;
       visible = shouldShow;
       btn.style.display = shouldShow ? 'flex' : 'none';
@@ -39,8 +81,8 @@
       }
     }
 
-    window.addEventListener('scroll', toggle, { passive: true });
-    toggle();
+    window.addEventListener('scroll', update, { passive: true });
+    update();
 
     btn.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -58,8 +100,8 @@
     height: 48px;
     border-radius: 50%;
     border: none;
-    background-color: var(--color-accent-fire);
-    color: var(--color-text-inverse, #fff);
+    background-color: var(--color-bg-secondary, #1a1a1a);
+    color: var(--color-text-primary, #fff);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -68,6 +110,7 @@
     opacity: 0;
     transform: translateY(12px);
     transition: opacity 0.3s ease, transform 0.3s ease, background-color var(--transition-fast);
+    padding: 0;
   }
 
   .back-to-top--visible {
@@ -76,11 +119,28 @@
   }
 
   .back-to-top:hover {
-    background-color: var(--color-accent-ember, #ea580c);
+    background-color: var(--color-bg-tertiary, #2a2a2a);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
   }
 
   .back-to-top:active {
     transform: scale(0.95);
+  }
+
+  .progress-ring {
+    position: absolute;
+    inset: 0;
+    width: 48px;
+    height: 48px;
+  }
+
+  .progress-ring__circle {
+    transition: stroke-dashoffset 0.15s ease;
+  }
+
+  .arrow-icon {
+    position: relative;
+    z-index: 1;
+    color: var(--color-accent-fire);
   }
 </style>

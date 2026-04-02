@@ -7,6 +7,7 @@ import type { Locale } from '@lib/i18n';
 import type { StrapiMedia } from '@lib/types';
 import { getStrapiMediaURL } from '@lib/media';
 import { getTranslation } from '@lib/i18n';
+import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder.astro';
 
 interface Props {
   title: string;
@@ -60,14 +61,12 @@ const categoryText = category
   <!-- Immagine di copertina -->
   <div class="card-image-wrapper">
     {imageUrl ? (
-      <img
+      <ImageWithPlaceholder
         src={imageUrl}
         alt={imageAlt}
         class="card-image"
         width="640"
         height="360"
-        loading="lazy"
-        decoding="async"
       />
     ) : (
       <div class="card-image-placeholder">

@@ -1,15 +1,27 @@
 ---
 /**
  * Sezione "Chi e BBQ Experience?" — storia del brand con accento fuoco
+ * Include contatori animati per le statistiche principali.
  */
 import { getTranslation } from '@lib/i18n';
+import AnimatedCounter from '@components/common/AnimatedCounter.svelte';
 
 interface Props {
   translations: Record<string, any>;
+  locale?: string;
 }
 
-const { translations } = Astro.props;
+const { translations, locale = 'en' } = Astro.props;
 const t = (key: string) => getTranslation(translations, key);
+
+// Etichette statistiche per lingua
+const statsLabels: Record<string, { followers: string; posts: string; products: string; recipes: string }> = {
+  en: { followers: 'Followers', posts: 'Posts & Stories', products: 'Products Reviewed', recipes: 'Original Recipes' },
+  it: { followers: 'Follower', posts: 'Post & Storie', products: 'Prodotti Recensiti', recipes: 'Ricette Originali' },
+  es: { followers: 'Seguidores', posts: 'Posts & Historias', products: 'Productos Resenados', recipes: 'Recetas Originales' },
+};
+
+const labels = statsLabels[locale] ?? statsLabels.en;
 ---
 
 <section class="about-section" data-animate>
@@ -23,6 +35,34 @@ const t = (key: string) => getTranslation(translations, key);
       </div>
       <h2 class="about-card__title">{t('home.aboutTitle')}</h2>
       <p class="about-card__text">{t('home.aboutText')}</p>
+
+      <!-- Griglia statistiche con contatori animati -->
+      <div class="about-stats">
+        <div class="stat-item">
+          <span class="stat-number">
+            <AnimatedCounter target={74} suffix="K+" duration={1500} client:visible />
+          </span>
+          <span class="stat-label">{labels.followers}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">
+            <AnimatedCounter target={6} suffix="K+" duration={1200} client:visible />
+          </span>
+          <span class="stat-label">{labels.posts}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">
+            <AnimatedCounter target={100} suffix="+" duration={1500} client:visible />
+          </span>
+          <span class="stat-label">{labels.products}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">
+            <AnimatedCounter target={50} suffix="+" duration={1300} client:visible />
+          </span>
+          <span class="stat-label">{labels.recipes}</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -72,7 +112,46 @@ const t = (key: string) => getTranslation(translations, key);
     color: var(--color-text-secondary);
     font-size: var(--text-base);
     line-height: 1.7;
-    margin: 0;
+    margin: 0 0 var(--space-8) 0;
     position: relative;
+  }
+
+  /* === Griglia statistiche === */
+  .about-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+    position: relative;
+    border-top: 1px solid var(--color-border-subtle);
+    padding-top: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .about-stats {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .stat-number {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 900;
+    color: var(--color-accent-fire);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
   }
 </style>

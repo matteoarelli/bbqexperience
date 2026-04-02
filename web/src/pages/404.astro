@@ -1,7 +1,7 @@
 ---
 /**
- * Pagina 404 — pagina errore branded con ricerca e navigazione
- * Rileva la locale dall'URL e mostra testo tradotto con stile BBQ Experience.
+ * Pagina 404 — pagina errore branded con illustrazione fuoco/fumo animata,
+ * ricerca prominente e link rapidi. Stile BBQ Experience.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
@@ -15,8 +15,13 @@ const locale: Locale = getLocaleFromPath(Astro.url.pathname);
 const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);
 
-// Link di navigazione per la sezione "esplora contenuti"
-const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
+// Link di navigazione con icone SVG per la sezione "esplora contenuti"
+const navSections = [
+  { key: 'reviews', icon: 'star' },
+  { key: 'recipes', icon: 'flame' },
+  { key: 'tutorials', icon: 'book' },
+  { key: 'blog', icon: 'pen' },
+] as const;
 ---
 
 <BaseLayout
@@ -29,18 +34,46 @@ const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
 
   <section class="error-page">
     <div class="error-container">
-      <!-- Heading 404 grande -->
-      <h1 class="error-heading" data-animate>{t('error.heading')}</h1>
 
-      <!-- Sottotitolo -->
-      <h2 class="error-subtitle">{t('error.title')}</h2>
+      <!-- Illustrazione fuoco/fumo animata (CSS-only) -->
+      <div class="flame-illustration" aria-hidden="true">
+        <svg viewBox="0 0 200 220" width="180" height="200" class="flame-svg">
+          <!-- Fumo -->
+          <circle class="smoke smoke-1" cx="100" cy="30" r="18" fill="#555" opacity="0.15"/>
+          <circle class="smoke smoke-2" cx="85" cy="50" r="14" fill="#555" opacity="0.1"/>
+          <circle class="smoke smoke-3" cx="115" cy="40" r="12" fill="#555" opacity="0.08"/>
+          <!-- Fiamma esterna -->
+          <path class="flame flame-outer" d="M100 200 C60 160, 40 120, 55 80 C60 60, 75 40, 80 55 C85 70, 78 90, 90 70 C95 58, 100 40, 100 30 C100 40, 105 58, 110 70 C122 90, 115 70, 120 55 C125 40, 140 60, 145 80 C160 120, 140 160, 100 200Z" fill="url(#fireGrad)"/>
+          <!-- Fiamma interna -->
+          <path class="flame flame-inner" d="M100 200 C78 175, 68 145, 75 115 C80 100, 88 85, 92 100 C95 110, 90 125, 100 105 C110 125, 105 110, 108 100 C112 85, 120 100, 125 115 C132 145, 122 175, 100 200Z" fill="url(#fireGradInner)"/>
+          <!-- Nucleo luminoso -->
+          <ellipse class="flame flame-core" cx="100" cy="175" rx="18" ry="22" fill="#FEF3C7" opacity="0.8"/>
+          <!-- Gradienti -->
+          <defs>
+            <linearGradient id="fireGrad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#DC2626"/>
+              <stop offset="40%" stop-color="#F97316"/>
+              <stop offset="100%" stop-color="#FBBF24"/>
+            </linearGradient>
+            <linearGradient id="fireGradInner" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#F97316"/>
+              <stop offset="60%" stop-color="#FBBF24"/>
+              <stop offset="100%" stop-color="#FEF3C7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <!-- Headline con gradiente fuoco -->
+      <h1 class="error-heading">{t('error.heading')}</h1>
+      <h2 class="error-subtitle fire-text">{t('error.title')}</h2>
 
       <!-- Messaggio descrittivo -->
       <p class="error-message">{t('error.message')}</p>
 
-      <!-- Sezione ricerca -->
+      <!-- Sezione ricerca prominente -->
       <div class="search-section">
-        <p class="section-label">{t('error.searchPrompt')}</p>
+        <p class="search-label">{t('error.searchPrompt')}</p>
         <div class="search-button-wrapper">
           <SearchDialog
             locale={locale}
@@ -53,17 +86,40 @@ const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
         </div>
       </div>
 
-      <!-- Sezione navigazione contenuti -->
+      <!-- Link rapidi come card con icone -->
       <div class="browse-section">
-        <p class="section-label">{t('error.browsePrompt')}</p>
+        <p class="browse-label">{t('error.browsePrompt')}</p>
         <div class="nav-grid">
-          {navSections.map((key) => (
+          {navSections.map(({ key, icon }) => (
             <a
               href={`/${locale}/${localizedRoutes[key][locale]}/`}
               class="nav-card"
-              data-animate
             >
-              {t(`nav.${key}`)}
+              <span class="nav-card__icon">
+                {icon === 'star' && (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                )}
+                {icon === 'flame' && (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/>
+                  </svg>
+                )}
+                {icon === 'book' && (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+                  </svg>
+                )}
+                {icon === 'pen' && (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"/>
+                    <path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                )}
+              </span>
+              <span class="nav-card__label">{t(`nav.${key}`)}</span>
             </a>
           ))}
         </div>
@@ -84,36 +140,107 @@ const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 60vh;
-    padding: var(--space-16) var(--space-4);
+    min-height: 70vh;
+    padding: var(--space-12) var(--space-4);
     text-align: center;
   }
 
   .error-container {
-    max-width: 640px;
+    max-width: 680px;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-6);
+    gap: var(--space-5);
   }
 
+  /* === Illustrazione fiamma/fumo animata === */
+  .flame-illustration {
+    position: relative;
+    margin-bottom: var(--space-2);
+  }
+
+  .flame-svg {
+    filter: drop-shadow(0 0 24px rgba(249, 115, 22, 0.3));
+  }
+
+  /* Animazione fiamma: tremolio */
+  .flame-outer {
+    animation: flame-flicker 1.5s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+  }
+
+  .flame-inner {
+    animation: flame-flicker 1.2s ease-in-out 0.2s infinite alternate;
+    transform-origin: bottom center;
+  }
+
+  .flame-core {
+    animation: flame-core-pulse 1s ease-in-out infinite alternate;
+  }
+
+  @keyframes flame-flicker {
+    0% { transform: scaleX(1) scaleY(1); }
+    25% { transform: scaleX(0.96) scaleY(1.02); }
+    50% { transform: scaleX(1.03) scaleY(0.97); }
+    75% { transform: scaleX(0.98) scaleY(1.01); }
+    100% { transform: scaleX(1.02) scaleY(0.98); }
+  }
+
+  @keyframes flame-core-pulse {
+    0% { opacity: 0.7; rx: 18; ry: 22; }
+    100% { opacity: 0.95; rx: 20; ry: 24; }
+  }
+
+  /* Animazione fumo: sale e dissipa */
+  .smoke {
+    animation: smoke-rise 4s ease-out infinite;
+  }
+
+  .smoke-1 { animation-delay: 0s; }
+  .smoke-2 { animation-delay: 1.5s; }
+  .smoke-3 { animation-delay: 3s; }
+
+  @keyframes smoke-rise {
+    0% { transform: translateY(0) scale(1); opacity: 0.15; }
+    50% { opacity: 0.08; }
+    100% { transform: translateY(-60px) scale(2); opacity: 0; }
+  }
+
+  /* === Testo === */
   .error-heading {
     font-family: var(--font-heading);
-    font-size: var(--text-5xl);
+    font-size: clamp(4rem, 12vw, 8rem);
     font-weight: 900;
-    color: var(--color-accent-fire);
     line-height: 1;
     margin: 0;
+    background: linear-gradient(180deg, #FBBF24 0%, #F97316 40%, #DC2626 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 8px rgba(249, 115, 22, 0.3));
   }
 
   .error-subtitle {
     font-family: var(--font-heading);
     font-size: var(--text-2xl);
     font-weight: 700;
-    color: var(--color-text-primary);
     text-transform: uppercase;
     margin: 0;
+  }
+
+  .fire-text {
+    background: linear-gradient(90deg, #F97316, #FBBF24, #F97316);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fire-shimmer 3s linear infinite;
+  }
+
+  @keyframes fire-shimmer {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
   }
 
   .error-message {
@@ -124,6 +251,7 @@ const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
     line-height: 1.6;
   }
 
+  /* === Ricerca prominente === */
   .search-section {
     width: 100%;
     display: flex;
@@ -131,12 +259,17 @@ const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
     align-items: center;
     gap: var(--space-3);
     margin-top: var(--space-4);
+    padding: var(--space-6) var(--space-4);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-xl);
   }
 
-  .section-label {
+  .search-label {
     font-size: var(--text-lg);
     color: var(--color-text-secondary);
     margin: 0;
+    font-weight: 600;
   }
 
   .search-button-wrapper {
@@ -144,13 +277,20 @@ const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
     justify-content: center;
   }
 
+  /* === Link rapidi === */
   .browse-section {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--space-4);
-    margin-top: var(--space-4);
+    margin-top: var(--space-2);
+  }
+
+  .browse-label {
+    font-size: var(--text-lg);
+    color: var(--color-text-secondary);
+    margin: 0;
   }
 
   .nav-grid {
@@ -158,7 +298,7 @@ const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-4);
     width: 100%;
-    max-width: 480px;
+    max-width: 520px;
   }
 
   @media (min-width: 640px) {
@@ -169,30 +309,48 @@ const navSections = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
 
   .nav-card {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--space-4);
+    gap: var(--space-2);
+    padding: var(--space-5) var(--space-3);
     background-color: var(--color-bg-secondary);
     border: 1px solid var(--color-border-default);
     border-radius: var(--radius-lg);
-    font-family: var(--font-heading);
-    font-size: var(--text-sm);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-primary);
     text-decoration: none;
-    transition: border-color var(--transition-fast), color var(--transition-fast);
+    color: var(--color-text-primary);
+    transition: border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
   }
 
   .nav-card:hover {
     border-color: var(--color-accent-fire);
     color: var(--color-accent-fire);
+    transform: translateY(-2px);
   }
 
+  .nav-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: rgba(249, 115, 22, 0.1);
+    color: var(--color-accent-fire);
+  }
+
+  .nav-card__label {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* === Link homepage === */
   .back-home-link {
     display: inline-block;
-    margin-top: var(--space-6);
+    margin-top: var(--space-4);
     padding: var(--space-3) var(--space-6);
     border: 2px solid var(--color-accent-fire);
     border-radius: var(--radius-md);

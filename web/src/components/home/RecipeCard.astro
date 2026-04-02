@@ -5,6 +5,7 @@
 import type { StrapiRecipe, StrapiEntity } from '@lib/types';
 import { getStrapiMediaURL } from '@lib/media';
 import { getTranslation } from '@lib/i18n';
+import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder.astro';
 
 interface Props {
   recipe: StrapiRecipe & StrapiEntity;
@@ -23,14 +24,12 @@ const difficultyLabel = recipe.difficulty ? t(`content.${recipe.difficulty}`) : 
 <a href={`/${locale}/${recipesRoute}/${recipe.slug}/`} class="recipe-card card-hover" data-animate>
   <div class="recipe-card__image-wrapper">
     {imageUrl ? (
-      <img
+      <ImageWithPlaceholder
         src={imageUrl}
         alt={recipe.cover_image?.alternativeText || recipe.title}
         class="recipe-card__image"
         width="640"
         height="400"
-        loading="lazy"
-        decoding="async"
       />
     ) : (
       <div class="recipe-card__placeholder">

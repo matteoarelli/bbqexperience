@@ -4,6 +4,7 @@
  */
 import type { StrapiReview, StrapiEntity } from '@lib/types';
 import { getStrapiMediaURL } from '@lib/media';
+import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder.astro';
 
 interface Props {
   review: StrapiReview & StrapiEntity;
@@ -21,14 +22,12 @@ const score = review.score_overall;
 <a href={`/${locale}/${reviewsRoute}/${review.slug}/`} class="review-card card-hover" data-animate>
   <div class="review-card__image-wrapper">
     {imageUrl ? (
-      <img
+      <ImageWithPlaceholder
         src={imageUrl}
         alt={review.title}
         class="review-card__image"
         width="640"
         height="400"
-        loading="lazy"
-        decoding="async"
       />
     ) : (
       <div class="review-card__placeholder">

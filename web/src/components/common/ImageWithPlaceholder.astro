@@ -1,0 +1,94 @@
+---
+/**
+ * ImageWithPlaceholder — immagine con effetto blur-up placeholder
+ * Mostra un placeholder grigio scuro pulsante mentre l'immagine carica,
+ * poi fa un fade-in dell'immagine reale.
+ */
+interface Props {
+  src: string;
+  alt: string;
+  width: string | number;
+  height: string | number;
+  class?: string;
+}
+
+const { src, alt, width, height, class: className = '' } = Astro.props;
+---
+
+<div class={`img-placeholder-wrap ${className}`} style={`width:100%;aspect-ratio:${width}/${height};`}>
+  <!-- Placeholder con pulse -->
+  <div class="img-placeholder" aria-hidden="true"></div>
+  <!-- Immagine reale, nascosta finche non carica -->
+  <img
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    loading="lazy"
+    decoding="async"
+    class="img-reveal"
+  />
+</div>
+
+<script>
+  // Rileva caricamento immagini e applica fade-in
+  document.querySelectorAll<HTMLDivElement>('.img-placeholder-wrap').forEach((wrap) => {
+    const img = wrap.querySelector<HTMLImageElement>('.img-reveal');
+    if (!img) return;
+
+    function reveal() {
+      img!.classList.add('img-reveal--loaded');
+      const placeholder = wrap.querySelector('.img-placeholder');
+      if (placeholder) placeholder.classList.add('img-placeholder--hidden');
+    }
+
+    if (img.complete && img.naturalWidth > 0) {
+      reveal();
+    } else {
+      img.addEventListener('load', reveal, { once: true });
+      img.addEventListener('error', reveal, { once: true });
+    }
+  });
+</script>
+
+<style>
+  .img-placeholder-wrap {
+    position: relative;
+    overflow: hidden;
+    background-color: #1A1A1A;
+  }
+
+  .img-placeholder {
+    position: absolute;
+    inset: 0;
+    background-color: #1A1A1A;
+    animation: placeholder-pulse 1.8s ease-in-out infinite;
+    z-index: 1;
+    transition: opacity 0.4s ease;
+  }
+
+  .img-placeholder--hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @keyframes placeholder-pulse {
+    0%, 100% { background-color: #1A1A1A; }
+    50% { background-color: #2A2A2A; }
+  }
+
+  .img-reveal {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 2;
+  }
+
+  .img-reveal--loaded {
+    opacity: 1;
+  }
+</style>
