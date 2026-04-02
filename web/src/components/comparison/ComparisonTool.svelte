@@ -28,13 +28,12 @@
   }
 
   interface Props {
-    strapiUrl: string;
     locale: string;
     labels: Record<string, string>;
     initialIds?: string[];
   }
 
-  let { strapiUrl, locale, labels, initialIds = [] }: Props = $props();
+  let { locale, labels, initialIds = [] }: Props = $props();
 
   // Stato principale
   let selectedIds = $state<string[]>([]);
@@ -88,17 +87,13 @@
     }
 
     isLoading = true;
-    const promises = ids.map(id =>
-      fetch(`${strapiUrl}/api/reviews/${id}?populate=product&locale=${locale}&status=published`)
-        .then(r => {
-          if (!r.ok) throw new Error(`Errore fetch review ${id}`);
-          return r.json();
-        })
-        .then(json => json.data as ComparisonReview)
-    );
-
-    Promise.all(promises)
-      .then(data => {
+    fetch(`/api/reviews?ids=${ids.join(',')}&locale=${locale}`)
+      .then(r => {
+        if (!r.ok) throw new Error('Errore fetch reviews');
+        return r.json();
+      })
+      .then(json => {
+        const data = (json.data || []) as ComparisonReview[];
         reviews = data.filter(Boolean);
         // Aggiorna mappa nomi prodotti per le pill
         const names: Record<string, string> = {};
@@ -152,7 +147,6 @@
 <div class="comparison-tool">
   <!-- Selettore prodotti -->
   <ProductSelector
-    {strapiUrl}
     {locale}
     {selectedIds}
     maxProducts={5}
@@ -174,7 +168,7 @@
     </div>
   {:else if reviews.length >= 2}
     <!-- Tabella comparativa -->
-    <ComparisonTable {reviews} {labels} {strapiUrl} />
+    <ComparisonTable {reviews} {labels} />
 
     <!-- Pulsante copia link -->
     <div class="share-section">

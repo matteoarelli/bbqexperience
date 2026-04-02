@@ -6,7 +6,6 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
 import ComparisonTool from '@components/comparison/ComparisonTool.svelte';
-import { STRAPI_URL } from '@lib/strapi';
 import { loadTranslations, getTranslation } from '@lib/i18n';
 
 export const prerender = false;
@@ -64,7 +63,6 @@ const labels = {
 
     <ComparisonTool
       client:load
-      strapiUrl={STRAPI_URL}
       locale={locale}
       labels={labels}
       initialIds={initialIds}

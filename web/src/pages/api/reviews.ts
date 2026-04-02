@@ -1,0 +1,96 @@
+// Proxy API per recensioni — evita di esporre STRAPI_URL al client
+// Gestisce ricerca (search), singola review (id), e batch (ids)
+import type { APIRoute } from 'astro';
+import { STRAPI_URL } from '@lib/strapi';
+
+export const prerender = false;
+
+const STRAPI_API_TOKEN = import.meta.env.STRAPI_API_TOKEN || '';
+
+/** Header di autenticazione per Strapi */
+function strapiHeaders(): HeadersInit {
+  return STRAPI_API_TOKEN
+    ? { Authorization: `Bearer ${STRAPI_API_TOKEN}` }
+    : {};
+}
+
+/** Converte URL immagini relative in URL assolute con STRAPI_URL */
+function absoluteImageUrls(data: any): any {
+  if (!data) return data;
+
+  // Gestione singola review
+  const fixImages = (review: any) => {
+    if (review?.product?.images) {
+      review.product.images = review.product.images.map((img: any) => ({
+        ...img,
+        url: img.url?.startsWith('/') ? `${STRAPI_URL}${img.url}` : img.url,
+      }));
+    }
+    return review;
+  };
+
+  if (Array.isArray(data)) return data.map(fixImages);
+  return fixImages(data);
+}
+
+export const GET: APIRoute = async ({ url }) => {
+  const search = url.searchParams.get('search');
+  const id = url.searchParams.get('id');
+  const ids = url.searchParams.get('ids');
+  const locale = url.searchParams.get('locale') || 'en';
+
+  try {
+    // Ricerca per titolo
+    if (search) {
+      const encodedQuery = encodeURIComponent(search);
+      const strapiEndpoint = `${STRAPI_URL}/api/reviews?filters[title][$containsi]=${encodedQuery}&populate=product&locale=${locale}&pagination[pageSize]=10&status=published`;
+      const response = await fetch(strapiEndpoint, { headers: strapiHeaders() });
+      if (!response.ok) throw new Error(`Strapi error: ${response.status}`);
+      const json = await response.json();
+      json.data = absoluteImageUrls(json.data);
+      return new Response(JSON.stringify(json), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Singola review per documentId
+    if (id) {
+      const strapiEndpoint = `${STRAPI_URL}/api/reviews/${id}?populate=product&locale=${locale}&status=published`;
+      const response = await fetch(strapiEndpoint, { headers: strapiHeaders() });
+      if (!response.ok) throw new Error(`Strapi error: ${response.status}`);
+      const json = await response.json();
+      json.data = absoluteImageUrls(json.data);
+      return new Response(JSON.stringify(json), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Batch fetch per IDs multipli (separati da virgola)
+    if (ids) {
+      const idList = ids.split(',').filter(Boolean);
+      const promises = idList.map(async (docId) => {
+        const strapiEndpoint = `${STRAPI_URL}/api/reviews/${docId}?populate=product&locale=${locale}&status=published`;
+        const response = await fetch(strapiEndpoint, { headers: strapiHeaders() });
+        if (!response.ok) return null;
+        const json = await response.json();
+        return json.data;
+      });
+      const results = await Promise.all(promises);
+      const data = absoluteImageUrls(results.filter(Boolean));
+      return new Response(JSON.stringify({ data }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ error: 'Parametro search, id o ids richiesto' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (err) {
+    console.error('Errore proxy reviews:', err);
+    return new Response(JSON.stringify({ error: 'Errore interno' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+};

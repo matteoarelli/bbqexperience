@@ -5,7 +5,6 @@
    */
 
   interface Props {
-    strapiUrl: string;
     locale: string;
     selectedIds: string[];
     maxProducts?: number;
@@ -20,7 +19,6 @@
   }
 
   let {
-    strapiUrl,
     locale,
     selectedIds,
     maxProducts = 5,
@@ -53,8 +51,7 @@
       isSearching = true;
       try {
         const encodedQuery = encodeURIComponent(query);
-        const url = `${strapiUrl}/api/reviews?filters[title][$containsi]=${encodedQuery}&populate=product&locale=${locale}&pagination[pageSize]=10&status=published`;
-        const response = await fetch(url);
+        const response = await fetch(`/api/reviews?search=${encodedQuery}&locale=${locale}`);
         if (!response.ok) throw new Error('Errore ricerca');
         const json = await response.json();
 

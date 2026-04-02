@@ -28,10 +28,9 @@
   interface Props {
     reviews: ComparisonReview[];
     labels: Record<string, string>;
-    strapiUrl?: string;
   }
 
-  let { reviews, labels, strapiUrl = '' }: Props = $props();
+  let { reviews, labels }: Props = $props();
 
   // Righe punteggio con chiave e label
   const scoreRows = $derived([
@@ -77,8 +76,7 @@
   function getProductImageUrl(review: ComparisonReview): string | null {
     const img = review.product?.images?.[0];
     if (!img) return null;
-    // Se l'URL e relativo, prefissa con strapiUrl
-    if (img.url.startsWith('/')) return `${strapiUrl}${img.url}`;
+    // Le immagini arrivano gia con URL assoluti dal proxy
     return img.url;
   }
 

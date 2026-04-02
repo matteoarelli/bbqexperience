@@ -41,7 +41,8 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}`;
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="theme-color" content="#0D0D0D" />
+<meta name="theme-color" content="#0D0D0D" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
 <meta name="generator" content={Astro.generator} />
 <meta name="robots" content="index, follow" />
 

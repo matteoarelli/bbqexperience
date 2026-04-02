@@ -42,6 +42,7 @@ const translations = await loadTranslations(locale as any);
     </script>
     <meta name="color-scheme" content="dark light" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
     <SEOHead
       title={title}
       description={description}
@@ -51,7 +52,7 @@ const translations = await loadTranslations(locale as any);
     />
   </head>
   <body>
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-accent-fire)] focus:text-[var(--color-text-inverse)] focus:rounded-md">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-accent-fire)] focus:text-[var(--color-text-inverse)] focus:rounded-md focus:font-bold focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-fire)] focus:ring-offset-2">
       Skip to content
     </a>
 
