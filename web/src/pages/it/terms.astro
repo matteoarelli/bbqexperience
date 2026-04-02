@@ -1,0 +1,153 @@
+---
+// Termini di Servizio — BBQ Experience (IT)
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+const locale: Locale = 'it';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+---
+
+<BaseLayout
+  title={`Termini di Servizio - ${t('site.name')}`}
+  description="Termini di Servizio di BBQ Experience — regole e condizioni per l'utilizzo del nostro sito web."
+  locale={locale}
+  canonicalPath={`/${locale}/${localizedRoutes.terms[locale]}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.terms[locale]}/`} />
+
+  <section class="legal-page container-bbq py-16">
+    <h1 class="legal-title">Termini di Servizio</h1>
+    <p class="legal-updated">Ultimo aggiornamento: 1 aprile 2026</p>
+
+    <div class="legal-content">
+      <h2>1. Accettazione dei Termini</h2>
+      <p>
+        Accedendo e utilizzando bbqexperience.com ("il Sito Web"), accetti e ti impegni a rispettare questi
+        Termini di Servizio. Se non accetti questi termini, ti preghiamo di non utilizzare il Sito Web.
+      </p>
+
+      <h2>2. Descrizione del Servizio</h2>
+      <p>
+        BBQ Experience e un sito web di contenuti editoriali che fornisce recensioni di prodotti BBQ, ricette,
+        tutorial e articoli di blog. Tutti i contenuti sono forniti solo a scopo informativo e di intrattenimento.
+      </p>
+
+      <h2>3. Proprieta Intellettuale</h2>
+      <p>
+        Tutti i contenuti di questo Sito Web, inclusi ma non limitati a testi, immagini, fotografie, grafiche,
+        loghi ed elementi di design, sono di proprieta di BBQ Experience e sono protetti dalle leggi sul
+        diritto d'autore e sulla proprieta intellettuale. Non e consentito riprodurre, distribuire, modificare
+        o creare opere derivate dai nostri contenuti senza previo consenso scritto.
+      </p>
+
+      <h2>4. Disclaimer sui Contenuti Editoriali</h2>
+      <p>
+        Le nostre recensioni, opinioni e raccomandazioni si basano su test pratici ed esperienza personale.
+        Sebbene ci sforziamo di essere accurati, non possiamo garantire che tutte le informazioni siano
+        complete o aggiornate. Le specifiche dei prodotti, i prezzi e la disponibilita possono cambiare senza preavviso.
+      </p>
+      <p>
+        BBQ Experience non e responsabile per eventuali decisioni di acquisto effettuate sulla base delle
+        nostre recensioni o raccomandazioni. Effettua sempre le tue ricerche prima di procedere all'acquisto.
+      </p>
+
+      <h2>5. Condotta dell'Utente</h2>
+      <p>Utilizzando il Sito Web, ti impegni a non:</p>
+      <ul>
+        <li>Utilizzare il Sito Web per scopi illegali</li>
+        <li>Tentare di ottenere accesso non autorizzato a qualsiasi parte del Sito Web</li>
+        <li>Utilizzare strumenti automatizzati per raccogliere o estrarre contenuti dal Sito Web</li>
+        <li>Interferire con o interrompere la funzionalita del Sito Web</li>
+        <li>Riprodurre o ridistribuire i nostri contenuti senza autorizzazione</li>
+      </ul>
+
+      <h2>6. Link a Siti di Terze Parti</h2>
+      <p>
+        Il Sito Web puo contenere link a siti web di terze parti. Questi link sono forniti solo per
+        comodita. BBQ Experience non avalla e non e responsabile del contenuto, dell'accuratezza o delle
+        pratiche dei siti web di terze parti collegati.
+      </p>
+
+      <h2>7. Limitazione di Responsabilita</h2>
+      <p>
+        BBQ Experience e il suo team non saranno responsabili per danni diretti, indiretti, incidentali,
+        consequenziali o punitivi derivanti dall'utilizzo del Sito Web o dall'affidamento sui suoi contenuti.
+        Il Sito Web e fornito "cosi com'e" senza garanzie di alcun tipo, esplicite o implicite.
+      </p>
+
+      <h2>8. Manleva</h2>
+      <p>
+        Accetti di manlevare e tenere indenne BBQ Experience da qualsiasi pretesa, danno, perdita o spesa
+        derivante dal tuo utilizzo del Sito Web o dalla violazione di questi Termini.
+      </p>
+
+      <h2>9. Modifiche</h2>
+      <p>
+        Ci riserviamo il diritto di modificare questi Termini di Servizio in qualsiasi momento. Le modifiche
+        saranno pubblicate su questa pagina con una data di revisione aggiornata. L'uso continuato del
+        Sito Web dopo le modifiche costituisce accettazione dei termini revisionati.
+      </p>
+
+      <h2>10. Legge Applicabile</h2>
+      <p>
+        Questi Termini di Servizio sono regolati e interpretati in conformita con la legge applicabile
+        dell'Unione Europea e le leggi italiane.
+      </p>
+
+      <h2>11. Contatti</h2>
+      <p>
+        Per domande su questi Termini di Servizio, contattaci all'indirizzo:
+        <strong>info@bbqexperience.com</strong>
+      </p>
+    </div>
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .legal-page { max-width: 800px; margin: 0 auto; }
+
+  .legal-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .legal-updated {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-8);
+  }
+
+  .legal-content h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-accent-fire);
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-content p {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+  }
+
+  .legal-content ul {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+  }
+
+  .legal-content li { margin-bottom: var(--space-2); }
+</style>

@@ -35,8 +35,14 @@ if (activeCategory && categories.includes(activeCategory as typeof categories[nu
   fetchOptions.filters = { category: { $eq: activeCategory } };
 }
 
-const response = await fetchCollection<StrapiBlogPost>('blog-posts', fetchOptions);
-const posts = response.data;
+let posts: (StrapiBlogPost & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
+let fetchError = false;
+try {
+  const response = await fetchCollection<StrapiBlogPost>('blog-posts', fetchOptions);
+  posts = response.data;
+} catch {
+  fetchError = true;
+}
 const blogRoute = localizedRoutes.blog[locale];
 
 // Separa post in evidenza dai normali (solo se non c'e filtro attivo)
@@ -80,6 +86,12 @@ const breadcrumbItems = [
       ))}
     </div>
 
+    {fetchError ? (
+      <div class="empty-state" data-animate>
+        <p class="empty-text">{t('common.contentUnavailable')}</p>
+      </div>
+    ) : (
+    <Fragment>
     {featuredPosts.length > 0 && (
       <div class="featured-section" data-animate>
         <div class="featured-grid">
@@ -122,6 +134,8 @@ const breadcrumbItems = [
       <div class="empty-state" data-animate>
         <p class="empty-text">{t('content.noArticles')}</p>
       </div>
+    )}
+    </Fragment>
     )}
   </section>
 

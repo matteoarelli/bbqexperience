@@ -1,0 +1,253 @@
+---
+// Pagina Sobre Nosotros — historia del brand BBQ Experience (ES)
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+const locale: Locale = 'es';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+---
+
+<BaseLayout
+  title={`${t('nav.about')} - ${t('site.name')}`}
+  description="Conoce BBQ Experience — nuestra historia, mision y la comunidad de mas de 74K entusiastas del grilling."
+  locale={locale}
+  canonicalPath={`/${locale}/${localizedRoutes.about[locale]}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.about[locale]}/`} />
+
+  <!-- Hero -->
+  <section class="about-hero">
+    <div class="container-bbq">
+      <h1 class="about-hero__title">Sobre <span class="text-fire">BBQ Experience</span></h1>
+      <p class="about-hero__subtitle">Nacida en Instagram. Forjada por el fuego. Seguida por mas de 74K entusiastas del grilling.</p>
+    </div>
+  </section>
+
+  <!-- Mission -->
+  <section class="about-section">
+    <div class="container-bbq">
+      <div class="about-grid">
+        <div>
+          <h2 class="section-title">Nuestra Mision</h2>
+          <p class="section-text">
+            BBQ Experience nacio de una conviccion simple: cada amante del grilling merece informacion honesta
+            y basada en pruebas reales para tomar mejores decisiones. Probamos cada producto personalmente,
+            desarrollamos recetas originales y compartimos resenas detalladas — sin contenido patrocinado,
+            sin atajos, solo fuego real y opiniones reales.
+          </p>
+          <p class="section-text">
+            Lo que empezo como una pagina de Instagram impulsada por la pasion por la cocina a fuego vivo se
+            ha convertido en el destino mas completo para resenas de BBQ en linea. Nuestra comunidad de mas
+            de 74.000 entusiastas confia en nosotros porque nunca comprometemos la honestidad.
+          </p>
+        </div>
+        <div class="about-image-placeholder">
+          <div class="placeholder-inner">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <span>Imagen Hero</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="about-stats">
+    <div class="container-bbq">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number">74K+</span>
+          <span class="stat-label">Seguidores</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">6K+</span>
+          <span class="stat-label">Posts y Stories</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">100+</span>
+          <span class="stat-label">Productos Resenados</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number">50+</span>
+          <span class="stat-label">Recetas Originales</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team -->
+  <section class="about-section">
+    <div class="container-bbq">
+      <h2 class="section-title">El Equipo</h2>
+      <p class="section-text">
+        Detras de BBQ Experience hay un equipo de apasionados del grilling que pasan sus dias (y noches)
+        probando equipos, perfeccionando recetas y compartiendo todo lo que aprenden. Desde asados en el
+        jardin hasta competiciones profesionales, aportamos experiencia real a cada contenido que creamos.
+      </p>
+      <p class="section-text">
+        Nuestras resenas se basan en semanas de pruebas practicas. Nuestras recetas se desarrollan, cocinan
+        y perfeccionan hasta que son dignas de compartir. Y nuestros tutoriales se nutren de anos de prueba,
+        error y dominio.
+      </p>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="about-cta">
+    <div class="container-bbq" style="text-align: center;">
+      <h2 class="section-title">Unete a la Comunidad</h2>
+      <p class="section-text" style="max-width: 600px; margin: 0 auto var(--space-6);">
+        Siguenos en Instagram para contenido BBQ diario, miradas tras bambalinas de nuestro proceso de pruebas
+        y consejos exclusivos del equipo.
+      </p>
+      <a href="https://instagram.com/bbqexperience" target="_blank" rel="noopener noreferrer" class="cta-button">
+        Seguir @bbqexperience
+      </a>
+    </div>
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .about-hero {
+    padding: var(--space-24) 0 var(--space-16);
+    text-align: center;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .about-hero__title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
+  }
+
+  .text-fire { color: var(--color-accent-fire); }
+
+  .about-hero__subtitle {
+    font-size: var(--text-lg);
+    color: var(--color-text-muted);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .about-section { padding: var(--space-16) 0; }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .about-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .section-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-accent-fire);
+    margin-bottom: var(--space-4);
+  }
+
+  .section-text {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+  }
+
+  .about-image-placeholder {
+    aspect-ratio: 4/3;
+    background-color: var(--color-bg-secondary);
+    border: 2px dashed var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .placeholder-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .about-stats {
+    padding: var(--space-16) 0;
+    background-color: rgba(26, 26, 26, 0.5);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .stat-card {
+    text-align: center;
+    padding: var(--space-6);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .stat-number {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    color: var(--color-accent-fire);
+  }
+
+  .stat-label {
+    display: block;
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: var(--space-1);
+  }
+
+  .about-cta {
+    padding: var(--space-16) 0;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .cta-button {
+    display: inline-block;
+    padding: var(--space-3) var(--space-8);
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    transition: background-color var(--transition-fast);
+  }
+
+  .cta-button:hover { background-color: var(--color-accent-ember); }
+</style>

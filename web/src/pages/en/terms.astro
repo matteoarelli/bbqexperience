@@ -1,0 +1,153 @@
+---
+// Terms of Service — BBQ Experience (EN)
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+const locale: Locale = 'en';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+---
+
+<BaseLayout
+  title={`Terms of Service - ${t('site.name')}`}
+  description="Terms of Service for BBQ Experience — rules and conditions for using our website."
+  locale={locale}
+  canonicalPath={`/${locale}/${localizedRoutes.terms[locale]}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.terms[locale]}/`} />
+
+  <section class="legal-page container-bbq py-16">
+    <h1 class="legal-title">Terms of Service</h1>
+    <p class="legal-updated">Last updated: April 1, 2026</p>
+
+    <div class="legal-content">
+      <h2>1. Acceptance of Terms</h2>
+      <p>
+        By accessing and using bbqexperience.com ("the Website"), you accept and agree to be bound by these
+        Terms of Service. If you do not agree to these terms, please do not use the Website.
+      </p>
+
+      <h2>2. Description of Service</h2>
+      <p>
+        BBQ Experience is an editorial content website that provides BBQ product reviews, recipes, tutorials,
+        and blog articles. All content is provided for informational and entertainment purposes only.
+      </p>
+
+      <h2>3. Intellectual Property</h2>
+      <p>
+        All content on this Website, including but not limited to text, images, photographs, graphics, logos,
+        and design elements, is the property of BBQ Experience and is protected by copyright and intellectual
+        property laws. You may not reproduce, distribute, modify, or create derivative works from our content
+        without prior written permission.
+      </p>
+
+      <h2>4. Editorial Content Disclaimer</h2>
+      <p>
+        Our reviews, opinions, and recommendations are based on hands-on testing and personal experience.
+        While we strive for accuracy, we cannot guarantee that all information is complete or up-to-date.
+        Product specifications, prices, and availability may change without notice.
+      </p>
+      <p>
+        BBQ Experience is not responsible for any purchasing decisions made based on our reviews or
+        recommendations. Always conduct your own research before making a purchase.
+      </p>
+
+      <h2>5. User Conduct</h2>
+      <p>When using the Website, you agree not to:</p>
+      <ul>
+        <li>Use the Website for any unlawful purpose</li>
+        <li>Attempt to gain unauthorized access to any part of the Website</li>
+        <li>Use automated tools to scrape or extract content from the Website</li>
+        <li>Interfere with or disrupt the Website's functionality</li>
+        <li>Reproduce or redistribute our content without authorization</li>
+      </ul>
+
+      <h2>6. Third-Party Links</h2>
+      <p>
+        The Website may contain links to third-party websites. These links are provided for convenience
+        only. BBQ Experience does not endorse and is not responsible for the content, accuracy, or
+        practices of linked third-party websites.
+      </p>
+
+      <h2>7. Limitation of Liability</h2>
+      <p>
+        BBQ Experience and its team shall not be liable for any direct, indirect, incidental, consequential,
+        or punitive damages arising from your use of the Website or reliance on its content. The Website
+        is provided "as is" without warranties of any kind, express or implied.
+      </p>
+
+      <h2>8. Indemnification</h2>
+      <p>
+        You agree to indemnify and hold harmless BBQ Experience from any claims, damages, losses, or
+        expenses arising from your use of the Website or violation of these Terms.
+      </p>
+
+      <h2>9. Modifications</h2>
+      <p>
+        We reserve the right to modify these Terms of Service at any time. Changes will be posted on
+        this page with an updated revision date. Continued use of the Website after changes constitutes
+        acceptance of the revised terms.
+      </p>
+
+      <h2>10. Governing Law</h2>
+      <p>
+        These Terms of Service are governed by and construed in accordance with applicable European Union
+        law and the laws of Italy.
+      </p>
+
+      <h2>11. Contact</h2>
+      <p>
+        For questions about these Terms of Service, please contact us at:
+        <strong>info@bbqexperience.com</strong>
+      </p>
+    </div>
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .legal-page { max-width: 800px; margin: 0 auto; }
+
+  .legal-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .legal-updated {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-8);
+  }
+
+  .legal-content h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-accent-fire);
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-content p {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+  }
+
+  .legal-content ul {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+  }
+
+  .legal-content li { margin-bottom: var(--space-2); }
+</style>

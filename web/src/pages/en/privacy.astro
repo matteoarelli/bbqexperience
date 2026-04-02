@@ -1,0 +1,162 @@
+---
+// Privacy Policy — BBQ Experience (EN)
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+const locale: Locale = 'en';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+---
+
+<BaseLayout
+  title={`Privacy Policy - ${t('site.name')}`}
+  description="Privacy Policy for BBQ Experience — how we handle your data and protect your privacy."
+  locale={locale}
+  canonicalPath={`/${locale}/${localizedRoutes.privacy[locale]}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.privacy[locale]}/`} />
+
+  <section class="legal-page container-bbq py-16">
+    <h1 class="legal-title">Privacy Policy</h1>
+    <p class="legal-updated">Last updated: April 1, 2026</p>
+
+    <div class="legal-content">
+      <h2>1. Introduction</h2>
+      <p>
+        BBQ Experience ("we", "us", "our") operates the website bbqexperience.com. This Privacy Policy explains
+        how we collect, use, and protect your personal data when you visit our website, in compliance with the
+        General Data Protection Regulation (GDPR) and other applicable data protection laws.
+      </p>
+
+      <h2>2. Data Controller</h2>
+      <p>
+        The data controller for this website is BBQ Experience. For any privacy-related inquiries, please
+        contact us at: <strong>privacy@bbqexperience.com</strong>
+      </p>
+
+      <h2>3. Data We Collect</h2>
+      <p>
+        As a content-only website, we do not require user accounts or registration. The data we may collect includes:
+      </p>
+      <ul>
+        <li><strong>Technical data:</strong> IP address, browser type, operating system, referring URLs, and pages visited, collected automatically through server logs.</li>
+        <li><strong>Analytics data:</strong> Anonymized usage statistics to understand how visitors interact with our content.</li>
+        <li><strong>Cookies:</strong> We use minimal cookies solely for content preview functionality (for editorial purposes only) and basic site operation. No advertising or tracking cookies are used.</li>
+      </ul>
+
+      <h2>4. How We Use Your Data</h2>
+      <p>We use the collected data exclusively for:</p>
+      <ul>
+        <li>Operating and maintaining the website</li>
+        <li>Analyzing site usage to improve our content and user experience</li>
+        <li>Ensuring the security and proper functioning of the website</li>
+      </ul>
+
+      <h2>5. Legal Basis for Processing</h2>
+      <p>
+        We process your data based on our legitimate interest in operating and improving our website
+        (Article 6(1)(f) GDPR). For analytics, we rely on your consent where required by applicable law.
+      </p>
+
+      <h2>6. Data Sharing</h2>
+      <p>
+        We do not sell, trade, or rent your personal data to third parties. We may share anonymized,
+        aggregated data with analytics providers to help us understand website usage patterns.
+      </p>
+
+      <h2>7. Data Retention</h2>
+      <p>
+        Server logs are retained for a maximum of 90 days. Analytics data is stored in anonymized form
+        and retained for up to 26 months.
+      </p>
+
+      <h2>8. Your Rights</h2>
+      <p>Under the GDPR, you have the right to:</p>
+      <ul>
+        <li>Access your personal data</li>
+        <li>Rectify inaccurate data</li>
+        <li>Request erasure of your data</li>
+        <li>Restrict processing of your data</li>
+        <li>Data portability</li>
+        <li>Object to processing</li>
+        <li>Lodge a complaint with a supervisory authority</li>
+      </ul>
+      <p>To exercise these rights, contact us at <strong>privacy@bbqexperience.com</strong>.</p>
+
+      <h2>9. Cookies</h2>
+      <p>
+        This website uses only essential cookies required for site functionality. A preview cookie
+        may be set temporarily for editorial content review purposes. No third-party advertising
+        cookies are used. You can manage cookies through your browser settings.
+      </p>
+
+      <h2>10. Third-Party Links</h2>
+      <p>
+        Our website may contain links to external sites (e.g., Instagram, product manufacturer websites).
+        We are not responsible for the privacy practices of these external sites.
+      </p>
+
+      <h2>11. Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. Any changes will be posted on this page
+        with an updated revision date.
+      </p>
+
+      <h2>12. Contact Us</h2>
+      <p>
+        If you have any questions about this Privacy Policy, please contact us at:
+        <strong>privacy@bbqexperience.com</strong>
+      </p>
+    </div>
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .legal-page { max-width: 800px; margin: 0 auto; }
+
+  .legal-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .legal-updated {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-8);
+  }
+
+  .legal-content h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-accent-fire);
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-content p {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+  }
+
+  .legal-content ul {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+  }
+
+  .legal-content li {
+    margin-bottom: var(--space-2);
+  }
+</style>

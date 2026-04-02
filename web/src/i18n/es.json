@@ -12,7 +12,8 @@
     "blog": "Blog",
     "about": "Sobre Nosotros",
     "compare": "Comparar",
-    "search": "Buscar"
+    "search": "Buscar",
+    "contact": "Contacto"
   },
   "common": {
     "readMore": "Leer mas",
@@ -24,7 +25,8 @@
     "notFound": "Pagina no encontrada",
     "language": "Idioma",
     "followUs": "Siguenos en Instagram",
-    "copyright": "Todos los derechos reservados"
+    "copyright": "Todos los derechos reservados",
+    "contentUnavailable": "Contenido temporalmente no disponible. Intentalo de nuevo mas tarde."
   },
   "hero": {
     "title": "BBQ EXPERIENCE",

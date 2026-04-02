@@ -1,15 +1,10 @@
 ---
-// Redirect root alla locale di default (inglese)
----
+// Rileva la lingua preferita dal browser e redirect alla locale corretta
+export const prerender = false;
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0;url=/en/" />
-    <link rel="canonical" href="https://bbqexperience.com/en/" />
-    <title>Redirecting...</title>
-  </head>
-  <body>
-    <p>Redirecting to <a href="/en/">English version</a>...</p>
-  </body>
-</html>
+const acceptLang = Astro.request.headers.get('accept-language') || '';
+let locale = 'en';
+if (acceptLang.startsWith('it') || acceptLang.includes('it-')) locale = 'it';
+else if (acceptLang.startsWith('es') || acceptLang.includes('es-')) locale = 'es';
+return Astro.redirect(`/${locale}/`, 302);
+---

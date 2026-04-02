@@ -7,6 +7,15 @@ import { PREVIEW_COOKIE_NAME, PREVIEW_SECRET } from '@lib/preview';
 export const prerender = false;
 
 export const GET: APIRoute = ({ url, cookies, redirect }) => {
+  const action = url.searchParams.get('action');
+
+  // Gestione uscita dalla preview via GET ?action=exit
+  if (action === 'exit') {
+    cookies.delete(PREVIEW_COOKIE_NAME, { path: '/' });
+    const redirectTo = url.searchParams.get('redirect') || '/en/';
+    return redirect(redirectTo, 302);
+  }
+
   const secret = url.searchParams.get('secret');
   const slug = url.searchParams.get('slug');
   const type = url.searchParams.get('type') || 'reviews';

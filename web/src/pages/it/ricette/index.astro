@@ -35,8 +35,14 @@ if (activeDifficulty && difficulties.includes(activeDifficulty as typeof difficu
   fetchOptions.filters = { difficulty: { $eq: activeDifficulty } };
 }
 
-const response = await fetchCollection<StrapiRecipe>('recipes', fetchOptions);
-const recipes = response.data;
+let recipes: (StrapiRecipe & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
+let fetchError = false;
+try {
+  const response = await fetchCollection<StrapiRecipe>('recipes', fetchOptions);
+  recipes = response.data;
+} catch {
+  fetchError = true;
+}
 const recipeRoute = localizedRoutes.recipes[locale];
 
 // Breadcrumbs
@@ -77,7 +83,11 @@ const breadcrumbItems = [
       ))}
     </div>
 
-    {recipes.length > 0 ? (
+    {fetchError ? (
+      <div class="empty-state" data-animate>
+        <p class="empty-text">{t('common.contentUnavailable')}</p>
+      </div>
+    ) : recipes.length > 0 ? (
       <div class="recipe-grid" data-animate>
         {recipes.map((recipe) => (
           <ArticleCard

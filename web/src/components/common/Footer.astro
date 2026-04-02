@@ -84,12 +84,14 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
         </ul>
       </div>
 
-      <!-- Colonna 4: Legal -->
+      <!-- Colonna 4: Legal + link utili -->
       <div>
         <h4 class="footer-heading">{getTranslation(translations, 'footer.legal')}</h4>
         <ul class="space-y-3">
-          <li><a href={`/${locale}/privacy/`} class="footer-link">Privacy Policy</a></li>
-          <li><a href={`/${locale}/terms/`} class="footer-link">Terms of Service</a></li>
+          <li><a href={`/${locale}/${localizedRoutes.about[locale]}/`} class="footer-link">{getTranslation(translations, 'nav.about')}</a></li>
+          <li><a href={`/${locale}/${localizedRoutes.contact[locale]}/`} class="footer-link">{getTranslation(translations, 'nav.contact')}</a></li>
+          <li><a href={`/${locale}/${localizedRoutes.privacy[locale]}/`} class="footer-link">Privacy Policy</a></li>
+          <li><a href={`/${locale}/${localizedRoutes.terms[locale]}/`} class="footer-link">Terms of Service</a></li>
         </ul>
       </div>
     </div>

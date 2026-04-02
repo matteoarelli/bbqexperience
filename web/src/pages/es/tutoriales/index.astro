@@ -35,8 +35,14 @@ if (activeCategory && categories.includes(activeCategory as typeof categories[nu
   fetchOptions.filters = { category: { $eq: activeCategory } };
 }
 
-const response = await fetchCollection<StrapiTutorial>('tutorials', fetchOptions);
-const tutorials = response.data;
+let tutorials: (StrapiTutorial & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
+let fetchError = false;
+try {
+  const response = await fetchCollection<StrapiTutorial>('tutorials', fetchOptions);
+  tutorials = response.data;
+} catch {
+  fetchError = true;
+}
 const tutorialRoute = localizedRoutes.tutorials[locale];
 
 // Breadcrumbs
@@ -76,7 +82,11 @@ const breadcrumbItems = [
       ))}
     </div>
 
-    {tutorials.length > 0 ? (
+    {fetchError ? (
+      <div class="empty-state" data-animate>
+        <p class="empty-text">{t('common.contentUnavailable')}</p>
+      </div>
+    ) : tutorials.length > 0 ? (
       <div class="tutorial-grid" data-animate>
         {tutorials.map((tutorial) => (
           <ArticleCard

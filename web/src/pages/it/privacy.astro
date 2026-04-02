@@ -1,0 +1,164 @@
+---
+// Privacy Policy — BBQ Experience (IT)
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+const locale: Locale = 'it';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+---
+
+<BaseLayout
+  title={`Privacy Policy - ${t('site.name')}`}
+  description="Informativa sulla privacy di BBQ Experience — come gestiamo i tuoi dati e proteggiamo la tua privacy."
+  locale={locale}
+  canonicalPath={`/${locale}/${localizedRoutes.privacy[locale]}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.privacy[locale]}/`} />
+
+  <section class="legal-page container-bbq py-16">
+    <h1 class="legal-title">Informativa sulla Privacy</h1>
+    <p class="legal-updated">Ultimo aggiornamento: 1 aprile 2026</p>
+
+    <div class="legal-content">
+      <h2>1. Introduzione</h2>
+      <p>
+        BBQ Experience ("noi", "nostro") gestisce il sito web bbqexperience.com. Questa informativa sulla privacy
+        spiega come raccogliamo, utilizziamo e proteggiamo i tuoi dati personali quando visiti il nostro sito web,
+        in conformita con il Regolamento Generale sulla Protezione dei Dati (GDPR) e le altre leggi applicabili
+        sulla protezione dei dati.
+      </p>
+
+      <h2>2. Titolare del Trattamento</h2>
+      <p>
+        Il titolare del trattamento dei dati per questo sito web e BBQ Experience. Per qualsiasi richiesta
+        relativa alla privacy, contattaci all'indirizzo: <strong>privacy@bbqexperience.com</strong>
+      </p>
+
+      <h2>3. Dati che Raccogliamo</h2>
+      <p>
+        In quanto sito web di soli contenuti, non richiediamo account utente o registrazione. I dati che
+        possiamo raccogliere includono:
+      </p>
+      <ul>
+        <li><strong>Dati tecnici:</strong> indirizzo IP, tipo di browser, sistema operativo, URL di provenienza e pagine visitate, raccolti automaticamente tramite i log del server.</li>
+        <li><strong>Dati analitici:</strong> statistiche di utilizzo anonimizzate per comprendere come i visitatori interagiscono con i nostri contenuti.</li>
+        <li><strong>Cookie:</strong> utilizziamo cookie minimi esclusivamente per la funzionalita di anteprima dei contenuti (solo per scopi editoriali) e per il funzionamento base del sito. Non vengono utilizzati cookie pubblicitari o di tracciamento.</li>
+      </ul>
+
+      <h2>4. Come Utilizziamo i Tuoi Dati</h2>
+      <p>Utilizziamo i dati raccolti esclusivamente per:</p>
+      <ul>
+        <li>Gestire e mantenere il sito web</li>
+        <li>Analizzare l'utilizzo del sito per migliorare i nostri contenuti e l'esperienza utente</li>
+        <li>Garantire la sicurezza e il corretto funzionamento del sito web</li>
+      </ul>
+
+      <h2>5. Base Giuridica del Trattamento</h2>
+      <p>
+        Trattiamo i tuoi dati sulla base del nostro legittimo interesse nella gestione e nel miglioramento
+        del nostro sito web (Articolo 6(1)(f) GDPR). Per l'analisi dei dati, ci basiamo sul tuo consenso
+        ove richiesto dalla legge applicabile.
+      </p>
+
+      <h2>6. Condivisione dei Dati</h2>
+      <p>
+        Non vendiamo, scambiamo o affittiamo i tuoi dati personali a terze parti. Potremmo condividere dati
+        anonimizzati e aggregati con fornitori di analisi per aiutarci a comprendere i modelli di utilizzo del sito.
+      </p>
+
+      <h2>7. Conservazione dei Dati</h2>
+      <p>
+        I log del server vengono conservati per un massimo di 90 giorni. I dati analitici sono conservati
+        in forma anonimizzata per un massimo di 26 mesi.
+      </p>
+
+      <h2>8. I Tuoi Diritti</h2>
+      <p>Ai sensi del GDPR, hai il diritto di:</p>
+      <ul>
+        <li>Accedere ai tuoi dati personali</li>
+        <li>Rettificare dati inesatti</li>
+        <li>Richiedere la cancellazione dei tuoi dati</li>
+        <li>Limitare il trattamento dei tuoi dati</li>
+        <li>Portabilita dei dati</li>
+        <li>Opporti al trattamento</li>
+        <li>Presentare un reclamo a un'autorita di controllo</li>
+      </ul>
+      <p>Per esercitare questi diritti, contattaci all'indirizzo <strong>privacy@bbqexperience.com</strong>.</p>
+
+      <h2>9. Cookie</h2>
+      <p>
+        Questo sito web utilizza solo cookie essenziali necessari per il funzionamento del sito. Un cookie
+        di anteprima puo essere impostato temporaneamente per scopi di revisione editoriale dei contenuti.
+        Non vengono utilizzati cookie pubblicitari di terze parti. Puoi gestire i cookie tramite le
+        impostazioni del tuo browser.
+      </p>
+
+      <h2>10. Link a Siti Esterni</h2>
+      <p>
+        Il nostro sito web puo contenere link a siti esterni (es. Instagram, siti web dei produttori).
+        Non siamo responsabili delle pratiche sulla privacy di questi siti esterni.
+      </p>
+
+      <h2>11. Modifiche a Questa Informativa</h2>
+      <p>
+        Potremmo aggiornare questa informativa sulla privacy di tanto in tanto. Eventuali modifiche saranno
+        pubblicate su questa pagina con una data di revisione aggiornata.
+      </p>
+
+      <h2>12. Contattaci</h2>
+      <p>
+        Per qualsiasi domanda su questa informativa sulla privacy, contattaci all'indirizzo:
+        <strong>privacy@bbqexperience.com</strong>
+      </p>
+    </div>
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .legal-page { max-width: 800px; margin: 0 auto; }
+
+  .legal-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .legal-updated {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-8);
+  }
+
+  .legal-content h2 {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-accent-fire);
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-3);
+  }
+
+  .legal-content p {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+  }
+
+  .legal-content ul {
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-4);
+    padding-left: var(--space-6);
+  }
+
+  .legal-content li { margin-bottom: var(--space-2); }
+</style>
