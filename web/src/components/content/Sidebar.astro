@@ -22,8 +22,13 @@
     gap: var(--space-6);
   }
 
-  /* Desktop: sidebar sticky */
+  /* Desktop: sidebar sticky con larghezza fissa */
   @media (min-width: 1024px) {
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+    }
+
     .sidebar__inner {
       position: sticky;
       top: 5rem;
