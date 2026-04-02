@@ -24,6 +24,8 @@ import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import LastUpdated from '@components/content/LastUpdated.astro';
 import TopPickBadge from '@components/review/TopPickBadge.astro';
+import PrevNextNav from '@components/content/PrevNextNav.astro';
+import { localizedRoutes } from '@lib/i18n';
 
 export const prerender = false;
 
@@ -215,11 +217,21 @@ const breadcrumbItems = [
     <!-- Card autore -->
     <AuthorCard locale={locale} translations={t} />
 
+    <!-- CTA confronta prodotto -->
+    <div class="compare-cta">
+      <a href={`/${locale}/${localizedRoutes.compare[locale]}/?products=${review.slug}`} class="compare-cta__link">
+        {getTranslation(t, 'content.compareProduct')} &rarr;
+      </a>
+    </div>
+
     <!-- Condivisione social e bookmark -->
     <div style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle); display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
       <SocialShareBar url={pageUrl} title={review.title} locale={locale} translations={t} />
       <BookmarkButton client:load slug={review.slug} title={review.title} contentType="review" locale={locale} labelSave={getTranslation(t, 'bookmarks.save')} labelRemove={getTranslation(t, 'bookmarks.remove')} />
     </div>
+
+    <!-- Navigazione precedente/successivo -->
+    <PrevNextNav contentType="reviews" currentSlug={review.slug} locale={locale} translations={t} />
   </article>
 
   <Footer slot="footer" locale={locale} translations={t} />
@@ -258,6 +270,30 @@ const breadcrumbItems = [
     color: var(--color-text-muted);
     font-size: var(--text-xs);
     margin-top: var(--space-2);
+  }
+  .compare-cta {
+    margin-bottom: var(--space-8);
+    text-align: center;
+  }
+  .compare-cta__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-accent-fire);
+    text-decoration: none;
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--color-accent-fire);
+    border-radius: var(--radius-lg);
+    transition: background-color var(--transition-base), color var(--transition-base);
+  }
+  .compare-cta__link:hover {
+    background-color: var(--color-accent-fire);
+    color: white;
   }
 </style>
 

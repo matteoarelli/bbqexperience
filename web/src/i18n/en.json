@@ -151,7 +151,11 @@
     "difficultyExpert": "Expert Recipes",
     "totalItems": "Total",
     "avgScore": "Avg Score",
-    "difficultyBreakdown": "By Difficulty"
+    "difficultyBreakdown": "By Difficulty",
+    "previousArticle": "Previous",
+    "nextArticle": "Next",
+    "compareProduct": "Compare this product with others",
+    "relatedRecipes": "Related Recipes"
   },
   "comparison": {
     "title": "Compare BBQ Products",

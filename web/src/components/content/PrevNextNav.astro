@@ -1,0 +1,180 @@
+---
+/**
+ * PrevNextNav — navigazione articolo precedente/successivo
+ * Mostra card prev/next ordinate per published_date in fondo alla pagina dettaglio.
+ */
+import type { Locale } from '@lib/i18n';
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiReview, StrapiRecipe } from '@lib/types';
+import { getStrapiMediaURL } from '@lib/media';
+
+interface Props {
+  contentType: 'reviews' | 'recipes';
+  currentSlug: string;
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { contentType, currentSlug, locale, translations } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+
+// Recupera tutti gli articoli ordinati per data di pubblicazione
+const route = localizedRoutes[contentType][locale];
+const populate = contentType === 'reviews' ? 'gallery' : 'cover_image';
+
+const allRes = await fetchCollection<StrapiReview | StrapiRecipe>(contentType, {
+  locale,
+  pageSize: 100,
+  sort: 'published_date:desc',
+  populate,
+});
+
+const items = allRes.data;
+const currentIndex = items.findIndex((item) => item.slug === currentSlug);
+
+// Articolo precedente (piu recente) e successivo (meno recente)
+const prevItem = currentIndex > 0 ? items[currentIndex - 1] : null;
+const nextItem = currentIndex < items.length - 1 ? items[currentIndex + 1] : null;
+
+// Helper per ottenere l'immagine di copertina
+function getCoverImage(item: any): string | null {
+  if (contentType === 'reviews') {
+    return getStrapiMediaURL(item.gallery?.[0]) || null;
+  }
+  return getStrapiMediaURL(item.cover_image) || null;
+}
+---
+
+{(prevItem || nextItem) && (
+  <nav class="prev-next-nav" aria-label="Article navigation">
+    {prevItem ? (
+      <a href={`/${locale}/${route}/${prevItem.slug}/`} class="prev-next-card prev-next-card--prev">
+        <div class="prev-next-card__arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </div>
+        <div class="prev-next-card__content">
+          <span class="prev-next-card__label">{t('content.previousArticle')}</span>
+          <span class="prev-next-card__title">{prevItem.title}</span>
+        </div>
+        {getCoverImage(prevItem) && (
+          <img src={getCoverImage(prevItem)!} alt="" class="prev-next-card__image" loading="lazy" decoding="async" />
+        )}
+      </a>
+    ) : (
+      <div class="prev-next-card prev-next-card--empty" />
+    )}
+
+    {nextItem ? (
+      <a href={`/${locale}/${route}/${nextItem.slug}/`} class="prev-next-card prev-next-card--next">
+        {getCoverImage(nextItem) && (
+          <img src={getCoverImage(nextItem)!} alt="" class="prev-next-card__image" loading="lazy" decoding="async" />
+        )}
+        <div class="prev-next-card__content" style="text-align: right;">
+          <span class="prev-next-card__label">{t('content.nextArticle')}</span>
+          <span class="prev-next-card__title">{nextItem.title}</span>
+        </div>
+        <div class="prev-next-card__arrow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+    ) : (
+      <div class="prev-next-card prev-next-card--empty" />
+    )}
+  </nav>
+)}
+
+<style>
+  .prev-next-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  @media (max-width: 639px) {
+    .prev-next-nav {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .prev-next-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color var(--transition-base), transform var(--transition-base);
+    overflow: hidden;
+    min-height: 80px;
+  }
+
+  .prev-next-card:hover {
+    border-color: var(--color-accent-fire);
+    transform: translateY(-2px);
+  }
+
+  .prev-next-card--empty {
+    visibility: hidden;
+  }
+
+  .prev-next-card__arrow {
+    flex-shrink: 0;
+    color: var(--color-accent-fire);
+    transition: transform var(--transition-fast);
+  }
+
+  .prev-next-card--prev:hover .prev-next-card__arrow {
+    transform: translateX(-3px);
+  }
+
+  .prev-next-card--next:hover .prev-next-card__arrow {
+    transform: translateX(3px);
+  }
+
+  .prev-next-card__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .prev-next-card__label {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent-fire);
+    margin-bottom: 2px;
+  }
+
+  .prev-next-card__title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.3;
+  }
+
+  .prev-next-card__image {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+  }
+</style>

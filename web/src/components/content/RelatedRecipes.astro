@@ -1,0 +1,121 @@
+---
+/**
+ * RelatedRecipes — mostra ricette correlate per tecnica o tipo di carne
+ * Filtra per technique o meat_type della ricetta corrente, escludendo se stessa.
+ */
+import type { Locale } from '@lib/i18n';
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiRecipe } from '@lib/types';
+import ArticleCard from '@components/content/ArticleCard.astro';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+  currentSlug: string;
+  technique: string | null;
+  meatType: string | null;
+}
+
+const { locale, translations, currentSlug, technique, meatType } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+const recipeRoute = localizedRoutes.recipes[locale];
+
+// Recupera ricette con la stessa tecnica
+let related: StrapiRecipe[] = [];
+
+if (technique) {
+  try {
+    const res = await fetchCollection<StrapiRecipe>('recipes', {
+      locale,
+      pageSize: 6,
+      sort: 'published_date:desc',
+      populate: 'cover_image',
+      filters: { technique: { $eq: technique } },
+    });
+    related = res.data.filter((r) => r.slug !== currentSlug);
+  } catch { /* Strapi non disponibile */ }
+}
+
+// Se non abbastanza risultati, prova per tipo di carne
+if (related.length < 3 && meatType) {
+  try {
+    const res = await fetchCollection<StrapiRecipe>('recipes', {
+      locale,
+      pageSize: 6,
+      sort: 'published_date:desc',
+      populate: 'cover_image',
+      filters: { meat_type: { $eq: meatType } },
+    });
+    const meatRelated = res.data.filter((r) => r.slug !== currentSlug);
+    // Aggiungi senza duplicati
+    const existingSlugs = new Set(related.map((r) => r.slug));
+    for (const r of meatRelated) {
+      if (!existingSlugs.has(r.slug)) {
+        related.push(r);
+        existingSlugs.add(r.slug);
+      }
+    }
+  } catch { /* Strapi non disponibile */ }
+}
+
+// Limita a 3 risultati
+related = related.slice(0, 3);
+---
+
+{related.length > 0 && (
+  <section class="related-recipes">
+    <h2 class="related-recipes__title">{t('content.relatedRecipes')}</h2>
+    <div class="related-recipes__grid">
+      {related.map((recipe) => (
+        <ArticleCard
+          title={recipe.title}
+          excerpt={recipe.excerpt}
+          slug={recipe.slug}
+          href={`/${locale}/${recipeRoute}/${recipe.slug}/`}
+          coverImage={recipe.cover_image}
+          category={recipe.technique}
+          readingTime={null}
+          publishedDate={recipe.published_date}
+          locale={locale}
+          translations={translations}
+        />
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .related-recipes {
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .related-recipes__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-6) 0;
+  }
+
+  .related-recipes__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 640px) {
+    .related-recipes__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .related-recipes__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
