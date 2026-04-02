@@ -56,6 +56,7 @@ const difficultyLabel = recipe.difficulty ? t(`content.${recipe.difficulty}`) : 
           {recipe.cook_time} min
         </span>
       )}
+      <span class="card-read-more">Leggi &rarr;</span>
     </div>
   </div>
 </a>
@@ -80,7 +81,7 @@ const difficultyLabel = recipe.difficulty ? t(`content.${recipe.difficulty}`) : 
 
   .recipe-card__image-wrapper {
     position: relative;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 3 / 2;
     overflow: hidden;
     background-color: var(--color-bg-tertiary);
   }
@@ -122,12 +123,12 @@ const difficultyLabel = recipe.difficulty ? t(`content.${recipe.difficulty}`) : 
 
   .recipe-card__title {
     font-family: var(--font-heading);
-    font-size: var(--text-lg);
-    font-weight: 700;
+    font-size: var(--text-xl);
+    font-weight: 900;
     text-transform: uppercase;
     color: var(--color-text-primary);
     margin: 0 0 var(--space-3) 0;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   .recipe-card__meta {

@@ -20,23 +20,19 @@ if (!instructions || instructions.length === 0) {
 const sortedSteps = [...instructions].sort((a, b) => a.step - b.step);
 ---
 
-<ol class="space-y-8 list-none p-0 m-0">
+<ol class="instructions-list space-y-8 list-none p-0 m-0">
   {sortedSteps.map((instruction) => {
     const stepImageUrl = instruction.image ? getStrapiMediaURL(instruction.image) : null;
     const stepImageAlt = instruction.image ? getStrapiMediaAlt(instruction.image) || `Step ${instruction.step}` : '';
 
     return (
-      <li class="flex gap-4">
-        {/* Cerchio con numero dello step */}
-        <div
-          class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
-          style={`
-            background-color: var(--color-accent-fire);
-            color: var(--color-text-inverse);
-            font-family: var(--font-heading);
-          `}
-        >
-          {instruction.step}
+      <li class="instruction-step">
+        {/* Indicatore step con linea connettore */}
+        <div class="instruction-step__indicator">
+          <div class="instruction-step__number">
+            {instruction.step}
+          </div>
+          <div class="instruction-step__line"></div>
         </div>
 
         <div class="flex-1 min-w-0">
@@ -62,3 +58,46 @@ const sortedSteps = [...instructions].sort((a, b) => a.step - b.step);
     );
   })}
 </ol>
+
+<style>
+  .instruction-step {
+    display: flex;
+    gap: var(--space-4);
+  }
+
+  .instruction-step__indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .instruction-step__number {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 900;
+    color: var(--color-text-inverse);
+    background: linear-gradient(135deg, var(--color-accent-fire), var(--color-accent-ember));
+    box-shadow: 0 2px 10px rgba(249, 115, 22, 0.3);
+    flex-shrink: 0;
+  }
+
+  .instruction-step__line {
+    width: 2px;
+    flex: 1;
+    min-height: 20px;
+    background: linear-gradient(180deg, var(--color-accent-fire), transparent);
+    margin-top: var(--space-2);
+  }
+
+  /* Ultimo step: niente linea */
+  .instruction-step:last-child .instruction-step__line {
+    display: none;
+  }
+</style>

@@ -77,6 +77,7 @@ const categoryText = category
         </svg>
       </div>
     )}
+    <div class="card-image-overlay"></div>
     {categoryText && (
       <span class="card-badge">{categoryText}</span>
     )}
@@ -106,6 +107,7 @@ const categoryText = category
           {formattedDate}
         </span>
       )}
+      <span class="card-read-more">Leggi &rarr;</span>
     </div>
   </div>
 </a>
@@ -130,9 +132,20 @@ const categoryText = category
 
   .card-image-wrapper {
     position: relative;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 3 / 2;
     overflow: hidden;
     background-color: var(--color-bg-tertiary);
+  }
+
+  .card-image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(transparent, rgba(26, 26, 26, 0.8));
+    pointer-events: none;
+    z-index: 1;
   }
 
   .card-image {
@@ -179,13 +192,13 @@ const categoryText = category
 
   .card-title {
     font-family: var(--font-heading);
-    font-size: var(--text-lg);
-    font-weight: 700;
+    font-size: var(--text-xl);
+    font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.02em;
     color: var(--color-text-primary);
     margin: 0 0 var(--space-2) 0;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   .card-excerpt {

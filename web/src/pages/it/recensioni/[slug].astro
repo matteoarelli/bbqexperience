@@ -81,15 +81,24 @@ const breadcrumbItems = [
 
   <Header slot="header" locale={locale} translations={t} currentPath={Astro.url.pathname} />
 
+  <!-- Hero immagine full-width con overlay -->
+  {coverImage && (
+    <div class="review-hero" data-animate>
+      <img
+        src={coverImage}
+        alt={coverImageAlt}
+        class="review-hero__image"
+      />
+      <div class="review-hero__overlay"></div>
+    </div>
+  )}
+
   <article class="max-w-4xl mx-auto px-[var(--container-padding)] py-[var(--space-12)]">
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
 
     <!-- Titolo e metadati -->
     <div class="flex items-start gap-3 mb-[var(--space-4)]" data-animate>
-      <h1
-        class="text-[var(--text-4xl)] uppercase tracking-tight"
-        style="font-family: var(--font-heading); color: var(--color-text-primary); margin: 0;"
-      >
+      <h1 class="review-page-title">
         {review.title}
       </h1>
       <TopPickBadge score={review.score_overall} label={getTranslation(t, 'review.topPick')} />
@@ -115,22 +124,9 @@ const breadcrumbItems = [
     )}
 
     {review.excerpt && (
-      <p
-        class="text-[var(--text-lg)] mb-[var(--space-8)]"
-        style="color: var(--color-text-secondary);"
-        data-animate
-      >
+      <p class="lead mb-[var(--space-8)]" data-animate>
         {review.excerpt}
       </p>
-    )}
-
-    {coverImage && (
-      <img
-        src={coverImage}
-        alt={coverImageAlt}
-        class="w-full rounded-[var(--radius-lg)] mb-[var(--space-12)]"
-        data-animate
-      />
     )}
 
     <!-- Galleria foto -->
@@ -159,10 +155,10 @@ const breadcrumbItems = [
       />
     </div>
 
-    <!-- Contenuto editoriale -->
+    <!-- Contenuto editoriale con drop cap -->
     {review.editorial_content && (
       <div
-        class="prose prose-invert prose-lg max-w-none mb-[var(--space-12)]"
+        class="prose prose-invert prose-lg max-w-none mb-[var(--space-12)] review-editorial"
         set:html={review.editorial_content}
         data-animate
       />
@@ -246,6 +242,52 @@ const breadcrumbItems = [
 </BaseLayout>
 
 <style>
+  /* Hero immagine full-width con gradiente */
+  .review-hero {
+    position: relative;
+    width: 100%;
+    max-height: 500px;
+    overflow: hidden;
+  }
+  .review-hero__image {
+    width: 100%;
+    height: 500px;
+    object-fit: cover;
+  }
+  .review-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent 40%, var(--color-bg-primary) 100%);
+    pointer-events: none;
+  }
+
+  /* Titolo enorme stile magazine */
+  .review-page-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 4vw + 0.5rem, 4rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+
+  /* Drop cap sul contenuto editoriale */
+  .review-editorial :global(p:first-of-type::first-letter) {
+    float: left;
+    font-family: var(--font-heading);
+    font-size: 3.8em;
+    font-weight: 900;
+    line-height: 0.8;
+    margin-right: 0.08em;
+    margin-top: 0.05em;
+    color: transparent;
+    background: linear-gradient(135deg, var(--color-accent-fire), var(--color-accent-amber));
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
   .affiliate-btn {
     display: inline-block;
     background-color: var(--color-accent-fire);

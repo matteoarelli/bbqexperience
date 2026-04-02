@@ -1,5 +1,7 @@
 ---
-// Sezione hero homepage — titolo animato BBQ Experience con gradiente fuoco
+// Sezione hero homepage — full-screen con particelle di fuoco CSS-only
+import { localizedRoutes } from '@lib/i18n';
+
 interface Props {
   title: string;
   subtitle: string;
@@ -8,53 +10,234 @@ interface Props {
   locale: string;
 }
 
-const { title, subtitle, ctaText, ctaHref } = Astro.props;
-
-// Separa "BBQ" da "EXPERIENCE" nel titolo per stile differenziato
-const titleParts = title.split(' ');
-const firstWord = titleParts[0] || 'BBQ';
-const restWords = titleParts.slice(1).join(' ') || 'EXPERIENCE';
+const { title, subtitle, ctaText, ctaHref, locale } = Astro.props;
+const recipesHref = `/${locale}/${localizedRoutes.recipes[locale]}/`;
 ---
 
-<section class="hero-section flex items-center justify-center relative overflow-hidden" style="min-height: 90vh;">
+<section class="hero-section">
   <!-- Background con gradiente radiale fuoco -->
-  <div class="absolute inset-0" style="background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.15) 0%, transparent 60%), linear-gradient(180deg, #0D0D0D 0%, #1A1A1A 100%);"></div>
+  <div class="hero-bg"></div>
+
+  <!-- Particelle di fuoco CSS-only -->
+  <div class="hero-embers" aria-hidden="true">
+    <div class="ember ember--1"></div>
+    <div class="ember ember--2"></div>
+    <div class="ember ember--3"></div>
+    <div class="ember ember--4"></div>
+    <div class="ember ember--5"></div>
+    <div class="ember ember--6"></div>
+    <div class="ember ember--7"></div>
+    <div class="ember ember--8"></div>
+    <div class="ember ember--9"></div>
+    <div class="ember ember--10"></div>
+    <div class="ember ember--11"></div>
+    <div class="ember ember--12"></div>
+  </div>
 
   <!-- Contenuto -->
-  <div class="container-bbq text-center relative z-10">
-    <h1 class="hero-title" data-animate style="font-family: var(--font-heading); font-size: var(--text-5xl); font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1;">
-      <span class="text-gradient-fire">{firstWord}</span>
-      <br />
-      <span style="color: var(--color-text-primary);">{restWords}</span>
+  <div class="hero-content container-bbq text-center">
+    <h1 class="hero-title" data-animate>
+      <span class="hero-title__line">THE MOST COMPLETE</span>
+      <span class="hero-title__line hero-title__fire">BBQ REVIEW</span>
+      <span class="hero-title__line">DESTINATION ONLINE</span>
     </h1>
 
-    <p class="mt-6 mx-auto" data-animate data-animate-delay="0.2" style="font-size: var(--text-xl); color: var(--color-text-secondary); max-width: 42rem;">
+    <p class="hero-subtitle" data-animate data-animate-delay="0.2">
       {subtitle}
     </p>
 
-    <a
-      href={ctaHref}
-      class="hero-cta inline-block mt-8 px-8 py-4 rounded-lg font-bold uppercase tracking-wider"
-      data-animate
-      data-animate-delay="0.4"
-      style="background-color: var(--color-accent-fire); color: var(--color-text-inverse); font-size: var(--text-base); transition: background-color var(--transition-base);"
-    >
-      {ctaText}
-    </a>
+    <div class="hero-ctas" data-animate data-animate-delay="0.4">
+      <a href={ctaHref} class="hero-cta hero-cta--primary">
+        Explore Reviews
+      </a>
+      <a href={recipesHref} class="hero-cta hero-cta--secondary">
+        Latest Recipes
+      </a>
+    </div>
 
     <!-- Elemento decorativo — linea gradiente -->
-    <div
-      class="mx-auto mt-12"
-      data-animate
-      data-animate-delay="0.6"
-      style="width: 6rem; height: 0.25rem; background: linear-gradient(90deg, var(--color-accent-fire), var(--color-accent-amber));"
-    ></div>
+    <div class="hero-divider" data-animate data-animate-delay="0.6"></div>
   </div>
+
+  <!-- Gradiente inferiore per transizione alla pagina -->
+  <div class="hero-fade-bottom"></div>
 </section>
 
 <style>
-  .hero-cta:hover {
-    background-color: var(--color-accent-ember) !important;
+  .hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(249,115,22,0.18) 0%, transparent 55%),
+      radial-gradient(ellipse at 20% 80%, rgba(234,88,12,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.06) 0%, transparent 50%),
+      linear-gradient(180deg, #0A0A0A 0%, #0D0D0D 40%, #1A1A1A 100%);
+  }
+
+  .hero-fade-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(transparent, var(--color-bg-primary));
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Tipografia hero — massiccia */
+  .hero-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    margin: 0;
+  }
+
+  .hero-title__line {
+    display: block;
+    font-size: clamp(2rem, 5vw + 1rem, 5.5rem);
+    color: var(--color-text-primary);
+  }
+
+  .hero-title__fire {
+    font-size: clamp(3rem, 8vw + 1rem, 8rem);
+    background: linear-gradient(135deg, var(--color-accent-fire) 0%, var(--color-accent-amber) 50%, var(--color-accent-ember) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(249,115,22,0.3));
+    padding: 0.05em 0;
+  }
+
+  .hero-subtitle {
+    font-size: var(--text-xl);
+    color: var(--color-text-secondary);
+    max-width: 42rem;
+    margin: var(--space-8) auto 0;
+    line-height: 1.6;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: var(--space-8);
+  }
+
+  .hero-cta {
+    display: inline-block;
+    padding: var(--space-4) var(--space-8);
+    border-radius: var(--radius-lg);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: var(--text-base);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    transition: all var(--transition-base);
+  }
+
+  .hero-cta--primary {
+    background: linear-gradient(135deg, var(--color-accent-fire), var(--color-accent-ember));
+    color: white;
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+  }
+
+  .hero-cta--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(249, 115, 22, 0.5);
+    color: white;
+  }
+
+  .hero-cta--secondary {
+    background: transparent;
+    color: var(--color-accent-amber);
+    border: 2px solid var(--color-accent-fire);
+  }
+
+  .hero-cta--secondary:hover {
+    background-color: rgba(249, 115, 22, 0.1);
+    transform: translateY(-2px);
+    color: var(--color-accent-amber);
+  }
+
+  .hero-divider {
+    width: 6rem;
+    height: 0.25rem;
+    margin: var(--space-12) auto 0;
+    background: linear-gradient(90deg, var(--color-accent-fire), var(--color-accent-amber));
+    border-radius: var(--radius-full);
+  }
+
+  /* Particelle ember — CSS keyframes, nessun JS */
+  .hero-embers {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .ember {
+    position: absolute;
+    bottom: -10px;
+    border-radius: var(--radius-full);
+    opacity: 0;
+    animation: float-up linear infinite;
+  }
+
+  @keyframes float-up {
+    0% {
+      opacity: 0;
+      transform: translateY(0) translateX(0) scale(1);
+    }
+    10% {
+      opacity: 1;
+    }
+    70% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-100vh) translateX(40px) scale(0.2);
+    }
+  }
+
+  .ember--1 { left: 10%; width: 4px; height: 4px; background: var(--color-accent-fire); animation-duration: 6s; animation-delay: 0s; }
+  .ember--2 { left: 25%; width: 3px; height: 3px; background: var(--color-accent-amber); animation-duration: 8s; animation-delay: 1s; }
+  .ember--3 { left: 40%; width: 5px; height: 5px; background: var(--color-accent-ember); animation-duration: 7s; animation-delay: 2s; }
+  .ember--4 { left: 55%; width: 3px; height: 3px; background: var(--color-accent-fire); animation-duration: 9s; animation-delay: 0.5s; }
+  .ember--5 { left: 70%; width: 4px; height: 4px; background: var(--color-accent-amber); animation-duration: 6.5s; animation-delay: 3s; }
+  .ember--6 { left: 85%; width: 3px; height: 3px; background: var(--color-accent-fire); animation-duration: 7.5s; animation-delay: 1.5s; }
+  .ember--7 { left: 15%; width: 2px; height: 2px; background: var(--color-accent-gold); animation-duration: 10s; animation-delay: 4s; }
+  .ember--8 { left: 50%; width: 4px; height: 4px; background: var(--color-accent-ember); animation-duration: 5.5s; animation-delay: 2.5s; }
+  .ember--9 { left: 35%; width: 2px; height: 2px; background: var(--color-accent-amber); animation-duration: 8.5s; animation-delay: 3.5s; }
+  .ember--10 { left: 65%; width: 3px; height: 3px; background: var(--color-accent-fire); animation-duration: 7s; animation-delay: 0.8s; }
+  .ember--11 { left: 80%; width: 2px; height: 2px; background: var(--color-accent-gold); animation-duration: 9.5s; animation-delay: 5s; }
+  .ember--12 { left: 45%; width: 3px; height: 3px; background: var(--color-accent-amber); animation-duration: 6s; animation-delay: 1.8s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ember {
+      animation: none !important;
+      display: none;
+    }
   }
 </style>
 

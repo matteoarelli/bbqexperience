@@ -17,7 +17,10 @@ const currentYear = new Date().getFullYear();
 const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
 ---
 
-<footer style="background-color: var(--color-bg-primary); border-top: 1px solid var(--color-border-subtle); padding-bottom: var(--space-8);">
+<footer class="site-footer">
+  <!-- Linea gradiente fuoco in cima al footer -->
+  <div class="footer-fire-divider" aria-hidden="true"></div>
+
   <div class="container-bbq" style="padding-top: var(--space-16);">
     <!-- Newsletter — sezione full-width sopra la griglia footer -->
     <div class="footer-newsletter">
@@ -31,8 +34,8 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
       <!-- Colonna 1: Logo + descrizione -->
       <div>
         <a href={`/${locale}/`} class="inline-flex items-center gap-0 mb-4" style="text-decoration: none;">
-          <span style="font-family: var(--font-heading); font-size: var(--text-xl); font-weight: 900; text-transform: uppercase; color: var(--color-accent-fire);">BBQ</span>
-          <span style="font-family: var(--font-heading); font-size: var(--text-xl); font-weight: 900; text-transform: uppercase; color: var(--color-text-primary);">EXP</span>
+          <span class="fire-text" style="font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: 900; text-transform: uppercase;">BBQ</span>
+          <span style="font-family: var(--font-heading); font-size: var(--text-2xl); font-weight: 900; text-transform: uppercase; color: var(--color-text-primary);">EXP</span>
         </a>
         <p class="footer-text mt-4">
           {getTranslation(translations, 'footer.about')}
@@ -120,19 +123,48 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
       </div>
     </div>
 
+    <!-- Back to top -->
+    <div class="footer-back-to-top">
+      <a href="#" class="footer-back-to-top__link" aria-label="Torna in cima">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+      </a>
+    </div>
+
     <!-- Barra inferiore -->
-    <div class="border-t mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4" style="border-color: var(--color-border-subtle);">
+    <div class="border-t mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4" style="border-color: var(--color-border-subtle);">
       <p class="footer-text text-center sm:text-left">
         &copy; {currentYear} BBQ Experience. {getTranslation(translations, 'common.copyright')}
       </p>
       <p style="color: var(--color-accent-fire); font-family: var(--font-heading); font-size: var(--text-sm); text-transform: uppercase; letter-spacing: 0.05em;">
-        Made with fire 🔥
+        Made with fire
       </p>
     </div>
   </div>
 </footer>
 
 <style>
+  .site-footer {
+    background-color: var(--color-bg-primary);
+    padding-bottom: var(--space-8);
+    position: relative;
+  }
+
+  /* Linea gradiente fuoco in cima al footer */
+  .footer-fire-divider {
+    height: 3px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      var(--color-accent-ember) 15%,
+      var(--color-accent-fire) 35%,
+      var(--color-accent-amber) 50%,
+      var(--color-accent-fire) 65%,
+      var(--color-accent-ember) 85%,
+      transparent 100%
+    );
+  }
+
   .footer-newsletter {
     max-width: 480px;
     margin-bottom: var(--space-12);
@@ -147,23 +179,50 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-accent-fire);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-6);
   }
 
   .footer-link {
     color: var(--color-text-muted);
     text-decoration: none;
     font-size: var(--text-sm);
-    transition: color var(--transition-fast);
+    transition: color var(--transition-fast), padding-left var(--transition-fast);
   }
 
   .footer-link:hover {
     color: var(--color-text-primary);
+    padding-left: 4px;
   }
 
   .footer-text {
     color: var(--color-text-muted);
     font-size: var(--text-sm);
     line-height: 1.6;
+  }
+
+  /* Back to top */
+  .footer-back-to-top {
+    text-align: center;
+    margin-top: var(--space-12);
+  }
+
+  .footer-back-to-top__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--color-border-subtle);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: all var(--transition-base);
+  }
+
+  .footer-back-to-top__link:hover {
+    border-color: var(--color-accent-fire);
+    color: var(--color-accent-fire);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
   }
 </style>
