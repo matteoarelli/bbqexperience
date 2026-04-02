@@ -1,0 +1,142 @@
+---
+/**
+ * PopularReviews — widget sidebar con le top 5 recensioni per punteggio.
+ * Locale-aware: recupera e linka nella lingua corrente.
+ */
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiReview } from '@lib/types';
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { locale, translations } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+
+const reviewRoute = localizedRoutes.reviews[locale];
+
+let topReviews: (StrapiReview & { id: number; documentId: string; slug: string })[] = [];
+try {
+  const response = await fetchCollection<StrapiReview>('reviews', {
+    locale,
+    pageSize: 5,
+    sort: 'score_overall:desc',
+    populate: 'product',
+  });
+  topReviews = response.data as any;
+} catch {
+  // Silenzioso — il widget non si mostra se non ci sono dati
+}
+---
+
+{topReviews.length > 0 && (
+  <aside class="popular-reviews">
+    <h3 class="popular-reviews__title">{t('content.popularReviews')}</h3>
+    <ol class="popular-reviews__list">
+      {topReviews.map((review, index) => (
+        <li class="popular-reviews__item">
+          <a href={`/${locale}/${reviewRoute}/${review.slug}/`} class="popular-reviews__link">
+            <span class="popular-reviews__rank">{index + 1}</span>
+            <span class="popular-reviews__name">{review.product?.name || review.title}</span>
+            <span class="popular-reviews__score">{review.score_overall}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </aside>
+)}
+
+<style>
+  .popular-reviews {
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+  }
+
+  .popular-reviews__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-4) 0;
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--color-accent-fire);
+  }
+
+  .popular-reviews__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .popular-reviews__item {
+    margin: 0;
+  }
+
+  .popular-reviews__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+  }
+
+  .popular-reviews__link:hover {
+    background-color: var(--color-bg-tertiary);
+  }
+
+  .popular-reviews__rank {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background-color: var(--color-bg-tertiary);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-text-muted);
+  }
+
+  .popular-reviews__item:first-child .popular-reviews__rank {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+  }
+
+  .popular-reviews__name {
+    flex: 1;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .popular-reviews__link:hover .popular-reviews__name {
+    color: var(--color-text-primary);
+  }
+
+  .popular-reviews__score {
+    flex-shrink: 0;
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-accent-fire);
+    min-width: 28px;
+    text-align: center;
+  }
+</style>

@@ -49,6 +49,9 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}`;
 <title>{title}</title>
 <meta name="description" content={description} />
 
+<!-- RSS Feed -->
+<link rel="alternate" type="application/rss+xml" title="BBQ Experience RSS" href={`/${locale}/rss.xml`} />
+
 <!-- Canonical -->
 <link rel="canonical" href={canonicalUrl} />
 

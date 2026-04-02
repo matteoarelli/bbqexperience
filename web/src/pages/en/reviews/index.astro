@@ -10,6 +10,7 @@ import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ReviewCard from '@components/home/ReviewCard.astro';
 import Pagination from '@components/common/Pagination.astro';
 import SortControls from '@components/common/SortControls.astro';
+import PopularReviews from '@components/content/PopularReviews.astro';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiReview } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
@@ -122,35 +123,43 @@ const breadcrumbItems = [
       </p>
     )}
 
-    {fetchError ? (
-      <div class="empty-state" data-animate>
-        <p class="empty-text">{t('common.contentUnavailable')}</p>
-      </div>
-    ) : reviews.length > 0 ? (
-      <div class="review-grid" data-animate>
-        {reviews.map((review) => (
-          <ReviewCard
-            review={review}
-            locale={locale}
-            reviewsRoute={reviewRoute}
-          />
-        ))}
-      </div>
-    ) : (
-      <div class="empty-state" data-animate>
-        <p class="empty-text">{t('content.noArticles')}</p>
-      </div>
-    )}
+    <div class="listing-layout">
+      <div class="listing-main">
+        {fetchError ? (
+          <div class="empty-state" data-animate>
+            <p class="empty-text">{t('common.contentUnavailable')}</p>
+          </div>
+        ) : reviews.length > 0 ? (
+          <div class="review-grid" data-animate>
+            {reviews.map((review) => (
+              <ReviewCard
+                review={review}
+                locale={locale}
+                reviewsRoute={reviewRoute}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state" data-animate>
+            <p class="empty-text">{t('content.noArticles')}</p>
+          </div>
+        )}
 
-    {/* Paginazione */}
-    {!fetchError && totalPages > 1 && (
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        baseUrl={Astro.url.href}
-        translations={translations}
-      />
-    )}
+        {/* Paginazione */}
+        {!fetchError && totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            baseUrl={Astro.url.href}
+            translations={translations}
+          />
+        )}
+      </div>
+
+      <aside class="listing-sidebar">
+        <PopularReviews locale={locale} translations={translations} />
+      </aside>
+    </div>
   </section>
 
   <Footer slot="footer" locale={locale} translations={translations} />
@@ -230,6 +239,32 @@ const breadcrumbItems = [
   @media (min-width: 1024px) {
     .review-grid {
       grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .listing-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .listing-main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .listing-sidebar {
+    width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    .listing-layout {
+      flex-direction: row;
+    }
+
+    .listing-sidebar {
+      width: 300px;
+      flex-shrink: 0;
     }
   }
 

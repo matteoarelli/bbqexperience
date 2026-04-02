@@ -13,6 +13,7 @@ import RelatedContent from '@components/content/RelatedContent.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
 import AuthorCard from '@components/content/AuthorCard.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
+import PopularReviews from '@components/content/PopularReviews.astro';
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiBlogPost } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
@@ -100,6 +101,10 @@ const breadcrumbItems = [
 
   <div class="max-w-4xl mx-auto px-[var(--container-padding)]">
     <AuthorCard locale={locale} translations={translations} />
+  </div>
+
+  <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-8);">
+    <PopularReviews locale={locale} translations={translations} />
   </div>
 
   <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">
