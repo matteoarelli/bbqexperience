@@ -114,11 +114,15 @@ export async function fetchCollection<T>(
     status,
   };
 
-  // Populate: stringa singola o array unito con virgola
+  // Populate: stringa singola (es. '*') o array con sintassi indicizzata Strapi v5
   if (populate) {
-    params['populate'] = Array.isArray(populate)
-      ? populate.join(',')
-      : populate;
+    if (Array.isArray(populate)) {
+      populate.forEach((field, index) => {
+        params[`populate[${index}]`] = field;
+      });
+    } else {
+      params['populate'] = populate;
+    }
   }
 
   // Filtri Strapi v5
@@ -154,9 +158,13 @@ export async function fetchOne<T>(
   };
 
   if (populate) {
-    params['populate'] = Array.isArray(populate)
-      ? populate.join(',')
-      : populate;
+    if (Array.isArray(populate)) {
+      populate.forEach((field, index) => {
+        params[`populate[${index}]`] = field;
+      });
+    } else {
+      params['populate'] = populate;
+    }
   }
 
   return fetchAPI<StrapiResponse<T>>(`${contentType}/${documentId}`, params);

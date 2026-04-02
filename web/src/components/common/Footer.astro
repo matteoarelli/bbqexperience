@@ -19,8 +19,14 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
 
 <footer style="background-color: var(--color-bg-primary); border-top: 1px solid var(--color-border-subtle); padding-bottom: var(--space-8);">
   <div class="container-bbq" style="padding-top: var(--space-16);">
+    <!-- Newsletter — sezione full-width sopra la griglia footer -->
+    <div class="footer-newsletter">
+      <h4 class="footer-heading">{getTranslation(translations, 'newsletter.title')}</h4>
+      <NewsletterSignup translations={translations} compact />
+    </div>
+
     <!-- Griglia principale: 1 col mobile, 4 col desktop -->
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
 
       <!-- Colonna 1: Logo + descrizione -->
       <div>
@@ -102,13 +108,7 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
         </ul>
       </div>
 
-      <!-- Colonna 4: Newsletter compatta -->
-      <div>
-        <h4 class="footer-heading">{getTranslation(translations, 'newsletter.title')}</h4>
-        <NewsletterSignup translations={translations} compact />
-      </div>
-
-      <!-- Colonna 5: Legal + link utili -->
+      <!-- Colonna 4: Legal + link utili -->
       <div>
         <h4 class="footer-heading">{getTranslation(translations, 'footer.legal')}</h4>
         <ul class="space-y-3">
@@ -133,6 +133,13 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
 </footer>
 
 <style>
+  .footer-newsletter {
+    max-width: 480px;
+    margin-bottom: var(--space-12);
+    padding-bottom: var(--space-12);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
   .footer-heading {
     font-family: var(--font-heading);
     font-size: var(--text-sm);

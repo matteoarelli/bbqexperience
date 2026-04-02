@@ -49,7 +49,7 @@ const sortOptions = [
 // Recupera le recensioni con filtro categoria opzionale
 const fetchOptions: Parameters<typeof fetchCollection>[1] = {
   locale,
-  populate: 'gallery,product',
+  populate: '*',
   sort: sortMap[activeSort] || sortMap.newest,
   pageSize: 12,
   page: currentPage,

@@ -44,7 +44,7 @@ const sortOptions = [
 // Recupera i tutorial con filtro categoria opzionale
 const fetchOptions: Parameters<typeof fetchCollection>[1] = {
   locale,
-  populate: 'cover_image',
+  populate: '*',
   sort: sortMap[activeSort] || sortMap.newest,
   pageSize: 12,
   page: currentPage,
