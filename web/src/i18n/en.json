@@ -33,7 +33,8 @@
     "previous": "Previous",
     "next": "Next",
     "showing": "Showing",
-    "results": "results"
+    "results": "results",
+    "skipToContent": "Skip to content"
   },
   "sort": {
     "newest": "Newest",

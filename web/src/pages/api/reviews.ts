@@ -52,7 +52,7 @@ export const GET: APIRoute = async ({ url }) => {
       const json = await response.json();
       json.data = absoluteImageUrls(json.data);
       return new Response(JSON.stringify(json), {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
       });
     }
 
@@ -64,13 +64,13 @@ export const GET: APIRoute = async ({ url }) => {
       const json = await response.json();
       json.data = absoluteImageUrls(json.data);
       return new Response(JSON.stringify(json), {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
       });
     }
 
     // Batch fetch per IDs multipli (separati da virgola)
     if (ids) {
-      const idList = ids.split(',').filter(Boolean);
+      const idList = ids.split(',').filter(Boolean).slice(0, 10);
       const promises = idList.map(async (docId) => {
         const strapiEndpoint = `${STRAPI_URL}/api/reviews/${docId}?populate=product&locale=${locale}&status=published`;
         const response = await fetch(strapiEndpoint, { headers: strapiHeaders() });
@@ -81,7 +81,7 @@ export const GET: APIRoute = async ({ url }) => {
       const results = await Promise.all(promises);
       const data = absoluteImageUrls(results.filter(Boolean));
       return new Response(JSON.stringify({ data }), {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
       });
     }
 

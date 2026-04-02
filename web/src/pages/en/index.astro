@@ -88,7 +88,7 @@ try {
       <div class="card-grid" data-animate-stagger>
         {latestReviews.length > 0 ? (
           latestReviews.map((review) => (
-            <ReviewCard review={review} locale={locale} reviewsRoute={reviewsRoute} />
+            <ReviewCard review={review} locale={locale} reviewsRoute={reviewsRoute} readMoreLabel={t('common.readMore')} />
           ))
         ) : (
           [1, 2, 3].map(() => <PlaceholderCard type="review" locale={locale} />)
@@ -359,22 +359,3 @@ try {
     color: var(--color-accent-fire);
   }
 </style>
-
-<script>
-  // Scroll-reveal: aggiunge .visible quando l'elemento entra nel viewport
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
-  document.querySelectorAll('[data-animate], [data-animate-stagger]').forEach((el) => {
-    observer.observe(el);
-  });
-</script>

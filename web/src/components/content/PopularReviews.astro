@@ -24,7 +24,7 @@ try {
     locale,
     pageSize: 5,
     sort: 'score_overall:desc',
-    populate: '*',
+    populate: 'product',
   });
   topReviews = response.data as any;
 } catch {

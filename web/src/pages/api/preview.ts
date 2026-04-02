@@ -43,6 +43,7 @@ export const GET: APIRoute = ({ url, cookies, redirect }) => {
     path: '/',
     sameSite: 'lax',
     maxAge: 3600,
+    secure: true,
   });
 
   // Redirige alla pagina del contenuto

@@ -228,7 +228,7 @@
                     <span class="search-result-title">{result.title}</span>
                     <span class="search-result-badge">{getBadgeLabel(result.contentType)}</span>
                   </div>
-                  <p class="search-result-excerpt">{@html result.excerpt}</p>
+                  <p class="search-result-excerpt">{result.excerpt}</p>
                 </a>
               </li>
             {/each}

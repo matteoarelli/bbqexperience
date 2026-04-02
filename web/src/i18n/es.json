@@ -33,7 +33,8 @@
     "previous": "Anterior",
     "next": "Siguiente",
     "showing": "Mostrando",
-    "results": "resultados"
+    "results": "resultados",
+    "skipToContent": "Ir al contenido"
   },
   "sort": {
     "newest": "Mas recientes",

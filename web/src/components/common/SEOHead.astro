@@ -70,9 +70,9 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?$
 
 <!-- Hreflang per tutte le lingue supportate -->
 {locales.map((lang) => (
-  <link rel="alternate" hreflang={lang} href={`${siteUrl}/${lang}${canonicalPath}`} />
+  <link rel="alternate" hreflang={lang} href={`${siteUrl}/${lang}${canonicalPath}${canonicalQuery ? `?${canonicalQuery}` : ''}`} />
 ))}
-<link rel="alternate" hreflang="x-default" href={`${siteUrl}/en${canonicalPath}`} />
+<link rel="alternate" hreflang="x-default" href={`${siteUrl}/en${canonicalPath}${canonicalQuery ? `?${canonicalQuery}` : ''}`} />
 
 <!-- Open Graph -->
 <meta property="og:title" content={title} />

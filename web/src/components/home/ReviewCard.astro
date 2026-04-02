@@ -11,13 +11,14 @@ interface Props {
   review: StrapiReview & StrapiEntity;
   locale: string;
   reviewsRoute: string;
+  readMoreLabel?: string;
 }
 
-const { review, locale, reviewsRoute } = Astro.props;
+const { review, locale, reviewsRoute, readMoreLabel = 'Read \u2192' } = Astro.props;
 
 // Immagine: primo elemento galleria o immagine prodotto
 const imageUrl = getStrapiMediaURL(review.gallery?.[0] ?? review.product?.images?.[0] ?? null);
-const score = review.score_overall;
+const score = review.score_overall ?? 0;
 ---
 
 <a href={`/${locale}/${reviewsRoute}/${review.slug}/`} class="review-card card-hover" data-animate>
@@ -41,7 +42,7 @@ const score = review.score_overall;
     )}
     {/* Badge punteggio */}
     <div class="review-card__score">
-      <span class="review-card__score-value">{score.toFixed(1)}</span>
+      <span class="review-card__score-value">{(score ?? 0).toFixed(1)}</span>
     </div>
     {/* Badge Top Pick per punteggi >= 9 */}
     <div class="review-card__top-pick">
@@ -57,7 +58,7 @@ const score = review.score_overall;
       {review.product?.brand && (
         <span class="review-card__brand">{review.product.brand}</span>
       )}
-      <span class="card-read-more">Leggi &rarr;</span>
+      <span class="card-read-more">{readMoreLabel}</span>
     </div>
   </div>
 </a>

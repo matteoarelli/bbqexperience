@@ -35,7 +35,7 @@ export const GET: APIRoute = async ({ url }) => {
 
   if (!query || !query.trim()) {
     return new Response(JSON.stringify({ results: [] }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
     });
   }
 
@@ -78,13 +78,13 @@ export const GET: APIRoute = async ({ url }) => {
     const results = allResults.flat().slice(0, 15);
 
     return new Response(JSON.stringify({ results }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
     });
   } catch (err) {
     console.error('Errore proxy search:', err);
     return new Response(JSON.stringify({ error: 'Errore interno', results: [] }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=60' },
     });
   }
 };
