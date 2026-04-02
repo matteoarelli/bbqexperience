@@ -135,7 +135,21 @@
     "searchPlaceholder": "Search articles...",
     "lastUpdated": "Last updated:",
     "tableOfContents": "Table of Contents",
-    "popularReviews": "Popular Reviews"
+    "popularReviews": "Popular Reviews",
+    "categoryPageTitle": "Best BBQ {category} Reviews",
+    "difficultyPageTitle": "{level} BBQ Recipes",
+    "categoryGrill": "Grill Reviews",
+    "categorySmoker": "Smoker Reviews",
+    "categoryAccessory": "Accessory Reviews",
+    "categoryFuel": "Fuel Reviews",
+    "categoryThermometer": "Thermometer Reviews",
+    "difficultyEasy": "Easy Recipes",
+    "difficultyMedium": "Medium Recipes",
+    "difficultyHard": "Hard Recipes",
+    "difficultyExpert": "Expert Recipes",
+    "totalItems": "Total",
+    "avgScore": "Avg Score",
+    "difficultyBreakdown": "By Difficulty"
   },
   "comparison": {
     "title": "Compare BBQ Products",

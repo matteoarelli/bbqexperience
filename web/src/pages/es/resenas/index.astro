@@ -11,6 +11,7 @@ import ReviewCard from '@components/home/ReviewCard.astro';
 import Pagination from '@components/common/Pagination.astro';
 import SortControls from '@components/common/SortControls.astro';
 import PopularReviews from '@components/content/PopularReviews.astro';
+import ContentStats from '@components/content/ContentStats.astro';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiReview } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
@@ -108,6 +109,17 @@ const breadcrumbItems = [
         </a>
       ))}
     </div>
+
+    {/* Barra statistiche */}
+    {!fetchError && totalCount > 0 && (
+      <ContentStats
+        items={reviews.map((r) => ({ score: r.score_overall }))}
+        type="reviews"
+        totalCount={totalCount}
+        locale={locale}
+        translations={translations}
+      />
+    )}
 
     {/* Controlli ordinamento */}
     <SortControls

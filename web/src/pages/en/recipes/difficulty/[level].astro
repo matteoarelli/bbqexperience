@@ -1,7 +1,7 @@
 ---
 /**
- * Pagina listing ricette (EN) — griglia di ricette con filtro difficolta, ordinamento e paginazione.
- * SSR per supportare filtro difficolta, sort e paginazione dinamici via query param.
+ * Pagina landing per difficolta ricette (EN) — filtra ricette per livello di difficolta.
+ * SSR per supportare paginazione e ordinamento dinamici via query param.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
@@ -22,9 +22,18 @@ const locale: Locale = 'en';
 const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);
 
-// Difficolta disponibili per il filtro
-const difficulties = ['easy', 'medium', 'hard', 'expert'] as const;
-const activeDifficulty = Astro.url.searchParams.get('difficulty') || null;
+// Livelli validi
+const validLevels = ['easy', 'medium', 'hard', 'expert'] as const;
+type ValidLevel = typeof validLevels[number];
+
+const { level } = Astro.params;
+
+// Validazione livello — 404 se non valido
+if (!level || !validLevels.includes(level as ValidLevel)) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const levelKey = level as ValidLevel;
 
 // Paginazione e ordinamento da query params
 const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10));
@@ -37,25 +46,21 @@ const sortMap: Record<string, string> = {
   easiest: 'difficulty:asc',
 };
 
-// Opzioni di ordinamento per il componente SortControls
 const sortOptions = [
   { value: 'newest', label: t('sort.newest') },
   { value: 'quickest', label: t('sort.quickest') },
   { value: 'easiest', label: t('sort.easiest') },
 ];
 
-// Recupera le ricette con filtro difficolta opzionale
+// Recupera le ricette filtrate per difficolta
 const fetchOptions: Parameters<typeof fetchCollection>[1] = {
   locale,
   populate: 'cover_image',
   sort: sortMap[activeSort] || sortMap.newest,
   pageSize: 12,
   page: currentPage,
+  filters: { difficulty: { $eq: levelKey } },
 };
-
-if (activeDifficulty && difficulties.includes(activeDifficulty as typeof difficulties[number])) {
-  fetchOptions.filters = { difficulty: { $eq: activeDifficulty } };
-}
 
 let recipes: (StrapiRecipe & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
 let totalCount = 0;
@@ -69,50 +74,41 @@ try {
 } catch {
   fetchError = true;
 }
+
 const recipeRoute = localizedRoutes.recipes[locale];
+const levelDisplayName = t(`content.${levelKey}`);
+const pageTitle = t('content.difficultyPageTitle').replace('{level}', levelDisplayName);
+
+// Statistiche per ContentStats
+const statsItems = recipes.map((r) => ({
+  difficulty: r.difficulty,
+}));
 
 // Breadcrumbs
 const breadcrumbItems = [
   { label: t('content.home'), href: `/${locale}/` },
-  { label: t('content.recipes') },
+  { label: t('content.recipes'), href: `/${locale}/${recipeRoute}/` },
+  { label: levelDisplayName },
 ];
 ---
 
 <BaseLayout
-  title={`${t('content.recipes')} - ${t('site.name')}`}
-  description={t('site.description')}
+  title={`${pageTitle} | ${t('site.name')}`}
+  description={`${pageTitle} — ${t('site.description')}`}
   locale={locale}
-  canonicalPath={`/${locale}/${recipeRoute}/`}
+  canonicalPath={`/${locale}/${recipeRoute}/difficulty/${levelKey}/`}
 >
-  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${recipeRoute}/`} />
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${recipeRoute}/difficulty/${levelKey}/`} />
 
   <section class="container-bbq py-12">
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
 
-    <h1 class="page-title">{t('content.allRecipes')}</h1>
-
-    {/* Barra filtro difficolta */}
-    <div class="category-filter">
-      <a
-        href={`/${locale}/${recipeRoute}/`}
-        class:list={['filter-btn', { 'filter-btn--active': !activeDifficulty }]}
-      >
-        {t('content.allCategories')}
-      </a>
-      {difficulties.map((diff) => (
-        <a
-          href={`/${locale}/${recipeRoute}/?difficulty=${diff}`}
-          class:list={['filter-btn', { 'filter-btn--active': activeDifficulty === diff }]}
-        >
-          {t(`content.${diff}`)}
-        </a>
-      ))}
-    </div>
+    <h1 class="page-title">{pageTitle}</h1>
 
     {/* Barra statistiche */}
     {!fetchError && totalCount > 0 && (
       <ContentStats
-        items={recipes.map((r) => ({ difficulty: r.difficulty }))}
+        items={statsItems}
         type="recipes"
         totalCount={totalCount}
         locale={locale}
@@ -177,46 +173,6 @@ const breadcrumbItems = [
     text-transform: uppercase;
     color: var(--color-text-primary);
     margin-bottom: var(--space-6);
-  }
-
-  .category-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-bottom: var(--space-4);
-  }
-
-  .filter-btn {
-    display: inline-block;
-    padding: var(--space-2) var(--space-4);
-    font-family: var(--font-heading);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--color-border-subtle);
-    color: var(--color-text-muted);
-    background-color: transparent;
-    transition: all var(--transition-fast);
-  }
-
-  .filter-btn:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-secondary);
-  }
-
-  .filter-btn--active {
-    background-color: var(--color-accent-fire);
-    color: var(--color-text-inverse);
-    border-color: var(--color-accent-fire);
-  }
-
-  .filter-btn--active:hover {
-    background-color: var(--color-accent-ember);
-    border-color: var(--color-accent-ember);
-    color: var(--color-text-inverse);
   }
 
   .result-count {

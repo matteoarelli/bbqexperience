@@ -135,7 +135,21 @@
     "searchPlaceholder": "Buscar articulos...",
     "lastUpdated": "Ultima actualizacion:",
     "tableOfContents": "Tabla de Contenidos",
-    "popularReviews": "Resenas Populares"
+    "popularReviews": "Resenas Populares",
+    "categoryPageTitle": "Mejores Resenas BBQ {category}",
+    "difficultyPageTitle": "Recetas BBQ {level}",
+    "categoryGrill": "Resenas de Parrillas",
+    "categorySmoker": "Resenas de Ahumadores",
+    "categoryAccessory": "Resenas de Accesorios",
+    "categoryFuel": "Resenas de Combustibles",
+    "categoryThermometer": "Resenas de Termometros",
+    "difficultyEasy": "Recetas Faciles",
+    "difficultyMedium": "Recetas Medias",
+    "difficultyHard": "Recetas Dificiles",
+    "difficultyExpert": "Recetas Experto",
+    "totalItems": "Total",
+    "avgScore": "Puntuacion Media",
+    "difficultyBreakdown": "Por Dificultad"
   },
   "comparison": {
     "title": "Comparar Productos BBQ",

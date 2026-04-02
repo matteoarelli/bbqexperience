@@ -9,6 +9,7 @@ import { getStrapiMediaURL } from '@lib/media';
 import { getTranslation } from '@lib/i18n';
 import ReadingProgress from '@components/content/ReadingProgress.svelte';
 import TableOfContents from '@components/content/TableOfContents.astro';
+import Sidebar from '@components/content/Sidebar.astro';
 import LastUpdated from '@components/content/LastUpdated.astro';
 
 interface Props {
@@ -100,62 +101,79 @@ const processedContent = content ? addHeadingIds(content) : null;
     </div>
   )}
 
-  <!-- Colonna prose centrata -->
+  <!-- Layout a 2 colonne: contenuto principale + sidebar -->
   <div class="container-bbq">
-    <div class="content-prose">
-      <!-- Titolo -->
-      <h1 class="content-title">{title}</h1>
+    <div class="content-two-col">
+      {/* Colonna principale (2/3) */}
+      <div class="content-prose">
+        <!-- Titolo -->
+        <h1 class="content-title">{title}</h1>
 
-      <!-- Slot per badge extra (es. difficulty) -->
-      <slot name="badges" />
+        <!-- Slot per badge extra (es. difficulty) -->
+        <slot name="badges" />
 
-      <!-- Metadata row -->
-      <div class="content-meta">
-        {categoryText && (
-          <span class="content-meta-badge">{categoryText}</span>
+        <!-- Metadata row -->
+        <div class="content-meta">
+          {categoryText && (
+            <span class="content-meta-badge">{categoryText}</span>
+          )}
+          {readingTimeText && (
+            <span class="content-meta-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {readingTimeText}
+            </span>
+          )}
+          {formattedDate && (
+            <span class="content-meta-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              {formattedDate}
+            </span>
+          )}
+        </div>
+
+        {/* Data ultimo aggiornamento */}
+        {updatedAt && (
+          <LastUpdated date={updatedAt} locale={locale} translations={translations} />
         )}
-        {readingTimeText && (
-          <span class="content-meta-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            {readingTimeText}
-          </span>
+
+        {/* Indice dei contenuti su mobile (inline, visibile solo sotto lg) */}
+        {processedContent && (
+          <div class="toc-mobile">
+            <TableOfContents
+              content={processedContent}
+              title={getTranslation(translations, 'content.tableOfContents')}
+            />
+          </div>
         )}
-        {formattedDate && (
-          <span class="content-meta-item">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            {formattedDate}
-          </span>
+
+        <!-- Contenuto articolo (rich text da CMS) -->
+        {processedContent && (
+          <div class="content-body" set:html={processedContent} />
         )}
+
+        <!-- Slot per contenuti correlati -->
+        <slot name="related" />
       </div>
 
-      {/* Data ultimo aggiornamento */}
-      {updatedAt && (
-        <LastUpdated date={updatedAt} locale={locale} translations={translations} />
-      )}
-
-      {/* Indice dei contenuti (solo se 3+ heading) */}
+      {/* Sidebar (1/3) — sticky su desktop, nascosta su mobile (TOC inline) */}
       {processedContent && (
-        <TableOfContents
-          content={processedContent}
-          title={getTranslation(translations, 'content.tableOfContents')}
-        />
+        <Sidebar>
+          <div class="toc-desktop">
+            <TableOfContents
+              content={processedContent}
+              title={getTranslation(translations, 'content.tableOfContents')}
+            />
+          </div>
+        </Sidebar>
       )}
-
-      <!-- Contenuto articolo (rich text da CMS) -->
-      {processedContent && (
-        <div class="content-body" set:html={processedContent} />
-      )}
-
-      <!-- Slot per contenuti correlati -->
-      <slot name="related" />
     </div>
   </div>
 </article>
@@ -194,10 +212,42 @@ const processedContent = content ? addHeadingIds(content) : null;
     pointer-events: none;
   }
 
+  .content-two-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding-top: var(--space-4);
+  }
+
+  @media (min-width: 1024px) {
+    .content-two-col {
+      flex-direction: row;
+    }
+  }
+
   .content-prose {
     max-width: 65ch;
-    margin-inline: auto;
-    padding-top: var(--space-4);
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* TOC mobile: visibile solo sotto lg */
+  .toc-mobile {
+    display: block;
+  }
+
+  .toc-desktop {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .toc-mobile {
+      display: none;
+    }
+
+    .toc-desktop {
+      display: block;
+    }
   }
 
   .content-title {

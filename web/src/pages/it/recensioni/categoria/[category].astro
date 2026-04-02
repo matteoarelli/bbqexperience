@@ -1,7 +1,7 @@
 ---
 /**
- * Pagina listing recensioni (EN) — griglia di review con filtro categoria, ordinamento e paginazione.
- * SSR per supportare filtro categoria, sort e paginazione dinamici via query param.
+ * Pagina landing per categoria recensioni (IT) — filtra recensioni per tipo prodotto.
+ * SSR per supportare paginazione e ordinamento dinamici via query param.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
@@ -19,13 +19,22 @@ import type { Locale } from '@lib/i18n';
 
 export const prerender = false;
 
-const locale: Locale = 'en';
+const locale: Locale = 'it';
 const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);
 
-// Categorie prodotto disponibili per il filtro
-const categories = ['grill', 'smoker', 'accessory', 'fuel', 'thermometer', 'other'] as const;
-const activeCategory = Astro.url.searchParams.get('category') || null;
+// Categorie valide
+const validCategories = ['grill', 'smoker', 'accessory', 'fuel', 'thermometer'] as const;
+type ValidCategory = typeof validCategories[number];
+
+const { category } = Astro.params;
+
+// Validazione categoria — 404 se non valida
+if (!category || !validCategories.includes(category as ValidCategory)) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const categoryKey = category as ValidCategory;
 
 // Paginazione e ordinamento da query params
 const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10));
@@ -38,25 +47,21 @@ const sortMap: Record<string, string> = {
   lowestScore: 'score_overall:asc',
 };
 
-// Opzioni di ordinamento per il componente SortControls
 const sortOptions = [
   { value: 'newest', label: t('sort.newest') },
   { value: 'highestScore', label: t('sort.highestScore') },
   { value: 'lowestScore', label: t('sort.lowestScore') },
 ];
 
-// Recupera le recensioni con filtro categoria opzionale
+// Recupera le recensioni filtrate per categoria
 const fetchOptions: Parameters<typeof fetchCollection>[1] = {
   locale,
   populate: 'gallery,product',
   sort: sortMap[activeSort] || sortMap.newest,
   pageSize: 12,
   page: currentPage,
+  filters: { product: { category: { $eq: categoryKey } } },
 };
-
-if (activeCategory && categories.includes(activeCategory as typeof categories[number])) {
-  fetchOptions.filters = { product: { category: { $eq: activeCategory } } };
-}
 
 let reviews: (StrapiReview & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
 let totalCount = 0;
@@ -70,50 +75,41 @@ try {
 } catch {
   fetchError = true;
 }
+
 const reviewRoute = localizedRoutes.reviews[locale];
+const categoryDisplayName = t(`content.${categoryKey}`);
+const pageTitle = t('content.categoryPageTitle').replace('{category}', categoryDisplayName);
+
+// Statistiche per ContentStats
+const statsItems = reviews.map((r) => ({
+  score: r.score_overall,
+}));
 
 // Breadcrumbs
 const breadcrumbItems = [
   { label: t('content.home'), href: `/${locale}/` },
-  { label: t('content.reviews') },
+  { label: t('content.reviews'), href: `/${locale}/${reviewRoute}/` },
+  { label: categoryDisplayName },
 ];
 ---
 
 <BaseLayout
-  title={`${t('content.reviews')} - ${t('site.name')}`}
-  description={t('site.description')}
+  title={`${pageTitle} | ${t('site.name')}`}
+  description={`${pageTitle} — ${t('site.description')}`}
   locale={locale}
-  canonicalPath={`/${locale}/${reviewRoute}/`}
+  canonicalPath={`/${locale}/${reviewRoute}/categoria/${categoryKey}/`}
 >
-  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${reviewRoute}/`} />
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${reviewRoute}/categoria/${categoryKey}/`} />
 
   <section class="container-bbq py-12">
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
 
-    <h1 class="page-title">{t('content.allReviews')}</h1>
-
-    {/* Barra filtro categorie prodotto */}
-    <div class="category-filter">
-      <a
-        href={`/${locale}/${reviewRoute}/`}
-        class:list={['filter-btn', { 'filter-btn--active': !activeCategory }]}
-      >
-        {t('content.allCategories')}
-      </a>
-      {categories.map((cat) => (
-        <a
-          href={`/${locale}/${reviewRoute}/?category=${cat}`}
-          class:list={['filter-btn', { 'filter-btn--active': activeCategory === cat }]}
-        >
-          {t(`content.${cat}`)}
-        </a>
-      ))}
-    </div>
+    <h1 class="page-title">{pageTitle}</h1>
 
     {/* Barra statistiche */}
     {!fetchError && totalCount > 0 && (
       <ContentStats
-        items={reviews.map((r) => ({ score: r.score_overall }))}
+        items={statsItems}
         type="reviews"
         totalCount={totalCount}
         locale={locale}
@@ -185,46 +181,6 @@ const breadcrumbItems = [
     text-transform: uppercase;
     color: var(--color-text-primary);
     margin-bottom: var(--space-6);
-  }
-
-  .category-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-bottom: var(--space-4);
-  }
-
-  .filter-btn {
-    display: inline-block;
-    padding: var(--space-2) var(--space-4);
-    font-family: var(--font-heading);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--color-border-subtle);
-    color: var(--color-text-muted);
-    background-color: transparent;
-    transition: all var(--transition-fast);
-  }
-
-  .filter-btn:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-secondary);
-  }
-
-  .filter-btn--active {
-    background-color: var(--color-accent-fire);
-    color: var(--color-text-inverse);
-    border-color: var(--color-accent-fire);
-  }
-
-  .filter-btn--active:hover {
-    background-color: var(--color-accent-ember);
-    border-color: var(--color-accent-ember);
-    color: var(--color-text-inverse);
   }
 
   .result-count {

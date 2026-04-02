@@ -10,6 +10,7 @@ import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import RecipeCard from '@components/home/RecipeCard.astro';
 import Pagination from '@components/common/Pagination.astro';
 import SortControls from '@components/common/SortControls.astro';
+import ContentStats from '@components/content/ContentStats.astro';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiRecipe } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
@@ -107,6 +108,17 @@ const breadcrumbItems = [
         </a>
       ))}
     </div>
+
+    {/* Barra statistiche */}
+    {!fetchError && totalCount > 0 && (
+      <ContentStats
+        items={recipes.map((r) => ({ difficulty: r.difficulty }))}
+        type="recipes"
+        totalCount={totalCount}
+        locale={locale}
+        translations={translations}
+      />
+    )}
 
     {/* Controlli ordinamento */}
     <SortControls
