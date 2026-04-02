@@ -1,11 +1,7 @@
 <!--
-  SearchDialog.svelte — Dialog di ricerca con Pagefind e filtri per tipo contenuto
-  Componente Svelte 5 (runes) con caricamento lazy di Pagefind.
+  SearchDialog.svelte — Dialog di ricerca con API Strapi e filtri per tipo contenuto
+  Componente Svelte 5 (runes) con ricerca server-side via /api/search.
   Uso in Astro: <SearchDialog client:idle locale="en" translations={...} />
-
-  NOTA: Le pagine di contenuto devono avere data-pagefind-body sull'area
-  principale del contenuto affinche Pagefind le indicizzi correttamente.
-  Esempio: <article data-pagefind-body>...</article>
 -->
 <script lang="ts">
   // Props del componente
@@ -37,10 +33,7 @@
   let activeFilter = $state<ContentFilter>('all');
   let results = $state<SearchResult[]>([]);
   let isSearching = $state(false);
-  let pagefindLoaded = $state(false);
 
-  // Riferimento a Pagefind (caricato lazy)
-  let pagefind: any = null;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let inputRef: HTMLInputElement | undefined = $state();
 
@@ -48,31 +41,10 @@
     url: string;
     title: string;
     excerpt: string;
-    contentType: ContentFilter;
+    contentType: string;
   }
 
-  // Determina il tipo di contenuto dall'URL
-  function detectContentType(url: string): ContentFilter {
-    if (/\/(reviews?|recensioni|resenas)\//i.test(url)) return 'reviews';
-    if (/\/(recipes?|ricette|recetas)\//i.test(url)) return 'recipes';
-    if (/\/(tutorials?|guide|tutoriales)\//i.test(url)) return 'tutorials';
-    if (/\/(blog|notizie|noticias)\//i.test(url)) return 'blog';
-    return 'all';
-  }
-
-  // Carica Pagefind al primo utilizzo
-  async function loadPagefind() {
-    if (pagefind) return;
-    try {
-      pagefind = await import(/* @vite-ignore */ '/pagefind/pagefind.js');
-      await pagefind.init();
-      pagefindLoaded = true;
-    } catch (e) {
-      console.warn('Pagefind non disponibile. Eseguire prima la build.', e);
-    }
-  }
-
-  // Esegui la ricerca con debounce
+  // Esegui la ricerca tramite API proxy
   async function performSearch(searchQuery: string) {
     if (!searchQuery.trim()) {
       results = [];
@@ -80,32 +52,18 @@
       return;
     }
 
-    await loadPagefind();
-    if (!pagefind) {
-      isSearching = false;
-      return;
-    }
-
     isSearching = true;
 
     try {
-      const search = await pagefind.search(searchQuery);
-      const searchResults: SearchResult[] = [];
+      const filterParam = activeFilter === 'all' ? 'all' : activeFilter;
+      const response = await fetch(
+        `/api/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}&filter=${filterParam}`
+      );
 
-      // Carica i dati dei primi 10 risultati
-      const dataPromises = search.results.slice(0, 10).map((r: any) => r.data());
-      const dataItems = await Promise.all(dataPromises);
+      if (!response.ok) throw new Error(`Search error: ${response.status}`);
 
-      for (const data of dataItems) {
-        searchResults.push({
-          url: data.url,
-          title: data.meta?.title || data.url,
-          excerpt: data.excerpt || '',
-          contentType: detectContentType(data.url),
-        });
-      }
-
-      results = searchResults;
+      const json = await response.json();
+      results = json.results || [];
     } catch (e) {
       console.error('Errore durante la ricerca:', e);
       results = [];
@@ -114,7 +72,8 @@
     }
   }
 
-  // Risultati filtrati per tipo di contenuto
+  // Risultati filtrati per tipo di contenuto (filtro gia applicato lato server,
+  // ma manteniamo filtro client-side per cambio tab senza re-fetch)
   let filteredResults = $derived(
     activeFilter === 'all'
       ? results
@@ -130,6 +89,14 @@
     debounceTimer = setTimeout(() => {
       performSearch(query);
     }, 300);
+  }
+
+  // Cambio filtro: ri-esegui la ricerca con tutti i tipi per avere risultati completi
+  function setFilter(filter: ContentFilter) {
+    activeFilter = filter;
+    if (query.trim()) {
+      performSearch(query);
+    }
   }
 
   // Apertura dialog
@@ -159,8 +126,8 @@
   }
 
   // Badge per tipo contenuto
-  function getBadgeLabel(type: ContentFilter): string {
-    return filterLabels[type] || type;
+  function getBadgeLabel(type: string): string {
+    return filterLabels[type as ContentFilter] || type;
   }
 </script>
 
@@ -237,7 +204,7 @@
           <button
             class="search-filter-btn"
             class:search-filter-btn--active={activeFilter === key}
-            onclick={() => (activeFilter = key as ContentFilter)}
+            onclick={() => setFilter(key as ContentFilter)}
             type="button"
             aria-pressed={activeFilter === key}
           >
@@ -489,7 +456,7 @@
     overflow: hidden;
   }
 
-  /* Evidenziazione di Pagefind negli excerpt */
+  /* Evidenziazione negli excerpt */
   .search-result-excerpt :global(mark) {
     background: color-mix(in srgb, var(--color-accent-fire) 25%, transparent);
     color: var(--color-text-primary);

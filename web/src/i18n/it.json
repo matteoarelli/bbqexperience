@@ -159,8 +159,10 @@
   },
   "comparison": {
     "title": "Confronta Prodotti BBQ",
+    "subtitle": "Seleziona da 2 a 5 prodotti per confrontare punteggi, specifiche e caratteristiche fianco a fianco",
+    "example": "Prova a confrontare: Weber Summit vs Kamado Joe vs Traeger Ironwood",
     "description": "Confronta griglie, affumicatori e accessori BBQ fianco a fianco su tutte le categorie di punteggio",
-    "searchPlaceholder": "Cerca recensioni da confrontare...",
+    "searchPlaceholder": "Cerca e aggiungi prodotti...",
     "addProduct": "Aggiungi",
     "removeProduct": "Rimuovi",
     "selectedCount": "{count} di {max} prodotti selezionati",
@@ -227,7 +229,9 @@
     "empty": "Nessun preferito ancora — esplora i nostri contenuti",
     "clearAll": "Cancella tutto",
     "save": "Salva nella lista di lettura",
-    "remove": "Rimuovi dalla lista di lettura"
+    "remove": "Rimuovi dalla lista di lettura",
+    "howTo": "I tuoi articoli salvati appaiono qui. Per salvare un articolo, clicca l'icona cuore su qualsiasi recensione, ricetta, guida o articolo del blog.",
+    "iconGuide": "= Salva nella lista di lettura"
   },
   "badge": {
     "review": "Recensione",

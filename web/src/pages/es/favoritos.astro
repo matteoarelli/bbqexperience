@@ -34,11 +34,20 @@ const labels = {
 
   <div class="container-bbq py-[var(--space-12)]">
     <h1
-      class="text-[var(--text-3xl)] uppercase tracking-tight mb-[var(--space-8)]"
+      class="text-[var(--text-3xl)] uppercase tracking-tight mb-[var(--space-3)]"
       style="font-family: var(--font-heading); color: var(--color-text-primary);"
     >
       {getTranslation(t, 'bookmarks.title')}
     </h1>
+    <p class="text-[var(--text-base)] mb-[var(--space-4)]" style="color: var(--color-text-secondary);">
+      {getTranslation(t, 'bookmarks.howTo')}
+    </p>
+    <div class="flex items-center gap-2 mb-[var(--space-8)] text-[var(--text-sm)]" style="color: var(--color-text-muted);">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="var(--color-accent-fire)" stroke="var(--color-accent-fire)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+      <span>{getTranslation(t, 'bookmarks.iconGuide')}</span>
+    </div>
 
     <BookmarksList
       client:load

@@ -55,11 +55,17 @@ const labels = {
 
   <div class="container-bbq py-[var(--space-12)]">
     <h1
-      class="text-[var(--text-3xl)] uppercase tracking-tight mb-[var(--space-8)]"
+      class="text-[var(--text-3xl)] uppercase tracking-tight mb-[var(--space-3)]"
       style="font-family: var(--font-heading); color: var(--color-text-primary);"
     >
       {getTranslation(t, 'comparison.title')}
     </h1>
+    <p class="text-[var(--text-base)] mb-[var(--space-2)]" style="color: var(--color-text-secondary);">
+      {getTranslation(t, 'comparison.subtitle')}
+    </p>
+    <p class="text-[var(--text-sm)] mb-[var(--space-8)]" style="color: var(--color-text-muted); font-style: italic;">
+      {getTranslation(t, 'comparison.example')}
+    </p>
 
     <ComparisonTool
       client:load
