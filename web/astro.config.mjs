@@ -17,6 +17,9 @@ export default defineConfig({
     }),
     svelte(),
   ],
+  image: {
+    domains: ['localhost', 'cms.bbqexperience.com'],
+  },
   vite: {
     plugins: [tailwindcss()],
     build: {

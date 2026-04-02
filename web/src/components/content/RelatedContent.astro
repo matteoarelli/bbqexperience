@@ -11,6 +11,32 @@ import type { StrapiTutorial, StrapiReview, StrapiRecipe } from '@lib/types';
 import ArticleCard from '@components/content/ArticleCard.astro';
 import { getStrapiMediaURL } from '@lib/media';
 
+/**
+ * Hash semplice basato sulla stringa — genera un seed deterministico
+ * per lo shuffle, così il risultato è stabile per ogni articolo.
+ */
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0; // Converti a intero 32-bit
+  }
+  return Math.abs(hash);
+}
+
+/**
+ * PRNG deterministico (Linear Congruential Generator) —
+ * produce valori pseudo-casuali ripetibili dato lo stesso seed.
+ */
+function seededRandom(seed: number): () => number {
+  let state = seed;
+  return () => {
+    state = (state * 1664525 + 1013904223) & 0x7fffffff;
+    return state / 0x7fffffff;
+  };
+}
+
 interface Props {
   locale: Locale;
   translations: Record<string, any>;
@@ -106,8 +132,10 @@ for (const recipe of recipesRes.data) {
   });
 }
 
-// Mescola e prendi i primi 6
-const shuffled = allItems.sort(() => Math.random() - 0.5).slice(0, 6);
+// Shuffle deterministico basato sullo slug dell'articolo corrente
+const seed = hashString(currentSlug);
+const rng = seededRandom(seed);
+const shuffled = allItems.sort(() => rng() - 0.5).slice(0, 6);
 ---
 
 {shuffled.length > 0 && (
