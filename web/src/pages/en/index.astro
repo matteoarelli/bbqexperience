@@ -11,6 +11,7 @@ import ReviewCard from '@components/home/ReviewCard.astro';
 import RecipeCard from '@components/home/RecipeCard.astro';
 import AboutSection from '@components/home/AboutSection.astro';
 import CategoryLinks from '@components/home/CategoryLinks.astro';
+import PlaceholderCard from '@components/home/PlaceholderCard.astro';
 import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import { fetchCollection } from '@lib/strapi';
@@ -77,52 +78,56 @@ try {
   <CategoryLinks locale={locale} translations={translations} />
 
   {/* 2. Latest Reviews */}
-  {latestReviews.length > 0 && (
-    <section class="homepage-section" data-animate="fade-up">
-      <div class="container-bbq">
-        <SectionHeader
-          title={t('home.latestReviews')}
-          viewAllText={t('home.viewAll')}
-          viewAllHref={`/${locale}/${reviewsRoute}/`}
-        />
-        <div class="card-grid" data-animate-stagger>
-          {latestReviews.map((review) => (
+  <section class="homepage-section" data-animate="fade-up">
+    <div class="container-bbq">
+      <SectionHeader
+        title={t('home.latestReviews')}
+        viewAllText={t('home.viewAll')}
+        viewAllHref={`/${locale}/${reviewsRoute}/`}
+      />
+      <div class="card-grid" data-animate-stagger>
+        {latestReviews.length > 0 ? (
+          latestReviews.map((review) => (
             <ReviewCard review={review} locale={locale} reviewsRoute={reviewsRoute} />
-          ))}
-        </div>
+          ))
+        ) : (
+          [1, 2, 3].map(() => <PlaceholderCard type="review" locale={locale} />)
+        )}
       </div>
-    </section>
-  )}
+    </div>
+  </section>
 
   {/* 3. Latest Recipes */}
-  {latestRecipes.length > 0 && (
-    <section class="homepage-section" data-animate="fade-up">
-      <div class="container-bbq">
-        <SectionHeader
-          title={t('home.latestRecipes')}
-          viewAllText={t('home.viewAll')}
-          viewAllHref={`/${locale}/${recipesRoute}/`}
-        />
-        <div class="card-grid" data-animate-stagger>
-          {latestRecipes.map((recipe) => (
+  <section class="homepage-section" data-animate="fade-up">
+    <div class="container-bbq">
+      <SectionHeader
+        title={t('home.latestRecipes')}
+        viewAllText={t('home.viewAll')}
+        viewAllHref={`/${locale}/${recipesRoute}/`}
+      />
+      <div class="card-grid" data-animate-stagger>
+        {latestRecipes.length > 0 ? (
+          latestRecipes.map((recipe) => (
             <RecipeCard recipe={recipe} locale={locale} recipesRoute={recipesRoute} translations={translations} />
-          ))}
-        </div>
+          ))
+        ) : (
+          [1, 2, 3].map(() => <PlaceholderCard type="recipe" locale={locale} />)
+        )}
       </div>
-    </section>
-  )}
+    </div>
+  </section>
 
   {/* 4. Tutorial Highlights */}
-  {latestTutorials.length > 0 && (
-    <section class="homepage-section" data-animate="fade-up">
-      <div class="container-bbq">
-        <SectionHeader
-          title={t('home.tutorialHighlights')}
-          viewAllText={t('home.viewAll')}
-          viewAllHref={`/${locale}/${tutorialsRoute}/`}
-        />
-        <div class="card-grid" data-animate-stagger>
-          {latestTutorials.map((tutorial) => {
+  <section class="homepage-section" data-animate="fade-up">
+    <div class="container-bbq">
+      <SectionHeader
+        title={t('home.tutorialHighlights')}
+        viewAllText={t('home.viewAll')}
+        viewAllHref={`/${locale}/${tutorialsRoute}/`}
+      />
+      <div class="card-grid" data-animate-stagger>
+        {latestTutorials.length > 0 ? (
+          latestTutorials.map((tutorial) => {
             const imgUrl = getStrapiMediaURL(tutorial.cover_image);
             return (
               <a href={`/${locale}/${tutorialsRoute}/${tutorial.slug}/`} class="tutorial-card" data-animate>
@@ -145,11 +150,13 @@ try {
                 </div>
               </a>
             );
-          })}
-        </div>
+          })
+        ) : (
+          [1, 2, 3].map(() => <PlaceholderCard type="tutorial" locale={locale} />)
+        )}
       </div>
-    </section>
-  )}
+    </div>
+  </section>
 
   {/* 5. About Section */}
   <AboutSection translations={translations} locale={locale} />
@@ -162,14 +169,14 @@ try {
   </section>
 
   {/* 6. Latest Blog Posts */}
-  {latestPosts.length > 0 && (
-    <section class="homepage-section" data-animate="fade-up">
-      <div class="container-bbq">
-        <SectionHeader
-          title={t('home.latestPosts')}
-          viewAllText={t('home.viewAll')}
-          viewAllHref={`/${locale}/${blogRoute}/`}
-        />
+  <section class="homepage-section" data-animate="fade-up">
+    <div class="container-bbq">
+      <SectionHeader
+        title={t('home.latestPosts')}
+        viewAllText={t('home.viewAll')}
+        viewAllHref={`/${locale}/${blogRoute}/`}
+      />
+      {latestPosts.length > 0 ? (
         <div class="posts-list">
           {latestPosts.map((post) => {
             const date = post.published_date ? new Date(post.published_date).toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
@@ -181,9 +188,13 @@ try {
             );
           })}
         </div>
-      </div>
-    </section>
-  )}
+      ) : (
+        <div class="card-grid" data-animate-stagger>
+          {[1, 2, 3].map(() => <PlaceholderCard type="blog" locale={locale} />)}
+        </div>
+      )}
+    </div>
+  </section>
 
   {/* 7. Instagram Feed */}
   <section class="homepage-section" data-animate="fade-up">

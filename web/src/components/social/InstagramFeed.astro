@@ -32,8 +32,7 @@ try {
   posts = [];
 }
 
-// Se non ci sono post, non renderizzare nulla
-if (posts.length === 0) return;
+const hasPosts = posts.length > 0;
 ---
 
 <section class="instagram-feed" data-animate>
@@ -45,12 +44,26 @@ if (posts.length === 0) return;
       </h2>
     </div>
 
-    {/* Griglia post: 2 col mobile, 3 col da md in su */}
-    <div class="instagram-feed__grid">
-      {posts.map((post) => (
-        <InstagramCard post={post} locale={locale} />
-      ))}
-    </div>
+    {hasPosts ? (
+      /* Griglia post: 2 col mobile, 3 col da md in su */
+      <div class="instagram-feed__grid">
+        {posts.map((post) => (
+          <InstagramCard post={post} locale={locale} />
+        ))}
+      </div>
+    ) : (
+      /* Stato vuoto — invita a seguire su Instagram */
+      <div class="instagram-feed__empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="instagram-feed__empty-icon">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+        <p class="instagram-feed__empty-text">
+          {getTranslation(translations, 'home.followOnInstagram')}
+        </p>
+      </div>
+    )}
 
     {/* Link "Seguici su Instagram" */}
     <div class="instagram-feed__footer">
@@ -125,5 +138,28 @@ if (posts.length === 0) return;
 
   .instagram-feed__follow-link:hover {
     color: var(--color-accent-amber);
+  }
+
+  .instagram-feed__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-12) var(--space-4);
+    border: 1px dashed rgba(249, 115, 22, 0.25);
+    border-radius: var(--radius-lg);
+    background: radial-gradient(ellipse at 50% 40%, rgba(249, 115, 22, 0.05) 0%, transparent 70%);
+  }
+
+  .instagram-feed__empty-icon {
+    color: rgba(249, 115, 22, 0.35);
+    margin-bottom: var(--space-4);
+  }
+
+  .instagram-feed__empty-text {
+    color: var(--color-text-muted);
+    font-size: var(--text-base);
+    text-align: center;
+    margin: 0;
   }
 </style>
