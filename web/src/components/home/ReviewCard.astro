@@ -5,6 +5,7 @@
 import type { StrapiReview, StrapiEntity } from '@lib/types';
 import { getStrapiMediaURL } from '@lib/media';
 import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder.astro';
+import TopPickBadge from '@components/review/TopPickBadge.astro';
 
 interface Props {
   review: StrapiReview & StrapiEntity;
@@ -41,6 +42,10 @@ const score = review.score_overall;
     {/* Badge punteggio */}
     <div class="review-card__score">
       <span class="review-card__score-value">{score.toFixed(1)}</span>
+    </div>
+    {/* Badge Top Pick per punteggi >= 9 */}
+    <div class="review-card__top-pick">
+      <TopPickBadge score={score} />
     </div>
   </div>
   <div class="review-card__content">
@@ -115,6 +120,12 @@ const score = review.score_overall;
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+  }
+
+  .review-card__top-pick {
+    position: absolute;
+    top: var(--space-3);
+    left: var(--space-3);
   }
 
   .review-card__content {

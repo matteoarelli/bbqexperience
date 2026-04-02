@@ -69,7 +69,8 @@
     "noSpecs": "No hay especificaciones disponibles",
     "buyNow": "Comprar Ahora",
     "checkPrice": "Ver Precio",
-    "affiliateDisclaimer": "Este es un enlace de afiliado. Podemos recibir una comision sin costo adicional para ti."
+    "affiliateDisclaimer": "Este es un enlace de afiliado. Podemos recibir una comision sin costo adicional para ti.",
+    "topPick": "Top Pick"
   },
   "recipe": {
     "prepTime": "Preparacion",
@@ -194,7 +195,8 @@
     "latestPosts": "Ultimos Articulos",
     "aboutTitle": "Quien es BBQ Experience?",
     "aboutText": "Nacida de una pasion autentica por la cocina a fuego vivo, BBQ Experience ha crecido hasta convertirse en una comunidad de mas de 74K entusiastas del grilling. Probamos cada producto en persona, desarrollamos recetas originales y compartimos resenas honestas y detalladas para ayudarte a dominar el arte del BBQ.",
-    "viewAll": "Ver Todos"
+    "viewAll": "Ver Todos",
+    "browseCategories": "Explorar por Categoria"
   },
   "cookies": {
     "message": "Usamos cookies para mejorar tu experiencia. Al continuar, aceptas nuestra",

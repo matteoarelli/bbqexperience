@@ -6,6 +6,7 @@ import SEOHead from '@components/common/SEOHead.astro';
 import ThemeToggle from '@components/common/ThemeToggle.svelte';
 import CookieConsent from '@components/common/CookieConsent.astro';
 import BackToTop from '@components/common/BackToTop.astro';
+import KeyboardShortcuts from '@components/common/KeyboardShortcuts.astro';
 import { loadTranslations, getTranslation } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 import '@styles/global.css';
@@ -70,6 +71,7 @@ const translations = await loadTranslations(locale as any);
     <slot name="footer" />
 
     <BackToTop />
+    <KeyboardShortcuts />
     <CookieConsent locale={locale as Locale} translations={translations} />
   </body>
 </html>

@@ -69,7 +69,8 @@
     "noSpecs": "No specifications available",
     "buyNow": "Buy Now",
     "checkPrice": "Check Price",
-    "affiliateDisclaimer": "This is an affiliate link. We may earn a commission at no extra cost to you."
+    "affiliateDisclaimer": "This is an affiliate link. We may earn a commission at no extra cost to you.",
+    "topPick": "Top Pick"
   },
   "recipe": {
     "prepTime": "Prep Time",
@@ -194,7 +195,8 @@
     "latestPosts": "Latest Posts",
     "aboutTitle": "Who is BBQ Experience?",
     "aboutText": "Born from authentic passion for live-fire cooking, BBQ Experience has grown into a 74K+ strong community of grilling enthusiasts. We test every product hands-on, develop original recipes, and share honest, in-depth reviews to help you master the art of BBQ.",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "browseCategories": "Browse by Category"
   },
   "cookies": {
     "message": "We use cookies to enhance your experience. By continuing, you accept our",

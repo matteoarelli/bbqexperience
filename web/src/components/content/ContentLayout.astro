@@ -10,6 +10,7 @@ import { getTranslation } from '@lib/i18n';
 import ReadingProgress from '@components/content/ReadingProgress.svelte';
 import TableOfContents from '@components/content/TableOfContents.astro';
 import Sidebar from '@components/content/Sidebar.astro';
+import CopyCodeButton from '@components/content/CopyCodeButton.astro';
 import LastUpdated from '@components/content/LastUpdated.astro';
 
 interface Props {
@@ -158,6 +159,9 @@ const processedContent = content ? addHeadingIds(content) : null;
         {processedContent && (
           <div class="content-body" set:html={processedContent} />
         )}
+
+        <!-- Pulsante copia per blocchi codice -->
+        <CopyCodeButton />
 
         <!-- Slot per contenuti correlati -->
         <slot name="related" />

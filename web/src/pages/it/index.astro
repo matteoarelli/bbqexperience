@@ -10,6 +10,7 @@ import SectionHeader from '@components/home/SectionHeader.astro';
 import ReviewCard from '@components/home/ReviewCard.astro';
 import RecipeCard from '@components/home/RecipeCard.astro';
 import AboutSection from '@components/home/AboutSection.astro';
+import CategoryLinks from '@components/home/CategoryLinks.astro';
 import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import { fetchCollection } from '@lib/strapi';
@@ -71,6 +72,9 @@ try {
 
   {/* 1. FeaturedHero */}
   <FeaturedHero locale={locale} translations={translations} />
+
+  {/* 1b. Link Categorie */}
+  <CategoryLinks locale={locale} translations={translations} />
 
   {/* 2. Ultime Recensioni */}
   {latestReviews.length > 0 && (

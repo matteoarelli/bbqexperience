@@ -23,6 +23,7 @@ import AuthorCard from '@components/content/AuthorCard.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import LastUpdated from '@components/content/LastUpdated.astro';
+import TopPickBadge from '@components/review/TopPickBadge.astro';
 
 export const prerender = false;
 
@@ -79,13 +80,15 @@ const breadcrumbItems = [
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
 
     <!-- Titolo e metadati -->
-    <h1
-      class="text-[var(--text-4xl)] uppercase tracking-tight mb-[var(--space-4)]"
-      style="font-family: var(--font-heading); color: var(--color-text-primary);"
-      data-animate
-    >
-      {review.title}
-    </h1>
+    <div class="flex items-start gap-3 mb-[var(--space-4)]" data-animate>
+      <h1
+        class="text-[var(--text-4xl)] uppercase tracking-tight"
+        style="font-family: var(--font-heading); color: var(--color-text-primary); margin: 0;"
+      >
+        {review.title}
+      </h1>
+      <TopPickBadge score={review.score_overall} label={getTranslation(t, 'review.topPick')} />
+    </div>
 
     <div class="flex flex-wrap gap-3 mb-[var(--space-4)]" style="color: var(--color-text-muted); font-size: var(--text-sm);">
       {review.published_date && (

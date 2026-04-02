@@ -1,0 +1,169 @@
+---
+/**
+ * CategoryLinks — riga orizzontale di card/pill per navigare le categorie prodotti
+ * Icone SVG inline, scroll orizzontale su mobile, accento fire su hover
+ */
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { locale, translations } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+const reviewsRoute = localizedRoutes.reviews[locale];
+// Sotto-path categoria localizzato
+const categorySubPath = locale === 'en' ? 'category' : 'categoria';
+
+// Categorie con slug e chiave icona
+const categories = [
+  { slug: 'grill', icon: 'grill', labelKey: 'content.grill' },
+  { slug: 'smoker', icon: 'smoker', labelKey: 'content.smoker' },
+  { slug: 'accessory', icon: 'accessory', labelKey: 'content.accessory' },
+  { slug: 'thermometer', icon: 'thermometer', labelKey: 'content.thermometer' },
+  { slug: 'fuel', icon: 'fuel', labelKey: 'content.fuel' },
+];
+---
+
+<section class="category-links" data-animate="fade-up">
+  <div class="container-bbq">
+    <h2 class="category-links__title">{t('home.browseCategories')}</h2>
+    <div class="category-links__row">
+      {categories.map((cat) => (
+        <a href={`/${locale}/${reviewsRoute}/${categorySubPath}/${cat.slug}/`} class="category-pill">
+          <span class="category-pill__icon">
+            {cat.icon === 'grill' && (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="10" rx="9" ry="5"/>
+                <path d="M3 10c0 4 4 7 9 7s9-3 9-7"/>
+                <line x1="8" y1="17" x2="6" y2="21"/>
+                <line x1="16" y1="17" x2="18" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+                <path d="M8 4c0-1 1-2 2-1.5S11 4 12 3s1.5-1.5 2.5-1S16 4 16 4"/>
+              </svg>
+            )}
+            {cat.icon === 'smoker' && (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="8" width="14" height="10" rx="2"/>
+                <path d="M17 12h3a1 1 0 011 1v4a1 1 0 01-1 1h-3"/>
+                <line x1="7" y1="18" x2="7" y2="22"/>
+                <line x1="13" y1="18" x2="13" y2="22"/>
+                <path d="M7 5c0-1.5 1-2 1-3"/>
+                <path d="M10 5c0-1.5 1-2 1-3"/>
+                <path d="M13 5c0-1.5 1-2 1-3"/>
+              </svg>
+            )}
+            {cat.icon === 'accessory' && (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12h4l3-9 4 18 3-9h4"/>
+              </svg>
+            )}
+            {cat.icon === 'thermometer' && (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/>
+              </svg>
+            )}
+            {cat.icon === 'fuel' && (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2c-4 4-6 7-6 10a6 6 0 0012 0c0-3-2-6-6-10z"/>
+                <path d="M12 22c-2 0-3-1.5-3-3 0-1.5 1-3 3-5 2 2 3 3.5 3 5s-1 3-3 3z"/>
+              </svg>
+            )}
+          </span>
+          <span class="category-pill__label">{t(cat.labelKey)}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .category-links {
+    padding: var(--space-12) 0;
+  }
+
+  .category-links__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-6) 0;
+    text-align: center;
+  }
+
+  .category-links__row {
+    display: flex;
+    gap: var(--space-3);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: var(--space-2);
+  }
+
+  .category-links__row::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .category-links__row {
+      justify-content: center;
+      overflow-x: visible;
+      flex-wrap: wrap;
+    }
+  }
+
+  .category-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    min-width: 110px;
+    padding: var(--space-4) var(--space-5);
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    scroll-snap-align: start;
+    transition: transform var(--transition-base), border-color var(--transition-base), background-color var(--transition-base);
+    flex-shrink: 0;
+  }
+
+  .category-pill:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent-fire);
+    background-color: rgba(249, 115, 22, 0.08);
+  }
+
+  .category-pill__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+    background: rgba(249, 115, 22, 0.1);
+    color: var(--color-accent-fire);
+    transition: background var(--transition-base), color var(--transition-base);
+  }
+
+  .category-pill:hover .category-pill__icon {
+    background: var(--color-accent-fire);
+    color: white;
+  }
+
+  .category-pill__label {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+  }
+</style>

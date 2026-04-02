@@ -1,0 +1,89 @@
+---
+/**
+ * CopyCodeButton — aggiunge un pulsante "Copy" a tutti i blocchi <pre><code>
+ * Da includere nelle pagine con contenuto rich text dal CMS
+ */
+---
+
+<script is:inline>
+  (function () {
+    // Attende che il DOM sia pronto
+    function addCopyButtons() {
+      var pres = document.querySelectorAll('.content-body pre, .prose pre');
+      pres.forEach(function (pre) {
+        // Evita duplicati
+        if (pre.querySelector('.copy-code-btn')) return;
+
+        // Wrapper per posizionamento relativo
+        pre.style.position = 'relative';
+
+        var btn = document.createElement('button');
+        btn.className = 'copy-code-btn';
+        btn.textContent = 'Copy';
+        btn.setAttribute('aria-label', 'Copy code to clipboard');
+        btn.type = 'button';
+
+        btn.addEventListener('click', function () {
+          var code = pre.querySelector('code');
+          var text = code ? code.textContent : pre.textContent;
+          navigator.clipboard.writeText(text || '').then(function () {
+            btn.textContent = 'Copied!';
+            btn.classList.add('copy-code-btn--copied');
+            setTimeout(function () {
+              btn.textContent = 'Copy';
+              btn.classList.remove('copy-code-btn--copied');
+            }, 2000);
+          });
+        });
+
+        pre.appendChild(btn);
+      });
+    }
+
+    // Esegui dopo il rendering del contenuto
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', addCopyButtons);
+    } else {
+      addCopyButtons();
+    }
+  })();
+</script>
+
+<style is:global>
+  .copy-code-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--color-bg-secondary, #2a2a2a);
+    border: 1px solid var(--color-border-subtle, #444);
+    border-radius: var(--radius-sm, 4px);
+    color: var(--color-text-muted, #aaa);
+    font-family: var(--font-heading, sans-serif);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+    z-index: 2;
+  }
+
+  pre:hover .copy-code-btn {
+    opacity: 1;
+  }
+
+  .copy-code-btn:hover {
+    background: var(--color-accent-fire, #f97316);
+    color: white;
+    border-color: var(--color-accent-fire, #f97316);
+  }
+
+  .copy-code-btn--copied {
+    background: #16a34a !important;
+    color: white !important;
+    border-color: #16a34a !important;
+    opacity: 1 !important;
+  }
+</style>
