@@ -1,8 +1,9 @@
 ---
-// Footer del sito — sezioni, social, copyright
+// Footer del sito — sezioni, social, copyright, newsletter compatta
 import { getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 import FollowCTA from '@components/social/FollowCTA.astro';
+import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 
 interface Props {
   locale: Locale;
@@ -21,7 +22,7 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
   <FollowCTA locale={locale} translations={translations} />
   <div class="container-bbq" style="padding-top: var(--space-16);">
     <!-- Griglia principale: 1 col mobile, 4 col desktop -->
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-12 lg:gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-12 lg:gap-8">
 
       <!-- Colonna 1: Logo + descrizione -->
       <div>
@@ -84,7 +85,13 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
         </ul>
       </div>
 
-      <!-- Colonna 4: Legal + link utili -->
+      <!-- Colonna 4: Newsletter compatta -->
+      <div>
+        <h4 class="footer-heading">{getTranslation(translations, 'newsletter.title')}</h4>
+        <NewsletterSignup translations={translations} compact />
+      </div>
+
+      <!-- Colonna 5: Legal + link utili -->
       <div>
         <h4 class="footer-heading">{getTranslation(translations, 'footer.legal')}</h4>
         <ul class="space-y-3">

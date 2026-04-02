@@ -4,7 +4,10 @@
  */
 import SEOHead from '@components/common/SEOHead.astro';
 import ThemeToggle from '@components/common/ThemeToggle.svelte';
+import CookieConsent from '@components/common/CookieConsent.astro';
+import BackToTop from '@components/common/BackToTop.astro';
 import { loadTranslations, getTranslation } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
 import '@styles/global.css';
 
 interface Props {
@@ -63,5 +66,8 @@ const translations = await loadTranslations(locale as any);
     </main>
 
     <slot name="footer" />
+
+    <BackToTop />
+    <CookieConsent locale={locale as Locale} translations={translations} />
   </body>
 </html>

@@ -180,6 +180,18 @@
     "aboutText": "Nata da una passione autentica per la cottura a fuoco vivo, BBQ Experience e cresciuta fino a diventare una community di oltre 74K appassionati di grilling. Testiamo ogni prodotto sul campo, sviluppiamo ricette originali e condividiamo recensioni oneste e approfondite per aiutarti a padroneggiare l'arte del BBQ.",
     "viewAll": "Vedi Tutti"
   },
+  "cookies": {
+    "message": "Utilizziamo i cookie per migliorare la tua esperienza. Continuando, accetti la nostra",
+    "accept": "Accetta",
+    "learnMore": "Privacy Policy"
+  },
+  "newsletter": {
+    "title": "Resta Aggiornato",
+    "subtitle": "Ricevi le ultime recensioni, ricette e consigli BBQ direttamente nella tua casella email.",
+    "placeholder": "Il tuo indirizzo email",
+    "submit": "Iscriviti",
+    "success": "Grazie per l'iscrizione!"
+  },
   "social": {
     "share": "Condividi",
     "copyLink": "Copia Link",

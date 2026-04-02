@@ -1,8 +1,21 @@
 ---
 /**
- * LiteYouTube — Componente facade per embed YouTube
+ * LiteYouTube — Componente facade per embed YouTube (performance-optimized)
+ *
  * Carica solo la thumbnail come sfondo, sostituisce con iframe al click.
- * Usa youtube-nocookie.com per privacy-enhanced mode.
+ * Usa youtube-nocookie.com per privacy-enhanced mode (GDPR compliant).
+ *
+ * USO:
+ * Importa il componente e passa videoId + title:
+ *
+ *   ---
+ *   import LiteYouTube from '@components/social/LiteYouTube.astro';
+ *   ---
+ *   <LiteYouTube videoId="dQw4w9WgXcQ" title="Video di esempio" />
+ *
+ * Ideale per embed manuali in contenuti CMS (ricette, tutorial, blog post).
+ * Il componente e' self-contained: include HTML, CSS e JS inline.
+ * Supporta click e navigazione da tastiera (Enter/Space).
  */
 
 interface Props {

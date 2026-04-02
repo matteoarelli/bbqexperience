@@ -1,0 +1,186 @@
+---
+/**
+ * NewsletterSignup — Componente iscrizione newsletter
+ * Versione "full" (con titolo e sottotitolo) o "compact" (solo input + bottone).
+ * Per ora salva in localStorage; integrare backend in futuro.
+ *
+ * Props:
+ *   - translations: oggetto traduzioni i18n
+ *   - compact: se true, mostra solo input + bottone (per il footer)
+ */
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  translations: Record<string, any>;
+  compact?: boolean;
+}
+
+const { translations, compact = false } = Astro.props;
+
+const title = getTranslation(translations, 'newsletter.title');
+const subtitle = getTranslation(translations, 'newsletter.subtitle');
+const placeholder = getTranslation(translations, 'newsletter.placeholder');
+const submitText = getTranslation(translations, 'newsletter.submit');
+const successText = getTranslation(translations, 'newsletter.success');
+---
+
+<div class:list={['newsletter', { 'newsletter--compact': compact }]} data-newsletter>
+  {!compact && (
+    <div class="newsletter__header">
+      <h2 class="newsletter__title">{title}</h2>
+      <p class="newsletter__subtitle">{subtitle}</p>
+    </div>
+  )}
+
+  <form class="newsletter__form" data-newsletter-form>
+    <div class="newsletter__input-group">
+      <input
+        type="email"
+        required
+        placeholder={placeholder}
+        class="newsletter__input"
+        data-newsletter-email
+        autocomplete="email"
+      />
+      <button type="submit" class="newsletter__submit">{submitText}</button>
+    </div>
+  </form>
+
+  <p class="newsletter__success" data-newsletter-success style="display: none;">
+    {successText}
+  </p>
+</div>
+
+<script>
+  // Gestione submit newsletter — salva in localStorage (nessun backend per ora)
+  document.querySelectorAll('[data-newsletter]').forEach((container) => {
+    const form = container.querySelector('[data-newsletter-form]') as HTMLFormElement | null;
+    const success = container.querySelector('[data-newsletter-success]') as HTMLElement | null;
+    const emailInput = container.querySelector('[data-newsletter-email]') as HTMLInputElement | null;
+    if (!form || !success || !emailInput) return;
+
+    // Se gia' iscritto, mostra subito il messaggio di successo
+    if (localStorage.getItem('bbq-newsletter-subscribed')) {
+      form.style.display = 'none';
+      success.style.display = 'block';
+      return;
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if (!email) return;
+
+      localStorage.setItem('bbq-newsletter-subscribed', email);
+      form.style.display = 'none';
+      success.style.display = 'block';
+    });
+  });
+</script>
+
+<style>
+  .newsletter {
+    background-color: var(--color-bg-secondary);
+    border: 2px solid transparent;
+    border-image: linear-gradient(135deg, var(--color-accent-fire), var(--color-accent-ember, #ea580c), var(--color-accent-fire)) 1;
+    border-radius: 0;
+    padding: var(--space-10) var(--space-8);
+    text-align: center;
+  }
+
+  .newsletter--compact {
+    background: transparent;
+    border: none;
+    border-image: none;
+    padding: 0;
+    text-align: left;
+  }
+
+  .newsletter__header {
+    margin-bottom: var(--space-6);
+  }
+
+  .newsletter__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-2) 0;
+  }
+
+  .newsletter__subtitle {
+    color: var(--color-text-muted);
+    font-size: var(--text-base);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .newsletter__input-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .newsletter--compact .newsletter__input-group {
+    margin: 0;
+    max-width: none;
+  }
+
+  @media (min-width: 640px) {
+    .newsletter__input-group {
+      flex-direction: row;
+    }
+  }
+
+  .newsletter__input {
+    flex: 1;
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md, 6px);
+    color: var(--color-text-primary);
+    font-size: var(--text-sm);
+    outline: none;
+    transition: border-color var(--transition-fast);
+  }
+
+  .newsletter__input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .newsletter__input:focus {
+    border-color: var(--color-accent-fire);
+  }
+
+  .newsletter__submit {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse, #fff);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-3) var(--space-6);
+    border: none;
+    border-radius: var(--radius-md, 6px);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .newsletter__submit:hover {
+    background-color: var(--color-accent-ember, #ea580c);
+    transform: scale(1.02);
+  }
+
+  .newsletter__success {
+    color: var(--color-accent-fire);
+    font-family: var(--font-heading);
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin: 0;
+  }
+</style>

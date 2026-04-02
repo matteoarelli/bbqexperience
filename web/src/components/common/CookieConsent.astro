@@ -1,0 +1,164 @@
+---
+/**
+ * CookieConsent — Banner GDPR per consenso cookie
+ * Mostra una barra non intrusiva in basso alla prima visita.
+ * Il consenso viene salvato in localStorage ("bbq-cookie-consent").
+ * Multilingua: usa le chiavi cookies.* dalle traduzioni i18n.
+ */
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { locale, translations } = Astro.props;
+
+const message = getTranslation(translations, 'cookies.message');
+const acceptText = getTranslation(translations, 'cookies.accept');
+const learnMoreText = getTranslation(translations, 'cookies.learnMore');
+const privacyHref = `/${locale}/${localizedRoutes.privacy[locale]}/`;
+---
+
+<div
+  id="cookie-consent"
+  class="cookie-banner"
+  role="dialog"
+  aria-label="Cookie consent"
+  style="display: none;"
+>
+  <div class="cookie-banner__inner container-bbq">
+    <p class="cookie-banner__text">
+      {message} <a href={privacyHref} class="cookie-banner__link">{learnMoreText}</a>.
+    </p>
+    <div class="cookie-banner__actions">
+      <a href={privacyHref} class="cookie-banner__learn-more">{learnMoreText}</a>
+      <button id="cookie-accept" class="cookie-banner__accept">{acceptText}</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mostra il banner solo se il consenso non e' stato ancora dato
+  (function () {
+    const KEY = 'bbq-cookie-consent';
+    const banner = document.getElementById('cookie-consent');
+    const acceptBtn = document.getElementById('cookie-accept');
+    if (!banner || !acceptBtn) return;
+
+    if (!localStorage.getItem(KEY)) {
+      banner.style.display = 'block';
+      // Trigger animazione slide-up dopo un breve delay per il rendering
+      requestAnimationFrame(() => {
+        banner.classList.add('cookie-banner--visible');
+      });
+    }
+
+    acceptBtn.addEventListener('click', () => {
+      localStorage.setItem(KEY, 'true');
+      banner.classList.remove('cookie-banner--visible');
+      banner.addEventListener('transitionend', () => {
+        banner.style.display = 'none';
+      }, { once: true });
+    });
+  })();
+</script>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background-color: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border-subtle);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(100%);
+    transition: transform 0.4s ease;
+  }
+
+  .cookie-banner--visible {
+    transform: translateY(0);
+  }
+
+  .cookie-banner__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-6);
+    align-items: center;
+  }
+
+  @media (min-width: 768px) {
+    .cookie-banner__inner {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  .cookie-banner__text {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    margin: 0;
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .cookie-banner__text {
+      text-align: left;
+    }
+  }
+
+  .cookie-banner__link {
+    color: var(--color-accent-fire);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .cookie-banner__link:hover {
+    color: var(--color-text-primary);
+  }
+
+  .cookie-banner__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-shrink: 0;
+  }
+
+  .cookie-banner__learn-more {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--transition-fast);
+  }
+
+  .cookie-banner__learn-more:hover {
+    color: var(--color-text-primary);
+  }
+
+  .cookie-banner__accept {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse, #fff);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-2) var(--space-6);
+    border: none;
+    border-radius: var(--radius-md, 6px);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .cookie-banner__accept:hover {
+    background-color: var(--color-accent-ember, #ea580c);
+    transform: scale(1.02);
+  }
+</style>

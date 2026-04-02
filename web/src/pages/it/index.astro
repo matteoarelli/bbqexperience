@@ -10,6 +10,7 @@ import SectionHeader from '@components/home/SectionHeader.astro';
 import ReviewCard from '@components/home/ReviewCard.astro';
 import RecipeCard from '@components/home/RecipeCard.astro';
 import AboutSection from '@components/home/AboutSection.astro';
+import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import { fetchCollection } from '@lib/strapi';
 import { getStrapiMediaURL } from '@lib/media';
@@ -148,6 +149,13 @@ try {
 
   {/* 5. Chi e BBQ Experience */}
   <AboutSection translations={translations} />
+
+  {/* 5b. Newsletter Signup */}
+  <section class="homepage-section">
+    <div class="container-bbq">
+      <NewsletterSignup translations={translations} />
+    </div>
+  </section>
 
   {/* 6. Ultimi Articoli */}
   {latestPosts.length > 0 && (
