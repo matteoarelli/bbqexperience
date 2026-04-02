@@ -52,7 +52,7 @@ const successText = getTranslation(translations, 'newsletter.success');
 </div>
 
 <script>
-  // Gestione submit newsletter — salva in localStorage (nessun backend per ora)
+  // Gestione submit newsletter — POST al backend + salva in localStorage
   document.querySelectorAll('[data-newsletter]').forEach((container) => {
     const form = container.querySelector('[data-newsletter-form]') as HTMLFormElement | null;
     const success = container.querySelector('[data-newsletter-success]') as HTMLElement | null;
@@ -66,11 +66,26 @@ const successText = getTranslation(translations, 'newsletter.success');
       return;
     }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = emailInput.value.trim();
       if (!email) return;
 
+      try {
+        const locale = document.documentElement.lang || 'en';
+        const res = await fetch('/api/newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, locale }),
+        });
+        if (!res.ok && res.status !== 429) {
+          console.error('Errore iscrizione newsletter:', res.status);
+        }
+      } catch (err) {
+        console.error('Errore invio newsletter:', err);
+      }
+
+      // Salva anche in localStorage come fallback
       localStorage.setItem('bbq-newsletter-subscribed', email);
       form.style.display = 'none';
       success.style.display = 'block';

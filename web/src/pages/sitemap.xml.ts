@@ -121,7 +121,7 @@ export const GET: APIRoute = async () => {
       if (!route) continue;
 
       const items = await fetchAllSlugs(contentType, locale);
-      for (const item of items) {
+      for (const item of items.filter(i => i.slug)) {
         entries.push({
           loc: `${SITE_URL}/${locale}/${route}/${item.slug}/`,
           lastmod: item.updatedAt,

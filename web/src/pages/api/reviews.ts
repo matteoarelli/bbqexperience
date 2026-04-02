@@ -14,6 +14,20 @@ function strapiHeaders(): HeadersInit {
     : {};
 }
 
+/** Rate limiter in-memory — max 30 richieste per minuto per IP */
+const rateLimit = new Map<string, number[]>();
+const WINDOW_MS = 60_000;
+const MAX_REQUESTS = 30;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const requests = rateLimit.get(ip)?.filter(t => now - t < WINDOW_MS) || [];
+  if (requests.length >= MAX_REQUESTS) return false;
+  requests.push(now);
+  rateLimit.set(ip, requests);
+  return true;
+}
+
 /** URL pubblico del CMS per le immagini (non usare STRAPI_URL che punta al Docker interno) */
 const PUBLIC_CMS = import.meta.env.PUBLIC_CMS_URL || 'https://cms.bbq-experience.com';
 
@@ -36,7 +50,18 @@ function absoluteImageUrls(data: any): any {
   return fixImages(data);
 }
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request }) => {
+  // Controllo rate limit
+  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
+  if (!checkRateLimit(clientIp)) {
+    return new Response(JSON.stringify({ error: 'Too many requests' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
+    });
+  }
+
   const search = url.searchParams.get('search');
   const id = url.searchParams.get('id');
   const ids = url.searchParams.get('ids');

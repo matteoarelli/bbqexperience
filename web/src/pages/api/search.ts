@@ -6,6 +6,20 @@ export const prerender = false;
 
 const STRAPI_API_TOKEN = import.meta.env.STRAPI_API_TOKEN || '';
 
+/** Rate limiter in-memory — max 30 richieste per minuto per IP */
+const rateLimit = new Map<string, number[]>();
+const WINDOW_MS = 60_000;
+const MAX_REQUESTS = 30;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const requests = rateLimit.get(ip)?.filter(t => now - t < WINDOW_MS) || [];
+  if (requests.length >= MAX_REQUESTS) return false;
+  requests.push(now);
+  rateLimit.set(ip, requests);
+  return true;
+}
+
 /** Header di autenticazione per Strapi */
 function strapiHeaders(): HeadersInit {
   return STRAPI_API_TOKEN
@@ -28,7 +42,18 @@ interface SearchResult {
   contentType: string;
 }
 
-export const GET: APIRoute = async ({ url }) => {
+export const GET: APIRoute = async ({ url, request }) => {
+  // Controllo rate limit
+  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
+  if (!checkRateLimit(clientIp)) {
+    return new Response(JSON.stringify({ error: 'Too many requests' }), {
+      status: 429,
+      headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
+    });
+  }
+
   const query = url.searchParams.get('q');
   const locale = url.searchParams.get('locale') || 'en';
   const filter = url.searchParams.get('filter') || 'all';
