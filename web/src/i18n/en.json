@@ -150,6 +150,15 @@
     "browsePrompt": "Or browse our content:",
     "backHome": "Back to Homepage"
   },
+  "home": {
+    "latestReviews": "Latest Reviews",
+    "latestRecipes": "Latest Recipes",
+    "tutorialHighlights": "Tutorial Highlights",
+    "latestPosts": "Latest Posts",
+    "aboutTitle": "Who is BBQ Experience?",
+    "aboutText": "Born from authentic passion for live-fire cooking, BBQ Experience has grown into a 74K+ strong community of grilling enthusiasts. We test every product hands-on, develop original recipes, and share honest, in-depth reviews to help you master the art of BBQ.",
+    "viewAll": "View All"
+  },
   "social": {
     "share": "Share",
     "copyLink": "Copy Link",

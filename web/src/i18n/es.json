@@ -150,6 +150,15 @@
     "browsePrompt": "O explora nuestro contenido:",
     "backHome": "Volver a la Pagina Principal"
   },
+  "home": {
+    "latestReviews": "Ultimas Resenas",
+    "latestRecipes": "Ultimas Recetas",
+    "tutorialHighlights": "Tutoriales Destacados",
+    "latestPosts": "Ultimos Articulos",
+    "aboutTitle": "Quien es BBQ Experience?",
+    "aboutText": "Nacida de una pasion autentica por la cocina a fuego vivo, BBQ Experience ha crecido hasta convertirse en una comunidad de mas de 74K entusiastas del grilling. Probamos cada producto en persona, desarrollamos recetas originales y compartimos resenas honestas y detalladas para ayudarte a dominar el arte del BBQ.",
+    "viewAll": "Ver Todos"
+  },
   "social": {
     "share": "Compartir",
     "copyLink": "Copiar Enlace",

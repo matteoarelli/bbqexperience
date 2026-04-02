@@ -1,0 +1,78 @@
+---
+/**
+ * Sezione "Chi e BBQ Experience?" — storia del brand con accento fuoco
+ */
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  translations: Record<string, any>;
+}
+
+const { translations } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+---
+
+<section class="about-section" data-animate>
+  <div class="container-bbq">
+    <div class="about-card">
+      <div class="about-card__icon">
+        <svg width="40" height="40" viewBox="0 0 32 32" fill="none">
+          <path d="M16 4C16 4 10 12 10 18C10 21.3 12.7 24 16 24C19.3 24 22 21.3 22 18C22 12 16 4 16 4Z" fill="#F97316"/>
+          <path d="M16 10C16 10 13 14.5 13 17.5C13 19.4 14.3 21 16 21C17.7 21 19 19.4 19 17.5C19 14.5 16 10 16 10Z" fill="#FBBF24"/>
+        </svg>
+      </div>
+      <h2 class="about-card__title">{t('home.aboutTitle')}</h2>
+      <p class="about-card__text">{t('home.aboutText')}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-section {
+    padding: var(--space-16) 0;
+  }
+
+  .about-card {
+    background-color: var(--color-bg-secondary);
+    border: 2px solid var(--color-accent-fire);
+    border-radius: var(--radius-xl);
+    padding: var(--space-10) var(--space-8);
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .about-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(249, 115, 22, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .about-card__icon {
+    margin-bottom: var(--space-4);
+    position: relative;
+  }
+
+  .about-card__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-4) 0;
+    line-height: 1.1;
+    position: relative;
+  }
+
+  .about-card__text {
+    color: var(--color-text-secondary);
+    font-size: var(--text-base);
+    line-height: 1.7;
+    margin: 0;
+    position: relative;
+  }
+</style>

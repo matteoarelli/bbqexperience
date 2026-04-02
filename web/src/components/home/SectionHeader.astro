@@ -1,0 +1,84 @@
+---
+/**
+ * Header di sezione homepage — titolo + link "Vedi tutti"
+ */
+interface Props {
+  title: string;
+  viewAllText?: string;
+  viewAllHref?: string;
+}
+
+const { title, viewAllText, viewAllHref } = Astro.props;
+---
+
+<div class="section-header">
+  <h2 class="section-header__title">{title}</h2>
+  {viewAllText && viewAllHref && (
+    <a href={viewAllHref} class="section-header__link">
+      {viewAllText}
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
+  )}
+</div>
+
+<style>
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-8);
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .section-header__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin: 0;
+    line-height: 1.1;
+    position: relative;
+    padding-left: var(--space-4);
+  }
+
+  .section-header__title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--color-accent-fire);
+    border-radius: 2px;
+  }
+
+  .section-header__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-accent-fire);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .section-header__link:hover {
+    color: var(--color-accent-amber);
+  }
+
+  .section-header__link svg {
+    transition: transform var(--transition-fast);
+  }
+
+  .section-header__link:hover svg {
+    transform: translateX(3px);
+  }
+</style>

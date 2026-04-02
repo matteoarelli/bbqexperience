@@ -1,0 +1,5 @@
+<!-- PLACEHOLDER: Sostituire con un'immagine JPG reale (1200x630px) per l'Open Graph default.
+     Nome file: og-default.jpg
+     Contenuto suggerito: logo BBQ Experience su sfondo scuro (#0D0D0D) con fiamme e griglia.
+     Colori brand: #F97316 (fire accent), #0D0D0D (sfondo), #FBBF24 (amber).
+-->

@@ -1,0 +1,160 @@
+---
+/**
+ * Card anteprima ricetta — immagine cover, titolo, difficolta, tempo cottura
+ */
+import type { StrapiRecipe, StrapiEntity } from '@lib/types';
+import { getStrapiMediaURL } from '@lib/media';
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  recipe: StrapiRecipe & StrapiEntity;
+  locale: string;
+  recipesRoute: string;
+  translations: Record<string, any>;
+}
+
+const { recipe, locale, recipesRoute, translations } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+
+const imageUrl = getStrapiMediaURL(recipe.cover_image);
+const difficultyLabel = recipe.difficulty ? t(`content.${recipe.difficulty}`) : null;
+---
+
+<a href={`/${locale}/${recipesRoute}/${recipe.slug}/`} class="recipe-card" data-animate>
+  <div class="recipe-card__image-wrapper">
+    {imageUrl ? (
+      <img
+        src={imageUrl}
+        alt={recipe.cover_image?.alternativeText || recipe.title}
+        class="recipe-card__image"
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <div class="recipe-card__placeholder">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      </div>
+    )}
+    <div class="recipe-card__overlay"></div>
+  </div>
+  <div class="recipe-card__content">
+    <h3 class="recipe-card__title">{recipe.title}</h3>
+    <div class="recipe-card__meta">
+      {difficultyLabel && (
+        <span class="recipe-card__badge">{difficultyLabel}</span>
+      )}
+      {recipe.cook_time && (
+        <span class="recipe-card__time">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          {recipe.cook_time} min
+        </span>
+      )}
+    </div>
+  </div>
+</a>
+
+<style>
+  .recipe-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform var(--transition-base), border-color var(--transition-base);
+  }
+
+  .recipe-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent-fire);
+  }
+
+  .recipe-card__image-wrapper {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background-color: var(--color-bg-tertiary);
+  }
+
+  .recipe-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+  }
+
+  .recipe-card:hover .recipe-card__image {
+    transform: scale(1.05);
+  }
+
+  .recipe-card__placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-tertiary);
+  }
+
+  .recipe-card__overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(transparent, var(--color-bg-secondary));
+    pointer-events: none;
+  }
+
+  .recipe-card__content {
+    padding: var(--space-4);
+    flex: 1;
+  }
+
+  .recipe-card__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-3) 0;
+    line-height: 1.2;
+  }
+
+  .recipe-card__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .recipe-card__badge {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent-fire);
+    background: rgba(249, 115, 22, 0.1);
+    border: 1px solid rgba(249, 115, 22, 0.3);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+  }
+
+  .recipe-card__time {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+  }
+</style>

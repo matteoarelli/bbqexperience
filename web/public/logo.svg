@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <!-- Testo "BBQ" bold con accento fiamma -->
+  <text x="10" y="48" font-family="Oswald, Arial, sans-serif" font-weight="900" font-size="52" fill="#F97316" letter-spacing="2" text-rendering="geometricPrecision">BBQ</text>
+  <!-- Fiamma sopra la Q -->
+  <path d="M148 8C148 8 144 14 144 18C144 20.2 145.5 22 148 22C150.5 22 152 20.2 152 18C152 14 148 8 148 8Z" fill="#F97316" opacity="0.9"/>
+  <path d="M148 12C148 12 146.5 15 146.5 17C146.5 18.2 147.2 19 148 19C148.8 19 149.5 18.2 149.5 17C149.5 15 148 12 148 12Z" fill="#FBBF24"/>
+  <!-- Testo "EXPERIENCE" sotto -->
+  <text x="10" y="72" font-family="Oswald, Arial, sans-serif" font-weight="700" font-size="22" fill="#FFFFFF" letter-spacing="6" text-rendering="geometricPrecision">EXPERIENCE</text>
+</svg>
