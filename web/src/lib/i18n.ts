@@ -21,6 +21,7 @@ export const localizedRoutes: Record<string, Record<Locale, string>> = {
   privacy: { en: 'privacy', it: 'privacy', es: 'privacy' },
   terms: { en: 'terms', it: 'terms', es: 'terms' },
   contact: { en: 'contact', it: 'contatti', es: 'contacto' },
+  bookmarks: { en: 'bookmarks', it: 'preferiti', es: 'favoritos' },
 };
 
 /**

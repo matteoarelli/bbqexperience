@@ -1,0 +1,59 @@
+---
+/**
+ * ScoreBadge — Badge compatto con punteggio numerico in un cerchio
+ * Colore variabile in base al valore del punteggio
+ */
+interface Props {
+  score: number;
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { score, size = 'md' } = Astro.props;
+
+// Dimensioni in base alla prop size
+const sizeMap = {
+  sm: { width: '2rem', height: '2rem', fontSize: '0.75rem', border: '2px' },
+  md: { width: '2.75rem', height: '2.75rem', fontSize: '0.95rem', border: '2.5px' },
+  lg: { width: '3.5rem', height: '3.5rem', fontSize: '1.25rem', border: '3px' },
+};
+
+const dims = sizeMap[size];
+
+// Colore in base al punteggio
+function getScoreColor(s: number): string {
+  if (s >= 9) return 'var(--color-accent-amber, #f59e0b)';       // Oro/ambra
+  if (s >= 7) return 'var(--color-accent-fire, #f97316)';         // Fuoco/arancione
+  if (s >= 5) return 'var(--color-text-muted, #9ca3af)';          // Grigio neutro
+  return '#ef4444';                                                // Rosso
+}
+
+const color = getScoreColor(score);
+---
+
+<span
+  class="score-badge"
+  style={`
+    width: ${dims.width};
+    height: ${dims.height};
+    font-size: ${dims.fontSize};
+    border: ${dims.border} solid ${color};
+    color: ${color};
+  `}
+  aria-label={`Score: ${score}/10`}
+>
+  {score}
+</span>
+
+<style>
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+    background: var(--color-bg-secondary, #1a1a1a);
+  }
+</style>

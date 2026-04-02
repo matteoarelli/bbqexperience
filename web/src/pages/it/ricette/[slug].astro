@@ -17,6 +17,7 @@ import RecipeInteractive from '@components/recipe/RecipeInteractive.svelte';
 import CookMode from '@components/recipe/CookMode.svelte';
 import PrintRecipeCard from '@components/recipe/PrintRecipeCard.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
+import BookmarkButton from '@components/common/BookmarkButton.svelte';
 import AuthorCard from '@components/content/AuthorCard.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
@@ -166,7 +167,10 @@ const breadcrumbItems = [
 
     <!-- Condivisione social -->
     <div style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">
-      <SocialShareBar url={pageUrl} title={recipe.title} locale="it" translations={translations} />
+      <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
+        <SocialShareBar url={pageUrl} title={recipe.title} locale="it" translations={translations} />
+        <BookmarkButton client:load slug={recipe.slug} title={recipe.title} contentType="recipe" locale="it" labelSave={getTranslation(translations, 'bookmarks.save')} labelRemove={getTranslation(translations, 'bookmarks.remove')} />
+      </div>
     </div>
 
     <RecipeJsonLd recipe={recipe} locale="it" />

@@ -11,6 +11,7 @@ import ContentLayout from '@components/content/ContentLayout.astro';
 import ArticleSchema from '@components/content/ArticleSchema.astro';
 import RelatedContent from '@components/content/RelatedContent.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
+import BookmarkButton from '@components/common/BookmarkButton.svelte';
 import AuthorCard from '@components/content/AuthorCard.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import PopularReviews from '@components/content/PopularReviews.astro';
@@ -108,7 +109,10 @@ const breadcrumbItems = [
   </div>
 
   <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">
-    <SocialShareBar url={pageUrl} title={post.title} locale={locale} translations={translations} />
+    <div style="display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
+      <SocialShareBar url={pageUrl} title={post.title} locale={locale} translations={translations} />
+      <BookmarkButton client:load slug={post.slug} title={post.title} contentType="blog" locale={locale} labelSave={getTranslation(translations, 'bookmarks.save')} labelRemove={getTranslation(translations, 'bookmarks.remove')} />
+    </div>
   </div>
 
   <BreadcrumbJsonLd items={breadcrumbItems} />

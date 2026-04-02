@@ -1,0 +1,75 @@
+---
+/**
+ * ContentBadge — Pillola/tag che mostra il tipo di contenuto
+ * Ogni tipo ha un colore accento diverso
+ */
+import type { Locale } from '@lib/i18n';
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  type: 'review' | 'recipe' | 'tutorial' | 'blog';
+  locale: Locale;
+  translations?: Record<string, any>;
+}
+
+const { type, locale, translations } = Astro.props;
+
+// Mappa colori per tipo
+const colorMap: Record<string, { bg: string; text: string; border: string }> = {
+  review: {
+    bg: 'rgba(249, 115, 22, 0.12)',
+    text: 'var(--color-accent-fire, #f97316)',
+    border: 'rgba(249, 115, 22, 0.25)',
+  },
+  recipe: {
+    bg: 'rgba(245, 158, 11, 0.12)',
+    text: 'var(--color-accent-amber, #f59e0b)',
+    border: 'rgba(245, 158, 11, 0.25)',
+  },
+  tutorial: {
+    bg: 'rgba(156, 163, 175, 0.12)',
+    text: 'var(--color-text-muted, #9ca3af)',
+    border: 'rgba(156, 163, 175, 0.25)',
+  },
+  blog: {
+    bg: 'rgba(239, 68, 68, 0.12)',
+    text: '#ef4444',
+    border: 'rgba(239, 68, 68, 0.25)',
+  },
+};
+
+const colors = colorMap[type] || colorMap.blog;
+
+// Label tradotta se le traduzioni sono disponibili
+const label = translations
+  ? getTranslation(translations, `badge.${type}`)
+  : type.charAt(0).toUpperCase() + type.slice(1);
+---
+
+<span
+  class="content-badge"
+  style={`
+    background: ${colors.bg};
+    color: ${colors.text};
+    border-color: ${colors.border};
+  `}
+>
+  {label}
+</span>
+
+<style>
+  .content-badge {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full, 9999px);
+    border: 1px solid;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+</style>

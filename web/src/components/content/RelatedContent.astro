@@ -9,6 +9,7 @@ import { getTranslation, localizedRoutes } from '@lib/i18n';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiTutorial, StrapiReview, StrapiRecipe } from '@lib/types';
 import ArticleCard from '@components/content/ArticleCard.astro';
+import ContentBadge from '@components/common/ContentBadge.astro';
 import { getStrapiMediaURL } from '@lib/media';
 
 /**
@@ -80,6 +81,7 @@ interface RelatedItem {
   readingTime: number | null;
   publishedDate: string | null;
   contentType: string;
+  badgeType: 'review' | 'recipe' | 'tutorial' | 'blog';
 }
 
 const tutorialRoute = localizedRoutes.tutorials[locale];
@@ -101,6 +103,7 @@ for (const tutorial of tutorialsRes.data) {
     readingTime: tutorial.reading_time,
     publishedDate: tutorial.published_date,
     contentType: t('content.tutorials'),
+    badgeType: 'tutorial',
   });
 }
 
@@ -115,6 +118,7 @@ for (const review of reviewsRes.data) {
     readingTime: null,
     publishedDate: review.published_date,
     contentType: t('nav.reviews'),
+    badgeType: 'review',
   });
 }
 
@@ -129,6 +133,7 @@ for (const recipe of recipesRes.data) {
     readingTime: null,
     publishedDate: recipe.published_date,
     contentType: t('nav.recipes'),
+    badgeType: 'recipe',
   });
 }
 
@@ -147,7 +152,9 @@ const shuffled = allItems.sort(() => rng() - 0.5).slice(0, 6);
     <div class="related-grid">
       {shuffled.map((item) => (
         <div class="related-item">
-          <span class="related-type-badge">{item.contentType}</span>
+          <div class="related-type-badge-wrapper">
+            <ContentBadge type={item.badgeType} locale={locale} translations={translations} />
+          </div>
           <ArticleCard
             title={item.title}
             excerpt={item.excerpt}
@@ -215,21 +222,11 @@ const shuffled = allItems.sort(() => rng() - 0.5).slice(0, 6);
     position: relative;
   }
 
-  .related-type-badge {
+  .related-type-badge-wrapper {
     position: absolute;
     top: var(--space-3);
     right: var(--space-3);
     z-index: 10;
-    background-color: rgba(13, 13, 13, 0.85);
-    color: var(--color-accent-fire);
-    font-family: var(--font-heading);
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid rgba(249, 115, 22, 0.2);
   }
 
   @media (min-width: 1024px) {

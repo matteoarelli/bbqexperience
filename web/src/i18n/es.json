@@ -12,6 +12,7 @@
     "blog": "Blog",
     "about": "Sobre Nosotros",
     "compare": "Comparar",
+    "bookmarks": "Favoritos",
     "search": "Buscar",
     "contact": "Contacto"
   },
@@ -211,6 +212,19 @@
     "name": "BBQ Experience",
     "bio": "Resenas BBQ independientes, recetas originales y tutoriales detallados de una comunidad de mas de 74K entusiastas del grilling.",
     "followUs": "Siguenos"
+  },
+  "bookmarks": {
+    "title": "Lista de Lectura",
+    "empty": "No tienes favoritos aun — explora nuestro contenido",
+    "clearAll": "Borrar todo",
+    "save": "Guardar en lista de lectura",
+    "remove": "Quitar de lista de lectura"
+  },
+  "badge": {
+    "review": "Resena",
+    "recipe": "Receta",
+    "tutorial": "Tutorial",
+    "blog": "Blog"
   },
   "social": {
     "share": "Compartir",

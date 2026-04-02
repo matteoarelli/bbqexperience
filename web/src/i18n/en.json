@@ -12,6 +12,7 @@
     "blog": "Blog",
     "about": "About",
     "compare": "Compare",
+    "bookmarks": "Bookmarks",
     "search": "Search",
     "contact": "Contact"
   },
@@ -211,6 +212,19 @@
     "name": "BBQ Experience",
     "bio": "Independent BBQ reviews, original recipes, and in-depth tutorials from a 74K+ community of grilling enthusiasts.",
     "followUs": "Follow us"
+  },
+  "bookmarks": {
+    "title": "Reading List",
+    "empty": "No bookmarks yet — browse our content",
+    "clearAll": "Clear all",
+    "save": "Save to reading list",
+    "remove": "Remove from reading list"
+  },
+  "badge": {
+    "review": "Review",
+    "recipe": "Recipe",
+    "tutorial": "Tutorial",
+    "blog": "Blog"
   },
   "social": {
     "share": "Share",

@@ -1,0 +1,51 @@
+---
+/**
+ * Pagina Preferiti (IT) — Lista di lettura con rendering client-side
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import BookmarksList from '@components/common/BookmarksList.svelte';
+import { loadTranslations, getTranslation } from '@lib/i18n';
+
+export const prerender = false;
+
+const locale = 'it';
+const t = await loadTranslations(locale);
+
+const labels = {
+  title: getTranslation(t, 'bookmarks.title'),
+  empty: getTranslation(t, 'bookmarks.empty'),
+  clearAll: getTranslation(t, 'bookmarks.clearAll'),
+  review: getTranslation(t, 'badge.review'),
+  recipe: getTranslation(t, 'badge.recipe'),
+  tutorial: getTranslation(t, 'badge.tutorial'),
+  blog: getTranslation(t, 'badge.blog'),
+};
+---
+
+<BaseLayout
+  title={getTranslation(t, 'bookmarks.title')}
+  description="I tuoi articoli salvati e la lista di lettura"
+  locale={locale}
+  canonicalPath="/preferiti/"
+>
+  <Header slot="header" locale={locale} translations={t} currentPath={Astro.url.pathname} />
+
+  <div class="container-bbq py-[var(--space-12)]">
+    <h1
+      class="text-[var(--text-3xl)] uppercase tracking-tight mb-[var(--space-8)]"
+      style="font-family: var(--font-heading); color: var(--color-text-primary);"
+    >
+      {getTranslation(t, 'bookmarks.title')}
+    </h1>
+
+    <BookmarksList
+      client:load
+      locale={locale}
+      labels={labels}
+    />
+  </div>
+
+  <Footer slot="footer" locale={locale} translations={t} />
+</BaseLayout>

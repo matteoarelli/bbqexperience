@@ -18,6 +18,7 @@ import VerdictCard from '@components/review/VerdictCard.astro';
 import PhotoGallery from '@components/review/PhotoGallery.astro';
 import ReviewJsonLd from '@components/review/ReviewJsonLd.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
+import BookmarkButton from '@components/common/BookmarkButton.svelte';
 import AuthorCard from '@components/content/AuthorCard.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
@@ -208,9 +209,10 @@ const breadcrumbItems = [
     <!-- Card autore -->
     <AuthorCard locale={locale} translations={t} />
 
-    <!-- Condivisione social -->
-    <div style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">
+    <!-- Condivisione social e bookmark -->
+    <div style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle); display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap;">
       <SocialShareBar url={pageUrl} title={review.title} locale={locale} translations={t} />
+      <BookmarkButton client:load slug={review.slug} title={review.title} contentType="review" locale={locale} labelSave={getTranslation(t, 'bookmarks.save')} labelRemove={getTranslation(t, 'bookmarks.remove')} />
     </div>
   </article>
 
