@@ -15,7 +15,7 @@ const t = (key: string) => getTranslation(translations, key);
 
 <BaseLayout
   title={`${t('nav.about')} - ${t('site.name')}`}
-  description="Conoce BBQ Experience — nuestra historia, mision y la comunidad de mas de 74K entusiastas del grilling."
+  description="Somos pitmasters hartos de leer resenas falsas. 20 anos de humo, pruebas reales, sin dinero de patrocinadores."
   locale={locale}
   canonicalPath={`/${localizedRoutes.about[locale]}/`}
 >
@@ -25,7 +25,7 @@ const t = (key: string) => getTranslation(translations, key);
   <section class="about-hero">
     <div class="container-bbq">
       <h1 class="about-hero__title">Sobre <span class="fire-text">BBQ Experience</span></h1>
-      <p class="about-hero__subtitle">Nacida en Instagram. Forjada por el fuego. Seguida por mas de 74K entusiastas del grilling.</p>
+      <p class="about-hero__subtitle">No somos una empresa de medios. Somos pitmasters hartos de leer resenas falsas.</p>
     </div>
   </section>
 
@@ -34,17 +34,18 @@ const t = (key: string) => getTranslation(translations, key);
     <div class="container-bbq">
       <div class="about-grid">
         <div>
-          <h2 class="section-title">Nuestra Mision</h2>
+          <h2 class="section-title">Por Que Lo Hacemos</h2>
           <p class="section-text">
-            BBQ Experience nacio de una conviccion simple: cada amante del grilling merece informacion honesta
-            y basada en pruebas reales para tomar mejores decisiones. Probamos cada producto personalmente,
-            desarrollamos recetas originales y compartimos resenas detalladas — sin contenido patrocinado,
-            sin atajos, solo fuego real y opiniones reales.
+            20 anos parados junto al fuego. Briskets quemados, costillas arruinadas y suficiente polvo de carbon
+            en los pulmones para toda la vida. Creamos BBQ Experience porque cada resena que leiamos online estaba
+            escrita por alguien que nunca habia sostenido unas pinzas. El dinero de los patrocinadores no influye
+            en nuestras puntuaciones. Punto.
           </p>
           <p class="section-text">
-            Lo que empezo como una pagina de Instagram impulsada por la pasion por la cocina a fuego vivo se
-            ha convertido en el destino mas completo para resenas de BBQ en linea. Nuestra comunidad de mas
-            de 74.000 entusiastas confia en nosotros porque nunca comprometemos la honestidad.
+            Cada producto se destruye antes de que le demos una puntuacion. Cocinamos con el, lo maltratamos,
+            lo dejamos bajo la lluvia y lo llevamos mas alla de sus limites. Si sobrevive, se gana nuestro
+            respeto. Si no, te decimos exactamente por que. Mas de 74K personas confian en nosotros porque
+            nunca hemos falsificado una sola puntuacion.
           </p>
         </div>
         <div class="about-image-placeholder">
@@ -67,19 +68,19 @@ const t = (key: string) => getTranslation(translations, key);
       <div class="stats-grid">
         <div class="stat-card">
           <span class="stat-number">74K+</span>
-          <span class="stat-label">Seguidores</span>
+          <span class="stat-label">Personas Que Confian</span>
         </div>
         <div class="stat-card">
-          <span class="stat-number">6K+</span>
-          <span class="stat-label">Posts y Stories</span>
+          <span class="stat-number">20+</span>
+          <span class="stat-label">Anos en la Parrilla</span>
         </div>
         <div class="stat-card">
           <span class="stat-number">100+</span>
-          <span class="stat-label">Productos Resenados</span>
+          <span class="stat-label">Productos Destruidos</span>
         </div>
         <div class="stat-card">
-          <span class="stat-number">50+</span>
-          <span class="stat-label">Recetas Originales</span>
+          <span class="stat-number">0</span>
+          <span class="stat-label">Puntuaciones Patrocinadas</span>
         </div>
       </div>
     </div>
@@ -88,16 +89,16 @@ const t = (key: string) => getTranslation(translations, key);
   <!-- Team -->
   <section class="about-section">
     <div class="container-bbq">
-      <h2 class="section-title">El Equipo</h2>
+      <h2 class="section-title">La Gente Detras del Humo</h2>
       <p class="section-text">
-        Detras de BBQ Experience hay un equipo de apasionados del grilling que pasan sus dias (y noches)
-        probando equipos, perfeccionando recetas y compartiendo todo lo que aprenden. Desde asados en el
-        jardin hasta competiciones profesionales, aportamos experiencia real a cada contenido que creamos.
+        No somos influencers. No somos creadores de contenido. Somos los que se levantan a las 4 de la manana
+        para poner un brisket, los que discuten sobre especies de madera en la cena y los que han gastado mas
+        dinero en termometros que la mayoria de la gente en vacaciones. Esto no es un trabajo — es una obsesion.
       </p>
       <p class="section-text">
-        Nuestras resenas se basan en semanas de pruebas practicas. Nuestras recetas se desarrollan, cocinan
-        y perfeccionan hasta que son dignas de compartir. Y nuestros tutoriales se nutren de anos de prueba,
-        error y dominio.
+        Nuestras resenas vienen de semanas de uso real — no de una tarde de unboxing. Nuestras recetas fallan
+        diez veces antes de llegar al sitio. Y cuando decimos que un producto es bueno, queremos decir que lo
+        comprariamos con nuestro propio dinero. Es el unico estandar que importa.
       </p>
     </div>
   </section>
@@ -105,10 +106,10 @@ const t = (key: string) => getTranslation(translations, key);
   <!-- CTA -->
   <section class="about-cta">
     <div class="container-bbq" style="text-align: center;">
-      <h2 class="section-title">Unete a la Comunidad</h2>
+      <h2 class="section-title">Ven a Hablar de BBQ</h2>
       <p class="section-text" style="max-width: 600px; margin: 0 auto var(--space-6);">
-        Siguenos en Instagram para contenido BBQ diario, miradas tras bambalinas de nuestro proceso de pruebas
-        y consejos exclusivos del equipo.
+        Mas de 74K pitmasters ya nos siguen. Compartimos lo que estamos probando, lo que estamos cocinando y lo
+        que deberias evitar. Sin relleno, solo fuego.
       </p>
       <a href="https://instagram.com/bbqexperience" target="_blank" rel="noopener noreferrer" class="cta-button">
         Seguir @bbqexperience

@@ -1,8 +1,8 @@
 {
   "site": {
     "name": "BBQ Experience",
-    "tagline": "El destino mas completo para resenas de BBQ",
-    "description": "Resenas detalladas de productos BBQ, recetas, tutoriales y noticias de la comunidad BBQ Experience"
+    "tagline": "Resenas BBQ honestas. Sin mentiras.",
+    "description": "Pruebas reales de productos, recetas originales y conocimiento ganado a fuego por pitmasters que han quemado mas briskets de los que tu has cocinado"
   },
   "nav": {
     "home": "Inicio",
@@ -46,7 +46,7 @@
   },
   "hero": {
     "title": "BBQ EXPERIENCE",
-    "subtitle": "El destino mas completo para resenas de BBQ",
+    "subtitle": "Resenas BBQ honestas. Sin mentiras.",
     "cta": "Explorar Resenas"
   },
   "review": {
@@ -182,7 +182,7 @@
     "light": "Modo claro"
   },
   "footer": {
-    "about": "Resenas independientes de BBQ, recetas y tutoriales para la comunidad del grilling.",
+    "about": "Resenas BBQ independientes. Sin patrocinadores. Sin mentiras.",
     "sections": "Secciones",
     "connect": "Conectar",
     "legal": "Legal"
@@ -200,8 +200,8 @@
     "latestRecipes": "Ultimas Recetas",
     "tutorialHighlights": "Tutoriales Destacados",
     "latestPosts": "Ultimos Articulos",
-    "aboutTitle": "Quien es BBQ Experience?",
-    "aboutText": "Nacida de una pasion autentica por la cocina a fuego vivo, BBQ Experience ha crecido hasta convertirse en una comunidad de mas de 74K entusiastas del grilling. Probamos cada producto en persona, desarrollamos recetas originales y compartimos resenas honestas y detalladas para ayudarte a dominar el arte del BBQ.",
+    "aboutTitle": "Quienes diablos somos?",
+    "aboutText": "Nacidos de 20 anos de humo, quemaduras de carbon y cero tolerancia con las mentiras del marketing. Probamos cada producto hasta que se rompe o demuestra su valor. Mas de 74K personas confian en nosotros porque nunca hemos dado una puntuacion que no nos hayamos ganado con nuestras propias manos.",
     "viewAll": "Ver Todos",
     "browseCategories": "Explorar por Categoria",
     "comingSoon": "Proximamente",

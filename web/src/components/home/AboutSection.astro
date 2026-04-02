@@ -16,9 +16,9 @@ const t = (key: string) => getTranslation(translations, key);
 
 // Etichette statistiche per lingua
 const statsLabels: Record<string, { followers: string; posts: string; products: string; recipes: string }> = {
-  en: { followers: 'Followers', posts: 'Posts & Stories', products: 'Products Reviewed', recipes: 'Original Recipes' },
-  it: { followers: 'Follower', posts: 'Post & Storie', products: 'Prodotti Recensiti', recipes: 'Ricette Originali' },
-  es: { followers: 'Seguidores', posts: 'Posts & Historias', products: 'Productos Resenados', recipes: 'Recetas Originales' },
+  en: { followers: 'People Who Trust Us', posts: 'Years at the Grill', products: 'Products Destroyed', recipes: 'Sponsored Scores' },
+  it: { followers: 'Persone Che Si Fidano', posts: 'Anni alla Griglia', products: 'Prodotti Distrutti', recipes: 'Voti Sponsorizzati' },
+  es: { followers: 'Personas Que Confian', posts: 'Anos en la Parrilla', products: 'Productos Destruidos', recipes: 'Puntuaciones Patrocinadas' },
 };
 
 const labels = statsLabels[locale] ?? statsLabels.en;
@@ -46,7 +46,7 @@ const labels = statsLabels[locale] ?? statsLabels.en;
         </div>
         <div class="stat-item">
           <span class="stat-number">
-            <AnimatedCounter target={6} suffix="K+" duration={1200} client:visible />
+            <AnimatedCounter target={20} suffix="+" duration={1200} client:visible />
           </span>
           <span class="stat-label">{labels.posts}</span>
         </div>
@@ -58,7 +58,7 @@ const labels = statsLabels[locale] ?? statsLabels.en;
         </div>
         <div class="stat-item">
           <span class="stat-number">
-            <AnimatedCounter target={50} suffix="+" duration={1300} client:visible />
+            <AnimatedCounter target={0} suffix="" duration={800} client:visible />
           </span>
           <span class="stat-label">{labels.recipes}</span>
         </div>

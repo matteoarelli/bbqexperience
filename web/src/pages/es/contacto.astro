@@ -15,16 +15,16 @@ const t = (key: string) => getTranslation(translations, key);
 
 <BaseLayout
   title={`${t('nav.contact')} - ${t('site.name')}`}
-  description="Ponte en contacto con BBQ Experience — escribenos por Instagram o email."
+  description="Tienes algo que decir? Leemos todo. No nos propongas productos — los encontramos nosotros."
   locale={locale}
   canonicalPath={`/${localizedRoutes.contact[locale]}/`}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.contact[locale]}/`} />
 
   <section class="contact-page container-bbq py-16">
-    <h1 class="contact-title">Ponte en <span class="text-fire">Contacto</span></h1>
+    <h1 class="contact-title">Tienes Algo que <span class="text-fire">Decir?</span></h1>
     <p class="contact-subtitle">
-      Tienes una pregunta, una idea de colaboracion o simplemente quieres hablar de BBQ? Nos encantaria saber de ti.
+      Leemos todo. No nos propongas productos — los encontramos nosotros. Quieres hablar de BBQ? Eso es diferente. Dispara.
     </p>
 
     <div class="contact-grid">
@@ -39,7 +39,7 @@ const t = (key: string) => getTranslation(translations, key);
             </svg>
           </div>
           <h3 class="contact-card__title">Instagram</h3>
-          <p class="contact-card__text">La mejor forma de contactarnos. Los DMs siempre estan abiertos!</p>
+          <p class="contact-card__text">La forma mas rapida de contactarnos. DMs abiertos. Nada de agencias de PR, por favor.</p>
           <a href="https://instagram.com/bbqexperience" target="_blank" rel="noopener noreferrer" class="contact-card__link">
             @bbqexperience
           </a>
@@ -53,7 +53,7 @@ const t = (key: string) => getTranslation(translations, key);
             </svg>
           </div>
           <h3 class="contact-card__title">Email</h3>
-          <p class="contact-card__text">Para consultas comerciales y colaboraciones.</p>
+          <p class="contact-card__text">Solo para consultas serias. No hacemos resenas pagadas.</p>
           <a href="mailto:info@bbq-experience.com" class="contact-card__link">
             info@bbq-experience.com
           </a>

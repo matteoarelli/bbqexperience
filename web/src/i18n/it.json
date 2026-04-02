@@ -1,8 +1,8 @@
 {
   "site": {
     "name": "BBQ Experience",
-    "tagline": "La destinazione piu completa per le recensioni BBQ",
-    "description": "Recensioni approfondite di prodotti BBQ, ricette, tutorial e notizie dalla community BBQ Experience"
+    "tagline": "Recensioni BBQ oneste. Zero stronzate.",
+    "description": "Test reali sui prodotti, ricette originali e conoscenza guadagnata sul campo da pitmaster che hanno bruciato piu brisket di quanti tu ne abbia cucinati"
   },
   "nav": {
     "home": "Home",
@@ -46,7 +46,7 @@
   },
   "hero": {
     "title": "BBQ EXPERIENCE",
-    "subtitle": "La destinazione piu completa per le recensioni BBQ",
+    "subtitle": "Recensioni BBQ oneste. Zero stronzate.",
     "cta": "Esplora le Recensioni"
   },
   "review": {
@@ -182,7 +182,7 @@
     "light": "Modalita chiara"
   },
   "footer": {
-    "about": "Recensioni BBQ indipendenti, ricette e tutorial per la community del grilling.",
+    "about": "Recensioni BBQ indipendenti. Nessuno sponsor. Zero stronzate.",
     "sections": "Sezioni",
     "connect": "Collegati",
     "legal": "Note Legali"
@@ -200,8 +200,8 @@
     "latestRecipes": "Ultime Ricette",
     "tutorialHighlights": "Guide in Evidenza",
     "latestPosts": "Ultimi Articoli",
-    "aboutTitle": "Chi e BBQ Experience?",
-    "aboutText": "Nata da una passione autentica per la cottura a fuoco vivo, BBQ Experience e cresciuta fino a diventare una community di oltre 74K appassionati di grilling. Testiamo ogni prodotto sul campo, sviluppiamo ricette originali e condividiamo recensioni oneste e approfondite per aiutarti a padroneggiare l'arte del BBQ.",
+    "aboutTitle": "Chi diavolo siamo?",
+    "aboutText": "Nati da 20 anni di fumo, ustioni da carbone e zero tolleranza per le cazzate del marketing. Testiamo ogni prodotto finche non si rompe o dimostra il suo valore. Oltre 74K persone si fidano di noi perche non abbiamo mai dato un voto che non ci siamo guadagnati con le nostre mani.",
     "viewAll": "Vedi Tutti",
     "browseCategories": "Esplora per Categoria",
     "comingSoon": "In Arrivo",

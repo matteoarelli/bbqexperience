@@ -1,8 +1,8 @@
 {
   "site": {
     "name": "BBQ Experience",
-    "tagline": "The most complete BBQ review destination online",
-    "description": "In-depth BBQ product reviews, recipes, tutorials and news from the BBQ Experience community"
+    "tagline": "Honest BBQ reviews. No BS.",
+    "description": "Real product tests, original recipes, and hard-earned knowledge from pitmasters who've burned more briskets than you've cooked"
   },
   "nav": {
     "home": "Home",
@@ -46,7 +46,7 @@
   },
   "hero": {
     "title": "BBQ EXPERIENCE",
-    "subtitle": "The most complete BBQ review destination online",
+    "subtitle": "Honest BBQ reviews. No BS.",
     "cta": "Explore Reviews"
   },
   "review": {
@@ -182,7 +182,7 @@
     "light": "Light mode"
   },
   "footer": {
-    "about": "Independent BBQ reviews, recipes and tutorials for the grilling community.",
+    "about": "Independent BBQ reviews. No sponsors. No BS.",
     "sections": "Sections",
     "connect": "Connect",
     "legal": "Legal"
@@ -200,8 +200,8 @@
     "latestRecipes": "Latest Recipes",
     "tutorialHighlights": "Tutorial Highlights",
     "latestPosts": "Latest Posts",
-    "aboutTitle": "Who is BBQ Experience?",
-    "aboutText": "Born from authentic passion for live-fire cooking, BBQ Experience has grown into a 74K+ strong community of grilling enthusiasts. We test every product hands-on, develop original recipes, and share honest, in-depth reviews to help you master the art of BBQ.",
+    "aboutTitle": "Who the hell are we?",
+    "aboutText": "Born from 20 years of smoke, charcoal burns, and zero tolerance for marketing BS. We test every product until it breaks or proves itself. 74K+ people trust us because we've never given a score we didn't earn with our own hands.",
     "viewAll": "View All",
     "browseCategories": "Browse by Category",
     "comingSoon": "Coming Soon",
