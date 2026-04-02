@@ -23,13 +23,6 @@ function t(key: string): string {
   return (value as string) ?? key;
 }
 
-// Costruisce URL preservando i query params esistenti
-function buildPageUrl(page: number): string {
-  const url = new URL(baseUrl, 'http://placeholder');
-  url.searchParams.set('page', String(page));
-  return `${url.pathname}?${url.searchParams.toString()}`;
-}
-
 // Calcola range di pagine da mostrare (max 5 numeri)
 function getPageRange(): number[] {
   const range: number[] = [];
@@ -183,7 +176,7 @@ function buildUrl(page: number): string {
 
   .pagination__num:hover:not(.pagination__num--active) {
     color: var(--color-text-primary);
-    background-color: var(--color-surface-elevated);
+    background-color: var(--color-bg-elevated);
   }
 
   .pagination__num--active {

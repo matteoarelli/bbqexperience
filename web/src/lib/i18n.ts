@@ -36,7 +36,21 @@ export function getLocaleFromPath(path: string): Locale {
 }
 
 /**
- * Genera un path localizzato per la stessa pagina in un'altra lingua
+ * Mappa inversa: dato un segmento localizzato, trova la route key corrispondente.
+ * Es. "recensioni" -> "reviews", "guide" -> "tutorials"
+ */
+function findRouteKey(segment: string, sourceLocale: Locale): string | null {
+  for (const [key, translations] of Object.entries(localizedRoutes)) {
+    if (translations[sourceLocale] === segment) {
+      return key;
+    }
+  }
+  return null;
+}
+
+/**
+ * Genera un path localizzato per la stessa pagina in un'altra lingua.
+ * Traduce anche i segmenti di route (es. "recensioni" -> "reviews").
  */
 export function getLocalizedPath(currentPath: string, targetLocale: Locale): string {
   const segments = currentPath.split('/').filter(Boolean);
@@ -44,6 +58,14 @@ export function getLocalizedPath(currentPath: string, targetLocale: Locale): str
 
   if (locales.includes(currentLocale)) {
     segments[0] = targetLocale;
+
+    // Traduci il segmento di route (indice 1) se presente
+    if (segments.length > 1) {
+      const routeKey = findRouteKey(segments[1], currentLocale);
+      if (routeKey && localizedRoutes[routeKey]?.[targetLocale]) {
+        segments[1] = localizedRoutes[routeKey][targetLocale];
+      }
+    }
   } else {
     segments.unshift(targetLocale);
   }

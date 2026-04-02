@@ -44,8 +44,8 @@ export const GET: APIRoute = async ({ url }) => {
   // Definizione content type da cercare
   const contentTypes = [
     { type: 'reviews', endpoint: 'reviews', titleField: 'title', slugField: 'slug', excerptField: 'excerpt' },
-    { type: 'recipes', endpoint: 'recipes', titleField: 'title', slugField: 'slug', excerptField: 'description' },
-    { type: 'tutorials', endpoint: 'tutorials', titleField: 'title', slugField: 'slug', excerptField: 'description' },
+    { type: 'recipes', endpoint: 'recipes', titleField: 'title', slugField: 'slug', excerptField: 'excerpt' },
+    { type: 'tutorials', endpoint: 'tutorials', titleField: 'title', slugField: 'slug', excerptField: 'excerpt' },
     { type: 'blog-posts', endpoint: 'blog-posts', titleField: 'title', slugField: 'slug', excerptField: 'excerpt' },
   ];
 

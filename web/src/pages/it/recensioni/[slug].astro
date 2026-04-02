@@ -219,7 +219,7 @@ const breadcrumbItems = [
 
     <!-- CTA confronta prodotto -->
     <div class="compare-cta">
-      <a href={`/${locale}/${localizedRoutes.compare[locale]}/?products=${review.slug}`} class="compare-cta__link">
+      <a href={`/${locale}/${localizedRoutes.compare[locale]}/?ids=${review.product?.documentId || ''}`} class="compare-cta__link">
         {getTranslation(t, 'content.compareProduct')} &rarr;
       </a>
     </div>

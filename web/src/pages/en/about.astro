@@ -6,6 +6,8 @@ import Footer from '@components/common/Footer.astro';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
+export const prerender = true;
+
 const locale: Locale = 'en';
 const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);
@@ -22,7 +24,7 @@ const t = (key: string) => getTranslation(translations, key);
   <!-- Hero -->
   <section class="about-hero">
     <div class="container-bbq">
-      <h1 class="about-hero__title">About <span class="text-fire">BBQ Experience</span></h1>
+      <h1 class="about-hero__title">About <span class="fire-text">BBQ Experience</span></h1>
       <p class="about-hero__subtitle">Born on Instagram. Forged by fire. Trusted by 74K+ grilling enthusiasts.</p>
     </div>
   </section>
@@ -131,8 +133,6 @@ const t = (key: string) => getTranslation(translations, key);
     margin-bottom: var(--space-4);
   }
 
-  .text-fire { color: var(--color-accent-fire); }
-
   .about-hero__subtitle {
     font-size: var(--text-lg);
     color: var(--color-text-muted);
@@ -191,7 +191,7 @@ const t = (key: string) => getTranslation(translations, key);
 
   .about-stats {
     padding: var(--space-16) 0;
-    background-color: rgba(26, 26, 26, 0.5);
+    background-color: var(--color-bg-secondary);
   }
 
   .stats-grid {

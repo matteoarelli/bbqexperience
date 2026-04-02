@@ -6,6 +6,8 @@ import Footer from '@components/common/Footer.astro';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
+export const prerender = true;
+
 const locale: Locale = 'en';
 const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);

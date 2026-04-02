@@ -48,27 +48,47 @@ interface Props {
 const { locale, translations, currentSlug, currentType } = Astro.props;
 const t = (key: string) => getTranslation(translations, key);
 
-// Recupera contenuti recenti da diversi tipi
-const [tutorialsRes, reviewsRes, recipesRes] = await Promise.all([
-  fetchCollection<StrapiTutorial>('tutorials', {
+// Risultato vuoto di default per gestire errori singoli
+const emptyResult = { data: [], meta: { pagination: { total: 0, pageCount: 0, page: 1, pageSize: 0 } } };
+
+// Recupera contenuti recenti da diversi tipi — ogni fetch wrappato in try/catch
+// per evitare che un errore su un tipo blocchi l'intero componente
+let tutorialsRes: Awaited<ReturnType<typeof fetchCollection<StrapiTutorial>>>;
+let reviewsRes: Awaited<ReturnType<typeof fetchCollection<StrapiReview>>>;
+let recipesRes: Awaited<ReturnType<typeof fetchCollection<StrapiRecipe>>>;
+
+try {
+  tutorialsRes = await fetchCollection<StrapiTutorial>('tutorials', {
     locale,
     pageSize: 4,
     sort: 'published_date:desc',
     populate: 'cover_image',
-  }),
-  fetchCollection<StrapiReview>('reviews', {
+  });
+} catch {
+  tutorialsRes = emptyResult as typeof tutorialsRes;
+}
+
+try {
+  reviewsRes = await fetchCollection<StrapiReview>('reviews', {
     locale,
     pageSize: 3,
     sort: 'published_date:desc',
     populate: 'gallery',
-  }),
-  fetchCollection<StrapiRecipe>('recipes', {
+  });
+} catch {
+  reviewsRes = emptyResult as typeof reviewsRes;
+}
+
+try {
+  recipesRes = await fetchCollection<StrapiRecipe>('recipes', {
     locale,
     pageSize: 3,
     sort: 'published_date:desc',
     populate: 'cover_image',
-  }),
-]);
+  });
+} catch {
+  recipesRes = emptyResult as typeof recipesRes;
+}
 
 // Struttura unificata per i contenuti correlati
 interface RelatedItem {

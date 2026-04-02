@@ -55,13 +55,13 @@ const { src, alt, width, height, class: className = '' } = Astro.props;
   .img-placeholder-wrap {
     position: relative;
     overflow: hidden;
-    background-color: #1A1A1A;
+    background-color: var(--color-bg-secondary);
   }
 
   .img-placeholder {
     position: absolute;
     inset: 0;
-    background-color: #1A1A1A;
+    background-color: var(--color-bg-secondary);
     animation: placeholder-pulse 1.8s ease-in-out infinite;
     z-index: 1;
     transition: opacity 0.4s ease;
@@ -73,8 +73,8 @@ const { src, alt, width, height, class: className = '' } = Astro.props;
   }
 
   @keyframes placeholder-pulse {
-    0%, 100% { background-color: #1A1A1A; }
-    50% { background-color: #2A2A2A; }
+    0%, 100% { background-color: var(--color-bg-secondary); }
+    50% { background-color: var(--color-bg-tertiary); }
   }
 
   .img-reveal {

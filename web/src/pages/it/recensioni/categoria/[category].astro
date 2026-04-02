@@ -24,7 +24,7 @@ const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);
 
 // Categorie valide
-const validCategories = ['grill', 'smoker', 'accessory', 'fuel', 'thermometer'] as const;
+const validCategories = ['grill', 'smoker', 'accessory', 'fuel', 'thermometer', 'other'] as const;
 type ValidCategory = typeof validCategories[number];
 
 const { category } = Astro.params;

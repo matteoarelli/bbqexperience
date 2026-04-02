@@ -4,11 +4,13 @@
  * Necessario per i rich snippet nei risultati di ricerca Google
  */
 import type { StrapiReview, StrapiEntity } from '@lib/types';
+import type { Locale } from '@lib/i18n';
+import { localizedRoutes } from '@lib/i18n';
 
 interface Props {
   review: StrapiReview & StrapiEntity;
   productImageUrl: string | null;
-  locale: string;
+  locale: Locale;
   siteUrl: string;
 }
 
@@ -23,7 +25,7 @@ const jsonLd: Record<string, unknown> = {
   '@type': 'Product',
   name: review.product?.name || review.title,
   description: review.excerpt || '',
-  url: `${siteUrl}/${locale}/reviews/${review.slug}`,
+  url: `${siteUrl}/${locale}/${localizedRoutes.reviews[locale]}/${review.slug}`,
   review: {
     '@type': 'Review',
     reviewRating: {

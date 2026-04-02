@@ -14,7 +14,10 @@ function strapiHeaders(): HeadersInit {
     : {};
 }
 
-/** Converte URL immagini relative in URL assolute con STRAPI_URL */
+/** URL pubblico del CMS per le immagini (non usare STRAPI_URL che punta al Docker interno) */
+const PUBLIC_CMS = import.meta.env.PUBLIC_CMS_URL || 'https://cms.bbq-experience.com';
+
+/** Converte URL immagini relative in URL assolute con il dominio pubblico del CMS */
 function absoluteImageUrls(data: any): any {
   if (!data) return data;
 
@@ -23,7 +26,7 @@ function absoluteImageUrls(data: any): any {
     if (review?.product?.images) {
       review.product.images = review.product.images.map((img: any) => ({
         ...img,
-        url: img.url?.startsWith('/') ? `${STRAPI_URL}${img.url}` : img.url,
+        url: img.url?.startsWith('/') ? `${PUBLIC_CMS}${img.url}` : img.url,
       }));
     }
     return review;
