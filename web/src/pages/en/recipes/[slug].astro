@@ -17,6 +17,7 @@ import RecipeInteractive from '@components/recipe/RecipeInteractive.svelte';
 import CookMode from '@components/recipe/CookMode.svelte';
 import PrintRecipeCard from '@components/recipe/PrintRecipeCard.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
+import AuthorCard from '@components/content/AuthorCard.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import Header from '@components/common/Header.astro';
@@ -36,8 +37,13 @@ const recipe = await fetchBySlug<StrapiRecipe>('recipes', slug!, {
 });
 
 if (!recipe) {
-  return Astro.redirect('/en/');
+  return new Response(null, { status: 404, statusText: 'Not Found' });
 }
+
+// Calcolo tempo di lettura dal contenuto editoriale
+const introWordCount = recipe.editorial_intro ? recipe.editorial_intro.replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length : 0;
+const instructionsWordCount = recipe.instructions ? recipe.instructions.reduce((acc: number, inst: { text?: string }) => acc + (inst.text ? inst.text.split(/\s+/).filter(Boolean).length : 0), 0) : 0;
+const readingTime = Math.max(1, Math.ceil((introWordCount + instructionsWordCount) / 200));
 
 const coverImageUrl = getStrapiMediaURL(recipe.cover_image);
 const pageTitle = recipe.seo_title || recipe.title;
@@ -75,6 +81,16 @@ const breadcrumbItems = [
     {recipe.updatedAt && (
       <LastUpdated date={recipe.updatedAt} locale="en" translations={translations} />
     )}
+
+    <!-- Metadati data e tempo lettura -->
+    <div class="flex flex-wrap gap-3 mb-[var(--space-4)]" style="color: var(--color-text-muted); font-size: var(--text-sm);">
+      {recipe.published_date && (
+        <span>{new Date(recipe.published_date).toLocaleDateString('en', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+      )}
+      {readingTime && (
+        <span>| {getTranslation(translations, 'content.minRead').replace('{time}', String(readingTime))}</span>
+      )}
+    </div>
 
     <div class="no-print">
       <JumpToRecipe label="Jump to Recipe" totalTime={recipe.total_time} />
@@ -144,6 +160,9 @@ const breadcrumbItems = [
         </section>
       )}
     </div>
+
+    <!-- Card autore -->
+    <AuthorCard locale="en" translations={translations} />
 
     <!-- Condivisione social -->
     <div style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">

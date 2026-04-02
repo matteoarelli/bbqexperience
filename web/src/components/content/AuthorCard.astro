@@ -1,0 +1,145 @@
+---
+/**
+ * AuthorCard — card autore con info brand, link about e Instagram.
+ * Visualizzata a fine articolo prima dei contenuti correlati.
+ * Locale-aware: genera URL corretti per la pagina "chi siamo" per ogni lingua.
+ */
+import type { Locale } from '@lib/i18n';
+import { getTranslation, localizedRoutes } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { locale, translations } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+
+const aboutHref = `/${locale}/${localizedRoutes.about[locale]}/`;
+const instagramUrl = 'https://www.instagram.com/bbqexperience/';
+---
+
+<aside class="author-card" data-animate>
+  <div class="author-card__avatar">
+    <span class="author-card__avatar-text">BBQ</span>
+  </div>
+  <div class="author-card__body">
+    <h4 class="author-card__name">{t('author.name')}</h4>
+    <p class="author-card__bio">{t('author.bio')}</p>
+    <div class="author-card__links">
+      <a href={aboutHref} class="author-card__link author-card__link--about">
+        {t('nav.about')}
+      </a>
+      <a href={instagramUrl} target="_blank" rel="noopener noreferrer" class="author-card__link author-card__link--ig">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+        </svg>
+        {t('author.followUs')}
+      </a>
+    </div>
+  </div>
+</aside>
+
+<style>
+  .author-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    background-color: var(--color-bg-secondary);
+    border-left: 4px solid var(--color-accent-fire);
+    border-radius: var(--radius-lg);
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-8);
+  }
+
+  .author-card__avatar {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-accent-fire), var(--color-accent-amber));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .author-card__avatar-text {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 900;
+    color: white;
+    letter-spacing: 0.05em;
+  }
+
+  .author-card__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .author-card__name {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--space-1) 0;
+  }
+
+  .author-card__bio {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: 1.5;
+    margin: 0 0 var(--space-3) 0;
+  }
+
+  .author-card__links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+
+  .author-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  .author-card__link--about {
+    color: var(--color-accent-fire);
+  }
+
+  .author-card__link--about:hover {
+    color: var(--color-accent-amber);
+  }
+
+  .author-card__link--ig {
+    color: var(--color-text-muted);
+  }
+
+  .author-card__link--ig:hover {
+    color: var(--color-accent-fire);
+  }
+
+  @media (max-width: 480px) {
+    .author-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .author-card__links {
+      justify-content: center;
+    }
+  }
+</style>

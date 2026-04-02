@@ -18,6 +18,7 @@ import VerdictCard from '@components/review/VerdictCard.astro';
 import PhotoGallery from '@components/review/PhotoGallery.astro';
 import ReviewJsonLd from '@components/review/ReviewJsonLd.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
+import AuthorCard from '@components/content/AuthorCard.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import LastUpdated from '@components/content/LastUpdated.astro';
@@ -36,8 +37,12 @@ const review = await fetchBySlug<StrapiReview>('reviews', slug!, {
 });
 
 if (!review) {
-  return Astro.redirect(`/${locale}/`);
+  return new Response(null, { status: 404, statusText: 'Not Found' });
 }
+
+// Calcolo tempo di lettura dal contenuto editoriale
+const wordCount = review.editorial_content ? review.editorial_content.replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length : 0;
+const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
 const coverImage = getStrapiMediaURL(review.gallery?.[0]);
 const coverImageAlt = getStrapiMediaAlt(review.gallery?.[0]) || review.title;
@@ -90,6 +95,9 @@ const breadcrumbItems = [
       )}
       {review.product?.category && (
         <span>| {review.product.category}</span>
+      )}
+      {readingTime && (
+        <span>| {getTranslation(t, 'content.minRead').replace('{time}', String(readingTime))}</span>
       )}
     </div>
 
@@ -196,6 +204,9 @@ const breadcrumbItems = [
         <p class="affiliate-disclaimer">{getTranslation(t, 'review.affiliateDisclaimer')}</p>
       </div>
     )}
+
+    <!-- Card autore -->
+    <AuthorCard locale={locale} translations={t} />
 
     <!-- Condivisione social -->
     <div style="margin-top: var(--space-8); padding-top: var(--space-6); border-top: 1px solid var(--color-border-subtle);">

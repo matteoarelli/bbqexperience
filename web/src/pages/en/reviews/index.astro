@@ -7,7 +7,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
-import ArticleCard from '@components/content/ArticleCard.astro';
+import ReviewCard from '@components/home/ReviewCard.astro';
 import Pagination from '@components/common/Pagination.astro';
 import SortControls from '@components/common/SortControls.astro';
 import { fetchCollection } from '@lib/strapi';
@@ -129,17 +129,10 @@ const breadcrumbItems = [
     ) : reviews.length > 0 ? (
       <div class="review-grid" data-animate>
         {reviews.map((review) => (
-          <ArticleCard
-            title={review.title}
-            excerpt={review.excerpt}
-            slug={review.slug}
-            href={`/${locale}/${reviewRoute}/${review.slug}/`}
-            coverImage={review.gallery?.[0] ?? null}
-            category={review.product?.category ?? null}
-            readingTime={null}
-            publishedDate={review.published_date}
+          <ReviewCard
+            review={review}
             locale={locale}
-            translations={translations}
+            reviewsRoute={reviewRoute}
           />
         ))}
       </div>

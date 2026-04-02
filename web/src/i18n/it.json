@@ -192,6 +192,11 @@
     "submit": "Iscriviti",
     "success": "Grazie per l'iscrizione!"
   },
+  "author": {
+    "name": "BBQ Experience",
+    "bio": "Recensioni BBQ indipendenti, ricette originali e guide approfondite da una community di oltre 74K appassionati di grilling.",
+    "followUs": "Seguici"
+  },
   "social": {
     "share": "Condividi",
     "copyLink": "Copia Link",

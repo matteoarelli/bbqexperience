@@ -7,7 +7,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
-import ArticleCard from '@components/content/ArticleCard.astro';
+import RecipeCard from '@components/home/RecipeCard.astro';
 import Pagination from '@components/common/Pagination.astro';
 import SortControls from '@components/common/SortControls.astro';
 import { fetchCollection } from '@lib/strapi';
@@ -129,16 +129,10 @@ const breadcrumbItems = [
     ) : recipes.length > 0 ? (
       <div class="recipe-grid" data-animate>
         {recipes.map((recipe) => (
-          <ArticleCard
-            title={recipe.title}
-            excerpt={recipe.excerpt}
-            slug={recipe.slug}
-            href={`/${locale}/${recipeRoute}/${recipe.slug}/`}
-            coverImage={recipe.cover_image}
-            category={recipe.difficulty}
-            readingTime={recipe.total_time}
-            publishedDate={recipe.published_date}
+          <RecipeCard
+            recipe={recipe}
             locale={locale}
+            recipesRoute={recipeRoute}
             translations={translations}
           />
         ))}
