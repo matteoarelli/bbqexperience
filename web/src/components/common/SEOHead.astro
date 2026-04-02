@@ -7,6 +7,7 @@ interface Props {
   description: string;
   locale?: string;
   canonicalPath?: string;
+  canonicalQuery?: string;
   ogImage?: string;
   type?: string;
 }
@@ -16,6 +17,7 @@ const {
   description,
   locale = 'en',
   canonicalPath = '',
+  canonicalQuery = '',
   ogImage = '/og-default.jpg',
   type = 'website',
 } = Astro.props;
@@ -35,8 +37,8 @@ const absoluteOgImage = ogImage
   ? ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
   : '';
 
-// URL canonico per la locale corrente
-const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}`;
+// URL canonico per la locale corrente (con query params opzionali per paginazione)
+const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?${canonicalQuery}` : ''}`;
 ---
 
 <meta charset="utf-8" />

@@ -11,6 +11,7 @@ import RecipeCard from '@components/home/RecipeCard.astro';
 import Pagination from '@components/common/Pagination.astro';
 import SortControls from '@components/common/SortControls.astro';
 import ContentStats from '@components/content/ContentStats.astro';
+import CollectionPageSchema from '@components/common/CollectionPageSchema.astro';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiRecipe } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
@@ -82,12 +83,20 @@ const breadcrumbItems = [
   title={`${t('content.recipes')} - ${t('site.name')}`}
   description={t('site.description')}
   locale={locale}
-  canonicalPath={`/${locale}/${recipeRoute}/`}
+  canonicalPath={`/${recipeRoute}/`}
+  canonicalQuery={currentPage > 1 ? `page=${currentPage}` : ''}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${recipeRoute}/`} />
 
   <section class="container-bbq py-12">
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
+
+    <CollectionPageSchema
+      title={`${t('content.recipes')} - ${t('site.name')}`}
+      description={t('site.description')}
+      url={`https://bbq-experience.com/${locale}/${recipeRoute}/`}
+      itemCount={totalCount}
+    />
 
     <h1 class="page-title">{t('content.allRecipes')}</h1>
 

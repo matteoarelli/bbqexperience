@@ -1,0 +1,29 @@
+---
+/**
+ * Schema.org CollectionPage JSON-LD — per pagine listing (recensioni, ricette, ecc.)
+ */
+interface Props {
+  title: string;
+  description: string;
+  url: string;
+  itemCount: number;
+}
+
+const { title, description, url, itemCount } = Astro.props;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: title,
+  description,
+  url,
+  numberOfItems: itemCount,
+  isPartOf: {
+    '@type': 'WebSite',
+    name: 'BBQ Experience',
+    url: 'https://bbq-experience.com',
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

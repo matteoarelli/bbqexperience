@@ -17,6 +17,7 @@ interface Props {
   description: string;
   locale?: string;
   canonicalPath?: string;
+  canonicalQuery?: string;
   ogImage?: string;
   class?: string;
 }
@@ -26,6 +27,7 @@ const {
   description,
   locale = 'en',
   canonicalPath = '',
+  canonicalQuery = '',
   ogImage = '',
   class: className = '',
 } = Astro.props;
@@ -50,6 +52,7 @@ const translations = await loadTranslations(locale as any);
       description={description}
       locale={locale}
       canonicalPath={canonicalPath}
+      canonicalQuery={canonicalQuery}
       ogImage={ogImage}
     />
   </head>
