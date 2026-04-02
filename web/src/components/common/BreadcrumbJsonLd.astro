@@ -14,7 +14,7 @@ interface Props {
   siteUrl?: string;
 }
 
-const { items, siteUrl = 'https://bbqexperience.com' } = Astro.props;
+const { items, siteUrl = 'https://bbq-experience.com' } = Astro.props;
 
 // Non renderizzare se meno di 2 elementi (breadcrumb non significativo)
 const shouldRender = items.length >= 2;

@@ -5,7 +5,7 @@ import svelte from '@astrojs/svelte';
 import node from '@astrojs/node';
 
 export default defineConfig({
-  site: 'https://bbqexperience.com',
+  site: 'https://bbq-experience.com',
   output: 'server',
   adapter: node({ mode: 'standalone' }),
   integrations: [
@@ -18,7 +18,7 @@ export default defineConfig({
     svelte(),
   ],
   image: {
-    domains: ['localhost', 'cms.bbqexperience.com'],
+    domains: ['localhost', 'cms.bbq-experience.com'],
   },
   vite: {
     plugins: [tailwindcss()],

@@ -49,7 +49,7 @@ const coverImageUrl = getStrapiMediaURL(recipe.cover_image);
 const pageTitle = recipe.seo_title || recipe.title;
 const pageDescription = recipe.seo_description || recipe.excerpt || '';
 const translations = await loadTranslations('en');
-const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience.com').href;
+const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbq-experience.com').href;
 
 // Breadcrumbs
 const breadcrumbItems = [
@@ -120,7 +120,7 @@ const breadcrumbItems = [
       />
 
       <PrintRecipeCard
-        recipeUrl={`https://bbqexperience.com/en/recipes/${recipe.slug}`}
+        recipeUrl={`https://bbq-experience.com/en/recipes/${recipe.slug}`}
         label="Print Recipe"
       />
 

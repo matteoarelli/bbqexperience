@@ -42,9 +42,9 @@ if (!tutorial) {
 const tutorialRoute = localizedRoutes.tutorials[locale];
 const seoTitle = tutorial.seo_title || tutorial.title;
 const seoDescription = tutorial.seo_description || tutorial.excerpt || '';
-const canonicalUrl = `https://bbqexperience.com/${locale}/${tutorialRoute}/${tutorial.slug}/`;
+const canonicalUrl = `https://bbq-experience.com/${locale}/${tutorialRoute}/${tutorial.slug}/`;
 const coverImageUrl = getStrapiMediaURL(tutorial.cover_image);
-const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbqexperience.com').href;
+const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbq-experience.com').href;
 
 // Breadcrumbs
 const breadcrumbItems = [

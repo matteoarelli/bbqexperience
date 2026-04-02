@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bbqexperience.com/sitemap-index.xml
+Sitemap: https://bbq-experience.com/sitemap-index.xml
