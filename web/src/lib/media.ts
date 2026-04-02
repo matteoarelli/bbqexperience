@@ -3,11 +3,14 @@
 import type { StrapiMedia } from './types';
 import { STRAPI_URL } from './strapi';
 
+// URL pubblico del CMS per le immagini (accessibile dal browser)
+const PUBLIC_CMS_URL = import.meta.env.PUBLIC_CMS_URL || 'https://cms.bbq-experience.com';
+
 /**
- * Risolve l'URL di un media Strapi in URL assoluto.
+ * Risolve l'URL di un media Strapi in URL assoluto pubblico.
  * Se il media e null/undefined ritorna null.
  * Se l'URL inizia con 'http' lo ritorna cosi com'e.
- * Altrimenti antepone STRAPI_URL.
+ * Altrimenti antepone l'URL pubblico del CMS (non quello interno Docker).
  */
 export function getStrapiMediaURL(media: StrapiMedia | null | undefined): string | null {
   if (!media?.url) {
@@ -18,7 +21,7 @@ export function getStrapiMediaURL(media: StrapiMedia | null | undefined): string
     return media.url;
   }
 
-  return `${STRAPI_URL}${media.url}`;
+  return `${PUBLIC_CMS_URL}${media.url}`;
 }
 
 /**
@@ -39,7 +42,7 @@ export function getStrapiImageFormats(
     if (format) {
       result[key] = format.url.startsWith('http')
         ? format.url
-        : `${STRAPI_URL}${format.url}`;
+        : `${PUBLIC_CMS_URL}${format.url}`;
     }
   }
 
