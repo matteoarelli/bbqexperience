@@ -74,14 +74,14 @@ try {
 
   {/* 2. Ultime Recensioni */}
   {latestReviews.length > 0 && (
-    <section class="homepage-section">
+    <section class="homepage-section" data-animate="fade-up">
       <div class="container-bbq">
         <SectionHeader
           title={t('home.latestReviews')}
           viewAllText={t('home.viewAll')}
           viewAllHref={`/${locale}/${reviewsRoute}/`}
         />
-        <div class="card-grid">
+        <div class="card-grid" data-animate-stagger>
           {latestReviews.map((review) => (
             <ReviewCard review={review} locale={locale} reviewsRoute={reviewsRoute} />
           ))}
@@ -92,14 +92,14 @@ try {
 
   {/* 3. Ultime Ricette */}
   {latestRecipes.length > 0 && (
-    <section class="homepage-section">
+    <section class="homepage-section" data-animate="fade-up">
       <div class="container-bbq">
         <SectionHeader
           title={t('home.latestRecipes')}
           viewAllText={t('home.viewAll')}
           viewAllHref={`/${locale}/${recipesRoute}/`}
         />
-        <div class="card-grid">
+        <div class="card-grid" data-animate-stagger>
           {latestRecipes.map((recipe) => (
             <RecipeCard recipe={recipe} locale={locale} recipesRoute={recipesRoute} translations={translations} />
           ))}
@@ -110,14 +110,14 @@ try {
 
   {/* 4. Guide in Evidenza */}
   {latestTutorials.length > 0 && (
-    <section class="homepage-section">
+    <section class="homepage-section" data-animate="fade-up">
       <div class="container-bbq">
         <SectionHeader
           title={t('home.tutorialHighlights')}
           viewAllText={t('home.viewAll')}
           viewAllHref={`/${locale}/${tutorialsRoute}/`}
         />
-        <div class="card-grid">
+        <div class="card-grid" data-animate-stagger>
           {latestTutorials.map((tutorial) => {
             const imgUrl = getStrapiMediaURL(tutorial.cover_image);
             return (
@@ -151,7 +151,7 @@ try {
   <AboutSection translations={translations} />
 
   {/* 5b. Newsletter Signup */}
-  <section class="homepage-section">
+  <section class="homepage-section" data-animate="fade-up">
     <div class="container-bbq">
       <NewsletterSignup translations={translations} />
     </div>
@@ -159,7 +159,7 @@ try {
 
   {/* 6. Ultimi Articoli */}
   {latestPosts.length > 0 && (
-    <section class="homepage-section">
+    <section class="homepage-section" data-animate="fade-up">
       <div class="container-bbq">
         <SectionHeader
           title={t('home.latestPosts')}
@@ -182,7 +182,7 @@ try {
   )}
 
   {/* 7. Instagram Feed */}
-  <section class="homepage-section">
+  <section class="homepage-section" data-animate="fade-up">
     <div class="container-bbq">
       <InstagramFeed locale={locale} translations={translations} maxPosts={6} />
     </div>
@@ -344,3 +344,22 @@ try {
     color: var(--color-accent-fire);
   }
 </style>
+
+<script>
+  // Scroll-reveal: aggiunge .visible quando l'elemento entra nel viewport
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  document.querySelectorAll('[data-animate], [data-animate-stagger]').forEach((el) => {
+    observer.observe(el);
+  });
+</script>

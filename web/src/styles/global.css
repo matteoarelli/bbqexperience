@@ -91,4 +91,73 @@
     border: 1px solid var(--color-accent-fire);
     box-shadow: var(--shadow-glow-fire);
   }
+
+  /* Testo con gradiente fuoco per il logo */
+  .fire-text {
+    background: linear-gradient(135deg, var(--color-accent-fire), var(--color-accent-amber), var(--color-accent-ember));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Scroll-reveal animations */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+[data-animate].visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-animate="fade-up"] {
+  transform: translateY(30px);
+}
+
+[data-animate="fade-in"] {
+  transform: none;
+}
+
+/* Stagger animation per le griglie */
+[data-animate-stagger] > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+[data-animate-stagger].visible > *:nth-child(1) { transition-delay: 0s; }
+[data-animate-stagger].visible > *:nth-child(2) { transition-delay: 0.1s; }
+[data-animate-stagger].visible > *:nth-child(3) { transition-delay: 0.2s; }
+[data-animate-stagger].visible > *:nth-child(4) { transition-delay: 0.3s; }
+
+[data-animate-stagger].visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card hover lift con glow */
+.card-hover {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(249, 115, 22, 0.1);
+}
+
+/* Rispetto preferenze utente per motion ridotto */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  [data-animate],
+  [data-animate-stagger] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
