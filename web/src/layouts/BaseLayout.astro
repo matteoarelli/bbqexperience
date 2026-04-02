@@ -19,6 +19,9 @@ interface Props {
   canonicalPath?: string;
   canonicalQuery?: string;
   ogImage?: string;
+  type?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
   class?: string;
 }
 
@@ -29,6 +32,9 @@ const {
   canonicalPath = '',
   canonicalQuery = '',
   ogImage = '',
+  type = 'website',
+  publishedTime,
+  modifiedTime,
   class: className = '',
 } = Astro.props;
 
@@ -54,6 +60,9 @@ const translations = await loadTranslations(locale as any);
       canonicalPath={canonicalPath}
       canonicalQuery={canonicalQuery}
       ogImage={ogImage}
+      type={type}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
     />
   </head>
   <body>

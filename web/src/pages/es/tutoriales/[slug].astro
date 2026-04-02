@@ -66,7 +66,10 @@ const difficultyColors: Record<string, string> = {
   title={`${seoTitle} - ${t('site.name')}`}
   description={seoDescription}
   locale={locale}
-  canonicalPath={`/${locale}/${tutorialRoute}/${tutorial.slug}/`}
+  canonicalPath={`/${tutorialRoute}/${tutorial.slug}/`}
+  type="article"
+  publishedTime={tutorial.published_date || ''}
+  modifiedTime={tutorial.updatedAt || ''}
   ogImage={coverImageUrl || ''}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${tutorialRoute}/${tutorial.slug}/`} />

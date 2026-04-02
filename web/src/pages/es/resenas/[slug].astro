@@ -64,7 +64,10 @@ const breadcrumbItems = [
   title={review.seo_title || review.title}
   description={review.seo_description || review.excerpt || ''}
   locale={locale}
-  canonicalPath={`/${locale}/resenas/${review.slug}/`}
+  canonicalPath={`/resenas/${review.slug}/`}
+  type="article"
+  publishedTime={review.published_date || ''}
+  modifiedTime={review.updatedAt || ''}
   ogImage={`/api/og-image?title=${encodeURIComponent(review.title)}&score=${review.score_overall}&verdict=${encodeURIComponent(review.verdict || '')}&locale=${locale}`}
 >
   {Astro.locals.isPreview && (

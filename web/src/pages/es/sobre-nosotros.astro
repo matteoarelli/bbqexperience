@@ -15,7 +15,7 @@ const t = (key: string) => getTranslation(translations, key);
   title={`${t('nav.about')} - ${t('site.name')}`}
   description="Conoce BBQ Experience — nuestra historia, mision y la comunidad de mas de 74K entusiastas del grilling."
   locale={locale}
-  canonicalPath={`/${locale}/${localizedRoutes.about[locale]}/`}
+  canonicalPath={`/${localizedRoutes.about[locale]}/`}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.about[locale]}/`} />
 
