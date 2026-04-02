@@ -69,11 +69,34 @@
     text-decoration: none !important;
   }
 
-  /* Nascondi header/footer/nav del sito */
+  /* Nascondi header/footer/nav e tutti gli elementi UI interattivi */
   header,
   footer,
-  nav {
+  nav,
+  [data-mobile-menu],
+  [data-cookie-consent],
+  [data-back-to-top],
+  [data-social-share],
+  [data-search-dialog],
+  [data-theme-toggle],
+  [data-keyboard-shortcuts],
+  [data-bookmark-button],
+  .back-to-top,
+  .cookie-banner,
+  .social-share-bar,
+  .search-dialog,
+  .theme-toggle,
+  .keyboard-shortcuts-modal,
+  .bookmark-button {
     display: none !important;
+  }
+
+  /* Animazioni scroll: mostra tutto senza transizioni */
+  [data-animate],
+  [data-animate-stagger] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 
   /* Area QR code per stampa */

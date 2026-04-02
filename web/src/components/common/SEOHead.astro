@@ -43,6 +43,11 @@ const absoluteOgImage = ogImage
   ? ogImage.startsWith('http') ? ogImage : `${siteUrl}${ogImage}`
   : '';
 
+// Tronca la descrizione a 160 caratteri per evitare troncamento nei risultati Google
+const safeDescription = description && description.length > 160
+  ? description.slice(0, 157) + '...'
+  : description;
+
 // URL canonico per la locale corrente (con query params opzionali per paginazione)
 const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?${canonicalQuery}` : ''}`;
 ---
@@ -55,7 +60,7 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?$
 <meta name="robots" content="index, follow" />
 
 <title>{title}</title>
-<meta name="description" content={description} />
+<meta name="description" content={safeDescription} />
 
 <!-- RSS Feed -->
 <link rel="alternate" type="application/rss+xml" title="BBQ Experience RSS" href={`/${locale}/rss.xml`} />
@@ -71,7 +76,7 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?$
 
 <!-- Open Graph -->
 <meta property="og:title" content={title} />
-<meta property="og:description" content={description} />
+<meta property="og:description" content={safeDescription} />
 <meta property="og:type" content={type} />
 <meta property="og:url" content={canonicalUrl} />
 <meta property="og:site_name" content="BBQ Experience" />
@@ -89,5 +94,5 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?$
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content={title} />
-<meta name="twitter:description" content={description} />
+<meta name="twitter:description" content={safeDescription} />
 {absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}

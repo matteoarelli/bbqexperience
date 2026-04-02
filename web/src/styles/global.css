@@ -149,6 +149,17 @@
 }
 
 /* Rispetto preferenze utente per motion ridotto */
+/* Focus visibile globale per accessibilita */
+:focus-visible {
+  outline: 2px solid var(--color-accent-fire);
+  outline-offset: 2px;
+}
+
+/* Previeni layout shift da wrapper Astro island (Svelte hydration) */
+astro-island {
+  display: contents;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
