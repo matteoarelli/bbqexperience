@@ -26,7 +26,21 @@
     "language": "Lingua",
     "followUs": "Seguici su Instagram",
     "copyright": "Tutti i diritti riservati",
-    "contentUnavailable": "Contenuto temporaneamente non disponibile. Riprova piu tardi."
+    "contentUnavailable": "Contenuto temporaneamente non disponibile. Riprova piu tardi.",
+    "page": "Pagina",
+    "of": "di",
+    "previous": "Precedente",
+    "next": "Successivo",
+    "showing": "Mostrando",
+    "results": "risultati"
+  },
+  "sort": {
+    "newest": "Piu recenti",
+    "highestScore": "Punteggio piu alto",
+    "lowestScore": "Punteggio piu basso",
+    "quickest": "Piu veloci",
+    "easiest": "Piu facili",
+    "alphabetical": "A-Z"
   },
   "hero": {
     "title": "BBQ EXPERIENCE",

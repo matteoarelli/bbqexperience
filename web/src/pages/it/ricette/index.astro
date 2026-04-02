@@ -1,13 +1,15 @@
 ---
 /**
- * Pagina listing ricette (IT) — griglia di ricette con filtro difficolta
- * SSR per supportare filtro difficolta dinamico via query param.
+ * Pagina listing ricette (IT) — griglia di ricette con filtro difficolta, ordinamento e paginazione.
+ * SSR per supportare filtro difficolta, sort e paginazione dinamici via query param.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ArticleCard from '@components/content/ArticleCard.astro';
+import Pagination from '@components/common/Pagination.astro';
+import SortControls from '@components/common/SortControls.astro';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiRecipe } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
@@ -23,12 +25,31 @@ const t = (key: string) => getTranslation(translations, key);
 const difficulties = ['easy', 'medium', 'hard', 'expert'] as const;
 const activeDifficulty = Astro.url.searchParams.get('difficulty') || null;
 
+// Paginazione e ordinamento da query params
+const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10));
+const activeSort = Astro.url.searchParams.get('sort') || 'newest';
+
+// Mappa ordinamento -> campo Strapi
+const sortMap: Record<string, string> = {
+  newest: 'published_date:desc',
+  quickest: 'total_time:asc',
+  easiest: 'difficulty:asc',
+};
+
+// Opzioni di ordinamento per il componente SortControls
+const sortOptions = [
+  { value: 'newest', label: t('sort.newest') },
+  { value: 'quickest', label: t('sort.quickest') },
+  { value: 'easiest', label: t('sort.easiest') },
+];
+
 // Recupera le ricette con filtro difficolta opzionale
 const fetchOptions: Parameters<typeof fetchCollection>[1] = {
   locale,
   populate: 'cover_image',
-  sort: 'published_date:desc',
-  pageSize: 25,
+  sort: sortMap[activeSort] || sortMap.newest,
+  pageSize: 12,
+  page: currentPage,
 };
 
 if (activeDifficulty && difficulties.includes(activeDifficulty as typeof difficulties[number])) {
@@ -36,10 +57,14 @@ if (activeDifficulty && difficulties.includes(activeDifficulty as typeof difficu
 }
 
 let recipes: (StrapiRecipe & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
+let totalCount = 0;
+let totalPages = 1;
 let fetchError = false;
 try {
   const response = await fetchCollection<StrapiRecipe>('recipes', fetchOptions);
   recipes = response.data;
+  totalCount = response.meta.pagination.total;
+  totalPages = response.meta.pagination.pageCount;
 } catch {
   fetchError = true;
 }
@@ -83,6 +108,20 @@ const breadcrumbItems = [
       ))}
     </div>
 
+    {/* Controlli ordinamento */}
+    <SortControls
+      currentSort={activeSort}
+      options={sortOptions}
+      baseUrl={Astro.url.href}
+    />
+
+    {/* Conteggio risultati */}
+    {!fetchError && totalCount > 0 && (
+      <p class="result-count">
+        {t('common.showing')} {recipes.length} {t('common.of')} {totalCount} {t('common.results')}
+      </p>
+    )}
+
     {fetchError ? (
       <div class="empty-state" data-animate>
         <p class="empty-text">{t('common.contentUnavailable')}</p>
@@ -109,6 +148,16 @@ const breadcrumbItems = [
         <p class="empty-text">{t('content.noArticles')}</p>
       </div>
     )}
+
+    {/* Paginazione */}
+    {!fetchError && totalPages > 1 && (
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        baseUrl={Astro.url.href}
+        translations={translations}
+      />
+    )}
   </section>
 
   <Footer slot="footer" locale={locale} translations={translations} />
@@ -128,7 +177,7 @@ const breadcrumbItems = [
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-4);
   }
 
   .filter-btn {
@@ -162,6 +211,15 @@ const breadcrumbItems = [
     background-color: var(--color-accent-ember);
     border-color: var(--color-accent-ember);
     color: var(--color-text-inverse);
+  }
+
+  .result-count {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-6);
   }
 
   .recipe-grid {

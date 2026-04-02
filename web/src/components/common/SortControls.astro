@@ -1,0 +1,80 @@
+---
+/**
+ * Componente controlli ordinamento — riga di pill button per selezionare l'ordinamento.
+ * Usa lo stesso stile dei filtri categoria esistenti.
+ */
+interface SortOption {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  currentSort: string;
+  options: SortOption[];
+  baseUrl: string;
+}
+
+const { currentSort, options, baseUrl } = Astro.props;
+
+// Preserva query params esistenti dalla URL corrente, resettando la pagina a 1
+const currentUrl = Astro.url;
+function buildSortUrl(sortValue: string): string {
+  const params = new URLSearchParams(currentUrl.search);
+  params.set('sort', sortValue);
+  params.delete('page'); // Reset pagina quando si cambia ordinamento
+  return `${currentUrl.pathname}?${params.toString()}`;
+}
+---
+
+<div class="sort-controls">
+  {options.map((option) => (
+    <a
+      href={buildSortUrl(option.value)}
+      class:list={['sort-btn', { 'sort-btn--active': currentSort === option.value }]}
+    >
+      {option.label}
+    </a>
+  ))}
+</div>
+
+<style>
+  .sort-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+  }
+
+  .sort-btn {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-muted);
+    background-color: transparent;
+    transition: all var(--transition-fast);
+  }
+
+  .sort-btn:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-secondary);
+  }
+
+  .sort-btn--active {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+    border-color: var(--color-accent-fire);
+  }
+
+  .sort-btn--active:hover {
+    background-color: var(--color-accent-ember);
+    border-color: var(--color-accent-ember);
+    color: var(--color-text-inverse);
+  }
+</style>

@@ -1,13 +1,15 @@
 ---
 /**
- * Pagina listing blog (EN) — griglia di articoli blog con filtro categoria e post in evidenza
- * SSR per supportare filtro categoria dinamico via query param.
+ * Pagina listing blog (EN) — griglia di articoli blog con filtro categoria, ordinamento, paginazione e post in evidenza.
+ * SSR per supportare filtro categoria, sort e paginazione dinamici via query param.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ArticleCard from '@components/content/ArticleCard.astro';
+import Pagination from '@components/common/Pagination.astro';
+import SortControls from '@components/common/SortControls.astro';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiBlogPost } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
@@ -23,12 +25,29 @@ const t = (key: string) => getTranslation(translations, key);
 const categories = ['news', 'events', 'trends', 'tips', 'culture'] as const;
 const activeCategory = Astro.url.searchParams.get('category') || null;
 
+// Paginazione e ordinamento da query params
+const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10));
+const activeSort = Astro.url.searchParams.get('sort') || 'newest';
+
+// Mappa ordinamento -> campo Strapi
+const sortMap: Record<string, string> = {
+  newest: 'published_date:desc',
+  alphabetical: 'title:asc',
+};
+
+// Opzioni di ordinamento per il componente SortControls
+const sortOptions = [
+  { value: 'newest', label: t('sort.newest') },
+  { value: 'alphabetical', label: t('sort.alphabetical') },
+];
+
 // Recupera i blog post con filtro categoria opzionale
 const fetchOptions: Parameters<typeof fetchCollection>[1] = {
   locale,
   populate: 'cover_image',
-  sort: 'published_date:desc',
-  pageSize: 25,
+  sort: sortMap[activeSort] || sortMap.newest,
+  pageSize: 12,
+  page: currentPage,
 };
 
 if (activeCategory && categories.includes(activeCategory as typeof categories[number])) {
@@ -36,18 +55,23 @@ if (activeCategory && categories.includes(activeCategory as typeof categories[nu
 }
 
 let posts: (StrapiBlogPost & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
+let totalCount = 0;
+let totalPages = 1;
 let fetchError = false;
 try {
   const response = await fetchCollection<StrapiBlogPost>('blog-posts', fetchOptions);
   posts = response.data;
+  totalCount = response.meta.pagination.total;
+  totalPages = response.meta.pagination.pageCount;
 } catch {
   fetchError = true;
 }
 const blogRoute = localizedRoutes.blog[locale];
 
-// Separa post in evidenza dai normali (solo se non c'e filtro attivo)
-const featuredPosts = activeCategory ? [] : posts.filter((p) => p.featured);
-const regularPosts = activeCategory ? posts : posts.filter((p) => !p.featured);
+// Separa post in evidenza dai normali (solo prima pagina senza filtri/sort personalizzato)
+const showFeatured = !activeCategory && currentPage === 1 && activeSort === 'newest';
+const featuredPosts = showFeatured ? posts.filter((p) => p.featured) : [];
+const regularPosts = showFeatured ? posts.filter((p) => !p.featured) : posts;
 
 // Breadcrumbs
 const breadcrumbItems = [
@@ -86,6 +110,20 @@ const breadcrumbItems = [
         </a>
       ))}
     </div>
+
+    {/* Controlli ordinamento */}
+    <SortControls
+      currentSort={activeSort}
+      options={sortOptions}
+      baseUrl={Astro.url.href}
+    />
+
+    {/* Conteggio risultati */}
+    {!fetchError && totalCount > 0 && (
+      <p class="result-count">
+        {t('common.showing')} {posts.length} {t('common.of')} {totalCount} {t('common.results')}
+      </p>
+    )}
 
     {fetchError ? (
       <div class="empty-state" data-animate>
@@ -140,6 +178,16 @@ const breadcrumbItems = [
     )}
     </Fragment>
     )}
+
+    {/* Paginazione */}
+    {!fetchError && totalPages > 1 && (
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        baseUrl={Astro.url.href}
+        translations={translations}
+      />
+    )}
   </section>
 
   <Footer slot="footer" locale={locale} translations={translations} />
@@ -159,7 +207,7 @@ const breadcrumbItems = [
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
-    margin-bottom: var(--space-8);
+    margin-bottom: var(--space-4);
   }
 
   .filter-btn {
@@ -193,6 +241,15 @@ const breadcrumbItems = [
     background-color: var(--color-accent-ember);
     border-color: var(--color-accent-ember);
     color: var(--color-text-inverse);
+  }
+
+  .result-count {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-6);
   }
 
   .featured-section {

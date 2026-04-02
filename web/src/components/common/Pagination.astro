@@ -1,0 +1,222 @@
+---
+/**
+ * Componente paginazione — navigazione pagine per le listing page.
+ * Mostra bottoni precedente/successivo e numeri di pagina.
+ * Compatto su mobile (solo prev/next), completo su desktop.
+ */
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+  translations: Record<string, unknown>;
+}
+
+const { currentPage, totalPages, baseUrl, translations } = Astro.props;
+
+// Funzione helper per ottenere traduzioni
+function t(key: string): string {
+  const keys = key.split('.');
+  let value: unknown = translations;
+  for (const k of keys) {
+    value = (value as Record<string, unknown>)?.[k];
+  }
+  return (value as string) ?? key;
+}
+
+// Costruisce URL preservando i query params esistenti
+function buildPageUrl(page: number): string {
+  const url = new URL(baseUrl, 'http://placeholder');
+  url.searchParams.set('page', String(page));
+  return `${url.pathname}?${url.searchParams.toString()}`;
+}
+
+// Calcola range di pagine da mostrare (max 5 numeri)
+function getPageRange(): number[] {
+  const range: number[] = [];
+  const maxVisible = 5;
+  let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let end = Math.min(totalPages, start + maxVisible - 1);
+  // Ricalcola start se end e stato limitato
+  start = Math.max(1, end - maxVisible + 1);
+  for (let i = start; i <= end; i++) {
+    range.push(i);
+  }
+  return range;
+}
+
+const pageRange = getPageRange();
+const hasPrev = currentPage > 1;
+const hasNext = currentPage < totalPages;
+
+// Preserva query params esistenti dalla URL corrente
+const currentUrl = Astro.url;
+function buildUrl(page: number): string {
+  const params = new URLSearchParams(currentUrl.search);
+  params.set('page', String(page));
+  return `${currentUrl.pathname}?${params.toString()}`;
+}
+---
+
+{totalPages > 1 && (
+  <nav class="pagination" aria-label={t('common.page')}>
+    {/* Bottone precedente */}
+    {hasPrev ? (
+      <a href={buildUrl(currentPage - 1)} class="pagination__btn pagination__btn--prev">
+        <span class="pagination__arrow">&larr;</span>
+        <span class="pagination__label">{t('common.previous')}</span>
+      </a>
+    ) : (
+      <span class="pagination__btn pagination__btn--prev pagination__btn--disabled">
+        <span class="pagination__arrow">&larr;</span>
+        <span class="pagination__label">{t('common.previous')}</span>
+      </span>
+    )}
+
+    {/* Numeri di pagina (nascosti su mobile) */}
+    <div class="pagination__numbers">
+      {pageRange[0] > 1 && (
+        <>
+          <a href={buildUrl(1)} class="pagination__num">1</a>
+          {pageRange[0] > 2 && <span class="pagination__ellipsis">&hellip;</span>}
+        </>
+      )}
+      {pageRange.map((page) => (
+        page === currentPage ? (
+          <span class="pagination__num pagination__num--active" aria-current="page">{page}</span>
+        ) : (
+          <a href={buildUrl(page)} class="pagination__num">{page}</a>
+        )
+      ))}
+      {pageRange[pageRange.length - 1] < totalPages && (
+        <>
+          {pageRange[pageRange.length - 1] < totalPages - 1 && <span class="pagination__ellipsis">&hellip;</span>}
+          <a href={buildUrl(totalPages)} class="pagination__num">{totalPages}</a>
+        </>
+      )}
+    </div>
+
+    {/* Indicatore pagina (visibile su mobile) */}
+    <span class="pagination__info">
+      {t('common.page')} {currentPage} {t('common.of')} {totalPages}
+    </span>
+
+    {/* Bottone successivo */}
+    {hasNext ? (
+      <a href={buildUrl(currentPage + 1)} class="pagination__btn pagination__btn--next">
+        <span class="pagination__label">{t('common.next')}</span>
+        <span class="pagination__arrow">&rarr;</span>
+      </a>
+    ) : (
+      <span class="pagination__btn pagination__btn--next pagination__btn--disabled">
+        <span class="pagination__label">{t('common.next')}</span>
+        <span class="pagination__arrow">&rarr;</span>
+      </span>
+    )}
+  </nav>
+)}
+
+<style>
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-12);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .pagination__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-muted);
+    background-color: transparent;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .pagination__btn:hover:not(.pagination__btn--disabled) {
+    color: var(--color-text-primary);
+    border-color: var(--color-accent-fire);
+  }
+
+  .pagination__btn--disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .pagination__arrow {
+    font-size: var(--text-base);
+  }
+
+  .pagination__numbers {
+    display: none;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .pagination__num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    color: var(--color-text-muted);
+    transition: all var(--transition-fast);
+  }
+
+  .pagination__num:hover:not(.pagination__num--active) {
+    color: var(--color-text-primary);
+    background-color: var(--color-surface-elevated);
+  }
+
+  .pagination__num--active {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+  }
+
+  .pagination__ellipsis {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+  }
+
+  .pagination__info {
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+  }
+
+  /* Desktop: mostra numeri, nascondi info compatta */
+  @media (min-width: 768px) {
+    .pagination__numbers {
+      display: flex;
+    }
+
+    .pagination__info {
+      display: none;
+    }
+  }
+</style>
