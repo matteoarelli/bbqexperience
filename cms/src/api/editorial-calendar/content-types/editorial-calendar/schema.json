@@ -1,0 +1,56 @@
+{
+  "kind": "collectionType",
+  "collectionName": "editorial_calendars",
+  "info": {
+    "singularName": "editorial-calendar",
+    "pluralName": "editorial-calendars",
+    "displayName": "Editorial Calendar",
+    "description": "Pianificazione e tracciamento contenuti editoriali"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "content_type": {
+      "type": "enumeration",
+      "enum": ["review", "recipe", "tutorial", "blog"],
+      "required": true
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["idea", "research", "draft", "review", "published"],
+      "default": "idea"
+    },
+    "target_date": {
+      "type": "date"
+    },
+    "target_keyword": {
+      "type": "string"
+    },
+    "secondary_keywords": {
+      "type": "text"
+    },
+    "target_locale": {
+      "type": "enumeration",
+      "enum": ["en", "it", "es"],
+      "default": "en"
+    },
+    "priority": {
+      "type": "enumeration",
+      "enum": ["low", "medium", "high"],
+      "default": "medium"
+    },
+    "notes": {
+      "type": "richtext"
+    }
+  }
+}
