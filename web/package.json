@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && npx pagefind --site dist/client --output-subdir ../pagefind",
     "preview": "astro preview",
     "test": "vitest run",
     "test:watch": "vitest",
