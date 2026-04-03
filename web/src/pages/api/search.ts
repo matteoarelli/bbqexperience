@@ -1,24 +1,11 @@
 // API proxy per ricerca multi-content — interroga Strapi su reviews, recipes, tutorials, blog-posts
 import type { APIRoute } from 'astro';
 import { STRAPI_URL } from '@lib/strapi';
+import { checkRateLimit, getClientIp } from '@lib/rate-limit';
 
 export const prerender = false;
 
 const STRAPI_API_TOKEN = import.meta.env.STRAPI_API_TOKEN || '';
-
-/** Rate limiter in-memory — max 30 richieste per minuto per IP */
-const rateLimit = new Map<string, number[]>();
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 30;
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const requests = rateLimit.get(ip)?.filter(t => now - t < WINDOW_MS) || [];
-  if (requests.length >= MAX_REQUESTS) return false;
-  requests.push(now);
-  rateLimit.set(ip, requests);
-  return true;
-}
 
 /** Header di autenticazione per Strapi */
 function strapiHeaders(): HeadersInit {
@@ -44,10 +31,8 @@ interface SearchResult {
 
 export const GET: APIRoute = async ({ url, request }) => {
   // Controllo rate limit
-  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')
-    || 'unknown';
-  if (!checkRateLimit(clientIp)) {
+  const clientIp = getClientIp(request);
+  if (!checkRateLimit(clientIp, 'search', 30)) {
     return new Response(JSON.stringify({ error: 'Too many requests' }), {
       status: 429,
       headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },

@@ -2,22 +2,9 @@
 import type { APIRoute } from 'astro';
 import { promises as fs } from 'node:fs';
 import { join } from 'node:path';
+import { checkRateLimit, getClientIp } from '@lib/rate-limit';
 
 export const prerender = false;
-
-/** Rate limiter in-memory — max 5 iscrizioni per minuto per IP */
-const rateLimit = new Map<string, number[]>();
-const WINDOW_MS = 60_000;
-const MAX_REQUESTS = 5;
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const requests = rateLimit.get(ip)?.filter(t => now - t < WINDOW_MS) || [];
-  if (requests.length >= MAX_REQUESTS) return false;
-  requests.push(now);
-  rateLimit.set(ip, requests);
-  return true;
-}
 
 /** Percorso file JSON per le iscrizioni */
 const SUBSCRIBERS_FILE = join(process.cwd(), 'data', 'newsletter-subscribers.json');
@@ -52,10 +39,8 @@ async function writeSubscribers(subscribers: Subscriber[]): Promise<void> {
 
 export const POST: APIRoute = async ({ request }) => {
   // Controllo rate limit
-  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || request.headers.get('x-real-ip')
-    || 'unknown';
-  if (!checkRateLimit(clientIp)) {
+  const clientIp = getClientIp(request);
+  if (!checkRateLimit(clientIp, 'newsletter', 5)) {
     return new Response(JSON.stringify({ error: 'Too many requests' }), {
       status: 429,
       headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
