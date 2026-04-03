@@ -40,4 +40,31 @@ rm -rf "${OUTPUT_DIR}.old"
 [ -d "$OUTPUT_DIR" ] && mv "$OUTPUT_DIR" "${OUTPUT_DIR}.old"
 cp -r "$WEB_DIR/dist" "$OUTPUT_DIR"
 
+# Smoke test — verifica che le pagine principali rispondano 200
+echo "$(date '+%Y-%m-%d %H:%M:%S') -- Smoke test iniziato" >> "$LOG"
+SMOKE_URLS=(
+  "https://bbq-experience.com/en/"
+  "https://bbq-experience.com/it/"
+  "https://bbq-experience.com/es/"
+  "https://bbq-experience.com/en/reviews/"
+  "https://bbq-experience.com/it/recensioni/"
+  "https://bbq-experience.com/es/resenas/"
+  "https://bbq-experience.com/en/recipes/"
+  "https://bbq-experience.com/it/ricette/"
+  "https://bbq-experience.com/es/recetas/"
+)
+SMOKE_FAIL=0
+for url in "${SMOKE_URLS[@]}"; do
+  HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$url" || echo "000")
+  if [ "$HTTP_CODE" != "200" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') -- SMOKE FAIL: $url -> HTTP $HTTP_CODE" >> "$LOG"
+    SMOKE_FAIL=1
+  fi
+done
+if [ "$SMOKE_FAIL" -eq 0 ]; then
+  echo "$(date '+%Y-%m-%d %H:%M:%S') -- Smoke test PASSED (9/9 URL OK)" >> "$LOG"
+else
+  echo "$(date '+%Y-%m-%d %H:%M:%S') -- ATTENZIONE: Smoke test con errori, verificare manualmente" >> "$LOG"
+fi
+
 echo "$(date '+%Y-%m-%d %H:%M:%S') -- Rebuild web completato" >> "$LOG"
