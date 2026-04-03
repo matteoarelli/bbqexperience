@@ -16,6 +16,7 @@
     "@astrojs/svelte": "^8.0.4",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/oswald": "^5.2.8",
+    "@sentry/node": "^10.47.0",
     "@tailwindcss/vite": "^4.2.2",
     "astro": "^6.1.2",
     "gsap": "^3.14.2",

@@ -1,11 +1,22 @@
 // Middleware Astro — BBQ Experience
-// Legge il cookie di anteprima e inietta lo stato preview nel contesto
+// Preview mode + Sentry error tracking
 import { defineMiddleware } from 'astro:middleware';
 import { isPreviewMode } from '@lib/preview';
+import { initSentry, captureError } from '@lib/sentry';
 
-export const onRequest = defineMiddleware((context, next) => {
-  // Imposta lo stato di anteprima nei locals per tutte le pagine
+// Inizializza Sentry al primo request
+initSentry();
+
+export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.isPreview = isPreviewMode(context.cookies);
 
-  return next();
+  try {
+    return await next();
+  } catch (error) {
+    captureError(error, {
+      url: context.url.pathname,
+      method: context.request.method,
+    });
+    throw error;
+  }
 });
