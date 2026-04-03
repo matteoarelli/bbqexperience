@@ -23,7 +23,7 @@ const imageUrl = getStrapiMediaURL(recipe.cover_image);
 const difficultyLabel = recipe.difficulty ? t(`content.${recipe.difficulty}`) : null;
 ---
 
-<a href={`/${locale}/${recipesRoute}/${recipe.slug}/`} class="recipe-card card-hover" data-animate>
+<a href={`/${locale}/${recipesRoute}/${recipe.slug}/`} class="recipe-card card-hover">
   <div class="recipe-card__image-wrapper">
     {imageUrl ? (
       <ImageWithPlaceholder

@@ -21,7 +21,7 @@ const imageUrl = getStrapiMediaURL(review.gallery?.[0] ?? review.product?.images
 const score = review.score_overall ?? 0;
 ---
 
-<a href={`/${locale}/${reviewsRoute}/${review.slug}/`} class="review-card card-hover" data-animate>
+<a href={`/${locale}/${reviewsRoute}/${review.slug}/`} class="review-card card-hover">
   <div class="review-card__image-wrapper">
     {imageUrl ? (
       <ImageWithPlaceholder
