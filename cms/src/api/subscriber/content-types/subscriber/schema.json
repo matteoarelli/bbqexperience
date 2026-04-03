@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "subscribers",
+  "info": {
+    "singularName": "subscriber",
+    "pluralName": "subscribers",
+    "displayName": "Subscriber",
+    "description": "Iscritti alla newsletter"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
+    },
+    "locale_preference": {
+      "type": "enumeration",
+      "enum": ["en", "it", "es"],
+      "default": "en"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "active", "unsubscribed"],
+      "default": "pending"
+    },
+    "brevo_contact_id": {
+      "type": "string"
+    },
+    "subscribed_at": {
+      "type": "datetime"
+    },
+    "unsubscribed_at": {
+      "type": "datetime"
+    }
+  }
+}
