@@ -1,0 +1,45 @@
+---
+/**
+ * ErrorFallback — mostra messaggio user-friendly quando una sezione non riesce a caricare
+ */
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  translations: Record<string, any>;
+  section?: string;
+}
+
+const { translations, section = '' } = Astro.props;
+---
+
+<div class="error-fallback" role="alert">
+  <p class="error-fallback__text">
+    {getTranslation(translations, 'common.contentUnavailable') || 'Content temporarily unavailable'}
+  </p>
+  {section && (
+    <p class="error-fallback__detail">{section}</p>
+  )}
+</div>
+
+<style>
+  .error-fallback {
+    padding: var(--space-8) var(--space-4);
+    text-align: center;
+    border: 1px dashed var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+  }
+
+  .error-fallback__text {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  .error-fallback__detail {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    margin: var(--space-2) 0 0;
+    opacity: 0.6;
+  }
+</style>
