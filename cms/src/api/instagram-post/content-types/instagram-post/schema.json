@@ -48,6 +48,28 @@
     "curated": {
       "type": "boolean",
       "default": false
+    },
+    "engagement_score": {
+      "type": "decimal",
+      "default": 0
+    },
+    "like_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "comments_count": {
+      "type": "integer",
+      "default": 0
+    },
+    "related_review": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::review.review"
+    },
+    "related_recipe": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::recipe.recipe"
     }
   }
 }
