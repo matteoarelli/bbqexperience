@@ -85,7 +85,7 @@ const breadcrumbItems = [
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
 
     <!-- Titolo e metadati -->
-    <div class="flex items-start gap-3 mb-[var(--space-4)]" data-animate>
+    <div class="flex items-start gap-3 mb-[var(--space-4)]">
       <h1
         class="text-[var(--text-4xl)] uppercase tracking-tight"
         style="font-family: var(--font-heading); color: var(--color-text-primary); margin: 0;"
@@ -118,7 +118,7 @@ const breadcrumbItems = [
       <p
         class="text-[var(--text-lg)] mb-[var(--space-8)]"
         style="color: var(--color-text-secondary);"
-        data-animate
+
       >
         {review.excerpt}
       </p>
@@ -129,7 +129,7 @@ const breadcrumbItems = [
         src={coverImage}
         alt={coverImageAlt}
         class="w-full rounded-[var(--radius-lg)] mb-[var(--space-12)]"
-        data-animate
+
       />
     )}
 
@@ -164,7 +164,7 @@ const breadcrumbItems = [
       <div
         class="prose prose-invert prose-lg max-w-none mb-[var(--space-12)]"
         set:html={review.editorial_content}
-        data-animate
+
       />
     )}
 

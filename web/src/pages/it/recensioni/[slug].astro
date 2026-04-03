@@ -83,7 +83,7 @@ const breadcrumbItems = [
 
   <!-- Hero immagine full-width con overlay -->
   {coverImage && (
-    <div class="review-hero" data-animate>
+    <div class="review-hero">
       <img
         src={coverImage}
         alt={coverImageAlt}
@@ -97,7 +97,7 @@ const breadcrumbItems = [
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
 
     <!-- Titolo e metadati -->
-    <div class="flex items-start gap-3 mb-[var(--space-4)]" data-animate>
+    <div class="flex items-start gap-3 mb-[var(--space-4)]">
       <h1 class="review-page-title">
         {review.title}
       </h1>
@@ -124,7 +124,7 @@ const breadcrumbItems = [
     )}
 
     {review.excerpt && (
-      <p class="lead mb-[var(--space-8)]" data-animate>
+      <p class="lead mb-[var(--space-8)]">
         {review.excerpt}
       </p>
     )}
@@ -160,7 +160,7 @@ const breadcrumbItems = [
       <div
         class="prose prose-invert prose-lg max-w-none mb-[var(--space-12)] review-editorial"
         set:html={review.editorial_content}
-        data-animate
+
       />
     )}
 
