@@ -101,34 +101,29 @@ async function upsertPost(post, isCurated, relations) {
   };
 
   if (existing) {
-    // Aggiorna e pubblica
-    await fetch(`${STRAPI_URL}/api/instagram-posts/${existing.documentId}`, {
+    // Aggiorna e pubblica via PUT
+    const res = await fetch(`${STRAPI_URL}/api/instagram-posts/${existing.documentId}`, {
       method: 'PUT',
       headers: strapiHeaders(),
       body: JSON.stringify(payload),
     });
-    // Pubblica il contenuto (Strapi v5 richiede azione separata)
-    await fetch(`${STRAPI_URL}/api/instagram-posts/${existing.documentId}/actions/publish`, {
-      method: 'POST',
-      headers: strapiHeaders(),
-    });
-    console.log(`  Aggiornato: ${post.id}`);
+    if (!res.ok) {
+      console.error(`  ERRORE aggiornamento ${post.id}: ${res.status} ${await res.text()}`);
+    } else {
+      console.log(`  Aggiornato: ${post.id}`);
+    }
   } else {
-    // Crea nuovo post
+    // Crea nuovo post — Strapi v5 pubblica automaticamente con draftAndPublish: true se il token ha i permessi
     const createRes = await fetch(`${STRAPI_URL}/api/instagram-posts`, {
       method: 'POST',
       headers: strapiHeaders(),
       body: JSON.stringify(payload),
     });
-    const created = await createRes.json();
-    // Pubblica il post appena creato
-    if (created?.data?.documentId) {
-      await fetch(`${STRAPI_URL}/api/instagram-posts/${created.data.documentId}/actions/publish`, {
-        method: 'POST',
-        headers: strapiHeaders(),
-      });
+    if (!createRes.ok) {
+      console.error(`  ERRORE creazione ${post.id}: ${createRes.status} ${await createRes.text()}`);
+    } else {
+      console.log(`  Creato: ${post.id}`);
     }
-    console.log(`  Creato: ${post.id}`);
   }
 }
 
