@@ -89,6 +89,9 @@ const successText = getTranslation(translations, 'newsletter.success');
       localStorage.setItem('bbq-newsletter-subscribed', email);
       form.style.display = 'none';
       success.style.display = 'block';
+
+      // Track newsletter signup in Umami
+      if (typeof umami !== 'undefined') umami.track('newsletter-signup');
     });
   });
 </script>
