@@ -26,13 +26,13 @@
       "enum": ["IMAGE", "VIDEO", "CAROUSEL_ALBUM"]
     },
     "media_url": {
-      "type": "string"
+      "type": "text"
     },
     "thumbnail_url": {
-      "type": "string"
+      "type": "text"
     },
     "permalink": {
-      "type": "string"
+      "type": "text"
     },
     "caption": {
       "type": "text"
