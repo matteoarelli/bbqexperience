@@ -1,44 +1,20 @@
-// API endpoint newsletter — salva le iscrizioni in un file JSON lato server
+// API endpoint newsletter — crea subscriber in Strapi + aggiunge contatto in Brevo
 import type { APIRoute } from 'astro';
-import { promises as fs } from 'node:fs';
-import { join } from 'node:path';
 import { checkRateLimit, getClientIp } from '@lib/rate-limit';
+import { captureError } from '@lib/sentry';
 
 export const prerender = false;
 
-/** Percorso file JSON per le iscrizioni */
-const SUBSCRIBERS_FILE = join(process.cwd(), 'data', 'newsletter-subscribers.json');
+const STRAPI_URL = import.meta.env.STRAPI_URL || 'http://localhost:1337';
+const STRAPI_API_TOKEN = import.meta.env.STRAPI_API_TOKEN || '';
+const BREVO_API_KEY = import.meta.env.BREVO_API_KEY || '';
+const BREVO_LIST_ID = import.meta.env.BREVO_LIST_ID ? Number(import.meta.env.BREVO_LIST_ID) : 0;
 
-/** Validazione email base */
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-interface Subscriber {
-  email: string;
-  subscribedAt: string;
-  locale: string;
-}
-
-/** Legge le iscrizioni esistenti dal file */
-async function readSubscribers(): Promise<Subscriber[]> {
-  try {
-    const data = await fs.readFile(SUBSCRIBERS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-/** Salva le iscrizioni nel file */
-async function writeSubscribers(subscribers: Subscriber[]): Promise<void> {
-  const dir = join(process.cwd(), 'data');
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(SUBSCRIBERS_FILE, JSON.stringify(subscribers, null, 2), 'utf-8');
-}
-
 export const POST: APIRoute = async ({ request }) => {
-  // Controllo rate limit
   const clientIp = getClientIp(request);
   if (!checkRateLimit(clientIp, 'newsletter', 5)) {
     return new Response(JSON.stringify({ error: 'Too many requests' }), {
@@ -59,28 +35,54 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const subscribers = await readSubscribers();
+    // 1. Crea subscriber in Strapi
+    const strapiRes = await fetch(`${STRAPI_URL}/api/subscribers`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${STRAPI_API_TOKEN}`,
+      },
+      body: JSON.stringify({
+        data: {
+          email,
+          locale_preference: locale,
+          status: 'pending',
+          subscribed_at: new Date().toISOString(),
+        },
+      }),
+    });
 
-    // Controlla se già iscritto
-    if (subscribers.some(s => s.email === email)) {
-      return new Response(JSON.stringify({ success: true, message: 'Già iscritto' }), {
-        headers: { 'Content-Type': 'application/json' },
-      });
+    // Se email gia presente, Strapi ritorna 400 per unique constraint
+    if (!strapiRes.ok && strapiRes.status !== 400) {
+      console.error('Errore Strapi subscriber:', strapiRes.status);
     }
 
-    // Aggiungi nuovo iscritto
-    subscribers.push({
-      email,
-      subscribedAt: new Date().toISOString(),
-      locale,
-    });
-    await writeSubscribers(subscribers);
+    // 2. Aggiungi contatto in Brevo (se configurato)
+    if (BREVO_API_KEY && BREVO_LIST_ID) {
+      try {
+        await fetch('https://api.brevo.com/v3/contacts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'api-key': BREVO_API_KEY,
+          },
+          body: JSON.stringify({
+            email,
+            listIds: [BREVO_LIST_ID],
+            attributes: { LOCALE: locale },
+            updateEnabled: true,
+          }),
+        });
+      } catch (brevoErr) {
+        captureError(brevoErr, { context: 'brevo-create-contact', email: '***' });
+      }
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    console.error('Errore newsletter:', err);
+    captureError(err, { context: 'newsletter-signup' });
     return new Response(JSON.stringify({ error: 'Errore interno' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
