@@ -1,5 +1,17 @@
-// Proxy API per recensioni — evita di esporre STRAPI_URL al client
-// Gestisce ricerca (search), singola review (id), e batch (ids)
+/**
+ * GET /api/reviews — Proxy API per recensioni verso Strapi
+ *
+ * @param {string} search - Ricerca per titolo ($containsi), max 10 risultati
+ * @param {string} id - Singola review per documentId
+ * @param {string} ids - Batch fetch per documentId multipli (separati da virgola, max 10)
+ * @param {string} locale - Lingua (en|it|es, default: en)
+ *
+ * Rate limit: 30 req/min per IP (in-memory)
+ * Cache: public, max-age=60
+ * Le URL immagini relative vengono convertite in URL assolute (PUBLIC_CMS_URL).
+ *
+ * @returns {{ data: Array<Review> }} o {{ error: string }}
+ */
 import type { APIRoute } from 'astro';
 import { STRAPI_URL } from '@lib/strapi';
 

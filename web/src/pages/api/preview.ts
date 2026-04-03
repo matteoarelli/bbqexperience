@@ -1,6 +1,19 @@
-// Endpoint API per attivare/disattivare la modalita anteprima — BBQ Experience
-// GET: valida il segreto, imposta il cookie di preview e redirige alla pagina contenuto
-// DELETE: rimuove il cookie di preview e redirige alla homepage
+/**
+ * GET /api/preview — Attiva modalita anteprima (draft content)
+ *
+ * @param {string} secret - Segreto di preview (required, deve corrispondere a PREVIEW_SECRET)
+ * @param {string} slug - Slug del contenuto da visualizzare (required)
+ * @param {string} type - Tipo di contenuto (reviews|recipes|tutorials|blog-posts, default: reviews)
+ * @param {string} locale - Lingua (en|it|es, default: en)
+ * @param {string} action - Se "exit", rimuove il cookie di preview e redirige
+ *
+ * Imposta un cookie httpOnly (1h) e redirige alla pagina del contenuto.
+ *
+ * DELETE /api/preview — Disattiva modalita anteprima
+ * Rimuove il cookie di preview e redirige alla homepage.
+ *
+ * @returns {Response} Redirect 302 o JSON error (401/400)
+ */
 import type { APIRoute } from 'astro';
 import { PREVIEW_COOKIE_NAME, PREVIEW_SECRET } from '@lib/preview';
 

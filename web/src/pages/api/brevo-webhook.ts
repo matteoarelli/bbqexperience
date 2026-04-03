@@ -1,4 +1,15 @@
-// Webhook Brevo — riceve eventi di conferma/unsubscribe e aggiorna Strapi
+/**
+ * POST /api/brevo-webhook — Riceve eventi webhook da Brevo
+ *
+ * Eventi gestiti:
+ * - contact_updated: marca subscriber come "active" in Strapi
+ * - unsubscribed: marca subscriber come "unsubscribed" in Strapi
+ *
+ * Sicurezza: validazione HMAC-SHA256 via header x-sib-signature
+ * (richiede BREVO_WEBHOOK_SECRET configurato)
+ *
+ * @returns {string} "OK" (200) o "Unauthorized" (401) o "Internal Error" (500)
+ */
 import type { APIRoute } from 'astro';
 import { captureError } from '@lib/sentry';
 import { createHmac } from 'node:crypto';

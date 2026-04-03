@@ -1,4 +1,17 @@
-// API endpoint newsletter — crea subscriber in Strapi + aggiunge contatto in Brevo
+/**
+ * POST /api/newsletter — Iscrizione newsletter via Strapi + Brevo
+ *
+ * @body {{ email: string, locale?: string }}
+ *
+ * Flusso:
+ * 1. Valida email e rate limit (5 req/min per IP)
+ * 2. Crea subscriber in Strapi (status: pending)
+ * 3. Crea contatto in Brevo con double opt-in
+ * 4. Brevo invia email di conferma
+ * 5. Al confirm, webhook Brevo aggiorna status a "active"
+ *
+ * @returns {{ success: boolean, error?: string }}
+ */
 import type { APIRoute } from 'astro';
 import { checkRateLimit, getClientIp } from '@lib/rate-limit';
 import { captureError } from '@lib/sentry';

@@ -1,4 +1,16 @@
-// API proxy per ricerca multi-content — interroga Strapi su reviews, recipes, tutorials, blog-posts
+/**
+ * GET /api/search — Proxy ricerca multi-content verso Strapi
+ *
+ * @param {string} q - Query di ricerca (required)
+ * @param {string} locale - Lingua (en|it|es, default: en)
+ * @param {string} filter - Filtro tipo contenuto (all|reviews|recipes|tutorials|blog, default: all)
+ *
+ * Rate limit: 30 req/min per IP (SQLite-based)
+ * Cache: public, max-age=60
+ *
+ * @returns {{ results: Array<{ url: string, title: string, excerpt: string, contentType: string }> }}
+ * Massimo 15 risultati. Excerpt troncato a 150 caratteri.
+ */
 import type { APIRoute } from 'astro';
 import { STRAPI_URL } from '@lib/strapi';
 import { checkRateLimit, getClientIp } from '@lib/rate-limit';
