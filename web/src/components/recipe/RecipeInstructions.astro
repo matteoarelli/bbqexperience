@@ -36,12 +36,21 @@ const sortedSteps = [...instructions].sort((a, b) => a.step - b.step);
         </div>
 
         <div class="flex-1 min-w-0">
+          {/* Titolo dello step (se presente) */}
+          {(instruction as any).title && (
+            <h4
+              class="font-bold mb-1 uppercase tracking-wide"
+              style="font-family: var(--font-heading); color: var(--color-accent-fire); font-size: var(--text-sm);"
+            >
+              {(instruction as any).title}
+            </h4>
+          )}
           {/* Testo dell'istruzione */}
           <p
             class="leading-relaxed"
             style="color: var(--color-text-primary); font-family: var(--font-body);"
           >
-            {instruction.text}
+            {instruction.text || (instruction as any).detail || (instruction as any).description || ''}
           </p>
 
           {/* Immagine opzionale dello step */}

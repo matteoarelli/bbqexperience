@@ -111,7 +111,10 @@ export interface RecipeIngredient {
 /** Singolo passo di una ricetta */
 export interface RecipeInstruction {
   step: number;
-  text: string;
+  text?: string;
+  detail?: string;
+  title?: string;
+  description?: string;
   image?: StrapiMedia;
 }
 
