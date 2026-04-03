@@ -39,7 +39,8 @@ function calculateEngagementScore(posts) {
 }
 
 async function findExistingPost(instagramId) {
-  const url = `${STRAPI_URL}/api/instagram-posts?filters[instagram_id][$eq]=${instagramId}`;
+  // Strapi v5: cercare anche tra i draft, altrimenti i post appena creati non vengono trovati
+  const url = `${STRAPI_URL}/api/instagram-posts?filters[instagram_id][$eq]=${instagramId}&status=draft`;
   const res = await fetch(url, { headers: strapiHeaders() });
   const data = await res.json();
   return data?.data?.[0] || null;
@@ -100,18 +101,33 @@ async function upsertPost(post, isCurated, relations) {
   };
 
   if (existing) {
+    // Aggiorna e pubblica
     await fetch(`${STRAPI_URL}/api/instagram-posts/${existing.documentId}`, {
       method: 'PUT',
       headers: strapiHeaders(),
       body: JSON.stringify(payload),
     });
+    // Pubblica il contenuto (Strapi v5 richiede azione separata)
+    await fetch(`${STRAPI_URL}/api/instagram-posts/${existing.documentId}/actions/publish`, {
+      method: 'POST',
+      headers: strapiHeaders(),
+    });
     console.log(`  Aggiornato: ${post.id}`);
   } else {
-    await fetch(`${STRAPI_URL}/api/instagram-posts`, {
+    // Crea nuovo post
+    const createRes = await fetch(`${STRAPI_URL}/api/instagram-posts`, {
       method: 'POST',
       headers: strapiHeaders(),
       body: JSON.stringify(payload),
     });
+    const created = await createRes.json();
+    // Pubblica il post appena creato
+    if (created?.data?.documentId) {
+      await fetch(`${STRAPI_URL}/api/instagram-posts/${created.data.documentId}/actions/publish`, {
+        method: 'POST',
+        headers: strapiHeaders(),
+      });
+    }
     console.log(`  Creato: ${post.id}`);
   }
 }
