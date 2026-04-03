@@ -8,7 +8,9 @@ RUN npm ci --production=false
 COPY . .
 
 ARG STRAPI_URL=http://bbqexperience-strapi:1337
+ARG SENTRY_DSN=
 ENV STRAPI_URL=$STRAPI_URL
+ENV SENTRY_DSN=$SENTRY_DSN
 ENV HOST=0.0.0.0
 ENV PORT=4321
 
