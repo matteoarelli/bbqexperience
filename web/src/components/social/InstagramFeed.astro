@@ -1,5 +1,5 @@
 ---
-// Griglia di post Instagram curati — recupera i post da Strapi e li mostra in griglia responsive
+// Griglia di post Instagram con feed intelligente — mix curated + recenti + reel
 import type { Locale } from '@lib/i18n';
 import { getTranslation } from '@lib/i18n';
 import { fetchCollection } from '@lib/strapi';
@@ -12,21 +12,42 @@ interface Props {
   maxPosts?: number;
 }
 
-const { locale, translations, maxPosts = 6 } = Astro.props;
+const { locale, translations, maxPosts = 5 } = Astro.props;
 
-// Recupera post curati da Strapi — instagram-posts NON e localizzato,
-// quindi passiamo locale: 'en' esplicitamente (default Strapi)
+// Feed intelligente: 2 curated (alto engagement) + 2 recenti + 1 reel
 let posts: (StrapiInstagramPost & import('@lib/types').StrapiEntity)[] = [];
 
 try {
-  const response = await fetchCollection<StrapiInstagramPost>('instagram-posts', {
+  // Curated posts (alto engagement)
+  const curatedRes = await fetchCollection<StrapiInstagramPost>('instagram-posts', {
     filters: { curated: { $eq: true } },
     populate: 'cached_image',
-    sort: 'timestamp:desc',
-    pageSize: maxPosts,
+    sort: 'engagement_score:desc',
+    pageSize: 2,
     locale: 'en',
   });
-  posts = response.data;
+
+  // Post recenti (non gia inclusi nei curated)
+  const recentRes = await fetchCollection<StrapiInstagramPost>('instagram-posts', {
+    populate: 'cached_image',
+    sort: 'timestamp:desc',
+    pageSize: 6,
+    locale: 'en',
+  });
+
+  const curatedIds = new Set(curatedRes.data.map(p => p.instagram_id));
+  const recentNotCurated = recentRes.data.filter(p => !curatedIds.has(p.instagram_id));
+
+  // 1 reel se disponibile
+  const reel = recentNotCurated.find(p => p.media_type === 'VIDEO');
+  const nonReelRecent = recentNotCurated.filter(p => p !== reel);
+
+  // Componi mix: curated + recenti + reel
+  posts = [
+    ...curatedRes.data.slice(0, 2),
+    ...nonReelRecent.slice(0, 2),
+    ...(reel ? [reel] : nonReelRecent.slice(2, 3)),
+  ].slice(0, maxPosts);
 } catch {
   // Fallback silenzioso se Strapi non e raggiungibile
   posts = [];
