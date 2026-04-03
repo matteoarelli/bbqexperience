@@ -1,4 +1,5 @@
 // Utilita per internazionalizzazione — BBQ Experience
+import type { TranslationKey } from '@i18n/types';
 export const defaultLocale = 'en' as const;
 export const locales = ['en', 'it', 'es'] as const;
 export type Locale = typeof locales[number];
@@ -84,7 +85,7 @@ export async function loadTranslations(locale: Locale): Promise<Record<string, a
 /**
  * Accede a un valore di traduzione tramite dot notation (e.g., "nav.home")
  */
-export function getTranslation(translations: Record<string, any>, key: string): string {
+export function getTranslation(translations: Record<string, any>, key: TranslationKey): string {
   const keys = key.split('.');
   let value: any = translations;
   for (const k of keys) {
