@@ -1,0 +1,98 @@
+---
+/**
+ * TrustBar — barra social proof sotto l'header su tutte le pagine
+ * Mostra il numero di follower Instagram e credibilità del brand
+ */
+import { getTranslation } from '@lib/i18n';
+
+interface Props {
+  translations: Record<string, any>;
+}
+
+const { translations } = Astro.props;
+---
+
+<div class="trust-bar">
+  <a href="https://instagram.com/bbqexperience" target="_blank" rel="noopener noreferrer" class="trust-bar__link" data-umami-event="trust-bar-click">
+    <span class="trust-bar__item">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+      </svg>
+      <span class="trust-bar__mobile-only">74K+ BBQ Community</span>
+      <span class="trust-bar__desktop-only">
+        Trusted by <strong class="trust-bar__count">74,000+</strong> BBQ enthusiasts
+      </span>
+    </span>
+    <span class="trust-bar__separator" aria-hidden="true"></span>
+    <span class="trust-bar__item trust-bar__desktop-only">
+      Independent reviews since 2004
+    </span>
+  </a>
+</div>
+
+<style>
+  .trust-bar {
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border-subtle);
+    padding: var(--space-2) 0;
+    text-align: center;
+    position: relative;
+    z-index: 40;
+  }
+
+  .trust-bar__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    color: var(--color-text-muted);
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: color var(--transition-fast);
+  }
+
+  .trust-bar__link:hover {
+    color: var(--color-text-primary);
+  }
+
+  .trust-bar__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .trust-bar__count {
+    color: var(--color-accent-fire);
+    font-weight: 700;
+  }
+
+  .trust-bar__separator {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--color-border-default);
+  }
+
+  .trust-bar__mobile-only {
+    display: inline;
+  }
+
+  .trust-bar__desktop-only {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .trust-bar__mobile-only {
+      display: none;
+    }
+    .trust-bar__desktop-only {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+  }
+</style>
