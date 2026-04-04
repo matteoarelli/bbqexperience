@@ -14,6 +14,7 @@ import CategoryLinks from '@components/home/CategoryLinks.astro';
 import PlaceholderCard from '@components/home/PlaceholderCard.astro';
 import ErrorFallback from '@components/common/ErrorFallback.astro';
 import NewsletterSignup from '@components/common/NewsletterSignup.astro';
+import WebSiteJsonLd from '@components/common/WebSiteJsonLd.astro';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import { fetchCollection } from '@lib/strapi';
 import { getStrapiMediaURL } from '@lib/media';
@@ -69,8 +70,10 @@ try {
   description={t('site.description')}
   locale={locale}
   canonicalPath="/"
+  ogImage="/api/og-image?title=BBQ+Experience"
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/`} />
+  <WebSiteJsonLd locale={locale} />
 
   {/* 1. FeaturedHero */}
   <FeaturedHero locale={locale} translations={translations} />

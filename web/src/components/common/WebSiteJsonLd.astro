@@ -1,0 +1,50 @@
+---
+/**
+ * Schema.org WebSite + Organization JSON-LD per la homepage
+ * Abilita sitelinks search box e brand knowledge panel in Google
+ */
+interface Props {
+  locale: string;
+  siteUrl?: string;
+}
+
+const { locale, siteUrl = 'https://bbq-experience.com' } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}/#website`,
+      url: siteUrl,
+      name: 'BBQ Experience',
+      description: 'Independent BBQ reviews, recipes, and tutorials. No sponsors. No BS.',
+      inLanguage: locale,
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${siteUrl}/{locale}/search?q={search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@type': 'Organization',
+      '@id': `${siteUrl}/#organization`,
+      name: 'BBQ Experience',
+      url: siteUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/favicon.svg`,
+      },
+      sameAs: [
+        'https://instagram.com/bbqexperience',
+      ],
+      description: 'The most complete, visually striking, and trustworthy BBQ product review destination online. 74K+ community on Instagram.',
+    },
+  ],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd, null, 2)} />
