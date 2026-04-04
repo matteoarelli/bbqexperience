@@ -51,8 +51,9 @@
   async function loadPagefind() {
     if (pagefindLoaded) return pagefindInstance;
     try {
-      // @ts-ignore — Pagefind is loaded from built assets
-      pagefindInstance = await import('/pagefind/pagefind.js');
+      // Pagefind viene generato post-build — import dinamico opaco per evitare che Vite lo risolva
+      const pagefindPath = '/pagefind/pagefind.js';
+      pagefindInstance = await import(/* @vite-ignore */ pagefindPath);
       await pagefindInstance.init();
       pagefindLoaded = true;
       return pagefindInstance;
