@@ -12,6 +12,7 @@ import RecipeCard from '@components/home/RecipeCard.astro';
 import AboutSection from '@components/home/AboutSection.astro';
 import CategoryLinks from '@components/home/CategoryLinks.astro';
 import PlaceholderCard from '@components/home/PlaceholderCard.astro';
+import ErrorFallback from '@components/common/ErrorFallback.astro';
 import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import { fetchCollection } from '@lib/strapi';
@@ -91,7 +92,7 @@ try {
             <ReviewCard review={review} locale={locale} reviewsRoute={reviewsRoute} readMoreLabel={t('common.readMore')} />
           ))
         ) : (
-          [1, 2, 3].map(() => <PlaceholderCard type="review" locale={locale} />)
+          <ErrorFallback translations={translations} section="reviews" />
         )}
       </div>
     </div>
@@ -111,7 +112,7 @@ try {
             <RecipeCard recipe={recipe} locale={locale} recipesRoute={recipesRoute} translations={translations} />
           ))
         ) : (
-          [1, 2, 3].map(() => <PlaceholderCard type="recipe" locale={locale} />)
+          <ErrorFallback translations={translations} section="recipes" />
         )}
       </div>
     </div>
@@ -152,7 +153,7 @@ try {
             );
           })
         ) : (
-          [1, 2, 3].map(() => <PlaceholderCard type="tutorial" locale={locale} />)
+          <ErrorFallback translations={translations} section="tutorials" />
         )}
       </div>
     </div>
@@ -191,9 +192,7 @@ try {
           })}
         </div>
       ) : (
-        <div class="card-grid" data-animate-stagger>
-          {[1, 2, 3].map(() => <PlaceholderCard type="blog" locale={locale} />)}
-        </div>
+        <ErrorFallback translations={translations} section="blog" />
       )}
     </div>
   </section>
