@@ -34,6 +34,9 @@
   let results = $state<SearchResult[]>([]);
   let isSearching = $state(false);
 
+  let pagefindLoaded = $state(false);
+  let pagefindInstance: any = $state(null);
+
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let inputRef: HTMLInputElement | undefined = $state();
 
@@ -42,6 +45,20 @@
     title: string;
     excerpt: string;
     contentType: string;
+  }
+
+  // Carica Pagefind on-demand come fallback
+  async function loadPagefind() {
+    if (pagefindLoaded) return pagefindInstance;
+    try {
+      // @ts-ignore — Pagefind is loaded from built assets
+      pagefindInstance = await import('/pagefind/pagefind.js');
+      await pagefindInstance.init();
+      pagefindLoaded = true;
+      return pagefindInstance;
+    } catch {
+      return null;
+    }
   }
 
   // Esegui la ricerca tramite API proxy
@@ -64,8 +81,22 @@
 
       const json = await response.json();
       results = json.results || [];
-    } catch (e) {
-      console.error('Errore durante la ricerca:', e);
+    } catch (fetchError) {
+      console.error('Errore API ricerca, tentativo fallback Pagefind:', fetchError);
+      // Fallback a Pagefind se API non disponibile
+      try {
+        const pf = await loadPagefind();
+        if (pf) {
+          const search = await pf.search(searchQuery);
+          results = await Promise.all(
+            search.results.slice(0, 15).map(async (r: any) => {
+              const data = await r.data();
+              return { url: data.url, title: data.meta?.title || '', excerpt: data.excerpt || '', contentType: 'all' };
+            })
+          );
+          return;
+        }
+      } catch { /* Pagefind also failed */ }
       results = [];
     } finally {
       isSearching = false;
