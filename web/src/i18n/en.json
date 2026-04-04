@@ -214,8 +214,8 @@
     "learnMore": "Privacy Policy"
   },
   "newsletter": {
-    "title": "Stay in the Loop",
-    "subtitle": "Get the latest reviews, recipes, and BBQ tips straight to your inbox.",
+    "title": "Join 74,000+ Pitmasters",
+    "subtitle": "Get exclusive reviews, recipes, and BBQ secrets. No spam, no BS — just fire content.",
     "placeholder": "Your email address",
     "submit": "Subscribe",
     "success": "Thanks for subscribing!"
@@ -249,8 +249,8 @@
     "shareX": "X",
     "instagramTitle": "From Our Instagram",
     "followOnInstagram": "Follow on Instagram",
-    "ctaTitle": "Join 74K+ BBQ Enthusiasts",
-    "ctaSubtitle": "Follow us on Instagram for daily BBQ content, tips, and behind-the-scenes",
+    "ctaTitle": "74K+ Can't Be Wrong",
+    "ctaSubtitle": "The biggest independent BBQ community on Instagram. Daily content, honest reviews, zero sponsors.",
     "ctaButton": "Follow @bbqexperience"
   }
 }
