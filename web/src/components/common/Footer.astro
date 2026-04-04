@@ -76,7 +76,7 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
               </svg>
-              Instagram
+              Instagram <span class="footer__social-count">74K</span>
             </a>
           </li>
           <li>
@@ -201,6 +201,20 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
   }
 
   /* Back to top */
+  /* Badge conteggio follower social */
+  .footer__social-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--color-accent-fire);
+    background: rgba(249, 115, 22, 0.1);
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    margin-left: var(--space-1);
+  }
+
   .footer-back-to-top {
     text-align: center;
     margin-top: var(--space-12);
