@@ -1,0 +1,77 @@
+{
+  "kind": "collectionType",
+  "collectionName": "content_queues",
+  "info": {
+    "singularName": "content-queue",
+    "pluralName": "content-queues",
+    "displayName": "Content Queue",
+    "description": "Coda articoli generati da AI per pubblicazione automatica"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "content_type": {
+      "type": "enumeration",
+      "enum": ["blog", "tutorial", "recipe", "review", "comparison"],
+      "required": true
+    },
+    "body_en": {
+      "type": "richtext"
+    },
+    "body_it": {
+      "type": "richtext"
+    },
+    "body_es": {
+      "type": "richtext"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["idea", "research", "ready", "generating", "published", "failed"],
+      "default": "idea",
+      "required": true
+    },
+    "scheduled_date": {
+      "type": "date"
+    },
+    "cluster": {
+      "type": "enumeration",
+      "enum": ["smoking", "grills", "thermometers", "brisket", "sauces", "uncategorized"],
+      "default": "uncategorized"
+    },
+    "target_keyword": {
+      "type": "string"
+    },
+    "search_volume": {
+      "type": "integer"
+    },
+    "difficulty": {
+      "type": "enumeration",
+      "enum": ["low", "medium", "high"],
+      "default": "medium"
+    },
+    "priority": {
+      "type": "integer",
+      "default": 5
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": true
+    },
+    "published_content_id": {
+      "type": "string"
+    },
+    "generation_log": {
+      "type": "text"
+    }
+  }
+}
