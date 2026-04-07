@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "brands",
+  "info": {
+    "singularName": "brand",
+    "pluralName": "brands",
+    "displayName": "Brand",
+    "description": "Brand BBQ per pipeline partnership e affiliate"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "website": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "category": {
+      "type": "enumeration",
+      "enum": ["grill_manufacturer", "accessory_brand", "thermometer", "fuel", "sauce_rub", "other"],
+      "default": "other"
+    },
+    "partnership_status": {
+      "type": "enumeration",
+      "enum": ["to_contact", "contacted", "negotiating", "active", "declined", "expired"],
+      "default": "to_contact"
+    },
+    "affiliate_program_url": {
+      "type": "string"
+    },
+    "commission_rate": {
+      "type": "decimal"
+    },
+    "notes": {
+      "type": "richtext"
+    }
+  }
+}
