@@ -1,0 +1,109 @@
+---
+/**
+ * FaqSection — Accordion FAQ con JSON-LD FAQPage schema integrato.
+ * Usato in tutorial, guide e articoli generati da AI.
+ */
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  faqs: FaqItem[];
+  title?: string;
+}
+
+const { faqs, title = "Frequently Asked Questions" } = Astro.props;
+const hasFaqs = faqs && faqs.length > 0;
+
+const faqSchema = hasFaqs ? {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer,
+    },
+  })),
+} : null;
+---
+
+{hasFaqs && (
+  <section class="faq-section">
+    <h2 class="faq-section__title">{title}</h2>
+    <div class="faq-section__list">
+      {faqs.map((faq, i) => (
+        <details class="faq-section__item" id={`faq-${i}`}>
+          <summary class="faq-section__question">
+            <span>{faq.question}</span>
+            <svg class="faq-section__icon" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+            </svg>
+          </summary>
+          <div class="faq-section__answer" set:html={faq.answer} />
+        </details>
+      ))}
+    </div>
+  </section>
+)}
+
+{faqSchema && (
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+)}
+
+<style>
+  .faq-section {
+    margin-bottom: var(--space-12);
+  }
+  .faq-section__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-6);
+  }
+  .faq-section__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .faq-section__item {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-subtle);
+    overflow: hidden;
+  }
+  .faq-section__item[open] .faq-section__icon {
+    transform: rotate(180deg);
+  }
+  .faq-section__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: var(--text-base);
+    color: var(--color-text-primary);
+    list-style: none;
+  }
+  .faq-section__question::-webkit-details-marker {
+    display: none;
+  }
+  .faq-section__icon {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    transition: transform var(--transition-base);
+  }
+  .faq-section__answer {
+    padding: 0 var(--space-5) var(--space-5);
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    line-height: 1.7;
+  }
+</style>
