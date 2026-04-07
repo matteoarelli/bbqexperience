@@ -1,0 +1,93 @@
+---
+/**
+ * PillarNav — Indice navigabile dei satellite articles in un cluster SEO.
+ * Usato nelle pillar pages per mostrare tutti gli articoli correlati.
+ */
+interface NavItem {
+  title: string;
+  slug: string;
+  href: string;
+  isCurrent?: boolean;
+}
+
+interface Props {
+  title: string;
+  items: NavItem[];
+  locale: string;
+}
+
+const { title, items, locale } = Astro.props;
+const hasItems = items && items.length > 0;
+---
+
+{hasItems && (
+  <nav class="pillar-nav" aria-label={title}>
+    <h3 class="pillar-nav__title">{title}</h3>
+    <ol class="pillar-nav__list">
+      {items.map((item, i) => (
+        <li class:list={["pillar-nav__item", { "pillar-nav__item--current": item.isCurrent }]}>
+          <a href={item.href} class="pillar-nav__link" aria-current={item.isCurrent ? "page" : undefined}>
+            <span class="pillar-nav__number">{String(i + 1).padStart(2, "0")}</span>
+            <span class="pillar-nav__text">{item.title}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </nav>
+)}
+
+<style>
+  .pillar-nav {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-subtle);
+    padding: var(--space-5) var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+  .pillar-nav__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-accent-fire);
+    margin-bottom: var(--space-4);
+  }
+  .pillar-nav__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .pillar-nav__link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+  }
+  .pillar-nav__link:hover {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+  }
+  .pillar-nav__item--current .pillar-nav__link {
+    background: var(--color-accent-fire);
+    color: white;
+  }
+  .pillar-nav__number {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: var(--text-xs);
+    opacity: 0.5;
+    min-width: 1.5em;
+  }
+  .pillar-nav__item--current .pillar-nav__number {
+    opacity: 1;
+  }
+</style>
