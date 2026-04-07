@@ -148,13 +148,29 @@ A top-class editorial portal for the BBQ Experience brand (74k Instagram followe
 <!-- GSD:conventions-start source:CONVENTIONS.md -->
 ## Conventions
 
-Conventions not yet established. Will populate as patterns emerge during development.
+- **Lenis rimosso** — smooth scroll gestito dal browser nativo, non usare lenis
+- **i18n custom** — JSON files in src/i18n/, NON Paraglide. Translation keys type-safe via src/i18n/types.ts
+- **Rate limiting** — SQLite-based in src/lib/rate-limit.ts, non in-memory Map
+- **Env vars** — TUTTE le env vars necessarie a runtime devono essere sia ARG nel Dockerfile che -e nel docker run
+- **Strapi v5 localizzazioni** — PUT con ?locale=xx nel query param, sempre includere slug nel body
+- **Contenuti Pitmaster** — score range 5.8-8.8, mai 9+. Tono diretto, no marketing BS
+- **Deploy** — webhook auto su push. Per forzare: `--no-cache` nel docker build
+- **Instagram bot** — NON modificare instagram_bot.py. Solo editorial_plan.py e moduli in integrations/
+- **Container names** — PostgreSQL: "postgres" (non "bbqexperience-postgres")
 <!-- GSD:conventions-end -->
 
 <!-- GSD:architecture-start source:ARCHITECTURE.md -->
 ## Architecture
 
-Architecture not yet mapped. Follow existing patterns found in the codebase.
+Vedi docs/architecture.md per diagrammi completi. Sintesi:
+
+- **Request flow:** User → Cloudflare → Caddy → Astro SSR (:4321) → Strapi (:1337) → PostgreSQL
+- **Deploy:** git push → GitHub webhook → Hetzner → rebuild-web.sh → Docker build → smoke test
+- **IG sync:** Cron 6h → sync-instagram.mjs → Graph API → Strapi
+- **IG agent:** Ubuntu locale (192.168.1.119) → instagram-bot/ → instagrapi + Ollama
+- **Data bridge:** Cron 6h → site_bridge.py → site_content.json + link_map.json
+- **Newsletter:** Cron dom 10 → weekly_newsletter.py → Brevo API
+- **Dashboard:** Cron 21:00 → telegram_dashboard.py → Umami API + Strapi + IG state → Telegram
 <!-- GSD:architecture-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->

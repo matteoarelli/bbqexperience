@@ -1,5 +1,80 @@
 # Changelog — BBQ Experience
 
+## 2026-04-03 → 2026-04-06 — v2.0 Upgrade (da 96 a 452 contenuti)
+
+### Production Hardening
+- Backup PostgreSQL automatico giornaliero (cron 03:00, retention 30gg, script backup-db.sh + restore-db.sh)
+- Sentry Free error tracking integrato nel middleware Astro SSR
+- UptimeRobot monitoring su sito + CMS (alert email)
+- Smoke test post-deploy (9 URL verificati dopo ogni rebuild)
+- CORS whitelist esplicita in Strapi (solo bbq-experience.com + localhost dev)
+- CSP headers report-only + X-Content-Type-Options + X-Frame-Options + Referrer-Policy
+- Rate limiter migrato da in-memory Map a SQLite persistente (sopravvive ai restart)
+- Lenis rimossa (dipendenza installata mai usata)
+
+### Testing
+- Vitest configurato con path aliases (15+ unit test per i18n, media, rate-limit)
+- Playwright E2E configurato (homepage, language switcher, dark/light, search, 404)
+
+### Analytics & Monitoring
+- Umami self-hosted su analytics.bbq-experience.com (Docker + PostgreSQL dedicato + Caddy)
+- Tracking script su tutte le pagine + eventi custom (newsletter signup, IG follow click)
+- Dashboard Telegram giornaliera ore 21:00 con traffico sito (Umami) + engagement IG + metriche piano editoriale
+
+### Newsletter & Email
+- Content type Subscriber in Strapi (email, locale, status, brevo_contact_id)
+- Endpoint newsletter riscritto con Brevo API + double opt-in
+- Webhook Brevo per conferma/unsubscribe con HMAC validation
+- 5 template email welcome series creati in Brevo (Day 0/2/4/7/10)
+- Newsletter automatica settimanale (dom 10:00) con top articoli + review + ricetta
+
+### Instagram Integration
+- Instagram Graph API sync ogni 6h (25 post reali importati con engagement score)
+- Token refresh automatico settimanale (lun 04:00)
+- Schema instagram-post esteso: engagement_score, like/comments count, relazioni a review/recipe
+- URL fields cambiati da string a text (>255 chars)
+- Feed homepage intelligente: 2 curated (alto engagement) + 2 recenti + 1 reel
+- Primo commento automatico con link al sito dopo ogni post IG pubblicato (integrato in editorial_plan.py)
+- Facebook App BBQExperience-IG configurata (ID: 925070327001389)
+
+### Site ↔ Instagram Data Bridge (macchina locale 192.168.1.119)
+- site_bridge.py: sync contenuti sito → agente IG ogni 6h (site_content.json, link_map.json, first_comments.json)
+- content_recycler.py: suggerimenti cross-promotion sito ↔ IG (lun 06:30)
+- weekly_newsletter.py: digest settimanale automatico via Brevo (dom 10:00)
+- telegram_dashboard.py: report giornaliero con traffico Umami + engagement IG + stato piano editoriale (ore 21:00)
+
+### Content Expansion (da 96 a 452)
+- 15 nuove review (25 totali) con score Pitmaster in 3 lingue — Weber Kettle, Pit Boss, Yoder, Lodge, ThermoWorks Signals, Chimney Starter, Flame Boss, Camp Chef, Royal Oak, Kingsford, Inkbird, Ironwood, Big Green Egg, Thermacell, Char-Broil
+- 15 nuove ricette (23 totali) in 3 lingue — pork belly burnt ends, beer can chicken, cedar plank salmon, texas hot links, lamb chops, smoked turkey, galbi, beef cheeks, shrimp skewers, spatchcock chicken, pulled lamb, grilled vegetables, smoked meatloaf, competition chicken, swordfish
+- 60 blog post nuovi (87 totali) in 3 lingue — tips, trends, culture, news, events con contenuto ricco (800-1200 parole) e linking interno
+- 20 pagine SEO programmatiche "vs" (comparazioni prodotto) in 3 lingue
+- 12 entry calendario editoriale in Strapi
+- Tutti i 10 articoli Tips arricchiti con contenuto completo
+
+### Social Proofing
+- Trust bar "Trusted by 74,000+ BBQ enthusiasts" sotto l'header su tutte le pagine
+- Newsletter copy: "Join 74,000+ Pitmasters"
+- FollowCTA copy: "74K+ Can't Be Wrong"
+- Badge follower 74K nel footer accanto al link Instagram
+
+### SEO
+- WebSite + Organization JSON-LD sulla homepage (tutte le lingue)
+- og:image sulla homepage
+- ErrorFallback component per graceful Strapi failure
+- Pagefind build step come fallback search (con @vite-ignore per import dinamico)
+- Type-safe translation keys (TranslationKey generato da en.json)
+- Fix 40 slug null nelle localizzazioni IT/ES dei blog post
+
+### Documentation
+- docs/runbook.md — procedure operative (deploy, backup, token IG, troubleshooting)
+- docs/architecture.md — diagrammi flusso (request, deploy, content sync, newsletter)
+- docs/content-strategy.md — frequenza, keyword research, voice guidelines, calendario 3 mesi
+- JSDoc su tutti gli API endpoints (search, newsletter, brevo-webhook, preview, reviews)
+- Spec v2.0: docs/superpowers/specs/2026-04-03-v2-upgrade-design.md
+- Piano v2.0: docs/superpowers/plans/2026-04-03-v2-upgrade-plan.md
+
+---
+
 ## 2026-04-03
 
 ### Content
