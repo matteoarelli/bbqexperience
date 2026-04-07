@@ -8,7 +8,11 @@ export type ContentType =
   | 'tutorials'
   | 'blog-posts'
   | 'products'
-  | 'instagram-posts';
+  | 'instagram-posts'
+  | 'brands'
+  | 'partnerships'
+  | 'keyword-trackers'
+  | 'content-queues';
 
 // ─── Media ───────────────────────────────────────────────────────────────────
 
@@ -78,6 +82,9 @@ export interface StrapiProduct {
   specifications: Record<string, unknown> | null;
   images: StrapiMedia[] | null;
   affiliate_url: string | null;
+  affiliate_links: AffiliateLink[] | null;
+  partnership_status: 'none' | 'contacted' | 'active' | 'expired' | null;
+  brand_relation: (StrapiBrand & StrapiEntity) | null;
 }
 
 /** Recensione approfondita con punteggi per categoria */
@@ -181,4 +188,68 @@ export interface StrapiInstagramPost {
   timestamp: string | null;
   cached_image: StrapiMedia | null;
   curated: boolean;
+}
+
+/** Link affiliato con retailer e commission rate */
+export interface AffiliateLink {
+  retailer: string;
+  url: string;
+  commission_rate: number;
+}
+
+/** Brand BBQ per pipeline partnership */
+export interface StrapiBrand {
+  name: string;
+  website: string | null;
+  contact_email: string | null;
+  category: 'grill_manufacturer' | 'accessory_brand' | 'thermometer' | 'fuel' | 'sauce_rub' | 'other' | null;
+  partnership_status: 'to_contact' | 'contacted' | 'negotiating' | 'active' | 'declined' | 'expired';
+  affiliate_program_url: string | null;
+  commission_rate: number | null;
+  notes: string | null;
+}
+
+/** Tracking outreach e accordi con brand */
+export interface StrapiPartnership {
+  brand: (StrapiBrand & StrapiEntity) | null;
+  status: 'outreach' | 'follow_up_1' | 'follow_up_2' | 'negotiating' | 'agreement' | 'product_received' | 'review_published' | 'completed' | 'declined';
+  contact_date: string;
+  last_follow_up: string | null;
+  products_received: Array<{ name: string; date: string }> | null;
+  agreement_terms: string | null;
+  email_draft: string | null;
+  notes: string | null;
+}
+
+/** Keyword SEO monitorata */
+export interface StrapiKeywordTracker {
+  keyword: string;
+  locale: 'en' | 'it' | 'es';
+  cluster: 'smoking' | 'grills' | 'thermometers' | 'brisket' | 'sauces' | 'uncategorized';
+  position: number | null;
+  impressions: number;
+  clicks: number;
+  ctr: number | null;
+  last_checked: string | null;
+  trend: 'rising' | 'stable' | 'falling';
+  is_low_hanging: boolean;
+}
+
+/** Articolo in coda per pubblicazione AI */
+export interface StrapiContentQueue {
+  title: string;
+  content_type: 'blog' | 'tutorial' | 'recipe' | 'review' | 'comparison';
+  body_en: string | null;
+  body_it: string | null;
+  body_es: string | null;
+  status: 'idea' | 'research' | 'ready' | 'generating' | 'published' | 'failed';
+  scheduled_date: string | null;
+  cluster: 'smoking' | 'grills' | 'thermometers' | 'brisket' | 'sauces' | 'uncategorized';
+  target_keyword: string | null;
+  search_volume: number | null;
+  difficulty: 'low' | 'medium' | 'high' | null;
+  priority: number;
+  ai_generated: boolean;
+  published_content_id: string | null;
+  generation_log: string | null;
 }
