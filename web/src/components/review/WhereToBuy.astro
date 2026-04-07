@@ -1,0 +1,108 @@
+---
+/**
+ * WhereToBuy — Bottoni affiliate per acquistare il prodotto recensito.
+ * Ogni click tracciato come evento Umami 'affiliate_click'.
+ */
+import type { AffiliateLink } from '@lib/types';
+
+interface Props {
+  productName: string;
+  affiliateUrl: string | null;
+  affiliateLinks: AffiliateLink[] | null;
+  translations: Record<string, any>;
+}
+
+const { productName, affiliateUrl, affiliateLinks, translations } = Astro.props;
+
+const links: AffiliateLink[] = [];
+if (affiliateLinks && affiliateLinks.length > 0) {
+  links.push(...affiliateLinks);
+} else if (affiliateUrl) {
+  links.push({ retailer: "Buy Now", url: affiliateUrl, commission_rate: 0 });
+}
+
+const hasLinks = links.length > 0;
+---
+
+{hasLinks && (
+  <section class="where-to-buy">
+    <h3 class="where-to-buy__title">
+      {translations?.review?.whereToBuy || "Where to Buy"}
+    </h3>
+    <div class="where-to-buy__links">
+      {links.map((link) => (
+        <a
+          href={link.url}
+          target="_blank"
+          rel="noopener noreferrer nofollow sponsored"
+          class="where-to-buy__btn"
+          data-umami-event="affiliate_click"
+          data-umami-event-product={productName}
+          data-umami-event-retailer={link.retailer}
+        >
+          <span class="where-to-buy__retailer">{link.retailer}</span>
+          <svg class="where-to-buy__arrow" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path fill-rule="evenodd" d="M5.22 14.78a.75.75 0 001.06 0l7.22-7.22v5.69a.75.75 0 001.5 0v-7.5a.75.75 0 00-.75-.75h-7.5a.75.75 0 000 1.5h5.69l-7.22 7.22a.75.75 0 000 1.06z" clip-rule="evenodd" />
+          </svg>
+        </a>
+      ))}
+    </div>
+    <p class="where-to-buy__disclaimer">
+      {translations?.review?.affiliateDisclaimer || "Links may earn us a commission at no extra cost to you."}
+    </p>
+  </section>
+)}
+
+<style>
+  .where-to-buy {
+    margin-bottom: var(--space-12);
+    padding: var(--space-6) var(--space-8);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-subtle);
+  }
+  .where-to-buy__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
+  }
+  .where-to-buy__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+  .where-to-buy__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: var(--color-accent-fire);
+    color: white;
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: background-color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+  }
+  .where-to-buy__btn:hover {
+    background: var(--color-accent-amber);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
+  }
+  .where-to-buy__arrow {
+    flex-shrink: 0;
+  }
+  .where-to-buy__disclaimer {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+  }
+</style>
