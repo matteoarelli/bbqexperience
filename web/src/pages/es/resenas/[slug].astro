@@ -25,6 +25,7 @@ import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import LastUpdated from '@components/content/LastUpdated.astro';
 import TopPickBadge from '@components/review/TopPickBadge.astro';
 import PrevNextNav from '@components/content/PrevNextNav.astro';
+import WhereToBuy from '@components/review/WhereToBuy.astro';
 import { localizedRoutes } from '@lib/i18n';
 
 export const prerender = false;
@@ -199,20 +200,13 @@ const breadcrumbItems = [
       />
     </div>
 
-    <!-- Pulsante affiliato -->
-    {review.product?.affiliate_url && (
-      <div class="mb-[var(--space-12)] text-center">
-        <a
-          href={review.product.affiliate_url}
-          target="_blank"
-          rel="noopener noreferrer nofollow sponsored"
-          class="affiliate-btn"
-        >
-          {getTranslation(t, 'review.checkPrice')}
-        </a>
-        <p class="affiliate-disclaimer">{getTranslation(t, 'review.affiliateDisclaimer')}</p>
-      </div>
-    )}
+    <!-- Dove comprare -->
+    <WhereToBuy
+      productName={review.product?.name || review.title}
+      affiliateUrl={review.product?.affiliate_url || null}
+      affiliateLinks={review.product?.affiliate_links || null}
+      translations={t}
+    />
 
     <!-- Card autore -->
     <AuthorCard locale={locale} translations={t} />
@@ -246,31 +240,6 @@ const breadcrumbItems = [
 </BaseLayout>
 
 <style>
-  .affiliate-btn {
-    display: inline-block;
-    background-color: var(--color-accent-fire);
-    color: white;
-    font-family: var(--font-heading);
-    font-size: var(--text-lg);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: var(--space-4) var(--space-8);
-    border-radius: var(--radius-lg);
-    text-decoration: none;
-    transition: background-color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
-    box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
-  }
-  .affiliate-btn:hover {
-    background-color: var(--color-accent-amber);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
-  }
-  .affiliate-disclaimer {
-    color: var(--color-text-muted);
-    font-size: var(--text-xs);
-    margin-top: var(--space-2);
-  }
   .compare-cta {
     margin-bottom: var(--space-8);
     text-align: center;
