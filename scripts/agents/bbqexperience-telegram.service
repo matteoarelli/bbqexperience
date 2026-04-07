@@ -1,0 +1,15 @@
+[Unit]
+Description=BBQ Experience Telegram Bot
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/services/bbqexperience/app/scripts/agents
+ExecStart=/usr/bin/python3 /opt/services/bbqexperience/app/scripts/agents/telegram_bot.py
+Restart=always
+RestartSec=10
+EnvironmentFile=/opt/services/bbqexperience/.env
+
+[Install]
+WantedBy=multi-user.target

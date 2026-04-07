@@ -1,0 +1,27 @@
+# BBQ Experience — AI Agents Cron Schedule
+# Hetzner server (204.168.153.43)
+
+# Keyword Scout — Lunedi 05:00
+0 5 * * 1 cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/keyword_scout.py >> /opt/webhooks/logs/keyword-scout.log 2>&1
+
+# SEO Optimizer — Ogni giorno 09:00 e 15:00
+0 9,15 * * * cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/seo_optimizer.py >> /opt/webhooks/logs/seo-optimizer.log 2>&1
+
+# Competitor Monitor — Ogni 12 ore
+0 */12 * * * cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/competitor_monitor.py >> /opt/webhooks/logs/competitor-monitor.log 2>&1
+
+# Partnership Outreach — Lunedi 08:00
+0 8 * * 1 cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/partnership_outreach.py >> /opt/webhooks/logs/partnership-outreach.log 2>&1
+
+# ─── Agenti su 192.168.1.119 (Ollama) ───
+# Content Generator — Ogni giorno 06:00
+# 0 6 * * * cd /path/to/bbqexperience && python3 scripts/agents/content_generator.py >> /var/log/bbq-content-generator.log 2>&1
+
+# Translation Agent — Ogni 6 ore
+# 0 */6 * * * cd /path/to/bbqexperience && python3 scripts/agents/translation_agent.py >> /var/log/bbq-translation-agent.log 2>&1
+
+# ─── Cron esistenti (NON modificare) ───
+# 0 3 * * * /opt/webhooks/scripts/backup-db.sh
+# 0 4 * * 1 cd /opt/services/bbqexperience/app && node scripts/refresh-instagram-token.mjs
+# 0 */6 * * * cd /opt/services/bbqexperience/app && node scripts/sync-instagram.mjs
+# 0 10 * * 0 cd /opt/services/bbqexperience/app && python3 scripts/weekly_newsletter.py
