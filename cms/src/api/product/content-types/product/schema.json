@@ -57,6 +57,19 @@
     },
     "affiliate_url": {
       "type": "string"
+    },
+    "affiliate_links": {
+      "type": "json"
+    },
+    "partnership_status": {
+      "type": "enumeration",
+      "enum": ["none", "contacted", "active", "expired"],
+      "default": "none"
+    },
+    "brand_relation": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::brand.brand"
     }
   }
 }
