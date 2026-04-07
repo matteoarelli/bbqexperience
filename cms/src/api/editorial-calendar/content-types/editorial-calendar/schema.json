@@ -51,6 +51,26 @@
     },
     "notes": {
       "type": "richtext"
+    },
+    "cluster": {
+      "type": "enumeration",
+      "enum": ["smoking", "grills", "thermometers", "brisket", "sauces", "uncategorized"],
+      "default": "uncategorized"
+    },
+    "search_volume": {
+      "type": "integer"
+    },
+    "keyword_difficulty": {
+      "type": "enumeration",
+      "enum": ["low", "medium", "high"],
+      "default": "medium"
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "source_agent": {
+      "type": "string"
     }
   }
 }
