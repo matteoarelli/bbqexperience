@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "partnerships",
+  "info": {
+    "singularName": "partnership",
+    "pluralName": "partnerships",
+    "displayName": "Partnership",
+    "description": "Tracking outreach e accordi con brand BBQ"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "i18n": {
+      "localized": false
+    }
+  },
+  "attributes": {
+    "brand": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::brand.brand"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["outreach", "follow_up_1", "follow_up_2", "negotiating", "agreement", "product_received", "review_published", "completed", "declined"],
+      "default": "outreach",
+      "required": true
+    },
+    "contact_date": {
+      "type": "date",
+      "required": true
+    },
+    "last_follow_up": {
+      "type": "date"
+    },
+    "products_received": {
+      "type": "json"
+    },
+    "agreement_terms": {
+      "type": "richtext"
+    },
+    "email_draft": {
+      "type": "richtext"
+    },
+    "notes": {
+      "type": "richtext"
+    }
+  }
+}
