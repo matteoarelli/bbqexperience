@@ -242,7 +242,7 @@ export interface StrapiContentQueue {
   body_en: string | null;
   body_it: string | null;
   body_es: string | null;
-  status: 'idea' | 'research' | 'ready' | 'generating' | 'published' | 'failed';
+  status: 'idea' | 'research' | 'ready' | 'generating' | 'draft_review' | 'published' | 'failed';
   scheduled_date: string | null;
   cluster: 'smoking' | 'grills' | 'thermometers' | 'brisket' | 'sauces' | 'uncategorized';
   target_keyword: string | null;

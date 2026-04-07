@@ -13,9 +13,15 @@
 # Partnership Outreach — Lunedi 08:00
 0 8 * * 1 cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/partnership_outreach.py >> /opt/webhooks/logs/partnership-outreach.log 2>&1
 
-# ─── Agenti su 192.168.1.119 (Ollama) ───
-# Content Generator — Ogni giorno 06:00
+# ─── Agenti su 192.168.1.119 (Ollama + Claude Code CLI) ───
+# Content Generator — Ogni giorno 06:00 (Ollama genera draft)
 # 0 6 * * * cd /path/to/bbqexperience && python3 scripts/agents/content_generator.py >> /var/log/bbq-content-generator.log 2>&1
+
+# Claude Reviewer — Ogni giorno 08:00 (Claude rivede e approva/rifiuta)
+# 0 8 * * * cd /path/to/bbqexperience && python3 scripts/agents/claude_reviewer.py >> /var/log/bbq-claude-reviewer.log 2>&1
+
+# Claude Strategist — Domenica 07:00 (analisi settimanale + pillar content)
+# 0 7 * * 0 cd /path/to/bbqexperience && python3 scripts/agents/claude_strategist.py >> /var/log/bbq-claude-strategist.log 2>&1
 
 # Translation Agent — Ogni 6 ore
 # 0 */6 * * * cd /path/to/bbqexperience && python3 scripts/agents/translation_agent.py >> /var/log/bbq-translation-agent.log 2>&1

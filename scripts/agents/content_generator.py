@@ -249,12 +249,12 @@ def main():
         published_id = publish_article(queue_item, article, content_type_strapi, content_type_raw)
 
         if published_id:
-            # Aggiorna ContentQueue
+            # Aggiorna ContentQueue — status draft_review per il quality gate di Claude
             strapi.update("content-queues", doc_id_queue, {
-                "status": "published",
+                "status": "draft_review",
                 "published_content_id": published_id,
                 "body_en": article["content"][:500],  # Salva preview per reference
-                "generation_log": f"Pubblicato {datetime.now().isoformat()} - {content_type_strapi}/{published_id}",
+                "generation_log": f"Generato da Ollama {datetime.now().isoformat()} - in attesa review Claude",
             })
 
             telegram.send_agent_report(
