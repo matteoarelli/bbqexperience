@@ -71,6 +71,7 @@
     "buyNow": "Buy Now",
     "checkPrice": "Check Price",
     "affiliateDisclaimer": "This is an affiliate link. We may earn a commission at no extra cost to you.",
+    "whereToBuy": "Where to Buy",
     "topPick": "Top Pick"
   },
   "recipe": {
@@ -174,7 +175,11 @@
     "copyLink": "Copy comparison link",
     "linkCopied": "Link copied!",
     "noResults": "No reviews found",
-    "winner": "Best"
+    "winner": "Best",
+    "priceComparison": "Price Comparison",
+    "product": "Product",
+    "retailer": "Retailer",
+    "checkPrice": "Check Price"
   },
   "theme": {
     "toggle": "Toggle theme",

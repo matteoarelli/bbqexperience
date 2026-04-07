@@ -71,6 +71,7 @@
     "buyNow": "Acquista Ora",
     "checkPrice": "Verifica il Prezzo",
     "affiliateDisclaimer": "Questo e un link affiliato. Potremmo ricevere una commissione senza costi aggiuntivi per te.",
+    "whereToBuy": "Dove Comprare",
     "topPick": "Top Pick"
   },
   "recipe": {
@@ -174,7 +175,11 @@
     "copyLink": "Copia link confronto",
     "linkCopied": "Link copiato!",
     "noResults": "Nessuna recensione trovata",
-    "winner": "Migliore"
+    "winner": "Migliore",
+    "priceComparison": "Confronto Prezzi",
+    "product": "Prodotto",
+    "retailer": "Rivenditore",
+    "checkPrice": "Vedi Prezzo"
   },
   "theme": {
     "toggle": "Cambia tema",

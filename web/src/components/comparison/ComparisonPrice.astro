@@ -1,0 +1,184 @@
+---
+/**
+ * ComparisonPrice — Tabella prezzi con link affiliati per pagine "vs".
+ * Click tracciati come evento Umami 'affiliate_click'.
+ */
+import type { AffiliateLink } from '@lib/types';
+
+interface ProductPrice {
+  productName: string;
+  affiliateLinks: AffiliateLink[];
+}
+
+interface Props {
+  products: ProductPrice[];
+  translations: Record<string, any>;
+}
+
+const { products, translations } = Astro.props;
+const hasProducts = products && products.length > 0 && products.some(p => p.affiliateLinks.length > 0);
+---
+
+{hasProducts && (
+  <section class="comparison-price">
+    <h3 class="comparison-price__title">
+      {translations?.comparison?.priceComparison || "Price Comparison"}
+    </h3>
+
+    {/* Desktop: tabella */}
+    <div class="comparison-price__table-wrap hidden md:block">
+      <table class="comparison-price__table">
+        <thead>
+          <tr>
+            <th>{translations?.comparison?.product || "Product"}</th>
+            <th>{translations?.comparison?.retailer || "Retailer"}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map(product =>
+            product.affiliateLinks.map((link, i) => (
+              <tr>
+                {i === 0 && (
+                  <td rowspan={product.affiliateLinks.length} class="comparison-price__product-name">
+                    {product.productName}
+                  </td>
+                )}
+                <td>{link.retailer}</td>
+                <td>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer nofollow sponsored"
+                    class="comparison-price__buy-btn"
+                    data-umami-event="affiliate_click"
+                    data-umami-event-product={product.productName}
+                    data-umami-event-retailer={link.retailer}
+                  >
+                    {translations?.comparison?.checkPrice || "Check Price"} →
+                  </a>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    {/* Mobile: cards */}
+    <div class="comparison-price__cards md:hidden">
+      {products.map(product => (
+        <div class="comparison-price__card">
+          <h4 class="comparison-price__card-name">{product.productName}</h4>
+          <div class="comparison-price__card-links">
+            {product.affiliateLinks.map(link => (
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer nofollow sponsored"
+                class="comparison-price__buy-btn"
+                data-umami-event="affiliate_click"
+                data-umami-event-product={product.productName}
+                data-umami-event-retailer={link.retailer}
+              >
+                {link.retailer} →
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <p class="comparison-price__disclaimer">
+      {translations?.review?.affiliateDisclaimer || "Links may earn us a commission at no extra cost to you."}
+    </p>
+  </section>
+)}
+
+<style>
+  .comparison-price {
+    margin-bottom: var(--space-12);
+    padding: var(--space-6) var(--space-8);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-subtle);
+  }
+  .comparison-price__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-5);
+  }
+  .comparison-price__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .comparison-price__table th {
+    text-align: left;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .comparison-price__table td {
+    padding: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+  .comparison-price__product-name {
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+  .comparison-price__buy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    background: var(--color-accent-fire);
+    color: white;
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+    white-space: nowrap;
+  }
+  .comparison-price__buy-btn:hover {
+    background: var(--color-accent-amber);
+  }
+  .comparison-price__cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .comparison-price__card {
+    padding: var(--space-4);
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+  }
+  .comparison-price__card-name {
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-sm);
+  }
+  .comparison-price__card-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .comparison-price__disclaimer {
+    color: var(--color-text-muted);
+    font-size: var(--text-xs);
+    margin-top: var(--space-4);
+  }
+</style>
