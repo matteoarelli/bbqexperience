@@ -9,3 +9,5 @@ build/
 public/uploads/
 *.log
 .DS_Store
+state/*
+!state/.gitkeep
