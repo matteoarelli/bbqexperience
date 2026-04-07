@@ -68,6 +68,26 @@ if (productImageUrl) {
 if (review.product?.category) {
   jsonLd.category = review.product.category;
 }
+
+// Aggiungi offers con affiliate links
+const affiliateLinks = review.product?.affiliate_links;
+if (affiliateLinks && affiliateLinks.length > 0) {
+  jsonLd.offers = affiliateLinks.map((link: any) => ({
+    '@type': 'Offer',
+    url: link.url,
+    seller: {
+      '@type': 'Organization',
+      name: link.retailer,
+    },
+    availability: 'https://schema.org/InStock',
+  }));
+} else if (review.product?.affiliate_url) {
+  jsonLd.offers = {
+    '@type': 'Offer',
+    url: review.product.affiliate_url,
+    availability: 'https://schema.org/InStock',
+  };
+}
 ---
 
 <script type="application/ld+json" set:html={JSON.stringify(JSON.parse(JSON.stringify(jsonLd)))} />
