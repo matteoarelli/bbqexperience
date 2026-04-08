@@ -39,42 +39,92 @@ def get_next_queue_item() -> dict | None:
 
 
 def generate_article(title: str, keyword: str, cluster: str, content_type: str) -> dict:
-    """Genera articolo completo in EN con Ollama."""
-    prompt = f"""Scrivi un articolo completo per il blog BBQ Experience.
+    """Genera articolo completo in EN con Ollama usando approccio a sezioni.
+    Step 1: genera outline con 6 sezioni H2
+    Step 2: espande ogni sezione singolarmente (~250-300 parole)
+    Step 3: genera FAQ, excerpt e SEO meta
+    Questo approccio funziona meglio con modelli piccoli (7b)."""
 
-Titolo: {title}
-Keyword target: {keyword}
-Cluster tematico: {cluster}
-Tipo contenuto: {content_type}
+    # Step 1: Genera outline
+    outline_prompt = f"""Create an outline for a BBQ article.
+Title: {title}
+Keyword: {keyword}
 
-Requisiti:
-- 1500-2000 parole
-- In inglese
-- Struttura: introduzione coinvolgente, 4-6 sezioni con H2, conclusione
-- Includi una sezione FAQ con 3-5 domande e risposte alla fine
-- Usa tag HTML per la formattazione (h2, h3, p, ul, li, strong, em)
-- La keyword target deve apparire nel primo paragrafo e in almeno 2 H2
-- Tono: esperto ma accessibile, dati concreti (temperature in °F, tempi, pesi in lbs/oz)
-- NO introduzioni generiche tipo "BBQ is a beloved tradition..." — vai dritto al punto
-- Includi consigli pratici basati su esperienza reale
+List exactly 6 section headings (H2) for this article. Each heading should be specific and actionable.
+Format: one heading per line, no numbering, no HTML tags, just the text.
+Example:
+Why Wood Choice Matters for Smoke Flavor
+Best Woods for Beef and Pork
+..."""
+    outline_raw = ollama.generate(outline_prompt, system=ollama.PITMASTER_SYSTEM, temperature=0.5, max_tokens=500)
+    sections = [s.strip().strip("-•*#").strip() for s in outline_raw.strip().split("\n") if s.strip() and len(s.strip()) > 5][:6]
 
-Genera SOLO il contenuto HTML dell'articolo (no title tag, no head, no body wrapper).
-"""
-    content = ollama.generate(prompt, system=ollama.PITMASTER_SYSTEM, max_tokens=8192)
+    if len(sections) < 3:
+        sections = [
+            f"Understanding {keyword.title()}",
+            f"Key Factors When Choosing {keyword.title()}",
+            f"Step-by-Step Guide to {keyword.title()}",
+            f"Common Mistakes to Avoid",
+            f"Pro Tips from The Pitmaster",
+            f"Final Thoughts on {keyword.title()}",
+        ]
 
-    # Genera excerpt
-    excerpt_prompt = f"""Dall'articolo seguente, scrivi un excerpt di 1-2 frasi (max 160 caratteri) per i risultati di ricerca. In inglese. Solo il testo, nessun tag HTML.
+    # Step 2: Genera intro
+    intro_prompt = f"""Write an engaging introduction (2-3 paragraphs, ~150 words) for a BBQ article titled "{title}".
+Keyword "{keyword}" must appear in the first paragraph.
+Use HTML tags: <p> for paragraphs.
+Go straight to the point — no generic openings. Be direct and expert.
+Write in English."""
+    intro = ollama.generate(intro_prompt, system=ollama.PITMASTER_SYSTEM, max_tokens=1000)
 
-Articolo: {content[:500]}"""
+    # Step 3: Espandi ogni sezione
+    all_sections: list[str] = [intro]
+    for i, heading in enumerate(sections):
+        section_prompt = f"""Write section {i+1} of a BBQ article titled "{title}".
+Section heading: {heading}
+Write 250-350 words with specific data (temperatures in °F, times, weights in lbs).
+Use HTML: <h2> for the heading, <p> for paragraphs, <ul><li> for lists, <strong> for emphasis.
+Be practical and expert. Write in English."""
+        section = ollama.generate(section_prompt, system=ollama.PITMASTER_SYSTEM, max_tokens=1500)
+        all_sections.append(section)
+        print(f"  Sezione {i+1}/{len(sections)}: {heading} ({len(section.split())} parole)")
+
+    # Step 4: Genera FAQ
+    faq_prompt = f"""Write a FAQ section for a BBQ article about "{title}".
+Include exactly 4 questions and answers. Each answer should be 2-3 sentences with specific data.
+Format as HTML:
+<h2>Frequently Asked Questions</h2>
+<h3>Question here?</h3>
+<p>Answer here.</p>
+Write in English."""
+    faq = ollama.generate(faq_prompt, system=ollama.PITMASTER_SYSTEM, max_tokens=1500)
+    all_sections.append(faq)
+
+    # Step 5: Genera conclusione
+    conclusion_prompt = f"""Write a brief conclusion (1 paragraph, ~80 words) for a BBQ article about "{title}".
+Summarize key takeaways. Use <h2>Conclusion</h2> and <p> tags. Write in English."""
+    conclusion = ollama.generate(conclusion_prompt, system=ollama.PITMASTER_SYSTEM, max_tokens=500)
+    all_sections.append(conclusion)
+
+    # Assembla contenuto completo
+    content = "\n\n".join(all_sections)
+    word_count = len(content.split())
+    print(f"  Totale: {word_count} parole")
+
+    # Step 6: Genera excerpt e SEO
+    excerpt_prompt = f"""Write a 1-2 sentence excerpt (max 155 characters) for search results about: {title}
+Plain text only, no HTML. Write in English."""
     excerpt = ollama.generate(excerpt_prompt, temperature=0.3, max_tokens=200).strip()
 
-    # Genera meta title e description
-    seo_prompt = f"""Per un articolo BBQ intitolato "{title}" con keyword "{keyword}", genera:
-1. SEO title (max 60 caratteri, include la keyword)
-2. Meta description (max 155 caratteri, include la keyword, call to action)
+    seo_prompt = f"""For a BBQ article "{title}" with keyword "{keyword}", generate:
+1. SEO title (max 60 chars, include keyword)
+2. Meta description (max 155 chars, include keyword)
 
-Formato risposta JSON: {{"seo_title": "...", "seo_description": "..."}}"""
-    seo_data = ollama.generate_json(seo_prompt, temperature=0.3)
+Reply ONLY with JSON: {{"seo_title": "...", "seo_description": "..."}}"""
+    try:
+        seo_data = ollama.generate_json(seo_prompt, temperature=0.3)
+    except Exception:
+        seo_data = {"seo_title": title[:60], "seo_description": excerpt[:155]}
 
     return {
         "content": content,
