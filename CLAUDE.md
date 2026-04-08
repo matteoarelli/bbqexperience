@@ -157,6 +157,11 @@ A top-class editorial portal for the BBQ Experience brand (74k Instagram followe
 - **Deploy** — webhook auto su push. Per forzare: `--no-cache` nel docker build
 - **Instagram bot** — NON modificare instagram_bot.py. Solo editorial_plan.py e moduli in integrations/
 - **Container names** — PostgreSQL: "postgres" (non "bbqexperience-postgres")
+- **Segreti** — MAI committare token/API key nei file. Usare .env.windows (gitignored) per Windows, .env per server
+- **Claude CLI** — funziona solo su Windows (`claude -p`). NON funziona via SSH su 192.168.1.119. Agenti Claude girano su Windows Task Scheduler
+- **Ollama 7b** — OK per traduzioni campo-per-campo. NON usare per generazione articoli (troppo corto). Claude Max per generazione
+- **AI Agents** — scripts in `scripts/agents/`, librerie condivise in `scripts/agents/lib/`. Env vars in `.env.windows` (Windows) o `.env` (server)
+- **Strapi 12 content types** — blog-post, recipe, review, tutorial, product, instagram-post, subscriber, editorial-calendar, brand, partnership, keyword-tracker, content-queue
 <!-- GSD:conventions-end -->
 
 <!-- GSD:architecture-start source:ARCHITECTURE.md -->
@@ -170,7 +175,18 @@ Vedi docs/architecture.md per diagrammi completi. Sintesi:
 - **IG agent:** Ubuntu locale (192.168.1.119) → instagram-bot/ → instagrapi + Ollama
 - **Data bridge:** Cron 6h → site_bridge.py → site_content.json + link_map.json
 - **Newsletter:** Cron dom 10 → weekly_newsletter.py → Brevo API
-- **Dashboard:** Cron 21:00 → telegram_dashboard.py → Umami API + Strapi + IG state → Telegram
+- **Dashboard:** Telegram bot daemon (Hetzner) → Umami API + Strapi + comandi interattivi
+
+### Growth Engine AI (aggiunto 2026-04-07/08)
+- **Content generation:** Windows 06:00 → Claude Max CLI → 2000+ parole EN → Strapi
+- **Translation:** 192.168.1.119 */6h → Ollama 7b → IT/ES campo per campo
+- **SEO:** Hetzner 09:00/15:00 → seo_optimizer.py → internal linking automatico
+- **Keywords:** Hetzner lun 05:00 → keyword_scout.py → Google Suggest → ContentQueue
+- **Competitors:** Hetzner */12h → competitor_monitor.py → RSS tracking
+- **Partnership:** Hetzner lun 08:00 → partnership_outreach.py → email brand
+- **Site→IG:** 192.168.1.119 */6h → content_promoter.py → site_promo_queue + first_comments
+- **IG→Site:** 192.168.1.119 10:00 → ig_to_content.py → post virali → ContentQueue
+- **Strategy:** Windows dom 07:00 → claude_strategist.py → analisi + pillar content
 <!-- GSD:architecture-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->

@@ -1,5 +1,62 @@
 # Changelog — BBQ Experience
 
+## 2026-04-07 → 2026-04-08 — v3.0 Growth Engine (AI Agents + SEO + Monetizzazione)
+
+### AI Content Generation
+- 9 agenti Python autonomi per generazione contenuti, SEO, traduzioni, competitor monitoring, partnership outreach
+- Content generator usa Claude Max CLI (2000+ parole per articolo vs 670 con Ollama 7b)
+- Translation agent usa Ollama qwen2.5:7b per traduzioni EN → IT/ES campo per campo
+- Claude Reviewer quality gate (score ≥ 6/10 per pubblicazione)
+- Claude Strategist settimanale per analisi performance e pillar content
+- Primo articolo AI pubblicato: "Best BBQ Grills Under $500 in 2026" (2655 parole, 6 grill recensite)
+
+### SEO & Content Clusters
+- 5 cluster tematici: smoking, grills, thermometers, brisket, sauces
+- Keyword Scout settimanale (Google Suggest + deduplicazione)
+- SEO Optimizer 2x/giorno: internal linking automatico (26 link aggiunti in primo run)
+- Competitor Monitor: RSS tracking di 7 blog BBQ (Hey Grill Hey, Vindulge, Girls Can Grill, etc.)
+- Fix Recipe JSON-LD: 9 errori GSC risolti (image, recipeCuisine, keywords, nutrition, recipeInstructions)
+
+### Monetizzazione
+- 10 brand BBQ seedati per pipeline partnership (Weber, Traeger, Camp Chef, Pit Boss, ThermoWorks, Meater, Oklahoma Joe's, Napoleon, Kamado Joe, Big Green Egg)
+- Partnership Outreach agent: email automatiche + follow-up a 7/14 giorni
+- Product schema esteso: affiliate_links (JSON), partnership_status, brand_relation
+- Componente WhereToBuy.astro con tracking Umami per click affiliate
+- ComparisonPrice.astro con tabella responsive desktop/mobile
+- Offer schema aggiunto a ReviewJsonLd per rich results
+
+### Frontend Components
+- WhereToBuy.astro — bottoni affiliate integrati in review pages EN/IT/ES
+- FaqSection.astro — accordion FAQ con JSON-LD FAQPage schema
+- PillarNav.astro — navigazione cluster per pillar pages
+- ComparisonPrice.astro — tabella prezzi con affiliate tracking
+- i18n keys aggiunte per tutti i nuovi componenti (EN/IT/ES)
+
+### Strapi CMS (4 nuovi content types)
+- Brand — pipeline partnership con status tracking
+- Partnership — outreach, follow-up, agreement tracking
+- KeywordTracker — monitoraggio posizione keyword SEO
+- ContentQueue — coda articoli AI con status workflow (idea → ready → generating → draft_review → published)
+- EditorialCalendar esteso: cluster, search_volume, keyword_difficulty, ai_generated, source_agent
+
+### Integrazione Sito ↔ Instagram (ponte bidirezionale)
+- content_promoter.py: sincronizza articoli AI → site_promo_queue + first_comments + link_map
+- ig_to_content.py: converte post IG ad alto engagement → ContentQueue per espansione in articoli
+- Telegram Bot daemon con 8 comandi interattivi (/stats, /queue, /keywords, /pipeline, /competitors, /pause, /resume, /publish)
+
+### Infrastruttura
+- Claude Code CLI su Windows Task Scheduler (content_generator 06:00, claude_reviewer 08:00, strategist dom 07:00)
+- Agenti Ollama su 192.168.1.119 (translation, content_promoter, ig_to_content)
+- Agenti Hetzner (keyword_scout, seo_optimizer, competitor_monitor, partnership_outreach, telegram_bot daemon)
+- Fix sshd 192.168.1.119: UseDNS no + MaxStartups 20:30:60
+- Segreti spostati in .env.windows (gitignored) — GitGuardian alert risolto, token Telegram revocato e rigenerato
+
+### Design & Planning
+- Design spec completo: docs/superpowers/specs/2026-04-07-growth-engine-design.md
+- 4 piani di implementazione dettagliati con codice completo
+- Google Search Console API setup documentato (docs/gsc-setup.md)
+- health_check.py per monitoraggio rapido sistema
+
 ## 2026-04-03 → 2026-04-06 — v2.0 Upgrade (da 96 a 452 contenuti)
 
 ### Production Hardening
