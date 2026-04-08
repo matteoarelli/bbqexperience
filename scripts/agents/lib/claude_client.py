@@ -29,6 +29,8 @@ def ask(
                 text=True,
                 timeout=timeout,
                 env={**os.environ},
+                encoding="utf-8",
+                errors="replace",
             )
             if result.returncode != 0:
                 raise RuntimeError(f"Claude CLI errore (exit {result.returncode}): {result.stderr[:500]}")
