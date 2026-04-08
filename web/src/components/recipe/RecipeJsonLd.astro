@@ -39,15 +39,18 @@ const recipeIngredients = recipe.ingredients
   : [];
 
 // Formatta le istruzioni come array di HowToStep
+// Il campo testo puo essere "text", "detail" o "description" (varianti storiche)
 const recipeInstructions = recipe.instructions
   ? recipe.instructions
       .sort((a, b) => a.step - b.step)
-      .map((inst) => {
+      .map((inst, idx) => {
+        const stepText = inst.text || inst.detail || inst.description || `Step ${inst.step}`;
         const stepImage = inst.image ? getStrapiMediaURL(inst.image) : undefined;
         const step: Record<string, unknown> = {
           '@type': 'HowToStep',
-          name: `Step ${inst.step}`,
-          text: inst.text,
+          name: inst.title || `Step ${inst.step}`,
+          text: stepText,
+          url: `${siteUrl}/${locale}/recipes/${recipe.slug}/#step-${idx + 1}`,
         };
         if (stepImage) {
           step.image = stepImage.startsWith('http') ? stepImage : `${siteUrl}${stepImage}`;
@@ -56,19 +59,44 @@ const recipeInstructions = recipe.instructions
       })
   : [];
 
+// Mappa meat_type a recipeCuisine
+const cuisineMap: Record<string, string> = {
+  beef: 'American BBQ',
+  pork: 'American BBQ',
+  chicken: 'American BBQ',
+  lamb: 'Mediterranean',
+  fish: 'Grilled Seafood',
+  vegetarian: 'Vegetarian BBQ',
+  mixed: 'American BBQ',
+};
+const recipeCuisine = cuisineMap[recipe.meat_type || ''] || 'American BBQ';
+
+// Genera keywords dalla ricetta
+const keywords: string[] = [];
+if (recipe.technique) keywords.push(recipe.technique);
+if (recipe.meat_type) keywords.push(recipe.meat_type);
+if (recipe.difficulty) keywords.push(recipe.difficulty);
+keywords.push('bbq', 'grilling');
+
+// Immagine: cover_image o fallback a og-default
+const recipeImage = absoluteImageUrl || `${siteUrl}/og-default.jpg`;
+
 // Assembla l'oggetto JSON-LD
 const jsonLd: Record<string, unknown> = {
   '@context': 'https://schema.org',
   '@type': 'Recipe',
   name: recipe.title,
-  description: recipe.excerpt || undefined,
-  image: absoluteImageUrl,
+  description: recipe.excerpt || recipe.title,
+  image: [recipeImage],
   author: {
     '@type': 'Organization',
     name: 'BBQ Experience',
+    url: siteUrl,
   },
   datePublished: recipe.published_date || undefined,
-  recipeCategory: recipe.technique || undefined,
+  recipeCuisine: recipeCuisine,
+  recipeCategory: recipe.technique || 'BBQ',
+  keywords: keywords.join(', '),
   recipeIngredient: recipeIngredients.length > 0 ? recipeIngredients : undefined,
   recipeInstructions: recipeInstructions.length > 0 ? recipeInstructions : undefined,
   inLanguage: locale,
@@ -79,6 +107,12 @@ if (recipe.prep_time != null) jsonLd.prepTime = minutesToISO8601(recipe.prep_tim
 if (recipe.cook_time != null) jsonLd.cookTime = minutesToISO8601(recipe.cook_time);
 if (recipe.total_time != null) jsonLd.totalTime = minutesToISO8601(recipe.total_time);
 if (recipe.servings != null) jsonLd.recipeYield = `${recipe.servings} servings`;
+if (recipe.difficulty) {
+  jsonLd.nutrition = {
+    '@type': 'NutritionInformation',
+    description: `Difficulty: ${recipe.difficulty}`,
+  };
+}
 
 // Rimuovi campi undefined per un JSON pulito
 const cleanJsonLd = JSON.parse(JSON.stringify(jsonLd));
