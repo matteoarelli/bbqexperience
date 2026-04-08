@@ -68,36 +68,31 @@ def translate_content(content_type: str, doc_id: str, target_locale: str) -> boo
     if not text_fields:
         return False
 
-    # Traduci tutto in un unico prompt per efficienza
-    fields_text = "\n---\n".join(f"[{k}]\n{v}" for k, v in text_fields.items() if not k.startswith("_"))
-    units_note = "Converti unita: °F→°C, lbs→kg, oz→g, inches→cm." if target_locale in ("it", "es") else ""
-
-    prompt = f"""Traduci i seguenti campi in {lang_name}. {units_note}
-Mantieni i tag HTML. Non tradurre nomi di prodotti/brand.
-Per ogni campo, rispondi nel formato:
-[nome_campo]
-traduzione
-
-{fields_text}"""
-
-    translated_raw = ollama.generate(prompt, system=ollama.TRANSLATOR_SYSTEM, max_tokens=8192)
-
-    # Parsa le traduzioni
+    # Traduci ogni campo singolarmente (piu robusto con modelli 7b)
+    units_note = "Convert units: °F→°C, lbs→kg, oz→g, inches→cm." if target_locale in ("it", "es") else ""
     translated_data: dict = {"slug": item.get("slug", "")}
-    current_field = ""
-    current_content: list[str] = []
 
-    for line in translated_raw.split("\n"):
-        if line.startswith("[") and line.endswith("]"):
-            if current_field and current_content:
-                translated_data[current_field] = "\n".join(current_content).strip()
-            current_field = line[1:-1]
-            current_content = []
-        else:
-            current_content.append(line)
-    # Ultimo campo
-    if current_field and current_content:
-        translated_data[current_field] = "\n".join(current_content).strip()
+    for field_name, field_value in text_fields.items():
+        if field_name.startswith("_"):
+            continue
+
+        # Tronca contenuti lunghi per non superare il context window del 7b
+        value = field_value[:4000] if len(field_value) > 4000 else field_value
+
+        prompt = f"""Translate the following text to {lang_name}. {units_note}
+Keep all HTML tags exactly as they are. Do not translate product names or brand names.
+Output ONLY the translated text, nothing else. No explanations, no labels.
+
+{value}"""
+
+        try:
+            translated = ollama.generate(prompt, system=ollama.TRANSLATOR_SYSTEM, max_tokens=6000)
+            # Rimuovi eventuale prefisso/suffisso aggiunto dal modello
+            translated = translated.strip()
+            if translated:
+                translated_data[field_name] = translated
+        except Exception as e:
+            print(f"  [WARN] Traduzione campo {field_name} fallita: {e}")
 
     # Gestisci pros/cons per review
     if "_pros_cons" in text_fields and content_type == "reviews":
