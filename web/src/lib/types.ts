@@ -75,7 +75,6 @@ export interface StrapiCollectionResponse<T> {
 export interface StrapiProduct {
   name: string;
   slug: string;
-  brand: string | null;
   category: 'grill' | 'smoker' | 'accessory' | 'fuel' | 'thermometer' | 'other' | null;
   price_range: 'budget' | 'mid-range' | 'premium' | 'luxury' | null;
   description: string | null;

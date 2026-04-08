@@ -68,7 +68,7 @@ export const GET: APIRoute = async ({ url, request }) => {
     // Ricerca per titolo
     if (search) {
       const encodedQuery = encodeURIComponent(search);
-      const strapiEndpoint = `${STRAPI_URL}/api/reviews?filters[title][$containsi]=${encodedQuery}&populate=product&locale=${locale}&pagination[pageSize]=10&status=published`;
+      const strapiEndpoint = `${STRAPI_URL}/api/reviews?filters[title][$containsi]=${encodedQuery}&populate[0]=product&populate[1]=product.brand_relation&locale=${locale}&pagination[pageSize]=10&status=published`;
       const response = await fetch(strapiEndpoint, { headers: strapiHeaders(), signal: AbortSignal.timeout(10_000) });
       if (!response.ok) throw new Error(`Strapi error: ${response.status}`);
       const json = await response.json();
@@ -80,7 +80,7 @@ export const GET: APIRoute = async ({ url, request }) => {
 
     // Singola review per documentId
     if (id) {
-      const strapiEndpoint = `${STRAPI_URL}/api/reviews/${id}?populate=product&locale=${locale}&status=published`;
+      const strapiEndpoint = `${STRAPI_URL}/api/reviews/${id}?populate[0]=product&populate[1]=product.brand_relation&locale=${locale}&status=published`;
       const response = await fetch(strapiEndpoint, { headers: strapiHeaders(), signal: AbortSignal.timeout(10_000) });
       if (!response.ok) throw new Error(`Strapi error: ${response.status}`);
       const json = await response.json();
@@ -94,7 +94,7 @@ export const GET: APIRoute = async ({ url, request }) => {
     if (ids) {
       const idList = ids.split(',').filter(Boolean).slice(0, 10);
       const filterParams = idList.map((docId, i) => `filters[documentId][$in][${i}]=${encodeURIComponent(docId)}`).join('&');
-      const strapiEndpoint = `${STRAPI_URL}/api/reviews?${filterParams}&populate=product&locale=${locale}&status=published&pagination[pageSize]=10`;
+      const strapiEndpoint = `${STRAPI_URL}/api/reviews?${filterParams}&populate[0]=product&populate[1]=product.brand_relation&locale=${locale}&status=published&pagination[pageSize]=10`;
       const response = await fetch(strapiEndpoint, { headers: strapiHeaders(), signal: AbortSignal.timeout(10_000) });
       if (!response.ok) throw new Error(`Strapi error: ${response.status}`);
       const json = await response.json();

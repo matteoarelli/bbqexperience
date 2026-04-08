@@ -100,8 +100,8 @@ const breadcrumbItems = [
       {review.published_date && (
         <span>{getTranslation(t, 'review.publishedOn')} {new Date(review.published_date).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })}</span>
       )}
-      {review.product?.brand && (
-        <span>| {review.product.brand}</span>
+      {review.product?.brand_relation?.name && (
+        <span>| {review.product.brand_relation.name}</span>
       )}
       {review.product?.category && (
         <span>| {review.product.category}</span>

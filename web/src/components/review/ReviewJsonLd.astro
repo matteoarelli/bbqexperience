@@ -52,10 +52,10 @@ const jsonLd: Record<string, unknown> = {
 };
 
 // Aggiungi brand solo se disponibile
-if (review.product?.brand) {
+if (review.product?.brand_relation?.name) {
   jsonLd.brand = {
     '@type': 'Brand',
-    name: review.product.brand,
+    name: review.product.brand_relation.name,
   };
 }
 

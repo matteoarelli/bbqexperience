@@ -35,7 +35,7 @@ const blogRoute = localizedRoutes.blog[locale];
 let latestReviews: (StrapiReview & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
 try {
   const res = await fetchCollection<StrapiReview>('reviews', {
-    locale, pageSize: 3, sort: 'published_date:desc', populate: ['gallery', 'product', 'product.images'],
+    locale, pageSize: 3, sort: 'published_date:desc', populate: ['gallery', 'product', 'product.images', 'product.brand_relation'],
   });
   latestReviews = res.data;
 } catch { /* Strapi non disponibile */ }

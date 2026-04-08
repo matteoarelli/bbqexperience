@@ -27,12 +27,6 @@
       "type": "uid",
       "targetField": "name"
     },
-    "brand": {
-      "type": "string",
-      "pluginOptions": {
-        "i18n": { "localized": false }
-      }
-    },
     "category": {
       "type": "enumeration",
       "enum": ["grill", "smoker", "accessory", "fuel", "thermometer", "other"]

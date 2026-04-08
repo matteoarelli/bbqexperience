@@ -17,7 +17,7 @@
     cons: string[] | null;
     product: {
       name: string;
-      brand: string | null;
+      brand_relation: { name: string } | null;
       category: string | null;
       price_range: string | null;
       specifications: Record<string, unknown> | null;
@@ -135,7 +135,7 @@
         <tr>
           <td class="label-cell sticky-left">{labels.brand || 'Brand'}</td>
           {#each reviews as review (review.documentId)}
-            <td class="data-cell">{review.product?.brand || '—'}</td>
+            <td class="data-cell">{review.product?.brand_relation?.name || '—'}</td>
           {/each}
         </tr>
 
