@@ -150,7 +150,7 @@ A top-class editorial portal for the BBQ Experience brand (74k Instagram followe
 
 - **Lenis rimosso** — smooth scroll gestito dal browser nativo, non usare lenis
 - **i18n custom** — JSON files in src/i18n/, NON Paraglide. Translation keys type-safe via src/i18n/types.ts
-- **Rate limiting** — SQLite-based in src/lib/rate-limit.ts, non in-memory Map
+- **Rate limiting** — SQLite-based in src/lib/rate-limit.ts. TUTTI gli endpoint devono usare questo, non in-memory Map
 - **Env vars** — TUTTE le env vars necessarie a runtime devono essere sia ARG nel Dockerfile che -e nel docker run
 - **Strapi v5 localizzazioni** — PUT con ?locale=xx nel query param, sempre includere slug nel body
 - **Contenuti Pitmaster** — score range 5.8-8.8, mai 9+. Tono diretto, no marketing BS
@@ -162,6 +162,13 @@ A top-class editorial portal for the BBQ Experience brand (74k Instagram followe
 - **Ollama 7b** — OK per traduzioni campo-per-campo. NON usare per generazione articoli (troppo corto). Claude Max per generazione
 - **AI Agents** — scripts in `scripts/agents/`, librerie condivise in `scripts/agents/lib/`. Env vars in `.env.windows` (Windows) o `.env` (server)
 - **Strapi 12 content types** — blog-post, recipe, review, tutorial, product, instagram-post, subscriber, editorial-calendar, brand, partnership, keyword-tracker, content-queue
+- **Product brand** — usare SOLO `brand_relation` (relazione a Brand), NON il campo stringa `brand` (rimosso dallo schema). Populate con `product.brand_relation` e accedere via `product.brand_relation?.name`
+- **Fetch timeouts** — TUTTI i fetch() verso servizi esterni devono avere `signal: AbortSignal.timeout(10_000)`
+- **Agent retry** — strapi_client, ollama, claude_client hanno retry con backoff esponenziale (3 tentativi). Non aggiungere retry custom nei singoli agenti
+- **Atomic file writes** — Per file di stato JSON (state/), usare temp file + `os.replace()` per evitare corruzione da cron concorrenti
+- **Shell scripts** — Sempre `set -eo pipefail` in testa. Mai pipe pg_dump direttamente a gzip (separare i comandi)
+- **Backup/restore** — backup-db.sh verifica integrita con `gunzip -t`. restore-db.sh fa rollback automatico se il restore fallisce
+- **Database SSL** — Default `true` in produzione (database.ts). Sul server Hetzner e `DATABASE_SSL=false` nel docker-compose perche Postgres e Strapi comunicano via Docker network interno
 <!-- GSD:conventions-end -->
 
 <!-- GSD:architecture-start source:ARCHITECTURE.md -->

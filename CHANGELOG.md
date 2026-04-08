@@ -1,5 +1,47 @@
 # Changelog — BBQ Experience
 
+## 2026-04-08 — v3.1 Security Hardening & Brand Migration
+
+### Security Fixes (P0 Critical)
+- Rimosso token API Strapi hardcoded da health_check.py (era in git history)
+- Fix open redirect in preview.ts — solo path locali accettati
+- Fix bypass HMAC webhook Brevo — fail-closed se secret non configurato
+- Backup script: pipefail + dump separato da gzip + verifica integrita gunzip -t
+- Restore script: rollback automatico se restore fallisce, snapshot pre-restore
+
+### Bug Fixes (P1 Urgent)
+- Newsletter ritorna 503 se Strapi e down (non piu falso successo)
+- Brevo webhook valida tutte le risposte fetch prima di procedere
+- Rate limiter in-memory sostituito con SQLite condiviso (eliminato memory leak)
+- Database SSL abilitato di default in produzione
+- pipefail aggiunto a tutti gli shell script
+
+### Quality Improvements (P2)
+- Fix N+1 query nel batch review fetch (1 query $in invece di 10 singole)
+- Scritture atomiche per file stato agenti (temp + os.replace)
+- Resource limits Docker su rebuild (--memory 2g --cpus 2)
+- Timeout 10s su tutti i fetch() verso servizi esterni
+- README riscritto da zero (da "# test" a documentazione completa)
+
+### Maintenance (P3)
+- Retry con backoff esponenziale in strapi_client, ollama, claude_client (3 tentativi)
+- Fix bare except in content_recycler.py e competitor_monitor.py
+- Fix bug slice in content_promoter.py ([-200] → [-200:])
+
+### Brand Migration
+- Migrato campo brand prodotto da stringa a relazione (brand_relation → tabella Brand)
+- 12 brand mancanti creati in DB, 134 relazioni product→brand popolate
+- Rimosso campo stringa brand dallo schema product
+- Aggiornati 16 file frontend (template, tipi, JSON-LD, populate queries)
+- Dati brand verificati live: 7/7 review con brand_relation corretto
+
+### Verification
+- 11/11 pagine HTTP 200 (EN/IT/ES homepage + listings)
+- API search e reviews funzionanti con brand_relation
+- Newsletter rifiuta email invalide (400)
+- Webhook rifiuta richieste senza HMAC (401)
+- Open redirect bloccato → redirect a /en/
+
 ## 2026-04-07 → 2026-04-08 — v3.0 Growth Engine (AI Agents + SEO + Monetizzazione)
 
 ### AI Content Generation
