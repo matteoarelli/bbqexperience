@@ -6,7 +6,10 @@ import os
 import sys
 from urllib.request import Request, urlopen
 
-TOKEN = os.environ.get("STRAPI_API_TOKEN", "60995e10ac9cbb2f35e1e515bd5285f7773bedb9521a19e3bc60929294ed77cf075407e4afe1734659d64b99eaa31e5c633b60eca688f8c9f8eb995c4e881f255de7f2ac91828ced689152029ae257dce5a21757c2cc35cda0e0bd70aaa014b718d07612ed745f111b24afce7a58310ec2609591a27151651e38879ab6731aa9")
+TOKEN = os.environ.get("STRAPI_API_TOKEN", "")
+if not TOKEN:
+    print("ERRORE: STRAPI_API_TOKEN non configurato. Imposta la variabile d'ambiente.")
+    sys.exit(1)
 BASE = "https://cms.bbq-experience.com/api"
 HDR = {"Authorization": "Bearer " + TOKEN}
 

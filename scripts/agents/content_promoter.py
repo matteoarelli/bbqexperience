@@ -50,9 +50,11 @@ def load_json(path: Path) -> dict | list:
 
 
 def save_json(path: Path, data: dict | list) -> None:
-    """Salva dati in un file JSON."""
+    """Salva dati in un file JSON con scrittura atomica (temp + rename)."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp_path = path.with_suffix(".tmp")
+    tmp_path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    os.replace(str(tmp_path), str(path))
 
 
 def get_recently_published() -> list[dict]:
@@ -256,7 +258,7 @@ def mark_as_promoted(articles: list[dict]) -> None:
     for article in articles:
         ids.add(article["content_id"])
 
-    promoted["promoted_ids"] = list(ids)[-200]  # Mantieni ultimi 200
+    promoted["promoted_ids"] = list(ids)[-200:]  # Mantieni ultimi 200
     promoted["last_updated"] = datetime.now().isoformat()
     save_json(PROMOTED_FILE, promoted)
 

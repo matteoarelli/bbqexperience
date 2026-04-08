@@ -2,6 +2,7 @@
 
 import subprocess
 import os
+import time
 
 CLAUDE_CMD = os.environ.get("CLAUDE_CMD", "claude")
 
@@ -18,24 +19,36 @@ def ask(
     if system:
         full_prompt = f"[System: {system}]\n\n{prompt}"
 
-    try:
-        result = subprocess.run(
-            [CLAUDE_CMD, "--print", full_prompt],
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            env={**os.environ},
-        )
-        if result.returncode != 0:
-            raise RuntimeError(f"Claude CLI errore (exit {result.returncode}): {result.stderr[:500]}")
-        return result.stdout.strip()
-    except FileNotFoundError:
-        raise RuntimeError(
-            f"Claude CLI non trovato ('{CLAUDE_CMD}'). "
-            "Installa con: npm install -g @anthropic-ai/claude-code"
-        )
-    except subprocess.TimeoutExpired:
-        raise RuntimeError(f"Claude CLI timeout dopo {timeout}s")
+    last_error: Exception | None = None
+
+    for attempt in range(3):
+        try:
+            result = subprocess.run(
+                [CLAUDE_CMD, "--print", full_prompt],
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                env={**os.environ},
+            )
+            if result.returncode != 0:
+                raise RuntimeError(f"Claude CLI errore (exit {result.returncode}): {result.stderr[:500]}")
+            return result.stdout.strip()
+        except FileNotFoundError:
+            raise RuntimeError(
+                f"Claude CLI non trovato ('{CLAUDE_CMD}'). "
+                "Installa con: npm install -g @anthropic-ai/claude-code"
+            )
+        except subprocess.TimeoutExpired:
+            last_error = RuntimeError(f"Claude CLI timeout dopo {timeout}s")
+        except RuntimeError as e:
+            last_error = e
+
+        if attempt < 2:
+            wait = [3, 10][attempt]
+            print(f"[RETRY] Claude CLI tentativo {attempt + 2}/3 tra {wait}s...")
+            time.sleep(wait)
+
+    raise last_error  # type: ignore[misc]
 
 
 def review_article(title: str, content: str, keyword: str, locale: str = "en") -> dict:

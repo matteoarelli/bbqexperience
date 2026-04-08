@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import telegram
@@ -39,9 +39,11 @@ def load_state() -> dict:
 
 
 def save_state(state: dict) -> None:
-    """Salva stato aggiornato."""
+    """Salva stato aggiornato con scrittura atomica (temp + rename)."""
     STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    STATE_FILE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    tmp_path = STATE_FILE.with_suffix(".tmp")
+    tmp_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    os.replace(str(tmp_path), str(STATE_FILE))
 
 
 def fetch_rss(url: str) -> list[dict]:
@@ -85,8 +87,10 @@ def fetch_rss(url: str) -> list[dict]:
                     "description": summary[:200],
                 })
 
-    except (HTTPError, ET.ParseError, Exception) as e:
+    except (HTTPError, ET.ParseError) as e:
         print(f"[WARN] RSS fetch fallito per {url}: {e}")
+    except (URLError, TimeoutError, OSError) as e:
+        print(f"[WARN] RSS connessione fallita per {url}: {e}")
 
     return articles
 

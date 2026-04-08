@@ -79,7 +79,7 @@ export const GET: APIRoute = async ({ url, request }) => {
   try {
     const promises = typesToSearch.map(async (ct) => {
       const strapiUrl = `${STRAPI_URL}/api/${ct.endpoint}?filters[${ct.titleField}][$containsi]=${encodedQuery}&locale=${locale}&pagination[pageSize]=5&status=published`;
-      const response = await fetch(strapiUrl, { headers: strapiHeaders() });
+      const response = await fetch(strapiUrl, { headers: strapiHeaders(), signal: AbortSignal.timeout(10_000) });
       if (!response.ok) return [];
 
       const json = await response.json();

@@ -24,12 +24,15 @@ for ep in [Path(__file__).parent / ".env", Path(__file__).parent.parent / ".env"
             if line.startswith("STRAPI_API_TOKEN=") and not STRAPI_TOKEN:
                 STRAPI_TOKEN = line.split("=", 1)[1].strip()
 
-def sget(endpoint, params={}):
-    url = f"{STRAPI_URL}/api/{endpoint}?" + "&".join(f"{k}={v}" for k, v in params.items())
+def sget(endpoint: str, params: dict | None = None) -> dict:
+    url = f"{STRAPI_URL}/api/{endpoint}?" + "&".join(f"{k}={v}" for k, v in (params or {}).items())
     req = Request(url, headers={"Authorization": f"Bearer {STRAPI_TOKEN}"})
     try:
-        with urlopen(req, timeout=30) as r: return json.loads(r.read())
-    except: return {"data": []}
+        with urlopen(req, timeout=30) as r:
+            return json.loads(r.read())
+    except Exception as e:
+        print(f"[WARN] Strapi GET {endpoint} fallito: {e}")
+        return {"data": []}
 
 def get_top_site_content():
     """Articoli recenti del sito che possono diventare post IG."""

@@ -2,13 +2,17 @@
 
 import os
 import json
+import time
 from typing import Any
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 
 STRAPI_URL = os.environ.get("STRAPI_URL", "https://cms.bbq-experience.com")
 STRAPI_API_TOKEN = os.environ.get("STRAPI_API_TOKEN", "")
+
+MAX_RETRIES = 3
+RETRY_BACKOFF = [1, 2, 4]  # secondi tra i tentativi
 
 
 def _headers() -> dict[str, str]:
@@ -19,17 +23,34 @@ def _headers() -> dict[str, str]:
 
 
 def _request(method: str, url: str, data: dict | None = None) -> dict:
-    """Esegue richiesta HTTP verso Strapi e ritorna JSON response."""
+    """Esegue richiesta HTTP verso Strapi con retry e backoff esponenziale."""
     body = json.dumps(data).encode("utf-8") if data else None
-    req = Request(url, data=body, headers=_headers(), method=method)
-    try:
-        with urlopen(req, timeout=30) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except HTTPError as e:
-        error_body = e.read().decode("utf-8") if e.fp else ""
-        raise RuntimeError(
-            f"Strapi {method} {url} -> {e.code}: {error_body}"
-        ) from e
+    last_error: Exception | None = None
+
+    for attempt in range(MAX_RETRIES):
+        req = Request(url, data=body, headers=_headers(), method=method)
+        try:
+            with urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except HTTPError as e:
+            error_body = e.read().decode("utf-8") if e.fp else ""
+            # Non ritentare su errori client (4xx) — solo server (5xx) e timeout
+            if 400 <= e.code < 500:
+                raise RuntimeError(
+                    f"Strapi {method} {url} -> {e.code}: {error_body}"
+                ) from e
+            last_error = RuntimeError(
+                f"Strapi {method} {url} -> {e.code}: {error_body}"
+            )
+        except (URLError, TimeoutError, OSError) as e:
+            last_error = RuntimeError(f"Strapi {method} {url} -> network error: {e}")
+
+        if attempt < MAX_RETRIES - 1:
+            wait = RETRY_BACKOFF[attempt]
+            print(f"[RETRY] Strapi {method} tentativo {attempt + 2}/{MAX_RETRIES} tra {wait}s...")
+            time.sleep(wait)
+
+    raise last_error  # type: ignore[misc]
 
 
 def find(

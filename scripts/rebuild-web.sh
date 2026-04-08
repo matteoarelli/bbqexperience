@@ -2,7 +2,7 @@
 # rebuild-web.sh — Ricostruisce il sito statico Astro
 # Chiamato sia dal deploy (git push) sia dal webhook Strapi (content change)
 # Include debounce con lockfile per evitare rebuild multipli simultanei
-set -e
+set -eo pipefail
 
 LOCK="/tmp/bbqexperience-rebuild.lock"
 LOG="/opt/webhooks/logs/bbqexperience.log"
@@ -29,11 +29,18 @@ cd "$WEB_DIR"
 
 # Build Astro dentro container Docker (il server non ha Node.js installato)
 docker run --rm \
+  --memory 2g --cpus 2 \
   -v "$WEB_DIR":/app \
   -v bbqexperience_web_modules:/app/node_modules \
   -w /app \
   -e STRAPI_URL=http://host.docker.internal:1337 \
   node:22-alpine sh -c "npm ci --production=false 2>&1 | tail -3 && npm run build 2>&1 | tail -5"
+# set -e interrompe lo script se docker run fallisce
+
+if [ ! -d "$WEB_DIR/dist" ]; then
+  echo "$(date '+%Y-%m-%d %H:%M:%S') -- ERRORE: Directory dist/ non trovata dopo la build" >> "$LOG"
+  exit 1
+fi
 
 # Copia output nella directory servita da Caddy
 rm -rf "${OUTPUT_DIR}.old"

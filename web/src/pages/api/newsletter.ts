@@ -63,11 +63,16 @@ export const POST: APIRoute = async ({ request }) => {
           subscribed_at: new Date().toISOString(),
         },
       }),
+      signal: AbortSignal.timeout(10_000),
     });
 
     // Se email gia presente, Strapi ritorna 400 per unique constraint
     if (!strapiRes.ok && strapiRes.status !== 400) {
       console.error('Errore Strapi subscriber:', strapiRes.status);
+      return new Response(JSON.stringify({ error: 'Servizio iscrizione non disponibile' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // 2. Aggiungi contatto in Brevo (se configurato)
@@ -85,6 +90,7 @@ export const POST: APIRoute = async ({ request }) => {
             attributes: { LOCALE: locale },
             updateEnabled: true,
           }),
+          signal: AbortSignal.timeout(10_000),
         });
       } catch (brevoErr) {
         captureError(brevoErr, { context: 'brevo-create-contact', email: '***' });

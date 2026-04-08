@@ -29,8 +29,11 @@ function validateSignature(body: string, signature: string | null): boolean {
 async function updateSubscriberStatus(email: string, status: 'active' | 'unsubscribed'): Promise<void> {
   const searchRes = await fetch(
     `${STRAPI_URL}/api/subscribers?filters[email][$eq]=${encodeURIComponent(email)}`,
-    { headers: { Authorization: `Bearer ${STRAPI_API_TOKEN}` } },
+    { headers: { Authorization: `Bearer ${STRAPI_API_TOKEN}` }, signal: AbortSignal.timeout(10_000) },
   );
+  if (!searchRes.ok) {
+    throw new Error(`Strapi search subscribers fallito: ${searchRes.status}`);
+  }
   const searchData = await searchRes.json();
   const subscriber = searchData?.data?.[0];
   if (!subscriber) return;
@@ -40,14 +43,18 @@ async function updateSubscriberStatus(email: string, status: 'active' | 'unsubsc
     updateData.unsubscribed_at = new Date().toISOString();
   }
 
-  await fetch(`${STRAPI_URL}/api/subscribers/${subscriber.documentId}`, {
+  const updateRes = await fetch(`${STRAPI_URL}/api/subscribers/${subscriber.documentId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${STRAPI_API_TOKEN}`,
     },
     body: JSON.stringify({ data: updateData }),
+    signal: AbortSignal.timeout(10_000),
   });
+  if (!updateRes.ok) {
+    throw new Error(`Strapi update subscriber fallito: ${updateRes.status}`);
+  }
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -55,7 +62,11 @@ export const POST: APIRoute = async ({ request }) => {
     const rawBody = await request.text();
     const signature = request.headers.get('x-sib-signature');
 
-    if (BREVO_WEBHOOK_SECRET && !validateSignature(rawBody, signature)) {
+    // Fail-closed: se il secret non e configurato, rifiuta tutto
+    if (!BREVO_WEBHOOK_SECRET) {
+      return new Response('Webhook secret not configured', { status: 500 });
+    }
+    if (!validateSignature(rawBody, signature)) {
       return new Response('Unauthorized', { status: 401 });
     }
 

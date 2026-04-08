@@ -2,7 +2,9 @@
 
 import os
 import json
+import time
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://192.168.1.119:11434")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.1:70b")
@@ -31,10 +33,22 @@ def generate(
         payload["system"] = system
 
     body = json.dumps(payload).encode("utf-8")
-    req = Request(url, data=body, headers={"Content-Type": "application/json"})
-    with urlopen(req, timeout=1800) as resp:
-        result = json.loads(resp.read().decode("utf-8"))
-    return result.get("response", "")
+    last_error: Exception | None = None
+
+    for attempt in range(3):
+        req = Request(url, data=body, headers={"Content-Type": "application/json"})
+        try:
+            with urlopen(req, timeout=1800) as resp:
+                result = json.loads(resp.read().decode("utf-8"))
+            return result.get("response", "")
+        except (HTTPError, URLError, TimeoutError, OSError) as e:
+            last_error = e
+            if attempt < 2:
+                wait = [2, 5][attempt]
+                print(f"[RETRY] Ollama tentativo {attempt + 2}/3 tra {wait}s... ({e})")
+                time.sleep(wait)
+
+    raise RuntimeError(f"Ollama non raggiungibile dopo 3 tentativi: {last_error}")
 
 
 def generate_json(

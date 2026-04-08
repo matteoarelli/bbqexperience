@@ -25,7 +25,11 @@ export const GET: APIRoute = ({ url, cookies, redirect }) => {
   // Gestione uscita dalla preview via GET ?action=exit
   if (action === 'exit') {
     cookies.delete(PREVIEW_COOKIE_NAME, { path: '/' });
-    const redirectTo = url.searchParams.get('redirect') || '/en/';
+    let redirectTo = url.searchParams.get('redirect') || '/en/';
+    // Previeni open redirect: solo path locali, no URL assoluti
+    if (!redirectTo.startsWith('/') || redirectTo.startsWith('//')) {
+      redirectTo = '/en/';
+    }
     return redirect(redirectTo, 302);
   }
 
