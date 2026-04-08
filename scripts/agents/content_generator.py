@@ -62,9 +62,30 @@ REQUIREMENTS:
 - Each section should have an actionable takeaway
 - FAQ answers must be specific with data, not generic
 
-OUTPUT: Only the HTML content (no html/head/body wrapper, no title tag). Start directly with the first paragraph."""
+OUTPUT: Only the raw HTML content. No markdown code blocks, no ```html wrapper, no explanation text before or after. Start directly with <p> and end with the last closing tag."""
 
     content = claude.ask(prompt, timeout=300)
+
+    # Pulisci output: rimuovi code blocks markdown, testo pre/post HTML
+    content = content.strip()
+    if "```html" in content:
+        content = content.split("```html", 1)[1]
+        if "```" in content:
+            content = content.rsplit("```", 1)[0]
+    elif "```" in content:
+        parts = content.split("```")
+        # Prendi il blocco piu lungo (probabilmente l'HTML)
+        content = max(parts, key=len)
+    # Rimuovi testo prima del primo tag HTML
+    first_tag = content.find("<")
+    if first_tag > 0:
+        content = content[first_tag:]
+    # Rimuovi testo dopo l'ultimo tag HTML di chiusura
+    last_tag = content.rfind(">")
+    if last_tag > 0 and last_tag < len(content) - 1:
+        content = content[:last_tag + 1]
+    content = content.strip()
+
     word_count = len(content.split())
     print(f"  Articolo generato: {word_count} parole")
 
