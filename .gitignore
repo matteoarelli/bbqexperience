@@ -11,3 +11,5 @@ public/uploads/
 .DS_Store
 state/*
 !state/.gitkeep
+.env.windows
+scripts/agents/.env.windows
