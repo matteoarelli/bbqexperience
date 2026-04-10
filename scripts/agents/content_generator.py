@@ -9,7 +9,25 @@ Cron: Daily 06:00 via Windows Task Scheduler (Claude CLI funziona solo su Window
 import os
 import sys
 import re
+import io
 from datetime import datetime
+from pathlib import Path
+
+# Fix encoding Windows
+if sys.stdout and hasattr(sys.stdout, 'buffer') and sys.stdout.encoding != "utf-8":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
+# Carica env vars da .env.windows (Windows) o .env (server)
+_script_dir = Path(__file__).parent
+for _env_file in [_script_dir / ".env.windows", _script_dir.parent.parent / ".env"]:
+    if _env_file.exists():
+        for _line in _env_file.read_text(encoding="utf-8").splitlines():
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _, _v = _line.partition("=")
+                os.environ.setdefault(_k.strip(), _v.strip())
+        break
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import strapi_client as strapi

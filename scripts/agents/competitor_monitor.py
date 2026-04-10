@@ -19,13 +19,14 @@ from agents.lib import telegram
 # ─── Competitor da monitorare ─────────────────────────────────────────────────
 
 COMPETITORS = [
-    {"name": "Serious Eats BBQ", "rss": "https://www.seriouseats.com/grilling-barbecue/feed"},
-    {"name": "Amazing Ribs", "rss": "https://amazingribs.com/feed/"},
     {"name": "Hey Grill Hey", "rss": "https://heygrillhey.com/feed/"},
     {"name": "Vindulge", "rss": "https://vindulge.com/feed/"},
     {"name": "Girls Can Grill", "rss": "https://girlscangrill.com/feed/"},
     {"name": "ThermoWorks Blog", "rss": "https://blog.thermoworks.com/feed/"},
-    {"name": "ATBBQ The Sauce", "rss": "https://www.atbbq.com/thesauce/feed/"},
+    {"name": "Angry BBQ", "rss": "https://angrybbq.com/feed/"},
+    {"name": "Smoked BBQ Source", "rss": "https://smokedbbqsource.com/feed/"},
+    {"name": "Jess Pryles", "rss": "https://jesspryles.com/feed/"},
+    {"name": "How to BBQ Right", "rss": "https://howtobbqright.com/feed/"},
 ]
 
 STATE_FILE = Path(__file__).parent.parent.parent / "state" / "competitor_state.json"
