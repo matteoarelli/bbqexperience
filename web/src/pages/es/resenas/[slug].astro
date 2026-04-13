@@ -27,6 +27,7 @@ import TopPickBadge from '@components/review/TopPickBadge.astro';
 import PrevNextNav from '@components/content/PrevNextNav.astro';
 import WhereToBuy from '@components/review/WhereToBuy.astro';
 import { localizedRoutes } from '@lib/i18n';
+import { renderMarkdown } from '@lib/markdown';
 
 export const prerender = false;
 
@@ -164,7 +165,7 @@ const breadcrumbItems = [
     {review.editorial_content && (
       <div
         class="prose prose-invert prose-lg max-w-none mb-[var(--space-12)]"
-        set:html={review.editorial_content}
+        set:html={renderMarkdown(review.editorial_content)}
 
       />
     )}

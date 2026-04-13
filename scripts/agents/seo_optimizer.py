@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-SEO Optimizer — Ottimizza meta tags e inserisce internal link nei contenuti pubblicati.
+SEO Optimizer — Inserisce internal link nei contenuti pubblicati.
 Cron: 2x/giorno (09:00, 15:00) su Hetzner.
+
+Itera per locale e usa slug di route localizzati per evitare link cross-locale
+(es. mai /en/recipes/ in un contenuto IT). Skippa testo gia dentro <a>...</a>
+per evitare anchor annidati.
 """
 
 import os
@@ -14,181 +18,223 @@ from agents.lib import strapi_client as strapi
 from agents.lib import telegram
 
 
-def get_recent_content(hours: int = 24) -> list[dict]:
-    """Recupera contenuti pubblicati nelle ultime N ore."""
-    all_recent: list[dict] = []
-    for ct in ["blog-posts", "tutorials", "reviews", "recipes"]:
+LOCALES = ["en", "it", "es"]
+
+# Slug di route per content type e locale (deve restare sincronizzato con
+# web/src/lib/i18n.ts: localizedRoutes)
+ROUTE_BY_LOCALE: dict[str, dict[str, str]] = {
+    "blog-posts": {"en": "blog", "it": "blog", "es": "blog"},
+    "tutorials": {"en": "tutorials", "it": "guide", "es": "tutoriales"},
+    "reviews": {"en": "reviews", "it": "recensioni", "es": "resenas"},
+    "recipes": {"en": "recipes", "it": "ricette", "es": "recetas"},
+}
+
+# Campo testo principale per content type
+CONTENT_FIELD: dict[str, str] = {
+    "blog-posts": "content",
+    "tutorials": "content",
+    "reviews": "editorial_content",
+    "recipes": "editorial_intro",
+}
+
+# Stop words per estrazione keyword
+STOP_WORDS = {
+    "the", "a", "an", "is", "are", "was", "were", "of", "in", "on", "for",
+    "to", "and", "or", "but", "with", "by", "at", "from", "how", "what",
+    "why", "when", "best", "top", "vs", "your", "our", "this", "that",
+    # IT
+    "il", "lo", "la", "i", "gli", "le", "un", "una", "uno", "del", "della",
+    "che", "come", "per", "con", "tra", "fra", "alla", "allo",
+    # ES
+    "el", "los", "las", "una", "unos", "unas", "del", "que", "como",
+    "para", "con", "entre", "por",
+}
+
+
+def get_recent_content_by_locale(locale: str, hours: int = 24) -> list[dict]:
+    """Recupera contenuti pubblicati nel locale dato, aggiornati nelle ultime N ore."""
+    cutoff = datetime.now() - timedelta(hours=hours)
+    out: list[dict] = []
+    for ct in CONTENT_FIELD.keys():
         items = strapi.find_all_pages(
             ct,
-            populate="*",
+            locale=locale,
             sort="updatedAt:desc",
             page_size=50,
+            populate="*",
         )
-        # Filtra per data aggiornamento
-        cutoff = datetime.now() - timedelta(hours=hours)
         for item in items:
             updated = item.get("updatedAt", "")
-            if updated:
-                try:
-                    item_date = datetime.fromisoformat(updated.replace("Z", "+00:00")).replace(tzinfo=None)
-                    if item_date > cutoff:
-                        item["_content_type"] = ct
-                        all_recent.append(item)
-                except ValueError:
-                    pass
-    return all_recent
+            if not updated:
+                continue
+            try:
+                dt = datetime.fromisoformat(updated.replace("Z", "+00:00")).replace(tzinfo=None)
+            except ValueError:
+                continue
+            if dt > cutoff:
+                item["_content_type"] = ct
+                out.append(item)
+    return out
 
 
-def get_all_content_for_linking() -> list[dict]:
-    """Recupera tutti i contenuti pubblicati per costruire la mappa internal link."""
-    all_content: list[dict] = []
-    for ct in ["blog-posts", "tutorials", "reviews", "recipes"]:
+def get_all_titles_by_locale(locale: str) -> list[dict]:
+    """Recupera titolo+slug+content_type di tutti i contenuti pubblicati per linking."""
+    out: list[dict] = []
+    for ct in CONTENT_FIELD.keys():
         items = strapi.find_all_pages(
             ct,
-            fields=["title", "slug", "excerpt", "seo_title"],
+            locale=locale,
+            fields=["title", "slug"],
         )
         for item in items:
             item["_content_type"] = ct
-            all_content.append(item)
-    return all_content
-
-
-def build_link_map(all_content: list[dict]) -> dict[str, dict]:
-    """Costruisce mappa keyword → URL per internal linking."""
-    link_map: dict[str, dict] = {}
-    route_map = {
-        "blog-posts": "blog",
-        "tutorials": "tutorials",
-        "reviews": "reviews",
-        "recipes": "recipes",
-    }
-    for item in all_content:
-        slug = item.get("slug", "")
-        title = item.get("title", "")
-        ct = item.get("_content_type", "")
-        route = route_map.get(ct, "blog")
-        url = f"/en/{route}/{slug}/"
-
-        # Usa parole chiave dal titolo come anchor
-        keywords = extract_keywords(title)
-        for kw in keywords:
-            if kw not in link_map:
-                link_map[kw] = {"url": url, "title": title, "slug": slug}
-
-    return link_map
+            out.append(item)
+    return out
 
 
 def extract_keywords(title: str) -> list[str]:
-    """Estrae keyword significative dal titolo (2-3 word phrases)."""
-    stop_words = {"the", "a", "an", "is", "are", "was", "were", "of", "in", "on", "for",
-                  "to", "and", "or", "but", "with", "by", "at", "from", "how", "what",
-                  "why", "when", "best", "top", "vs", "your", "our", "this", "that"}
-    words = re.findall(r'[a-z]+', title.lower())
-    words = [w for w in words if w not in stop_words and len(w) > 2]
-
+    """Estrae bigram/trigram significativi dal titolo."""
+    words = re.findall(r'[A-Za-zÀ-ÿ]+', title.lower())
+    words = [w for w in words if w not in STOP_WORDS and len(w) > 2]
     phrases: list[str] = []
-    # Bigram e trigram
     for i in range(len(words)):
         if i + 1 < len(words):
             phrases.append(f"{words[i]} {words[i+1]}")
         if i + 2 < len(words):
             phrases.append(f"{words[i]} {words[i+1]} {words[i+2]}")
+    return phrases[:5]
 
-    return phrases[:5]  # Max 5 keyword per titolo
+
+def build_link_map(items: list[dict], locale: str) -> dict[str, dict]:
+    """Mappa keyword -> {url, slug, title} per il locale dato."""
+    link_map: dict[str, dict] = {}
+    for item in items:
+        slug = item.get("slug", "")
+        title = item.get("title", "")
+        ct = item.get("_content_type", "")
+        if not slug or ct not in ROUTE_BY_LOCALE:
+            continue
+        route = ROUTE_BY_LOCALE[ct][locale]
+        url = f"/{locale}/{route}/{slug}/"
+        for kw in extract_keywords(title):
+            if kw not in link_map:
+                link_map[kw] = {"url": url, "title": title, "slug": slug}
+    return link_map
 
 
-def add_internal_links(content: str, link_map: dict[str, dict], own_slug: str, max_links: int = 5) -> tuple[str, int]:
-    """Aggiunge internal link al contenuto HTML. Ritorna (contenuto, num_link_aggiunti)."""
+# Range di indici (inizio, fine) di blocchi <a ...>...</a> nel testo.
+# Usato per skippare match dentro anchor esistenti.
+ANCHOR_BLOCK_RE = re.compile(r'<a\s[^>]*>.*?</a>', re.IGNORECASE | re.DOTALL)
+
+
+def find_anchor_ranges(text: str) -> list[tuple[int, int]]:
+    return [(m.start(), m.end()) for m in ANCHOR_BLOCK_RE.finditer(text)]
+
+
+def is_inside(pos: int, ranges: list[tuple[int, int]]) -> bool:
+    for s, e in ranges:
+        if s <= pos < e:
+            return True
+    return False
+
+
+def add_internal_links(
+    content: str,
+    link_map: dict[str, dict],
+    own_slug: str,
+    max_links: int = 5,
+) -> tuple[str, int]:
+    """Aggiunge fino a max_links anchor al contenuto. Skippa zone dentro <a>...</a>
+    per evitare nesting. Una sola occorrenza per keyword, una sola URL per pass."""
     added = 0
     used_urls: set[str] = set()
 
     for keyword, link_info in link_map.items():
         if added >= max_links:
             break
-        if link_info["slug"] == own_slug:
-            continue
-        if link_info["url"] in used_urls:
+        if link_info["slug"] == own_slug or link_info["url"] in used_urls:
             continue
 
-        # Cerca la keyword nel testo (case insensitive, solo in paragrafi, non in tag)
-        pattern = re.compile(
-            rf'(?<![<\w/])({re.escape(keyword)})(?![^<]*>)',
-            re.IGNORECASE
-        )
-        # Sostituisci solo la prima occorrenza
-        new_content, count = pattern.subn(
-            rf'<a href="{link_info["url"]}">\1</a>',
-            content,
-            count=1,
-        )
-        if count > 0:
-            content = new_content
-            used_urls.add(link_info["url"])
-            added += 1
+        # Word boundary case-insensitive
+        pattern = re.compile(rf'\b{re.escape(keyword)}\b', re.IGNORECASE)
+        anchor_ranges = find_anchor_ranges(content)
+
+        match = None
+        for m in pattern.finditer(content):
+            if not is_inside(m.start(), anchor_ranges):
+                match = m
+                break
+        if match is None:
+            continue
+
+        replacement = f'<a href="{link_info["url"]}">{match.group(0)}</a>'
+        content = content[:match.start()] + replacement + content[match.end():]
+        used_urls.add(link_info["url"])
+        added += 1
 
     return content, added
 
 
-def optimize_content(item: dict, link_map: dict[str, dict]) -> dict | None:
-    """Ottimizza un singolo contenuto. Ritorna i dati da aggiornare o None."""
+def optimize_item(item: dict, link_map: dict[str, dict], locale: str) -> dict | None:
     ct = item.get("_content_type", "")
     slug = item.get("slug", "")
     doc_id = item.get("documentId", "")
-
-    # Campo contenuto varia per tipo
-    content_field = "content" if ct in ("blog-posts", "tutorials") else "editorial_content" if ct == "reviews" else "editorial_intro"
-    content = item.get(content_field, "") or ""
-
-    if not content or not doc_id:
+    field = CONTENT_FIELD.get(ct)
+    if not field or not doc_id:
         return None
-
-    # Aggiungi internal links
-    updated_content, links_added = add_internal_links(content, link_map, slug)
-
-    if links_added == 0:
+    content = item.get(field, "") or ""
+    if not content:
         return None
-
+    updated, added = add_internal_links(content, link_map, slug)
+    if added == 0:
+        return None
     return {
         "doc_id": doc_id,
         "content_type": ct,
-        "data": {content_field: updated_content},
-        "links_added": links_added,
+        "field": field,
+        "slug": slug,
+        "data": {field: updated, "slug": slug},
+        "links_added": added,
+        "locale": locale,
     }
 
 
-def main():
+def main() -> None:
     print(f"[{datetime.now().isoformat()}] SEO Optimizer avviato")
-
-    # Recupera contenuti recenti e mappa link
-    recent = get_recent_content(hours=24)
-    print(f"Contenuti recenti (24h): {len(recent)}")
-
-    all_content = get_all_content_for_linking()
-    print(f"Contenuti totali per linking: {len(all_content)}")
-
-    link_map = build_link_map(all_content)
-    print(f"Keyword nella link map: {len(link_map)}")
-
-    # Ottimizza ogni contenuto recente
     optimized: list[str] = []
     total_links = 0
 
-    for item in recent:
-        result = optimize_content(item, link_map)
-        if result:
+    for locale in LOCALES:
+        recent = get_recent_content_by_locale(locale, hours=24)
+        if not recent:
+            continue
+        all_titles = get_all_titles_by_locale(locale)
+        link_map = build_link_map(all_titles, locale)
+        print(f"[{locale}] recenti={len(recent)} keyword_map={len(link_map)}")
+
+        for item in recent:
+            result = optimize_item(item, link_map, locale)
+            if not result:
+                continue
             try:
-                strapi.update(result["content_type"], result["doc_id"], result["data"])
-                optimized.append(f"{item.get('title', '?')} (+{result['links_added']} link)")
+                strapi.update(
+                    result["content_type"],
+                    result["doc_id"],
+                    result["data"],
+                    locale=locale,
+                )
+                optimized.append(
+                    f"[{locale}] {item.get('title', '?')} (+{result['links_added']} link)"
+                )
                 total_links += result["links_added"]
             except Exception as e:
-                print(f"[WARN] Aggiornamento fallito per {item.get('title', '?')}: {e}")
+                print(f"[WARN] Update fallito {locale} {item.get('title','?')}: {e}")
 
-    # Report
     if optimized:
         telegram.send_agent_report(
             "SEO Optimizer",
             f"Ottimizzati {len(optimized)} contenuti, {total_links} internal link aggiunti",
-            optimized[:10],  # Max 10 nel report
+            optimized[:10],
         )
     else:
         print("Nessun contenuto da ottimizzare")

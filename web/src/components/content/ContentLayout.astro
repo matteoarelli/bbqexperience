@@ -7,6 +7,7 @@ import type { Locale } from '@lib/i18n';
 import type { StrapiMedia } from '@lib/types';
 import { getStrapiMediaURL } from '@lib/media';
 import { getTranslation } from '@lib/i18n';
+import { renderMarkdown } from '@lib/markdown';
 import ReadingProgress from '@components/content/ReadingProgress.svelte';
 import TableOfContents from '@components/content/TableOfContents.astro';
 import CopyCodeButton from '@components/content/CopyCodeButton.astro';
@@ -83,7 +84,9 @@ function addHeadingIds(html: string): string {
   });
 }
 
-const processedContent = content ? addHeadingIds(content) : null;
+// Pipeline: markdown CMS -> HTML -> aggiunta id agli heading per anchor link
+const renderedHtml = renderMarkdown(content);
+const processedContent = renderedHtml ? addHeadingIds(renderedHtml) : null;
 ---
 
 <ReadingProgress locale={locale} client:idle />

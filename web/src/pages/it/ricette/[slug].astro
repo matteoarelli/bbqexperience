@@ -28,6 +28,7 @@ import { loadTranslations, getTranslation } from '@lib/i18n';
 import PrevNextNav from '@components/content/PrevNextNav.astro';
 import RelatedRecipes from '@components/content/RelatedRecipes.astro';
 import '@styles/print.css';
+import { renderMarkdown } from '@lib/markdown';
 
 export const prerender = false;
 
@@ -134,7 +135,7 @@ const breadcrumbItems = [
       <div
         class="prose prose-invert max-w-none mb-12 no-print recipe-editorial"
         style="color: var(--color-text-secondary);"
-        set:html={recipe.editorial_intro}
+        set:html={renderMarkdown(recipe.editorial_intro)}
       />
     )}
 
