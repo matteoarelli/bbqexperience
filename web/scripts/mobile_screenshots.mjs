@@ -35,7 +35,8 @@ for (const [name, path] of pages) {
     const toggle = await page.$('#mobile-menu-toggle');
     if (toggle) {
       await toggle.click({ force: true, timeout: 3000 });
-      await page.waitForTimeout(400);
+      // attesa per slide-in (320ms) + stagger reveal (~80 + 6*60 = ~440ms)
+      await page.waitForTimeout(900);
       await page.screenshot({ path: join(outDir, `${name}_menu-open.png`), fullPage: false });
       await toggle.click({ force: true, timeout: 3000 });
       await page.waitForTimeout(200);
