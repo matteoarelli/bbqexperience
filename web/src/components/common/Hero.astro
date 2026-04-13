@@ -112,7 +112,8 @@ const recipesHref = `/${locale}/${localizedRoutes.recipes[locale]}/`;
   .hero-title__line {
     display: block;
     font-size: clamp(2rem, 5vw + 1rem, 5.5rem);
-    color: var(--color-text-primary);
+    /* Sempre chiaro: l'hero ha background scuro hardcoded anche in light mode */
+    color: #fff;
   }
 
   .hero-title__fire {
@@ -127,7 +128,7 @@ const recipesHref = `/${locale}/${localizedRoutes.recipes[locale]}/`;
 
   .hero-subtitle {
     font-size: var(--text-xl);
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.78);
     max-width: 42rem;
     margin: var(--space-8) auto 0;
     line-height: 1.6;

@@ -149,7 +149,8 @@ const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
   }
 
   .featured-hero__title-rest {
-    color: var(--color-text-primary);
+    /* Hero header ha gradient scuro hardcoded -> testo bianco sempre */
+    color: #fff;
     margin-left: var(--space-2);
   }
 
@@ -235,9 +236,11 @@ const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
     font-size: var(--text-2xl);
     font-weight: 900;
     text-transform: uppercase;
-    color: var(--color-text-primary);
+    /* Sempre bianco: testo su immagine + overlay scuro hardcoded */
+    color: #fff;
     margin: 0 0 var(--space-3) 0;
     line-height: 1.1;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
   }
 
   @media (min-width: 768px) {
@@ -247,7 +250,7 @@ const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
   }
 
   .featured-main__excerpt {
-    color: var(--color-text-secondary);
+    color: rgba(255, 255, 255, 0.85);
     font-size: var(--text-sm);
     line-height: 1.5;
     margin: 0 0 var(--space-4) 0;
@@ -255,6 +258,7 @@ const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
   }
 
   .featured-main__cta {
