@@ -1,0 +1,60 @@
+---
+/**
+ * Organization + ContactPoint JSON-LD.
+ * Da emettere su pagine "entity" (about, contact) e in fallback nella home
+ * per migliorare SEO entity recognition.
+ */
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  pageType?: 'AboutPage' | 'ContactPage' | 'WebPage';
+  pageUrl: string;
+  pageName: string;
+  description?: string;
+}
+
+const { locale, pageType = 'WebPage', pageUrl, pageName, description } = Astro.props;
+
+const SITE_URL = 'https://bbq-experience.com';
+
+const organization = {
+  '@type': 'Organization',
+  '@id': `${SITE_URL}/#organization`,
+  name: 'BBQ Experience',
+  url: SITE_URL,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${SITE_URL}/og-default.jpg`,
+  },
+  sameAs: [
+    'https://instagram.com/bbqexperience',
+  ],
+  description: 'Independent BBQ media — honest gear reviews, pitmaster recipes, and tutorials. 74k+ Instagram community.',
+  inLanguage: ['en', 'it', 'es'],
+};
+
+const page: Record<string, unknown> = {
+  '@type': pageType,
+  '@id': `${pageUrl}#page`,
+  url: pageUrl,
+  name: pageName,
+  inLanguage: locale,
+  isPartOf: {
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: 'BBQ Experience',
+  },
+  about: { '@id': `${SITE_URL}/#organization` },
+};
+
+if (description) page.description = description;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [organization, page],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />

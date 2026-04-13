@@ -3,6 +3,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
 import Footer from '@components/common/Footer.astro';
+import OrganizationJsonLd from '@components/common/OrganizationJsonLd.astro';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
@@ -20,6 +21,14 @@ const t = (key: string) => getTranslation(translations, key);
   canonicalPath={`/${localizedRoutes.contact[locale]}/`}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.contact[locale]}/`} />
+
+  <OrganizationJsonLd
+    locale={locale}
+    pageType="ContactPage"
+    pageUrl={`https://bbq-experience.com/${locale}/${localizedRoutes.contact[locale]}/`}
+    pageName={`${t('nav.contact')} — ${t('site.name')}`}
+    description="Hai qualcosa da dire? Leggiamo tutto. Non proporre prodotti — li troviamo da soli."
+  />
 
   <section class="contact-page container-bbq py-16">
     <h1 class="contact-title">Hai Qualcosa da <span class="text-fire">Dire?</span></h1>
