@@ -23,6 +23,9 @@ export const localizedRoutes: Record<string, Record<Locale, string>> = {
   terms: { en: 'terms', it: 'terms', es: 'terms' },
   contact: { en: 'contact', it: 'contatti', es: 'contacto' },
   bookmarks: { en: 'bookmarks', it: 'preferiti', es: 'favoritos' },
+  // Sotto-segmenti (es. /reviews/category/<cat>/, /recipes/difficulty/<level>/)
+  category: { en: 'category', it: 'categoria', es: 'categoria' },
+  difficulty: { en: 'difficulty', it: 'difficolta', es: 'dificultad' },
 };
 
 /**
@@ -60,11 +63,13 @@ export function getLocalizedPath(currentPath: string, targetLocale: Locale): str
   if (locales.includes(currentLocale)) {
     segments[0] = targetLocale;
 
-    // Traduci il segmento di route (indice 1) se presente
-    if (segments.length > 1) {
-      const routeKey = findRouteKey(segments[1], currentLocale);
+    // Traduci il segmento di route principale (indice 1) e gli eventuali
+    // sotto-segmenti tassonomici (es. category, difficulty) all'indice 2.
+    // I segmenti dinamici (slug, valori param) vengono lasciati invariati.
+    for (let i = 1; i < segments.length; i++) {
+      const routeKey = findRouteKey(segments[i], currentLocale);
       if (routeKey && localizedRoutes[routeKey]?.[targetLocale]) {
-        segments[1] = localizedRoutes[routeKey][targetLocale];
+        segments[i] = localizedRoutes[routeKey][targetLocale];
       }
     }
   } else {

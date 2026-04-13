@@ -2,6 +2,8 @@
 /**
  * Componente SEO Head — genera meta tags per hreflang, canonical, Open Graph e Twitter Card
  */
+import { getLocalizedPath, locales as i18nLocales, type Locale } from '@lib/i18n';
+
 interface Props {
   title: string;
   description: string;
@@ -29,7 +31,16 @@ const {
 } = Astro.props;
 
 const siteUrl = 'https://bbq-experience.com';
-const locales = ['en', 'it', 'es'];
+const locales = i18nLocales;
+
+// Path corrente completo (con prefisso locale) per calcolare gli hreflang tradotti
+const currentFullPath = `/${locale}${canonicalPath}`;
+
+// Calcola hreflang per ogni locale traducendo i segmenti di route (es. recipes -> ricette)
+function hrefForLocale(targetLocale: Locale): string {
+  const localizedPath = getLocalizedPath(currentFullPath, targetLocale);
+  return `${siteUrl}${localizedPath}${canonicalQuery ? `?${canonicalQuery}` : ''}`;
+}
 
 // Mappa locale breve -> formato OG con underscore
 const ogLocaleMap: Record<string, string> = {
@@ -68,11 +79,11 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?$
 <!-- Canonical -->
 <link rel="canonical" href={canonicalUrl} />
 
-<!-- Hreflang per tutte le lingue supportate -->
+<!-- Hreflang per tutte le lingue supportate (slug tradotti per locale) -->
 {locales.map((lang) => (
-  <link rel="alternate" hreflang={lang} href={`${siteUrl}/${lang}${canonicalPath}${canonicalQuery ? `?${canonicalQuery}` : ''}`} />
+  <link rel="alternate" hreflang={lang} href={hrefForLocale(lang)} />
 ))}
-<link rel="alternate" hreflang="x-default" href={`${siteUrl}/en${canonicalPath}${canonicalQuery ? `?${canonicalQuery}` : ''}`} />
+<link rel="alternate" hreflang="x-default" href={hrefForLocale('en')} />
 
 <!-- Open Graph -->
 <meta property="og:title" content={title} />

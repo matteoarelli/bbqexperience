@@ -49,6 +49,18 @@ describe('getLocalizedPath', () => {
   it('gestisce homepage senza segmento di route', () => {
     expect(getLocalizedPath('/en/', 'es')).toBe('/es/');
   });
+
+  it('traduce sotto-segmento category in /en/reviews/category/grills/', () => {
+    expect(getLocalizedPath('/en/reviews/category/grills/', 'it')).toBe('/it/recensioni/categoria/grills/');
+  });
+
+  it('traduce sotto-segmento difficulty in /en/recipes/difficulty/easy/', () => {
+    expect(getLocalizedPath('/en/recipes/difficulty/easy/', 'es')).toBe('/es/recetas/dificultad/easy/');
+  });
+
+  it('non confonde slug dinamico contenente parole tradotte (es. "category-of-burgers")', () => {
+    expect(getLocalizedPath('/en/recipes/category-of-burgers/', 'it')).toBe('/it/ricette/category-of-burgers/');
+  });
 });
 
 describe('getTranslation', () => {
