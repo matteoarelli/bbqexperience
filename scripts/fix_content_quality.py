@@ -54,8 +54,33 @@ LOCALES = ["en", "it", "es"]
 SOFT_HYPHEN = "\u00AD"
 
 
+_INNER_TAGS_RE = re.compile(r'<[^>]+>')
+
+
 def strip_nested_anchors(html: str) -> str:
-    """Rimuove <a><a>X</a></a> mantenendo l'href interno."""
+    """Rimuove <a><a>X</a></a> mantenendo l'href interno.
+
+    Gestisce anche il pattern markdown corrotto generato dal SEO optimizer
+    quando il content gia conteneva un anchor HTML inline:
+        [<a href="X">parte1</a> parte2](/url/)
+    In questo caso ripulisce i tag dentro `[]` lasciando un markdown link
+    pulito `[parte1 parte2](/url/)` che marked rendera come singolo anchor
+    senza nesting.
+    """
+
+    def clean_md_text(match: re.Match) -> str:
+        inner = match.group(1)
+        # Rimuove qualunque tag HTML lasciando solo il testo plain
+        plain = _INNER_TAGS_RE.sub('', inner).strip()
+        return f'[{plain}]({match.group(2)})'
+
+    # [...con tag HTML dentro...](url) -> [testo pulito](url)
+    html = re.sub(
+        r'\[((?:[^\[\]]|<[^>]+>)*?<[^>]+>(?:[^\[\]]|<[^>]+>)*?)\]\(([^)]*)\)',
+        clean_md_text,
+        html,
+    )
+
     prev = None
     curr = html
     safety = 5

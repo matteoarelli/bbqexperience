@@ -40,4 +40,19 @@ describe('renderMarkdown', () => {
     expect(renderMarkdown(undefined)).toBe('');
     expect(renderMarkdown('')).toBe('');
   });
+
+  it('riduce [<a>testo</a>](url) a singolo anchor con href markdown (no nesting)', () => {
+    const corrupted = '[<a href="/inner/">Jealous Devil</a>](/outer/)';
+    const out = renderMarkdown(corrupted);
+    expect(out).not.toMatch(/<a [^>]+>\s*<a /);
+    expect(out).toContain('<a href="/outer/">Jealous Devil</a>');
+  });
+
+  it('riduce [<a>parte1</a> parte2](url) preservando il testo extra', () => {
+    const corrupted = '[<a href="/x/">Smoked baby</a> back ribs](/en/recipes/smoked-baby-back-ribs-honey-glaze/)';
+    const out = renderMarkdown(corrupted);
+    expect(out).not.toMatch(/<a [^>]+>\s*<a /);
+    expect(out).toContain('Smoked baby back ribs');
+    expect(out).toContain('href="/en/recipes/smoked-baby-back-ribs-honey-glaze/"');
+  });
 });

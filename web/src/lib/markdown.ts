@@ -23,10 +23,20 @@ const SOFT_HYPHEN_RE = /\u00AD/g;
  * Rimuove tag <a> annidati mantenendo l'href piu interno (di solito quello
  * inserito per ultimo dal SEO optimizer e quindi piu specifico/recente).
  * Esegue piu pass perche pattern profondi richiedono passi multipli.
+ *
+ * Gestisce anche il pattern markdown corrotto in cui un anchor HTML e'
+ * stato avvolto da una sintassi markdown link `[<a ...>x</a>](url)`:
+ * marked altrimenti produrrebbe un nested anchor finale.
  */
 function stripNestedAnchors(html: string): string {
+  // [...con tag HTML dentro...](url) -> [testo pulito](url)
+  // marked poi rendera come singolo anchor pulito senza nesting.
+  let curr = html.replace(
+    /\[((?:[^\[\]]|<[^>]+>)*?<[^>]+>(?:[^\[\]]|<[^>]+>)*?)\]\(([^)]*)\)/g,
+    (_, inner: string, url: string) => `[${inner.replace(/<[^>]+>/g, '').trim()}](${url})`,
+  );
+
   let prev: string;
-  let curr = html;
   let safety = 5;
   do {
     prev = curr;
