@@ -11,14 +11,13 @@ interface Props {
 
 const { locale, translations, currentPath } = Astro.props;
 
-// Link di navigazione principali
 const navLinks = ['reviews', 'recipes', 'tutorials', 'blog', 'compare', 'bookmarks'] as const;
 ---
 
 <!-- Bottone hamburger — visibile solo su mobile -->
 <button
   id="mobile-menu-toggle"
-  class="lg:hidden relative z-50 flex flex-col items-center justify-center w-10 h-10"
+  class="lg:hidden mobile-toggle"
   aria-label="Open navigation menu"
   aria-expanded="false"
   aria-controls="mobile-menu-panel"
@@ -28,156 +27,359 @@ const navLinks = ['reviews', 'recipes', 'tutorials', 'blog', 'compare', 'bookmar
   <span class="hamburger-bar"></span>
 </button>
 
+<!-- Backdrop dimming -->
+<div id="mobile-menu-backdrop" class="mobile-backdrop" aria-hidden="true"></div>
+
 <!-- Pannello slide-in a schermo intero -->
-<div
+<aside
   id="mobile-menu-panel"
   class="mobile-panel"
   aria-hidden="true"
+  aria-label="Mobile navigation"
 >
-  <nav class="flex flex-col items-center justify-center h-full gap-8" aria-label="Mobile navigation">
-    {navLinks.map((key) => (
+  <!-- Header pannello: brand + close -->
+  <div class="mobile-panel__head">
+    <span class="mobile-panel__brand">
+      <span class="fire-text" style="font-family: var(--font-heading); font-weight: 900; text-transform: uppercase;">BBQ</span><span style="font-family: var(--font-heading); font-weight: 900; text-transform: uppercase; color: var(--color-text-primary);">EXP</span>
+    </span>
+    <button
+      id="mobile-menu-close"
+      class="mobile-close"
+      aria-label="Close navigation menu"
+      type="button"
+    >
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 6 L18 18 M6 18 L18 6" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Navigazione principale -->
+  <nav class="mobile-panel__nav" aria-label="Mobile navigation">
+    {navLinks.map((key, i) => (
       <a
         href={`/${locale}/${localizedRoutes[key][locale]}/`}
         class="mobile-nav-link"
+        style={`--nav-i: ${i};`}
       >
-        {getTranslation(translations, `nav.${key}`)}
+        <span class="mobile-nav-link__index">0{i + 1}</span>
+        <span class="mobile-nav-link__label">{getTranslation(translations, `nav.${key}`)}</span>
+        <svg class="mobile-nav-link__chev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
       </a>
     ))}
+  </nav>
 
-    <!-- Separatore -->
-    <div class="w-16 h-0.5 my-4" style="background: linear-gradient(90deg, var(--color-accent-fire), var(--color-accent-amber));"></div>
-
-    <!-- Selezione lingua -->
-    <div class="flex gap-6">
+  <!-- Footer pannello: separatore fire + lingue -->
+  <div class="mobile-panel__foot">
+    <div class="mobile-panel__divider"></div>
+    <div class="mobile-panel__lang" role="group" aria-label="Language">
       {locales.map((loc) => (
         <a
           href={getLocalizedPath(currentPath, loc)}
-          class="mobile-lang-link"
+          class={`mobile-lang-link ${loc === locale ? 'is-active' : ''}`}
           aria-current={loc === locale ? 'page' : undefined}
-          style={loc === locale ? 'color: var(--color-accent-fire); font-weight: 700;' : ''}
         >
           {localeNames[loc]}
         </a>
       ))}
     </div>
-  </nav>
-</div>
+  </div>
+</aside>
 
 <style>
+  /* Hamburger button — touch target 44x44, focus visibile */
+  .mobile-toggle {
+    position: relative;
+    z-index: 60;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+    border-radius: var(--radius-md);
+  }
+
+  .mobile-toggle:focus-visible {
+    outline: 2px solid var(--color-accent-fire);
+    outline-offset: 2px;
+  }
+
   .hamburger-bar {
     display: block;
     width: 24px;
     height: 2px;
     background-color: var(--color-text-primary);
-    transition: transform var(--transition-base), opacity var(--transition-base);
+    border-radius: 2px;
+    transition: transform 240ms ease, opacity 200ms ease, background-color 200ms ease;
   }
 
   .hamburger-bar + .hamburger-bar {
     margin-top: 6px;
   }
 
-  /* Stato aperto — X */
+  /* Stato aperto: trasforma in X */
   .menu-open .hamburger-bar:nth-child(1) {
     transform: translateY(8px) rotate(45deg);
   }
-
   .menu-open .hamburger-bar:nth-child(2) {
     opacity: 0;
   }
-
   .menu-open .hamburger-bar:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
   }
 
-  .mobile-panel {
+  /* Backdrop dim — sotto al pannello, sopra al sito */
+  .mobile-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 40;
-    background-color: rgba(13, 13, 13, 0.98);
+    z-index: 45;
+    background-color: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease;
+  }
+
+  .mobile-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Pannello — rispetta CSS variables (light/dark mode safe) */
+  .mobile-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(86vw, 360px);
+    z-index: 50;
+    background-color: var(--color-bg-primary);
+    border-left: 1px solid var(--color-border-subtle);
+    box-shadow: -16px 0 48px rgba(0, 0, 0, 0.35);
     transform: translateX(100%);
-    transition: transform 300ms ease;
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    /* Safe-area iOS notch */
+    padding-top: env(safe-area-inset-top, 0);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    padding-right: env(safe-area-inset-right, 0);
   }
 
   .mobile-panel.is-open {
     transform: translateX(0);
   }
 
-  .mobile-nav-link {
-    font-family: var(--font-heading);
-    font-size: var(--text-2xl);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-primary);
-    text-decoration: none;
-    transition: color var(--transition-fast);
+  /* Head: brand + close */
+  .mobile-panel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border-subtle);
+    min-height: 64px;
   }
 
-  .mobile-nav-link:hover {
+  .mobile-panel__brand {
+    font-size: var(--text-xl);
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-close {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    border-radius: var(--radius-md);
+    transition: background-color 160ms ease, color 160ms ease;
+  }
+
+  .mobile-close:hover,
+  .mobile-close:focus-visible {
+    background-color: color-mix(in srgb, var(--color-accent-fire) 12%, transparent);
     color: var(--color-accent-fire);
+    outline: none;
+  }
+
+  /* Nav: lista verticale generosa, item 56px+ alti */
+  .mobile-panel__nav {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: var(--space-3) 0;
+    gap: 2px;
+  }
+
+  .mobile-nav-link {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    column-gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    min-height: 56px;
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-primary);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, transform 160ms ease;
+    /* Stato iniziale per stagger animation (controllato via JS) */
+    opacity: 0;
+    transform: translateX(16px);
+  }
+
+  .menu-revealed .mobile-nav-link {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: calc(60ms * var(--nav-i, 0));
+    transition-property: opacity, transform, background-color, color, border-color;
+    transition-duration: 380ms, 380ms, 160ms, 160ms, 160ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .mobile-nav-link:hover,
+  .mobile-nav-link:focus-visible {
+    background-color: color-mix(in srgb, var(--color-accent-fire) 8%, transparent);
+    color: var(--color-accent-fire);
+    border-left-color: var(--color-accent-fire);
+    outline: none;
+  }
+
+  .mobile-nav-link__index {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .mobile-nav-link__chev {
+    color: var(--color-text-muted);
+    transition: transform 200ms ease, color 200ms ease;
+  }
+
+  .mobile-nav-link:hover .mobile-nav-link__chev,
+  .mobile-nav-link:focus-visible .mobile-nav-link__chev {
+    color: var(--color-accent-fire);
+    transform: translateX(3px);
+  }
+
+  /* Footer pannello */
+  .mobile-panel__foot {
+    padding: var(--space-4) var(--space-5) var(--space-5);
+  }
+
+  .mobile-panel__divider {
+    width: 48px;
+    height: 3px;
+    border-radius: 2px;
+    margin: 0 auto var(--space-4);
+    background: linear-gradient(90deg, var(--color-accent-fire), var(--color-accent-amber));
+  }
+
+  .mobile-panel__lang {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
   }
 
   .mobile-lang-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 var(--space-3);
     font-size: var(--text-sm);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: var(--color-text-muted);
     text-decoration: none;
-    transition: color var(--transition-fast);
+    border-radius: var(--radius-md);
+    transition: color 160ms ease, background-color 160ms ease;
   }
 
-  .mobile-lang-link:hover {
+  .mobile-lang-link:hover,
+  .mobile-lang-link:focus-visible {
     color: var(--color-text-primary);
+    outline: none;
+  }
+
+  .mobile-lang-link.is-active {
+    color: var(--color-accent-fire);
+    font-weight: 700;
+    background-color: color-mix(in srgb, var(--color-accent-fire) 10%, transparent);
   }
 </style>
 
 <script>
-  // Logica toggle menu mobile
+  /* Logica menu mobile: open/close + stagger reveal + outside click + escape */
   const toggle = document.getElementById('mobile-menu-toggle');
   const panel = document.getElementById('mobile-menu-panel');
+  const backdrop = document.getElementById('mobile-menu-backdrop');
+  const closeBtn = document.getElementById('mobile-menu-close');
 
-  if (toggle && panel) {
+  if (toggle && panel && backdrop) {
+    let lastFocused: HTMLElement | null = null;
+
     function openMenu() {
+      lastFocused = (document.activeElement as HTMLElement) ?? null;
       toggle!.classList.add('menu-open');
       toggle!.setAttribute('aria-expanded', 'true');
       toggle!.setAttribute('aria-label', 'Close navigation menu');
       panel!.classList.add('is-open');
       panel!.setAttribute('aria-hidden', 'false');
+      backdrop!.classList.add('is-open');
       document.body.style.overflow = 'hidden';
-      // Focus sul primo link di navigazione dopo apertura
-      const firstLink = panel!.querySelector<HTMLElement>('a');
-      if (firstLink) firstLink.focus();
+      // Stagger reveal delle voci dopo che il pannello e' entrato
+      requestAnimationFrame(() => {
+        setTimeout(() => panel!.classList.add('menu-revealed'), 80);
+      });
+      // Focus sul primo link per accessibilita
+      const firstLink = panel!.querySelector<HTMLElement>('.mobile-nav-link');
+      if (firstLink) setTimeout(() => firstLink.focus(), 320);
     }
 
     function closeMenu() {
       toggle!.classList.remove('menu-open');
       toggle!.setAttribute('aria-expanded', 'false');
       toggle!.setAttribute('aria-label', 'Open navigation menu');
-      panel!.classList.remove('is-open');
+      panel!.classList.remove('is-open', 'menu-revealed');
       panel!.setAttribute('aria-hidden', 'true');
+      backdrop!.classList.remove('is-open');
       document.body.style.overflow = '';
-      // Ripristina focus sul bottone toggle
-      toggle!.focus();
+      if (lastFocused) lastFocused.focus();
+      else toggle!.focus();
     }
 
-    // Toggle al click sull'hamburger
     toggle.addEventListener('click', () => {
       const isOpen = toggle.getAttribute('aria-expanded') === 'true';
-      if (isOpen) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
+      if (isOpen) closeMenu();
+      else openMenu();
     });
 
-    // Chiudi al click su un link
+    closeBtn?.addEventListener('click', closeMenu);
+    backdrop.addEventListener('click', closeMenu);
+
     panel.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => closeMenu());
     });
 
-    // Chiudi con Escape
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeMenu();
+      if (e.key === 'Escape' && panel!.classList.contains('is-open')) closeMenu();
     });
   }
 </script>

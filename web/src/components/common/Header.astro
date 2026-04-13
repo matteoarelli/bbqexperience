@@ -4,6 +4,8 @@ import Nav from '@components/common/Nav.astro';
 import LanguageSwitcher from '@components/common/LanguageSwitcher.astro';
 import MobileMenu from '@components/common/MobileMenu.astro';
 import SearchDialog from '@components/content/SearchDialog.svelte';
+import ThemeToggle from '@components/common/ThemeToggle.svelte';
+import { loadTranslations, getTranslation } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 
 interface Props {
@@ -39,6 +41,7 @@ const { locale, translations, currentPath } = Astro.props;
       <div class="hidden lg:block">
         <LanguageSwitcher currentLocale={locale} currentPath={currentPath} />
       </div>
+      <ThemeToggle client:load label={getTranslation(translations, 'theme.toggle')} />
       <MobileMenu locale={locale} translations={translations} currentPath={currentPath} />
     </div>
   </div>

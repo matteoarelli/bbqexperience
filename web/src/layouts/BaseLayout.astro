@@ -3,7 +3,6 @@
  * Layout base — struttura HTML con SEO head, dark theme, e slot per header/footer
  */
 import SEOHead from '@components/common/SEOHead.astro';
-import ThemeToggle from '@components/common/ThemeToggle.svelte';
 import CookieConsent from '@components/common/CookieConsent.astro';
 import BackToTop from '@components/common/BackToTop.astro';
 import KeyboardShortcuts from '@components/common/KeyboardShortcuts.astro';
@@ -72,10 +71,6 @@ const translations = await loadTranslations(locale as any);
     <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[var(--color-accent-fire)] focus:text-[var(--color-text-inverse)] focus:rounded-md focus:font-bold focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-fire)] focus:ring-offset-2">
       {getTranslation(translations, 'common.skipToContent')}
     </a>
-
-    <div class="fixed top-4 right-4 z-50">
-      <ThemeToggle client:load label={getTranslation(translations, 'theme.toggle')} />
-    </div>
 
     <slot name="header" />
     <TrustBar translations={translations} />
