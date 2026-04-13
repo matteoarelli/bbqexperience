@@ -68,21 +68,40 @@ def strip_nested_anchors(html: str) -> str:
 
 
 def fix_locale_links(html: str, target_locale: str) -> str:
-    """Riscrive ogni href interno per usare il locale prefix corretto e lo slug
-    di route tradotto per il locale del record."""
-    pattern = re.compile(r'href="/([a-z]{2})/([^/"]+)/', re.IGNORECASE)
+    """Riscrive link interni (HTML href e markdown link) per usare il locale prefix
+    corretto e lo slug di route tradotto per il locale del record."""
 
-    def replace(match: re.Match) -> str:
-        link_locale = match.group(1).lower()
-        link_slug = match.group(2).lower()
-        route_key = SLUG_TO_ROUTE.get(link_slug)
-        if route_key is None:
-            # Non e' un link a una sezione conosciuta: lascia invariato
-            return match.group(0)
-        new_slug = LOCALIZED_ROUTES[route_key].get(target_locale, link_slug)
-        return f'href="/{target_locale}/{new_slug}/'
+    def make_replacer(prefix: str, suffix: str):
+        def replace(match: re.Match) -> str:
+            link_slug = match.group(2).lower()
+            route_key = SLUG_TO_ROUTE.get(link_slug)
+            if route_key is None:
+                return match.group(0)
+            new_slug = LOCALIZED_ROUTES[route_key].get(target_locale, link_slug)
+            return f'{prefix}/{target_locale}/{new_slug}/{suffix}'
+        return replace
 
-    return pattern.sub(replace, html)
+    # HTML: href="/<locale>/<route>/..."
+    html = re.sub(
+        r'(href=")/([a-z]{2})/([^/"]+)/',
+        lambda m: f'href="/{target_locale}/'
+        f'{LOCALIZED_ROUTES[SLUG_TO_ROUTE[m.group(3).lower()]].get(target_locale, m.group(3))}/'
+        if m.group(3).lower() in SLUG_TO_ROUTE else m.group(0),
+        html,
+        flags=re.IGNORECASE,
+    )
+
+    # Markdown: ](/<locale>/<route>/...)
+    html = re.sub(
+        r'(\]\()/([a-z]{2})/([^/)]+)/',
+        lambda m: f'](/{target_locale}/'
+        f'{LOCALIZED_ROUTES[SLUG_TO_ROUTE[m.group(3).lower()]].get(target_locale, m.group(3))}/'
+        if m.group(3).lower() in SLUG_TO_ROUTE else m.group(0),
+        html,
+        flags=re.IGNORECASE,
+    )
+
+    return html
 
 
 def transform(text: str, locale: str) -> str:
@@ -94,36 +113,51 @@ def transform(text: str, locale: str) -> str:
     return out
 
 
-def process_collection(content_type: str, field: str) -> tuple[int, int]:
+# Campi addizionali (oltre al main content field) da bonificare:
+# titolo, excerpt e meta SEO sono visibili in pagina (h1, og:description, breadcrumb)
+# quindi anche soft hyphen residui qui rovinano il rendering.
+EXTRA_TEXT_FIELDS = ["title", "excerpt", "seo_title", "seo_description"]
+
+
+def process_collection(content_type: str, main_field: str) -> tuple[int, int]:
     """Itera tutti i record di una collezione (tutti i locale) e aggiorna
-    quelli che hanno cambiamenti. Ritorna (esaminati, aggiornati)."""
+    quelli che hanno cambiamenti. Bonifica main_field + campi short-text.
+    Ritorna (esaminati, aggiornati)."""
     total_seen = 0
     total_updated = 0
+    fields_to_fetch = ["documentId", "slug", main_field] + EXTRA_TEXT_FIELDS
+
     for locale in LOCALES:
         items = strapi.find_all_pages(
             content_type,
             locale=locale,
             status="published",
             page_size=100,
-            fields=["documentId", "slug", field],
+            fields=fields_to_fetch,
         )
         for item in items:
             total_seen += 1
             doc_id = item.get("documentId")
             slug = item.get("slug", "")
-            original = item.get(field) or ""
-            fixed = transform(original, locale)
-            if fixed == original:
+            update_data: dict[str, str] = {}
+
+            for field in [main_field] + EXTRA_TEXT_FIELDS:
+                original = item.get(field)
+                if not isinstance(original, str) or not original:
+                    continue
+                fixed = transform(original, locale)
+                if fixed != original:
+                    update_data[field] = fixed
+
+            if not update_data:
                 continue
+
+            update_data["slug"] = slug
             try:
-                strapi.update(
-                    content_type,
-                    doc_id,
-                    {field: fixed, "slug": slug},
-                    locale=locale,
-                )
+                strapi.update(content_type, doc_id, update_data, locale=locale)
                 total_updated += 1
-                print(f"  [{locale}] {content_type}/{slug} -> aggiornato")
+                changed = ",".join(k for k in update_data if k != "slug")
+                print(f"  [{locale}] {content_type}/{slug} -> {changed}")
             except Exception as e:
                 print(f"  [{locale}] {content_type}/{slug} -> ERRORE: {e}")
             time.sleep(0.2)  # gentle on Strapi
