@@ -86,20 +86,22 @@ const { translations } = Astro.props;
     padding: var(--space-3) var(--space-8);
     border: 2px solid white;
     border-radius: var(--radius-full);
-    color: white;
+    color: var(--color-accent-fire);
     font-family: var(--font-heading);
     font-size: var(--text-lg);
     font-weight: 700;
     text-transform: uppercase;
     text-decoration: none;
     letter-spacing: 0.05em;
-    background: transparent;
-    transition: background var(--transition-fast), color var(--transition-fast);
+    background: white;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     margin-top: var(--space-2);
   }
 
   .follow-cta__button:hover {
-    background: white;
-    color: var(--color-text-inverse);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+    color: var(--color-accent-ember);
   }
 </style>

@@ -87,7 +87,9 @@ const translations = await loadTranslations(locale as any);
     <KeyboardShortcuts />
     <CookieConsent locale={locale as Locale} translations={translations} />
 
-    <!-- Scroll-reveal observer globale per data-animate -->
+    <!-- Scroll-reveal observer globale per data-animate
+         + fallback defensive: dopo 1.5s tutti gli elementi non ancora rivelati
+         vengono forzati visibili (evita "phantom hidden" se l'observer non scatta) -->
     <script>
       const observer = new IntersectionObserver(
         (entries) => {
@@ -100,9 +102,18 @@ const translations = await loadTranslations(locale as any);
         },
         { threshold: 0.1 }
       );
-      document.querySelectorAll('[data-animate], [data-animate-stagger]').forEach((el) => {
-        observer.observe(el);
-      });
+      const animated = document.querySelectorAll('[data-animate], [data-animate-stagger]');
+      animated.forEach((el) => observer.observe(el));
+      // Fallback: se l'observer non triggera (es. screenshot tool, prerender stale),
+      // dopo 1.5s rendi visibile qualunque cosa sia ancora hidden.
+      setTimeout(() => {
+        animated.forEach((el) => {
+          if (!el.classList.contains('visible')) {
+            el.classList.add('visible');
+            observer.unobserve(el);
+          }
+        });
+      }, 1500);
     </script>
   </body>
 </html>
