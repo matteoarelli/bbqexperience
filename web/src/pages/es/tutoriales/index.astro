@@ -10,6 +10,7 @@ import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import ArticleCard from '@components/content/ArticleCard.astro';
 import Pagination from '@components/common/Pagination.astro';
 import SortControls from '@components/common/SortControls.astro';
+import CollectionPageSchema from '@components/common/CollectionPageSchema.astro';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiTutorial } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
@@ -85,6 +86,13 @@ const breadcrumbItems = [
 
   <section class="container-bbq py-12">
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
+
+    <CollectionPageSchema
+      title={`${t('content.allTutorials')} - ${t('site.name')}`}
+      description={t('site.description')}
+      url={`https://bbq-experience.com/${locale}/${tutorialRoute}/`}
+      itemCount={totalCount}
+    />
 
     <h1 class="page-title">{t('content.allTutorials')}</h1>
 
