@@ -1,5 +1,55 @@
 # Changelog — BBQ Experience
 
+## 2026-04-13/14 — v3.2 Content Quality, Mobile UI & SEO Coverage
+
+### SEO — Hreflang e JSON-LD
+- Fix hreflang cross-locale: SEOHead ora calcola ogni link alternate via `getLocalizedPath()` traducendo il route slug per il locale target. Risolve 135 404 URL segnalati da Google Search Console (es. `/it/recipes/...` ora `/it/ricette/...`)
+- `getLocalizedPath()` esteso per tradurre anche sotto-segmenti tassonomici (`category`/`categoria`, `difficulty`/`difficolta`)
+- Nuovo componente `OrganizationJsonLd` su about/contact (3 locale) con Organization + AboutPage/ContactPage schema
+- `CollectionPageSchema` esteso a blog e tutorials listing (oltre a reviews/recipes gia coperti)
+- Copertura finale JSON-LD: 100% su detail (144), listing (12), entity (6), home (3). Solo privacy/terms/compare/bookmarks senza (intenzionale)
+
+### Content Quality — DB bonifica
+- `scripts/fix_content_quality.py` (nuovo, idempotente): bonifica 480 record su blog-posts/reviews/recipes/tutorials × EN/IT/ES
+  - Rimuove `<a>` annidati prodotti da run multipli del SEO optimizer
+  - Riscrive link cross-locale corrotti: `/en/recipes/...` in pagina IT → `/it/ricette/...`
+  - Corregge wrong slug per locale: `/es/reviews/` → `/es/resenas/`, `/es/tutorials/` → `/es/tutoriales/`
+  - Trasforma pattern markdown corrotto `[<a href="X">testo</a>](url)` in `[testo](url)` pulito
+  - Rimuove soft hyphen residui da traduzioni automatiche
+  - Processa anche title/excerpt/seo_title/seo_description, non solo il content principale
+- Ricette AI-generated senza ingredients/instructions backfillate (bbq-sauce-recipe, how-to-cook-brisket, texas-style-smoked-brisket)
+
+### Rendering — Markdown renderer e sanitizzazione
+- Nuovo helper `web/src/lib/markdown.ts` basato su `marked` (v18)
+- Applicato a 7 template: ContentLayout + 6 detail pages (reviews/recipes × 3 locale)
+- Pre-processing: strip nested anchors, riduzione `[HTML dentro markdown link]` a singolo anchor, rimozione soft hyphen
+- ~85% dei blog e ~60% delle reviews avevano markdown grezzo non convertito (`## headings`, `**bold**`, tabelle) — ora renderizzato
+
+### SEO Optimizer — riscrittura
+- `scripts/agents/seo_optimizer.py` riscritto per lavorare per locale
+- Usa slug di route localizzati da `LOCALIZED_ROUTES` (sincronizzato con web/src/lib/i18n.ts)
+- Anti-nesting: skippa match dentro blocchi `<a>...</a>` esistenti (evita la regressione che generava nested anchor)
+- PUT Strapi ora con `locale=xx` esplicito, update coerente col record processato
+
+### Mobile UI — ricostruzione menu e light mode
+- ThemeToggle spostato fuori dalla posizione `fixed top-right` e integrato nell'header accanto all'hamburger
+- Nuovo `MobileMenuPanel` renderizzato a body-level da BaseLayout (fuori dal `<header>` che con `backdrop-filter` creava containing block e intrappolava `position:fixed`)
+- MobileMenu split: bottone hamburger nel Header, pannello+backdrop in BaseLayout
+- Pannello full-width <640px, side-panel 380px da 640px+, sfondo via CSS vars (light/dark safe), close button X esplicito, backdrop dimming con click-to-close, touch targets 44x44, iOS safe-area
+- Stagger reveal delle voci + fallback defensive reveal osservatore (dopo 1.5s forza visibile se IntersectionObserver non triggera)
+- Hero e FeaturedHero: testo forzato `#fff` + text-shadow per leggibilita sopra gradient/immagini scure anche in light mode
+- CTA banner Instagram: ghost button sostituito con filled white button + fire text (contrasto alto)
+
+### Tooling — audit e screenshot
+- Nuovi script: `web/scripts/mobile_screenshots.mjs`, `web/scripts/full_audit.mjs`, `web/scripts/section_audit.mjs`, `web/scripts/inspect_menu.mjs`
+- `web/src/lib/i18n.test.ts` + `web/src/lib/markdown.test.ts`: coverage di edge case (sotto-segmenti tassonomici, markdown link wrap, soft hyphen)
+- `scripts/audit_content.sql`, `scripts/audit_residual.sql`, `scripts/random_check.py`, `scripts/sweep_pages.py` per audit ripetibili
+
+### Verification
+- 93/93 pagine random check pulite (0 HTTP error, 0 markdown raw, 0 nested anchor, 0 cross-locale link, 0 soft hyphen)
+- 468/468 sweep completo pulito (tutti published × 4 content type × 3 locale)
+- 16/16 test i18n passano + 9/9 markdown passano
+
 ## 2026-04-08 — v3.1 Security Hardening & Brand Migration
 
 ### Security Fixes (P0 Critical)

@@ -169,6 +169,16 @@ A top-class editorial portal for the BBQ Experience brand (74k Instagram followe
 - **Shell scripts** — Sempre `set -eo pipefail` in testa. Mai pipe pg_dump direttamente a gzip (separare i comandi)
 - **Backup/restore** — backup-db.sh verifica integrita con `gunzip -t`. restore-db.sh fa rollback automatico se il restore fallisce
 - **Database SSL** — Default `true` in produzione (database.ts). Sul server Hetzner e `DATABASE_SSL=false` nel docker-compose perche Postgres e Strapi comunicano via Docker network interno
+- **Mobile menu panel** — backdrop e pannello vivono in BaseLayout (body root), NON dentro Header. Motivo: `backdrop-filter` su <header> crea un containing block che intrappola `position:fixed` dei figli su Chrome. Hamburger sta nel Header, pannello in BaseLayout via MobileMenuPanel
+- **Hero/FeaturedHero testo** — forzato `color: #fff` + text-shadow sui titoli sopra immagini/gradient scuri. Non usare `var(--color-text-primary)` perche in light mode diventa nero e sparisce sul dark overlay
+- **Markdown rendering CMS** — content di blog/reviews/recipes/tutorials passa sempre per `renderMarkdown()` (web/src/lib/markdown.ts) prima di set:html. Gestisce markdown GFM + nested `<a>` + markdown link che wrappano HTML + soft hyphens
+- **CollectionPage JSON-LD** — emesso automaticamente dalle pagine index di blog/reviews/recipes/tutorials via CollectionPageSchema. Organization+AboutPage/ContactPage via OrganizationJsonLd sulle pagine entity
+- **Pagine SENZA JSON-LD** (intenzionale) — privacy, terms, compare, bookmarks (tool/legal, nessuno schema utile)
+- **SEO optimizer internal linking** — `seo_optimizer.py` itera per locale, usa slug di route localizzati, skippa testo dentro `<a>...</a>` per evitare nesting. Tenere sincronizzato LOCALIZED_ROUTES con web/src/lib/i18n.ts
+- **Cleanup content tool** — `scripts/fix_content_quality.py` e idempotente: bonifica nested `<a>`, link cross-locale (HTML href E markdown link), soft hyphens, su content/title/excerpt/seo_* di tutti i content type. Rilanciabile liberamente
+- **Audit tool** — `scripts/random_check.py` e `web/scripts/sweep_pages.py` per verifiche periodiche (HTTP, markdown raw, nested anchors, JSON-LD, ecc.)
+- **Hreflang** — SEOHead calcola gli hreflang con `getLocalizedPath()` per tradurre il route slug per ogni locale target. Non replicare il canonicalPath identico per tutti i locale (era il bug che generava 135 404 in Search Console)
+- **Language switcher in header** — genera link cross-locale legittimi su ogni pagina. Gli sweep automatici devono escluderli dai check "cross_locale_anchor" altrimenti sono falsi positivi
 <!-- GSD:conventions-end -->
 
 <!-- GSD:architecture-start source:ARCHITECTURE.md -->
