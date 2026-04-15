@@ -59,7 +59,13 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
   2. REQUIREMENTS.md (v1.0 archive) shows REC-04, REC-05, REC-06, REC-07, CNT-02, CNT-03, CNT-07, CNT-08, CNT-10 as Complete with phase attribution — no stale "Pending" rows.
   3. A fresh Lighthouse report (Performance, Accessibility, Best Practices, SEO) for home, a review, a recipe, a tutorial, and a blog post in each of EN/IT/ES scores 90+ and is committed under `.planning/artifacts/lighthouse-v1.1-baseline/`.
   4. Any page scoring below 90 has a fix shipped to production and a re-measured report included in the baseline folder.
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 10-01-PLAN.md — Backfill VERIFICATION.md for v1.0 phases 03, 04, 05 (DEBT-01)
+- [ ] 10-02-PLAN.md — Backfill VERIFICATION.md for v1.0 phases 06, 07, 08, 09 (DEBT-01)
+- [ ] 10-03-PLAN.md — Reconcile v1.0 REQUIREMENTS.md traceability (DEBT-02)
+- [ ] 10-04-PLAN.md — Fresh Lighthouse 90+ baseline across 15 pages (DEBT-03 measurement)
+- [ ] 10-05-PLAN.md — CONDITIONAL: ship fixes + re-measure if Plan 04 reports sub-90 (DEBT-03 fixes)
 
 ### Phase 11: Strapi Schema Migration & Localization Helper
 **Goal**: A single CMS rebuild window lands every v1.1 schema change the feature wave depends on, and 25 existing products are migrated to the new taxonomy.
@@ -154,7 +160,7 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 7. Instagram & Social Integration | v1.0 | 2/2 | Complete | 2026-04-01 |
 | 8. Product Comparison & Advanced Interactions | v1.0 | 3/3 | Complete | 2026-04-01 |
 | 9. SEO Audit, Performance & Launch | v1.0 | 2/2 | Complete | 2026-04-01 |
-| 10. Debt Closure & Measurement Baseline | v1.1 | 0/TBD | Not started | - |
+| 10. Debt Closure & Measurement Baseline | v1.1 | 0/5 | Planning complete | - |
 | 11. Strapi Schema Migration & Localization Helper | v1.1 | 0/TBD | Not started | - |
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Not started | - |
 | 13. Review Filters & Taxonomy | v1.1 | 0/TBD | Not started | - |
