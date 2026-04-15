@@ -118,49 +118,58 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEBT-01 | TBD | Pending |
-| DEBT-02 | TBD | Pending |
-| DEBT-03 | TBD | Pending |
-| NEWS-01 | TBD | Pending |
-| NEWS-02 | TBD | Pending |
-| NEWS-03 | TBD | Pending |
-| NEWS-04 | TBD | Pending |
-| NEWS-05 | TBD | Pending |
-| NEWS-06 | TBD | Pending |
-| NEWS-07 | TBD | Pending |
-| NEWS-08 | TBD | Pending |
-| FILT-01 | TBD | Pending |
-| FILT-02 | TBD | Pending |
-| FILT-03 | TBD | Pending |
-| FILT-04 | TBD | Pending |
-| FILT-05 | TBD | Pending |
-| FILT-06 | TBD | Pending |
-| FILT-07 | TBD | Pending |
-| FILT-08 | TBD | Pending |
-| COLL-01 | TBD | Pending |
-| COLL-02 | TBD | Pending |
-| COLL-03 | TBD | Pending |
-| COLL-04 | TBD | Pending |
-| COLL-05 | TBD | Pending |
-| COLL-06 | TBD | Pending |
-| ANLY-01 | TBD | Pending |
-| ANLY-02 | TBD | Pending |
-| ANLY-03 | TBD | Pending |
-| ANLY-04 | TBD | Pending |
-| ANLY-05 | TBD | Pending |
-| AB-01 | TBD | Pending |
-| AB-02 | TBD | Pending |
-| AB-03 | TBD | Pending |
-| AB-04 | TBD | Pending |
-| AB-05 | TBD | Pending |
-| AB-06 | TBD | Pending |
-| AB-07 | TBD | Pending |
+| DEBT-01 | Phase 10 | Pending |
+| DEBT-02 | Phase 10 | Pending |
+| DEBT-03 | Phase 10 | Pending |
+| NEWS-01 | Phase 12 | Pending |
+| NEWS-02 | Phase 12 | Pending |
+| NEWS-03 | Phase 12 | Pending |
+| NEWS-04 | Phase 12 | Pending |
+| NEWS-05 | Phase 11 | Pending |
+| NEWS-06 | Phase 12 | Pending |
+| NEWS-07 | Phase 12 | Pending |
+| NEWS-08 | Phase 12 | Pending |
+| FILT-01 | Phase 13 | Pending |
+| FILT-02 | Phase 11 | Pending |
+| FILT-03 | Phase 13 | Pending |
+| FILT-04 | Phase 13 | Pending |
+| FILT-05 | Phase 13 | Pending |
+| FILT-06 | Phase 13 | Pending |
+| FILT-07 | Phase 13 | Pending |
+| FILT-08 | Phase 11 | Pending |
+| COLL-01 | Phase 14 | Pending |
+| COLL-02 | Phase 14 | Pending |
+| COLL-03 | Phase 14 | Pending |
+| COLL-04 | Phase 14 | Pending |
+| COLL-05 | Phase 14 | Pending |
+| COLL-06 | Phase 11 | Pending |
+| ANLY-01 | Phase 15 | Pending |
+| ANLY-02 | Phase 15 | Pending |
+| ANLY-03 | Phase 15 | Pending |
+| ANLY-04 | Phase 15 | Pending |
+| ANLY-05 | Phase 15 | Pending |
+| AB-01 | Phase 16 | Pending |
+| AB-02 | Phase 16 | Pending |
+| AB-03 | Phase 16 | Pending |
+| AB-04 | Phase 16 | Pending |
+| AB-05 | Phase 16 | Pending |
+| AB-06 | Phase 16 | Pending |
+| AB-07 | Phase 16 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 37 total
-- Mapped to phases: 0 (populated by roadmapper)
-- Unmapped: 37 (expected — roadmap TBD)
+- Mapped to phases: 37 (100%)
+- Unmapped: 0
+
+**Phase-to-requirement counts:**
+- Phase 10 (Debt Closure): 3 (DEBT-01..03)
+- Phase 11 (Strapi Schema Migration): 4 (FILT-02, FILT-08, NEWS-05, COLL-06)
+- Phase 12 (Newsletter On-Site Signup): 7 (NEWS-01, NEWS-02, NEWS-03, NEWS-04, NEWS-06, NEWS-07, NEWS-08)
+- Phase 13 (Review Filters): 6 (FILT-01, FILT-03, FILT-04, FILT-05, FILT-06, FILT-07)
+- Phase 14 (Recipe Collections): 5 (COLL-01..05)
+- Phase 15 (Analytics Feedback Loop): 5 (ANLY-01..05)
+- Phase 16 (A/B Headline Testing): 7 (AB-01..07)
 
 ---
 *Requirements defined: 2026-04-15*
-*Last updated: 2026-04-15 after initial v1.1 scoping*
+*Last updated: 2026-04-15 after roadmap creation (traceability populated)*
