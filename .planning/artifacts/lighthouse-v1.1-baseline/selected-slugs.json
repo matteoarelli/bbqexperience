@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-04-15T16:21:08.162Z",
+  "targets": [
+    {
+      "id": "home-en",
+      "url": "https://bbq-experience.com/en/",
+      "page_type": "home",
+      "locale": "en",
+      "slug": null
+    },
+    {
+      "id": "home-it",
+      "url": "https://bbq-experience.com/it/",
+      "page_type": "home",
+      "locale": "it",
+      "slug": null
+    },
+    {
+      "id": "home-es",
+      "url": "https://bbq-experience.com/es/",
+      "page_type": "home",
+      "locale": "es",
+      "slug": null
+    },
+    {
+      "id": "review-en",
+      "url": "https://bbq-experience.com/en/reviews/lodge-cast-iron-sportsman-grill-review/",
+      "page_type": "review",
+      "locale": "en",
+      "slug": "lodge-cast-iron-sportsman-grill-review"
+    },
+    {
+      "id": "review-it",
+      "url": "https://bbq-experience.com/it/recensioni/jealous-devil-lump-charcoal-review/",
+      "page_type": "review",
+      "locale": "it",
+      "slug": "jealous-devil-lump-charcoal-review"
+    },
+    {
+      "id": "review-es",
+      "url": "https://bbq-experience.com/es/resenas/kamado-joe-classic-iii-review/",
+      "page_type": "review",
+      "locale": "es",
+      "slug": "kamado-joe-classic-iii-review"
+    },
+    {
+      "id": "recipe-en",
+      "url": "https://bbq-experience.com/en/recipes/bbq-sauce-recipe/",
+      "page_type": "recipe",
+      "locale": "en",
+      "slug": "bbq-sauce-recipe"
+    },
+    {
+      "id": "recipe-it",
+      "url": "https://bbq-experience.com/it/ricette/smoked-pork-belly-burnt-ends/",
+      "page_type": "recipe",
+      "locale": "it",
+      "slug": "smoked-pork-belly-burnt-ends"
+    },
+    {
+      "id": "recipe-es",
+      "url": "https://bbq-experience.com/es/recetas/smoked-pork-belly-burnt-ends/",
+      "page_type": "recipe",
+      "locale": "es",
+      "slug": "smoked-pork-belly-burnt-ends"
+    },
+    {
+      "id": "tutorial-en",
+      "url": "https://bbq-experience.com/en/tutorials/how-to-smoke-meat-without-a-smoker/",
+      "page_type": "tutorial",
+      "locale": "en",
+      "slug": "how-to-smoke-meat-without-a-smoker"
+    },
+    {
+      "id": "tutorial-it",
+      "url": "https://bbq-experience.com/it/guide/how-to-smoke-meat/",
+      "page_type": "tutorial",
+      "locale": "it",
+      "slug": "how-to-smoke-meat"
+    },
+    {
+      "id": "tutorial-es",
+      "url": "https://bbq-experience.com/es/tutoriales/how-to-smoke-meat-without-a-smoker/",
+      "page_type": "tutorial",
+      "locale": "es",
+      "slug": "how-to-smoke-meat-without-a-smoker"
+    },
+    {
+      "id": "blog-en",
+      "url": "https://bbq-experience.com/en/blog/oklahoma-joes-new-offset-smoker-lineup/",
+      "page_type": "blog",
+      "locale": "en",
+      "slug": "oklahoma-joes-new-offset-smoker-lineup"
+    },
+    {
+      "id": "blog-it",
+      "url": "https://bbq-experience.com/it/blog/best-pellet-grill-for-beginners-2026/",
+      "page_type": "blog",
+      "locale": "it",
+      "slug": "best-pellet-grill-for-beginners-2026"
+    },
+    {
+      "id": "blog-es",
+      "url": "https://bbq-experience.com/es/blog/best-pellet-grill-for-beginners-2026/",
+      "page_type": "blog",
+      "locale": "es",
+      "slug": "best-pellet-grill-for-beginners-2026"
+    }
+  ]
+}
