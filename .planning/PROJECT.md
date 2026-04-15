@@ -2,90 +2,104 @@
 
 ## What This Is
 
-A top-class editorial portal for the BBQ Experience brand (74k Instagram followers), serving as the authoritative online hub for BBQ product reviews, recipes, tutorials, and news. The site extends and amplifies the existing Instagram presence with deep, structured content that Instagram can't deliver — while maintaining a bold, street-culture BBQ aesthetic. Primary language is English, with Italian and Spanish support.
+A live, production editorial portal for the BBQ Experience brand (74k Instagram followers) at [bbq-experience.com](https://bbq-experience.com), serving as the authoritative online hub for BBQ product reviews, recipes, tutorials, and news in EN/IT/ES. v1.0 shipped 2026-04-15 with an AI-assisted content pipeline (Growth Engine AI, 9 agents) that extends brand reach autonomously. The site is the deep, structured counterpart to the Instagram community — what IG can't deliver.
 
 ## Core Value
 
 When someone searches for a BBQ product review, BBQ Experience must be the most complete, visually striking, and trustworthy result they find — the undisputed reference point for the BBQ community.
 
+**Post-v1.0 check:** still valid. Production data confirms the editorial angle (25 reviews with Pitmaster scoring, 23 recipes with structured data, 88 blog posts) is the core differentiator against generic food/BBQ sites.
+
+## Current State
+
+**Shipped:** v1.0 on 2026-04-15
+**Scale:** 454+ content items across EN/IT/ES, 32 IG posts synced via Graph API
+**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner
+**Code volume:** ~253 commits between 2026-04-01 and 2026-04-14
+**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main.
+
 ## Requirements
 
-### Validated
+### Validated (v1.0)
 
-(None yet — ship to validate)
+- ✓ Product reviews with scoring system (overall + 5 per-category), editorial deep-dive, tech specs — v1.0
+- ✓ Recipe section with step-by-step guides, photos, difficulty, cook times — v1.0
+- ✓ Tutorial/guide section — v1.0
+- ✓ Blog/news section — v1.0
+- ✓ Bidirectional Instagram integration (embeds + drive-to-site) — v1.0
+- ✓ Multilingual EN/IT/ES with clean URL structure + hreflang — v1.0
+- ✓ Bold/street BBQ design with GSAP micro-interactions — v1.0
+- ✓ Headless CMS (Strapi) with custom Astro frontend — v1.0
+- ✓ SEO optimization (sitemaps, JSON-LD Product/Review/Recipe/Article/Organization) — v1.0
+- ✓ Responsive mobile-first design — v1.0
+- ✓ Product comparison tool (side-by-side) — v1.0
+- ✓ Media-rich pages with optimized images (WebP, lazy, srcset) — v1.0
+- ✓ Dark/light theme toggle — v1.0
+- ✓ Branded 404 page with search — v1.0
 
-### Active
+### Validated (post-v1.0, out-of-roadmap extensions)
 
-- [ ] Product reviews with full scoring system (overall + per-category), editorial deep-dive, and technical spec sheet
-- [ ] Recipe section with step-by-step guides, photos, difficulty levels, and cook times
-- [ ] Tutorial/guide section covering techniques, equipment selection, and BBQ knowledge
-- [ ] Blog/news section for BBQ world updates, events, and trends
-- [ ] Bidirectional Instagram integration (site embeds IG content, IG drives traffic to site)
-- [ ] Multilingual support: English (primary), Italian, Spanish
-- [ ] Bold/street BBQ design with micro-interactions, animations, and WOW factor
-- [ ] Blazing fast performance (instant page loads, optimized media)
-- [ ] Headless CMS with custom frontend for single-author content management
-- [ ] SEO optimization for product review and recipe search intent
-- [ ] Responsive design — flawless on mobile (where most IG traffic lands)
-- [ ] Product comparison capabilities across reviewed items
-- [ ] Media-rich pages with optimized images and video embeds
+- ✓ Growth Engine AI: 9 autonomous agents (content gen, translation, SEO linking, keyword scout, competitor monitor, partnership outreach, IG↔site bridge, strategist) — v2.x
+- ✓ Security hardening: code review P0–P3, backup/restore with integrity verification, DB SSL correction, secret rotation — v3.1
+- ✓ UI/SEO quality pass: hreflang per localized slug, CollectionPage JSON-LD, nested anchor cleanup, mobile menu Chrome fix, Umami admin password rotated — v3.2
+
+### Active (carried into v1.1 planning)
+
+- [ ] Lighthouse 90+ formal measurement post-v3.2 (DES-04 verified only in v1 planning, not re-measured after UI/SEO changes)
+- [ ] Retroactive VERIFICATION.md for phases 03–09 (tech debt from v1.0 audit — implementation is live but formal artifacts missing)
+- [ ] REQUIREMENTS.md traceability reconciliation (REC-04,05,06,07 + CNT-02,03,07,08,10 marked Pending despite live production evidence)
 
 ### Out of Scope
 
-- E-commerce / direct product sales — site is brand building, not a store
-- User-generated content / community features on site — community stays on Instagram
-- Monetization features (ads, affiliates) — not a priority for v1, can be added later
-- User accounts / login — no need, single author, readers don't contribute
-- Forum / comments system — interaction happens on Instagram
-- Mobile app — web-first, responsive design covers mobile
+- E-commerce / direct product sales — still valid, brand building priority
+- User-generated content / forum — community lives on Instagram (74k)
+- User accounts / login — no change; single author, readers consume
+- Monetization (ads) — affiliate links already wired via Growth Engine; broader monetization deferred
+- Mobile app — web-first responsive covers mobile; no app demand signal
+- AI chatbot on-site — Growth Engine handles backend AI; on-site chatbot adds no editorial value
 
 ## Context
 
-- **Existing brand**: BBQ Experience Instagram account with 74k followers and active community
-- **Content model**: Single author (Matteo) creates all content — CMS must be efficient for solo workflow
-- **Instagram is primary**: The site supports and extends IG, not replaces it. Traffic flows both ways
-- **Budget**: €30,000 — premium quality expected, no compromises on design or performance
-- **Target audience**: International BBQ enthusiasts (EN first, IT and ES for regional reach)
-- **Review format**: The most complete review format in BBQ space — combines numerical scoring per category, long-form editorial opinion, and structured technical specifications with pros/cons and final verdict
-- **Timeline**: Target launch within 3 months (by July 2026)
-- **Design direction**: Bold, street, BBQ culture — fire, smoke, warm colors, energy. Not corporate, not minimal. Think BBQ magazine meets street food culture
+- **Single author** (Matteo) still the content model, now amplified by Growth Engine AI for drafts/translations/SEO linking
+- **Instagram remains primary funnel** — bidirectional sync operational, first-comment deep links auto-posted
+- **Budget:** ~$100/yr infrastructure (Hetzner CX21 shared with other projects) — well under €30k allocation
+- **Timeline:** launched 2026-04-15, ~3 months before July 2026 target
+- **Known tech debt:** 7 phases without VERIFICATION.md, DES-04 not re-measured post-v3.2, 9 requirements marked Pending in traceability despite live implementation
+- **Monitoring:** UptimeRobot (site + CMS), Umami analytics, Sentry error tracking, Telegram daily dashboard
 
 ## Constraints
 
-- **Tech stack**: Custom/headless architecture — no WordPress or traditional CMS
-- **Timeline**: 3 months to launch (by July 2026)
-- **Budget**: €30,000 total
-- **Content author**: Single person (Matteo) — admin UX must be streamlined for one-person operation
-- **Performance**: Must score 90+ on Lighthouse across all metrics
-- **Multilingual**: Must support EN, IT, ES from day one with clean URL structure
-- **Instagram API**: Subject to Meta's API limitations and rate limits
+- **Tech stack:** Custom/headless — no WordPress ✓ respected
+- **Lighthouse:** 90+ target — needs fresh measurement post-v3.2
+- **Multilingual:** EN/IT/ES from day one — ✓ delivered with per-locale sitemaps + hreflang
+- **Instagram API:** Graph API rate limits managed via 6h cron cadence
+- **Solo author workflow:** Streamlined admin + AI augmentation — ✓ delivered
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Custom/headless over WordPress | Top class quality demands full control over frontend performance and design | — Pending |
-| English as primary language | International reach, BBQ community is global | — Pending |
-| No user accounts in v1 | Community interaction stays on Instagram, reduces complexity | — Pending |
-| No monetization in v1 | Focus on brand authority first, monetize later | — Pending |
-| Bold/street design direction | Matches BBQ culture and differentiates from generic food blogs | — Pending |
+| Custom/headless (Astro + Strapi) over WordPress | Performance + design freedom | ✓ Good — Lighthouse targets achievable, design is distinctive |
+| English as primary language | International BBQ reach | ✓ Good — content strategy proves EN-first works |
+| No user accounts in v1 | Community on Instagram | ✓ Good — zero auth complexity, zero GDPR burden |
+| No monetization in v1 | Brand authority first | ✓ Good — affiliate hooks added post-v1.0 via Growth Engine, not distracting |
+| Bold/street design direction | Differentiate from generic food blogs | ✓ Good — design validated by live site |
+| Astro 6 + Svelte 5 islands (hybrid) | Content-first, zero JS default | ✓ Good — performance + interactivity where needed |
+| PostgreSQL over MySQL for Strapi | Strapi's recommended production DB | ✓ Good — no issues |
+| i18n custom JSON files over Paraglide JS | Astro 5+ compat issues with Paraglide, simpler DX | ✓ Good — type-safe keys, no compat drama |
+| Lenis smooth-scroll removed | Browser-native smoother on modern devices | ✓ Good — one less dep, no UX regression |
+| Growth Engine AI added post-v1.0 (out-of-roadmap) | Single-author scale constraint | ✓ Good — content velocity 10x, EN→IT/ES auto |
+| Claude Max (CLI) over Anthropic API for generation | Subscription cost control + quality | ✓ Good — 2000+ word articles vs 670 with Ollama 7b |
+| Ollama 7b for translations only | Field-per-field pattern reliable, bulk cost zero | ✓ Good — separation of concerns |
+| SQLite rate-limit over in-memory Map | Survive container restart | ✓ Good — hardened in v3.1 |
+| Dual DB config (PG prod / SQLite dev) | Dev ergonomics | ✓ Good — no setup friction |
+| Milestone v1.0 accepted with documentation tech debt | Production-proven, re-verifying retro is low ROI | ⚠️ Revisit in v1.1 cleanup phase |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
-**After each phase transition** (via `/gsd:transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd:complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
+**Next:** run `/gsd:new-milestone` to define v1.1 scope (likely: close documentation tech debt, Lighthouse re-measurement, planned content expansion).
 
 ---
-*Last updated: 2026-04-01 after initialization*
+*Last updated: 2026-04-15 after v1.0 milestone completion*

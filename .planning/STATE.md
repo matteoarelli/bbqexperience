@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: verifying
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-04-01T20:41:06.590Z"
-last_activity: 2026-04-01
+milestone: shipped-v1.0
+milestone_name: awaiting-v1.1
+status: milestone_complete
+stopped_at: v1.0 milestone archived 2026-04-15
+last_updated: "2026-04-15T10:45:00Z"
+last_activity: 2026-04-15
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 23
-  completed_plans: 23
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 0
 ---
 
@@ -18,19 +18,19 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-01)
+See: .planning/PROJECT.md (updated 2026-04-15 after v1.0)
 
 **Core value:** The most complete, visually striking, and trustworthy BBQ product review destination online
-**Current focus:** Phase 09 — seo-audit-performance-launch
+**Current focus:** Planning next milestone — run `/gsd:new-milestone` to define v1.1 scope
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-01
+Milestone: v1.0 shipped 2026-04-15
+Next: v1.1 (not yet planned)
+Status: Awaiting new milestone
+Last activity: 2026-04-15
 
-Progress: [░░░░░░░░░░] 0%
+Progress: v1.0 [██████████] 100% complete
 
 ## Performance Metrics
 
@@ -130,9 +130,15 @@ None yet.
 
 ### Blockers/Concerns
 
-- Verify BBQ Experience Instagram account is Business/Creator type before Phase 7 planning
-- Validate Paraglide JS handles ICU message format and pluralization for IT/ES before Phase 2
-- Confirm Strapi 5.40.0 `findOne` locale parameter behavior before Phase 4
+None carried into v1.1. Historical blockers resolved during v1.0:
+- ✓ Instagram account confirmed Business/Creator (32 posts synced via Graph API)
+- ✓ Paraglide JS replaced with custom i18n JSON system
+- ✓ Strapi v5 localization pattern confirmed (PUT ?locale=xx with slug in body)
+
+Known tech debt (track for v1.1):
+- 7 phases missing VERIFICATION.md (03-09)
+- REQUIREMENTS.md traceability drift (9 entries Pending despite live implementation)
+- Lighthouse DES-04 not re-measured after v3.2 UI/SEO changes
 
 ## Session Continuity
 
