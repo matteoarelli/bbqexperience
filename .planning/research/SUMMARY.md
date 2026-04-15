@@ -1,235 +1,240 @@
 # Project Research Summary
 
-**Project:** BBQ Experience — Premium BBQ Editorial Portal
-**Domain:** Headless CMS editorial portal (product reviews, recipes, tutorials, blog)
-**Researched:** 2026-04-01
-**Confidence:** HIGH
+**Project:** BBQ Experience — v1.1 Content Depth & Growth Loop
+**Domain:** Editorial portal feature expansion (newsletter, faceted search, content taxonomy, analytics-driven agents, A/B testing) on a live Astro 6 + Strapi 5 production site
+**Researched:** 2026-04-15
+**Confidence:** HIGH (newsletter, filters, collections, architecture), MEDIUM (A/B statistical discipline, analytics loop at current traffic scale)
 
 ## Executive Summary
 
-BBQ Experience is a premium editorial portal for a single expert author with an established Instagram audience of 74k followers. The correct category for this product is "content-first, statically generated headless CMS site" — not a web application, not a blog platform, and explicitly not WordPress. Research confirms the optimal approach is Astro (static site generator with Islands Architecture) consuming content from a self-hosted Strapi 5 CMS backed by PostgreSQL. This combination delivers the near-zero JavaScript default behavior necessary for 90+ Lighthouse scores while preserving the ability to add targeted GSAP animations only on components that need them. The entire infrastructure runs on the existing Hetzner VPS alongside other projects at near-zero marginal cost (~$100/yr), leaving virtually the entire €30k budget for design and development.
+v1.1 is an additive milestone on top of a healthy v1.0 production stack (Astro 6 + Svelte 5 + Strapi 5.41 + Tailwind 4 + PostgreSQL 16, deployed on Hetzner via adnanh/webhook). The core architectural philosophy holds: minimal new dependencies, extend-not-rebuild, reuse every existing convention (SQLite rate-limit, custom i18n JSON, direct Brevo fetch, Strapi locale PUT with slug in body, atomic state writes via os.replace()). The only new runtime dependency is nanoid (118 bytes) for A/B visitor ID generation. Everything else — Growth Engine Python agents, Umami analytics, Brevo newsletter, Svelte 5 islands — is already live and tested.
 
-The recommended approach has three clear tiers: Strapi handles all content authoring, media, and i18n (EN/IT/ES) through a single admin panel; Astro fetches content at build time and generates optimized static HTML with Svelte islands for interactive components; Caddy with Cloudflare CDN serves the static output globally. Content updates trigger an Astro rebuild via webhook (same adnanh/webhook infrastructure already running on Hetzner), completing a new deploy in under 60 seconds for ~500 pages. The architecture is inherently statically scaled — Strapi never sees end-user traffic, making traffic spikes a CDN problem rather than an infrastructure problem.
+The recommended build order is: debt closure first (VERIFICATION.md backfill + REQUIREMENTS.md traceability + Lighthouse re-measurement), then Strapi schema changes as a unified migration (product-category, recipe-collection, headline-variant, variant-impression content types), then reader-facing surfaces (newsletter, filters, collections), then Growth Engine v2 infrastructure (Umami feedback loop), and finally A/B testing as the last phase. This order is driven by hard dependencies: filters need the schema migration, A/B needs Umami events running, newsletter subjects A/B needs a real subscriber list. Skipping the schema migration phase first means mid-feature rework.
 
-The two primary risks are (1) multilingual i18n treated as an afterthought — retrofitting locale-aware routing and content models after the fact requires touching every component and causes SEO penalties, so locale must be first-class from day one; and (2) animations destroying Core Web Vitals — the project's "WOW factor" design goal is in direct tension with the 90+ Lighthouse target unless an animation budget is enforced from the start (only `transform`/`opacity` properties, never layout-triggering animations). A third non-obvious risk is the Instagram Graph API — the Basic Display API was killed in December 2024, rate limits dropped 96%, and any integration must be built around a local cache rather than live API calls.
+The three biggest risks in this milestone are: (1) faceted filter URLs creating an SEO crawl-budget explosion if canonical/noindex handling is not in the same PR as the feature, (2) newsletter signup without double opt-in creating a Brevo deliverability penalty and GDPR exposure with the Italian audience, and (3) A/B statistical invalidity — at ~400-500 visits/day across 3 locales, per-page A/B tests with a 2pp minimum detectable effect require 3,800+ visitors per variant, meaning weeks per experiment. The roadmap must enforce statistical guardrails before any A/B test is declared complete. A fourth operationally critical risk is the webhook rebuild cascade: A/B variant edits stored in Strapi will trigger full site rebuilds unless the webhook trigger list explicitly excludes A/B content types.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The stack is entirely open-source and self-hosted, with zero licensing costs. Astro 6 is the clear choice for the frontend: it ships no JavaScript by default, achieves 90+ Lighthouse out of the box, and its Islands Architecture means GSAP animations can be loaded surgically on specific components without hydrating the entire page. Strapi 5 is the headless CMS — self-hosted on the existing Hetzner server, full-featured i18n plugin built in, PostgreSQL recommended for production. Tailwind CSS 4 handles styling with its Lightning CSS engine (100x faster incremental builds) and OKLCH color space suited to the fire/smoke palette. Node 22 LTS is required as the runtime for both Astro 6 and Strapi.
+The v1.1 stack delta is deliberately minimal. The shipped stack (Astro 6, Svelte 5 islands, Strapi 5.41, Tailwind 4, GSAP, Pagefind, Docker/Caddy, Umami, Brevo, custom i18n JSON, SQLite rate-limit) requires no upgrades for v1.1 features. See `.planning/research/STACK.md` for full detail.
 
-Notable decisions from the alternatives analysis: i18next is incompatible with Astro 5+, so Paraglide JS handles UI string translations (70% smaller i18n bundles); Svelte 5 is preferred over React for interactive islands (3-5KB per island vs 30KB+ for React); Pagefind provides static client-side search at build time with zero runtime cost; Lenis replaces Locomotive Scroll (heavier, less maintained); GSAP free tier covers ScrollTrigger without a license fee.
+**New additions (only these):**
+- nanoid 5.1.7: per-visitor A/B bucket ID (118-byte ESM, zero deps) — cookie-seeded, deterministic variant assignment without server lookup
+- In-house `web/src/lib/exit-intent.ts` (~40 LOC): mouseleave + sessionStorage flag, desktop-only — DIY beats the published libs
+- In-house `web/src/lib/ab-test.ts` (~60 LOC): crypto.subtle.digest hash bucket, emits Umami events — no SaaS A/B required
+- In-house review filter logic (native Svelte 5 runes): URL-synced filter state with URLSearchParams + $state + $effect
+- `scripts/agents/lib/umami_client.py` (~80 LOC): mirrors strapi_client.py pattern (retry, token cache, 10s timeout)
+- 4 new Strapi content types: product-category, recipe-collection (both i18n), headline-variant, variant-impression (both non-i18n)
+- 3 new Brevo contact attributes: SURFACE, AB_SUBJECT (must be provisioned in Brevo dashboard before first signup)
 
-**Core technologies:**
-- Astro 6.x: frontend SSG — zero JS default, Islands Architecture, built-in i18n routing
-- Strapi 5.x: headless CMS — self-hosted, built-in i18n, auto-generated TypeScript types
-- Tailwind CSS 4.x: styling — CSS-first config, OKLCH colors, Lightning CSS engine
-- GSAP 3.x: animations — ScrollTrigger included in free tier, composited animations only
-- Svelte 5: interactive islands — minimal bundle (3-5KB), no framework overhead in static pages
-- PostgreSQL 16: Strapi database — Docker container on Hetzner
-- Caddy + Cloudflare CDN: delivery — already in use, auto-HTTPS, global edge caching
-- Paraglide JS: UI string i18n — tree-shakes unused translations, Astro 5+ compatible
-- Pagefind: client-side search — static index built at build time, zero server cost
-- Node 22 LTS: runtime — required by Astro 6 (dropped Node 18/20 support)
+**Explicitly NOT added:** GrowthBook/Optimizely/PostHog for A/B, Algolia/Meilisearch for filters, @getbrevo/brevo SDK, nuqs-svelte, Paraglide, Lenis, scipy, any React component, any new SaaS service. Infrastructure cost stays at ~$100/yr.
+
+**Critical version note:** Strapi 5.41 requires `npm run build` in `cms/` before container rebuild after schema changes. Schema auto-syncs in dev; requires `docker compose up -d --build strapi` on production — a separate step from the web webhook deploy.
 
 ### Expected Features
 
-The competitive landscape has a clear gap: no BBQ review site currently combines deep content, product comparison, modern mobile design, and multilingual coverage. AmazingRibs has content depth but poor UX. Serious Eats has quality but no BBQ focus. Design alone is a genuine differentiator — every competitor looks dated.
+v1.1 ships 5 feature buckets on top of the live v1.0 site (25 reviews, 23 recipes, 88 blog posts, EN/IT/ES). See `.planning/research/FEATURES.md` for the full priority matrix.
 
-**Must have (table stakes — Phase 1-2):**
-- Product review pages with structured scoring (overall + per-category) — the core product
-- Recipe pages with structured format (ingredients, steps, times, difficulty) — second content pillar
-- Schema.org structured data (Review, Recipe, Article, BreadcrumbList) — highest ROI SEO feature; Recipe schema yields 82% higher CTR
-- Bold/street dark design system with GSAP micro-interactions — the WOW factor IS the differentiator
-- Responsive mobile-first design — 80%+ of Instagram traffic arrives on mobile
-- Multilingual support (EN/IT/ES) with locale-prefixed URLs and hreflang tags — architectural requirement from day one
-- Image optimization pipeline (WebP/AVIF, responsive srcsets, lazy loading) — BBQ is visual and image-heavy
-- Content taxonomy (categories, tags) — foundation for search, related content, and comparisons
-- Breadcrumb navigation — SEO (BreadcrumbList schema) and UX
-- "Jump to Recipe" anchor button — trivial to build, significant UX impact
+**Must have (table stakes for v1.1 core):**
+- Newsletter inline form at end of every content page — extends existing Brevo backend-only integration to on-site capture
+- Double opt-in via Brevo (list-level setting) — GDPR Art. 7, mandatory for EU/IT audience; Brevo handles confirmation email, zero custom code
+- Dedicated /[locale]/newsletter/ landing page — 3 locales, required for IG bio link + social CTA
+- Review brand + category + price bucket facets with URL persistence and canonical guard — needs product-category schema migration first
+- Product counts next to each facet option — prevents dead-end zero-result UI
+- Recipe collections as a first-class content type — curated groupings with own URL, listing, detail, 3-locale support
+- Umami API pull into agent state file — raw material for all analytics-driven decisions
+- A/B variant storage in Strapi (headline-variant type) — declarative experiment registry readable by frontend and Python agents
+- Click-tracking via Umami custom events (ab-impression, ab-click)
 
-**Should have (competitive differentiators — Phase 3):**
-- Product comparison tool (up to 5 products side-by-side) — universal gap in BBQ review space
-- Instagram feed integration — connects the 74k community, reduces bounce rate 20-23%
-- Search functionality (Pagefind) — needed once content library grows
-- Reading progress indicator — low effort, premium editorial feel
-- Related content engine (cross-link reviews/recipes/tutorials) — increases pages per session
-- Social sharing buttons — light, fast-loading only
-- Dark mode as default with light toggle — brand identity, not just accessibility
+**Should have (differentiators, target v1.1):**
+- Exit-intent modal (desktop only, mouseleave, session frequency cap) with full WCAG 2.2 accessibility
+- Sticky footer newsletter bar (mobile-primary CTA, dismissible with localStorage persistence)
+- Mobile filter drawer (bottom sheet, "Apply (N)" sticky button)
+- Facet counts updated live from cached JSON matrix
+- Collection "Part of X collection" cross-links on Recipe detail pages
+- Nightly analytics_feedback.py -> Telegram top-5 gainers/losers digest
+- ab_tester.py weekly: Bayesian posterior, Telegram recommendation, Matteo confirms winner manually
 
-**Defer to v2+:**
-- Cook mode for recipes (screen-awake, large text)
-- Animated score visualizations (flame-themed gauges)
-- Serving size adjuster with real-time recalculation
-- Unit conversion toggle (metric/imperial) — can launch metric-first with EN showing imperial
-- Print-friendly recipe cards
-- Review verdict shareable cards
+**Defer to v1.1.x (post-validation):**
+- Scroll-depth 60% newsletter trigger, content-specific lead magnets
+- Score threshold facet + sort controls for reviews
+- Seasonal collection metadata, author note, RSS, bookmark extension
+- Multi-armed bandit (Thompson Sampling) — only after simple A/B proves ROI
+- Newsletter subject-line A/B — only after subscriber list has real volume
+- Refresh agent — only after analytics loop is validated
+- A/B across Review + Recipe + Tutorial — only after BlogPost A/B proves the infrastructure works
 
-**Explicit anti-features (never build):**
-- User accounts, comments, or community features — community lives on Instagram
-- E-commerce or affiliate price tracking in v1
-- Newsletter/email marketing in v1 (GDPR overhead, IG already handles notifications)
-- Ads — destroy the premium editorial feel and trust
-- AI chatbot or recommendation engine — over-engineering
+**Hard anti-features (never in v1.1):**
+- Popup on page load or within first 3 seconds — Google intrusive interstitial penalty
+- Single opt-in newsletter — GDPR violation, Brevo deliverability penalty
+- Price slider — mobile unusability, infinite URL combinations
+- More than 4 facets with 25 reviews — NN/g: >7 facets fatigue users
+- Fully autonomous content rewrite loop without Matteo approval — brand voice drift risk
+- A/B testing on pages with <500 impressions/week — results are pure noise
 
 ### Architecture Approach
 
-The architecture is a three-tier decoupled system: Strapi CMS as the single source of truth for all editorial content (referenced by ID from a PostgreSQL database); Astro SSG as the rendering layer that fetches content at build time and outputs static HTML with Svelte islands hydrated only where needed; Caddy as the reverse proxy serving static files with Cloudflare CDN in front for global edge caching. Instagram content is fetched via a cron-based sync script every 6 hours, cached in Strapi as a local content type, and read by Astro at build time — no live API calls to Instagram at page load or build time. Content changes in Strapi fire a webhook to the existing adnanh/webhook listener on Hetzner, which triggers an Astro rebuild. The critical path for dependencies is: PostgreSQL -> Strapi setup -> content models -> Strapi REST API -> Astro Strapi client -> page templates -> static build -> deploy.
+All v1.1 features slot into the existing production request flow (Cloudflare -> Caddy -> Astro SSR :4321 -> Strapi :1337 -> PostgreSQL :5432) without adding new services. Three key architectural decisions from the research:
 
-**Major components:**
-1. Strapi CMS (Docker/Hetzner) — content modeling, authoring, media uploads, i18n, REST API, webhook firing
-2. PostgreSQL 16 (Docker/Hetzner) — persistent data storage, never exposed to Astro directly
-3. Astro 6 frontend — SSG, i18n routing (`/en/`, `/it/`, `/es/`), image optimization, page composition
-4. Svelte 5 islands — interactive components (score charts, image galleries, product comparison, search UI)
-5. Caddy reverse proxy (existing) — TLS termination, static file serving, proxy to Strapi admin
-6. Cloudflare CDN (free tier) — global edge caching of static assets
-7. Instagram cron sync — Graph API fetch every 6h, upserts to Strapi `InstagramPost` content type
-8. Pagefind — static search index built at Astro build time
+**A/B testing:** Astro middleware-based bucket assignment (web/src/middleware.ts). Cookie set before page render, variant resolved in page frontmatter. Zero client-side flash, zero CLS, Googlebot gets consistent treatment (no cloaking risk). Only A/B-enabled pages flip to SSR; all other pages remain static.
 
-**Strapi content model (flat, not over-engineered):**
-- `Product` (standalone) — name, brand, category, specs, images, affiliate links
-- `Review` (references Product) — scores as structured JSON, pros/cons, verdict, gallery, locale
-- `Recipe` — ingredients/steps as repeatable components, times, difficulty, locale
-- `Tutorial` — technique/equipment/knowledge categories, locale
-- `BlogPost` — tags, locale
-- `InstagramPost` (cached, not authored) — ig_id, media_url, caption, timestamp
+**Newsletter:** Brevo handles DOI email entirely (list-level setting). Astro endpoint only POSTs to /v3/contacts. Zero custom email code. Existing /api/newsletter endpoint extended with source field only.
+
+**Review filters:** SSR filter state (not client-side manifest). 25-review dataset is small (<100ms SSR fetch), Strapi stays single source of truth, Cloudflare caches per query string, and SSR keeps pages crawlable without JS.
+
+**Modal mounting:** Exit-intent modal and sticky footer bar mount in BaseLayout body root — same pattern as MobileMenuPanel — to avoid the backdrop-filter containing-block Chrome bug documented in CLAUDE.md.
+
+See `.planning/research/ARCHITECTURE.md` for component file lists, data flow diagrams, and full Strapi schema definitions.
+
+**Major new components and responsibilities:**
+1. `web/src/middleware.ts` — A/B bucket cookie before every render; no UA branching
+2. `web/src/islands/NewsletterExitIntent.svelte` + `NewsletterStickyBar.svelte` — BaseLayout body root mount
+3. `web/src/islands/ReviewFilters.svelte` — URL-synced facets; SSR helper getReviewFacets(locale) cached 5 min
+4. 4 new Strapi content types — require npm run build in cms/ before any production deploy
+5. `scripts/agents/umami_feedback.py` — nightly 04:00 UTC, 7-day rolling window, percentile-normalized traffic_score
+6. `scripts/agents/ab_tester.py` — weekly Sunday, Bayesian comparison, Telegram recommendation, no auto-promotion
 
 ### Critical Pitfalls
 
-1. **Multilingual as afterthought** — i18n routing (`/en/`, `/it/`, `/es/`), hreflang tags, and locale-aware content models must be set up in Phase 1. 60% of multilingual sites have hreflang errors. Retrofitting i18n after the fact requires touching every component, route, and SEO tag.
+See `.planning/research/PITFALLS.md` for complete detail including warning signs and the "looks done but isn't" checklist.
 
-2. **Animations killing performance** — Only `transform` and `opacity` properties for all animations (GPU-composited, zero layout impact). Never animate `width`, `height`, `top`, `left`, or `margin`. Set Lighthouse CI threshold of 90 from day one as a build gate. Test on real mobile hardware every sprint, not just Chrome DevTools throttling.
+1. **Faceted filter URL explosion** — 4 filters x enumerated values = 640+ crawlable combinations for 25 reviews. Prevention: canonical pointing to unfiltered index + noindex meta on every filtered URL. Must ship in same PR as the filter feature.
 
-3. **Instagram API integration assumptions** — The Basic Display API is dead (December 2024). Rate limits are ~200 calls/hour. All integration must go through the Instagram Graph API with a Business/Creator account. Cache all IG data in Strapi every 1-6 hours. The site must never make live API calls to Instagram on page load. Build IG display as a gracefully degrading optional component.
+2. **Newsletter single opt-in = GDPR violation + Brevo deliverability penalty** — Brevo's "DOI not required" statement is a trap; Italian Garante has rejected server-log-only consent proof. Prevention: Brevo list-level DOI from day one, localized consent text in EN/IT/ES, honeypot field, SQLite rate-limit, server-side consent record in Strapi.
 
-4. **Content model over-engineering** — Start with 5-6 flat content types. Scoring goes directly on the Review type as structured JSON, not as a separate relational content type. Add content types only when a real need exists, not speculatively. If creating one review requires filling in more than 3 separate content entries, the model is too complex.
+3. **Exit-intent modal accessibility failure + mobile false-positive flood** — visibilitychange fires on every iOS notification-center pull. Prevention: desktop-only mouseleave, mobile gets sticky footer only, full WCAG 2.2 dialog (role, aria-modal, focus trap, Escape). EU Accessibility Act in force since June 2025.
 
-5. **SEO missing from headless architecture** — Headless CMS provides no SEO out of the box. Build a reusable `<SEOHead>` component with meta, og, canonical, and hreflang handling in Phase 2. Implement JSON-LD structured data for all content types (Recipe, Product+Review, Article, Organization). Generate per-locale XML sitemaps. Enforce meta description and image alt text as required CMS fields before publish.
+4. **A/B cloaking / CLS via client-side H1 swap** — Googlebot executes JS; different H1 from SSR response = cloaking risk. Client swap after paint = CLS spike. Prevention: middleware assigns bucket before render; identical canonical URL + meta tags across all variants; OG meta reflects assigned variant.
+
+5. **A/B statistical invalidity at editorial traffic volumes** — ~500 visits/day x 3 locales, 2pp MDE = 3,842 visitors per variant = ~15 days minimum. Peeking at day 5 produces false winners 30% of the time. Prevention: AB_MIN_IMPRESSIONS=500 + 7 days minimum enforced by ab_tester.py; test headline patterns across categories (pool traffic), not per individual article.
+
+6. **Webhook rebuild cascade on A/B variant edits** — Every Strapi save triggers a 4-minute full site rebuild. Editor iterating on variants stacks rebuilds with race conditions. Prevention: configure adnanh/webhook to exclude headline-variant and variant-impression content types. Pagefind rebuild similarly excluded.
+
+7. **Strapi v5 i18n slug omission on recipe collections** — Convention from CLAUDE.md ("PUT con ?locale=xx, sempre includere slug nel body") was learned from v1.0 bugs. Every new i18n content type repeats the risk. Prevention: shared helper update_localized(id, locale, data) enforced for all agents.
+
+8. **Umami -> agents noise amplification** — At 400 visits/week per page, 24h windows have high variance. Prevention: 7-day rolling windows, percentile thresholds ("bottom 20% of catalog"), 500-visit minimum before any rewrite flag, multi-signal decisioning, UTC standardized in all cron jobs.
 
 ## Implications for Roadmap
 
-Based on the dependency graph from ARCHITECTURE.md and pitfall phase mapping from PITFALLS.md, the natural phase structure is:
+Based on combined research, the recommended phase structure has 8 phases (including debt closure). Hard dependencies, SEO protection requirements, statistical validity gates, and the webhook rebuild cascade all drive the ordering.
 
-### Phase 1: Foundation — Infrastructure, CMS, and Content Models
+### Phase 1 (Debt): Retroactive VERIFICATION + REQUIREMENTS Reconciliation
+**Rationale:** PROJECT.md explicitly sequences debt closure before feature phases. 7 phases lack VERIFICATION.md; 9 requirements marked Pending despite live implementation.
+**Delivers:** VERIFICATION.md for phases 03-09, REQUIREMENTS.md with REC-04/05/06/07 + CNT-02/03/07/08/10 resolved, Lighthouse 90+ re-measurement post-v3.2 (DES-04).
+**Avoids:** Starting feature phases with undefined acceptance baselines.
+**Research flag:** Standard documentation/measurement work — no phase research needed.
 
-**Rationale:** Everything else depends on the content model being correct. Changing content types after content exists is painful and risks data migration. i18n must be architectural from day one. The Hetzner deploy pipeline should be tested early, not at launch.
-**Delivers:** Running Strapi instance on Hetzner with Docker Compose (Strapi + PostgreSQL), all content types defined, i18n plugin configured for EN/IT/ES, Astro project scaffold with locale-based routing structure, Hetzner webhook deploy for Astro builds.
-**Addresses features:** Content taxonomy and URL structure (permanent decisions), multilingual routing foundation, review scoring model.
-**Avoids pitfalls:** Content model over-engineering (flat 5-6 types), multilingual as afterthought (locale from day one), Docker/ISR deployment misconfiguration (test the full pipeline early).
+### Phase 2 (Foundation): Strapi Schema Migration
+**Rationale:** Product-category relation, price_range enum, recipe-collection type, headline-variant + variant-impression types, and traffic_score fields must ALL migrate before any feature phase. One CMS rebuild window beats four.
+**Delivers:** 4 new content types on production, 25 products backfilled with category + price_range, 6 default categories seeded, Strapi admin rebuild complete.
+**Avoids:** Mid-feature schema rework; CMS restart during active editorial period.
+**Research flag:** Well-established Strapi 5 pattern — no phase research needed. Apply CLAUDE.md i18n field conventions on day one.
 
-### Phase 2: Design System and Frontend Architecture
+### Phase 3: Newsletter On-Site Signup
+**Rationale:** Most independent feature bucket. Brevo DOI must be configured before any signup reaches production — GDPR exposure starts from the first non-DOI subscription.
+**Delivers:** NewsletterInlineForm.svelte (reusable across surfaces), inline end-of-article on all content types, exit-intent modal (desktop, WCAG 2.2), sticky footer bar (mobile), /[locale]/newsletter/ landing pages (3 locales), Brevo DOI + locale-matched emails + welcome automation, SURFACE tracking, localized consent text.
+**Avoids:** Pitfalls 2 (DOI) and 3 (exit-intent accessibility) — both in same PR. Non-code deliverable: Matteo must create IT and ES Brevo DOI templates before phase closes.
+**Research flag:** Standard newsletter pattern — no phase research needed.
 
-**Rationale:** The design system is a dependency for every page template. Animation rules must be established before any animation work begins — retrofitting the performance budget after animations are designed is painful. The SEO component system must exist before content pages are built.
-**Delivers:** Tailwind 4 design system with fire/smoke dark theme tokens, GSAP animation budget rules documented and enforced, reusable `<SEOHead>` component with all schema types, base layouts (ArticleLayout, ReviewLayout, RecipeLayout), font loading (self-hosted, 2 families max), Lighthouse CI gate at 90.
-**Uses:** Tailwind CSS 4, GSAP 3 with ScrollTrigger, Svelte 5 for island pattern, Astro Image optimization.
-**Avoids pitfalls:** Animations killing performance (establish rules first), font/script bloat, missing SEO structured data component.
+### Phase 4: Review Filters & Taxonomy
+**Rationale:** Depends on Phase 2. SSR approach confirmed over client-side manifest. SEO canonical/noindex protection non-negotiable and must ship in same PR as filters.
+**Delivers:** ReviewFilters.svelte island with brand/category/price facets, URL-synced state, SSR facet count helper, mobile filter drawer, canonical + noindex on all filtered URLs, robots.txt pattern.
+**Avoids:** Pitfall 1 (crawl budget explosion).
+**Research flag:** Run /gsd:research-phase — confirm canonical vs. noindex vs. robots.txt strategy for this editorial site with a small corpus; identify which filter combinations merit real indexable taxonomy landing pages.
 
-### Phase 3: Core Content Types and Pipeline
+### Phase 5: Recipe Collections
+**Rationale:** Independent of filters. Depends on Phase 2. High internal linking value. Strapi i18n convention must be applied precisely.
+**Delivers:** /[locale]/[localized-route]/ index + detail pages (EN: collections, IT: raccolte, ES: colecciones), CollectionBadges on recipe detail pages, CollectionPage JSON-LD, sitemap inclusion with >=3 recipes guard, hreflang only when locale version exists.
+**Avoids:** Pitfall 6 (slug omission, orphan references) — lifecycle hook + null filter + Sentry alert must ship with feature.
+**Research flag:** Standard Strapi + Astro pattern — no phase research needed. Localization unit test from PITFALLS.md is acceptance criterion.
 
-**Rationale:** With the design system and CMS in place, the four content types can be built in parallel (reviews, recipes, tutorials, blog). The Strapi-to-Astro content fetching pattern is established once and reused for all types. Schema.org structured data is implemented per content type here, not retroactively.
-**Delivers:** Review pages with scoring system and photo gallery, recipe pages with "Jump to Recipe", tutorial pages, blog post pages, Strapi Astro client (`strapi.ts`), all Schema.org JSON-LD implementations, Pagefind search index integrated, breadcrumb navigation, per-locale XML sitemaps, CMS validation rules (required meta description, alt text).
-**Addresses features:** All P0 table stakes features, structured data (highest ROI SEO feature).
-**Avoids pitfalls:** SEO missing from headless architecture (implement structured data per content type), ISR/caching mismatch with multilingual routes (revalidate all locale paths on webhook).
+### Phase 6: Growth Engine v2 — Umami Analytics Feedback Loop
+**Rationale:** Must precede A/B phase. Validates umami_client.py in production before ab_tester.py depends on it. Provides traffic baseline data needed to size A/B experiments.
+**Delivers:** umami_client.py library, umami_feedback.py nightly cron (04:00 UTC, 7-day window, percentile-normalized traffic_score), Strapi traffic_score fields on 4 content types, Telegram /content_report command extension, agent decisions log.
+**Avoids:** Pitfall 7 (noise amplification) — 7-day windows, percentile thresholds, 500-visit minimum, UTC standardization, multi-signal decisioning enforced from day one.
+**Research flag:** No phase research needed — direct port of strapi_client.py pattern.
 
-### Phase 4: Interactive Features and Differentiators
+### Phase 7: A/B Headline Testing Infrastructure
+**Rationale:** Last feature phase. Depends on Umami events running (Phase 6), subscriber list with volume (Phase 3), and schema migration (Phase 2). Statistical validity gates must be in design spec before any test runs.
+**Delivers:** web/src/middleware.ts (bucket cookie, no UA branching), web/src/lib/ab.ts, AbTracker.svelte, ab_tester.py weekly Bayesian agent, webhook rebuild exclusion for A/B content types, AB_TEST_ENABLED + AB_MIN_IMPRESSIONS env vars. BlogPost-only in v1.1.
+**Avoids:** Pitfall 4 (cloaking/CLS — middleware-before-render), Pitfall 5 (statistical invalidity — N+days gate enforced by agent), Pitfall 8 (webhook cascade — content type exclusion).
+**Research flag:** Run /gsd:research-phase — validate adnanh/webhook content-type-level exclusion syntax in hooks.json; confirm Astro middleware cookie behavior with Cloudflare CDN cache layer.
 
-**Rationale:** Interactive features (product comparison, Instagram feed, animated scoring) depend on the content types existing and having real data to compare/display. These are differentiators, not foundations — Phase 3 content is sufficient for an MVP launch.
-**Delivers:** Product comparison tool (Svelte island, up to 5 products), Instagram Graph API cron sync to Strapi cache, Instagram feed display components, reading progress indicator, related content engine (tag-based cross-linking), social sharing buttons, dark/light mode toggle.
-**Addresses features:** All P1 differentiator features.
-**Avoids pitfalls:** Instagram API rate limits and deprecated endpoints (cron-based cache, graceful degradation), third-party script bloat (facade patterns for embeds, lazy-load strategy).
-
-### Phase 5: Polish, SEO Audit, and Launch Preparation
-
-**Rationale:** A pre-launch audit phase prevents the "looks done but isn't" traps documented in PITFALLS.md. Performance must be verified on real mobile hardware, not just DevTools. GDPR compliance (cookie consent) is legally required for IT/ES audiences.
-**Delivers:** Full Lighthouse 90+ verification on real mobile devices, Google Rich Results Test passing for all content types, per-locale sitemaps submitted to Google Search Console, custom 404 page, OpenGraph images per content type, RSS feed, robots.txt (production vs staging), GDPR cookie consent banner (required for EU locales IT/ES), favicon full set, content backup strategy for Strapi PostgreSQL, security review (CMS admin IP restriction, API keys server-side only).
-**Avoids pitfalls:** "Looks done but isn't" checklist from PITFALLS.md, GDPR compliance gaps.
+### Phase 8: Deployment Hardening + Smoke Tests
+**Rationale:** v1.1 adds 4 content types, new API endpoints, new crons, and new env vars. Many integration points fail silently (missing env vars, locale DOI template fallback, hreflang for non-existent locales).
+**Delivers:** End-to-end verification of: Brevo contact creation within 30s, IT/ES DOI emails in correct locale, review filter canonical headers, recipe collection IT pages with IT titles, Umami timezone audit, A/B OG meta consistency, WCAG modal audit.
+**Avoids:** Silent failures in the PITFALLS.md "Looks Done But Isn't" checklist.
+**Research flag:** No research needed — execution of the PITFALLS.md checklist.
 
 ### Phase Ordering Rationale
 
-- Phase 1 before everything: content model decisions are irreversible without data migration; i18n routing is hardest to retrofit; deploy pipeline failures discovered late cost the most time.
-- Phase 2 before Phase 3: the design system is a blocking dependency for all page templates; animation rules established here prevent performance regressions that are expensive to fix in designed pages.
-- Phase 3 before Phase 4: interactive features (comparison tool, related content) have no value without real content to compare or relate; Instagram feed needs content pages to embed posts within.
-- Phase 4 before Phase 5: all features must exist before a comprehensive audit is meaningful.
-- Phases 1 and 2 can overlap: CMS setup (backend) and Astro scaffold + design system (frontend) are independent and can run in parallel with two developers or in two tracks.
-- Within Phase 3: review pages, recipe pages, tutorial pages, and blog pages are independent and can be built in parallel once the Strapi client and base layouts are established.
+- **Debt first:** PROJECT.md requires it. Non-negotiable sequencing.
+- **Schema migration second:** Filters, collections, and A/B all depend on new Strapi content types. One CMS rebuild window beats four separate interruptions.
+- **Newsletter third:** Independent of schema migration. Ships quickly and starts building subscriber list before A/B subject-line testing needs volume.
+- **Filters before collections:** Both depend on Phase 2. Filters have higher reader impact and an active SEO risk. Collections follow cleanly.
+- **Analytics loop before A/B:** umami_client.py validated in production before ab_tester.py depends on it; traffic baseline informs which pages to A/B test.
+- **A/B last:** Accumulates all dependencies. Statistical validity requires traffic baseline from Phase 6; subject-line testing requires subscriber list from Phase 3.
+- **Smoke tests as explicit phase:** v1.1 has too many silent-failure integration points to treat verification as implicit.
 
 ### Research Flags
 
-Phases likely needing deeper research during planning (use `/gsd:research-phase`):
+Phases needing /gsd:research-phase during planning:
+- **Phase 4 (Review Filters):** Canonical vs. noindex vs. robots.txt for editorial faceted navigation with small corpus; which filter combinations merit real indexable taxonomy pages.
+- **Phase 7 (A/B):** adnanh/webhook content-type-level exclusion syntax; Astro middleware + Cloudflare CDN cookie behavior validation.
 
-- **Phase 4 (Instagram Integration):** Instagram Graph API authentication, long-lived token lifecycle, oEmbed Read endpoint changes (Meta updated as of April 2025), and Business account requirements need specific validation. The API landscape is actively changing.
-- **Phase 4 (Product Comparison Tool):** UX for cross-locale comparison (a product reviewed only in EN should still be comparable in IT/ES context) needs design research. The data model for handling products with different scoring category sets needs validation.
-
-Phases with standard well-documented patterns (skip research-phase):
-
-- **Phase 1 (Strapi + Docker on Hetzner):** Strapi Docker deployment is thoroughly documented and consistent with existing Hetzner infrastructure patterns.
-- **Phase 2 (Astro + Tailwind 4 + GSAP):** All three technologies have official Astro integration guides and community examples (LaunchFast, Codrops).
-- **Phase 3 (Astro Content + Schema.org):** Pattern is well-documented in official Astro CMS integration docs and Google's structured data developer docs.
-- **Phase 5 (SEO Audit + Launch Checklist):** Standard checklist process, no novel patterns.
+Phases with standard patterns (skip /gsd:research-phase):
+- **Phase 1:** Documentation review + Lighthouse CLI — fully established workflow.
+- **Phase 2:** Strapi 5 content type creation — fully documented, practiced in v1.0.
+- **Phase 3:** Brevo + Astro + Svelte 5 newsletter — mapped in STACK.md with working code samples.
+- **Phase 5:** Strapi + Astro i18n collection pattern — risk is in execution discipline, not unknowns.
+- **Phase 6:** umami_client.py is a direct port of strapi_client.py; Umami REST is straightforward.
+- **Phase 8:** Execution of PITFALLS.md checklist.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All primary technologies verified against official docs (Astro 6.1.2, Strapi 5.40.0, Tailwind 4.x). Version compatibility matrix validated. Node 22 LTS requirement confirmed. |
-| Features | HIGH | Competitor analysis concrete (AmazingRibs, Serious Eats). Schema.org CTR data from Google official docs. NNGroup research on comparison tables. Feature prioritization grounded in verified traffic patterns (IG mobile). |
-| Architecture | HIGH | Three-tier decoupled pattern is industry standard for headless editorial portals. Component boundaries and data flows verified against official Astro and Strapi docs. Hetzner/webhook integration consistent with existing project patterns. |
-| Pitfalls | HIGH | Critical pitfalls confirmed from multiple independent sources. Instagram API changes confirmed from Meta developer docs and community analysis. Animation performance pitfall confirmed from Chrome DevDocs. i18n pitfalls from Shopify Engineering and Google's international site guidance. |
+| Stack | HIGH | All additions verified against existing codebase conventions and official docs. nanoid v5 ESM compatibility with Astro 6 confirmed. No speculative technology choices. |
+| Features | HIGH / MEDIUM | Newsletter/filters/collections are industry-standard patterns on a known stack (HIGH). A/B and analytics loop are MEDIUM — statistical validity at current traffic volumes is genuinely uncertain; editorial sites at 400-500 visits/day are below the comfortable operating range for most A/B guidance. |
+| Architecture | HIGH | Built from direct inspection of the production codebase. File paths are specific and verified against live files. Architectural decisions match existing CLAUDE.md-documented patterns. |
+| Pitfalls | HIGH / MEDIUM | SEO facet explosion, GDPR DOI, Strapi slug omission, and webhook cascade are derived from documented production experience or established industry patterns (HIGH). A/B flicker prevention via middleware is well-reasoned but untested on this specific Cloudflare + Caddy + Astro setup (MEDIUM). |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Paraglide JS maturity:** Paraglide is recommended over i18next (incompatible with Astro 5+) and is compiler-based (smaller bundles), but it is a newer tool with a smaller community than i18next. Validate that it handles ICU message format and pluralization correctly for IT/ES before committing to it in Phase 1.
-
-- **Instagram account type:** The integration plan requires a Business or Creator Instagram account connected to a Facebook Page. This must be verified for the actual BBQ Experience account before Phase 4 planning. If the account is personal, the API integration path changes significantly.
-
-- **Svelte 5 vs vanilla JS for islands:** Svelte 5 is recommended for interactive islands (smaller bundles than React), but vanilla JS with web components is a zero-dependency alternative. If the interactive components remain simple (score charts, galleries), vanilla JS islands may be sufficient and avoids adding a second framework. Evaluate at Phase 4 planning time.
-
-- **Strapi `findOne` locale limitation:** PITFALLS.md flags that `findOne` routes don't support the locale parameter by default in Strapi 5. Validate this against the current Strapi 5.40.0 API before building the Astro content fetching layer in Phase 3, and plan to use `findMany` with filters as the workaround.
-
-- **Unit conversion at launch:** Research recommends deferring unit conversion (metric/imperial) to v2+, but BBQ content is temperature-critical and the EN audience expects Fahrenheit while IT/ES expect Celsius. Decide in Phase 2 whether to build a simple conversion utility from the start (low complexity if done early, high cost if retrofitted).
+- **Brevo rate limits (Feb 2026 changelog):** Specific per-endpoint limits for /v3/contacts batch mode need confirmation before Phase 3 load test. Address in Phase 3 planning.
+- **Umami token TTL on self-hosted version:** Research notes 1-hour TTL; umami_client.py caches 58 minutes. Verify against the specific version running in production. Address in Phase 6 planning.
+- **Traffic baseline before A/B test sizing:** Current per-page CTR baseline is unknown. Phase 7 must include a 1-week measurement window before committing to experiment durations. AB_MIN_IMPRESSIONS=500 is a conservative starting gate; adjust after baseline is known.
+- **Webhook trigger exclusion for A/B content types:** adnanh/webhook hooks.json syntax for content-type-level filtering needs validation. Strapi lifecycle hook is the fallback. Address in Phase 7 research.
+- **Brevo IT/ES DOI email templates:** Non-code deliverable — Matteo must create these in Brevo dashboard before Phase 3 ships. Flag as blocking prerequisite in Phase 3 planning.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-
-- [Astro 6.0 Release Blog](https://astro.build/blog/astro-6/) — Astro 6 features and Node 22 requirement
-- [Astro i18n Documentation](https://docs.astro.build/en/guides/internationalization/) — Locale routing patterns
-- [Astro Islands Architecture](https://docs.astro.build/en/concepts/islands/) — Hydration directives and island patterns
-- [Astro CMS Integrations](https://docs.astro.build/en/guides/cms/) — Strapi + Astro integration
-- [Strapi 5 Features Page](https://strapi.io/five) — Content model, i18n, TypeScript features
-- [Strapi Docker Documentation](https://docs.strapi.io/cms/installation/docker) — Production Docker setup
-- [Strapi npm v5.40.0](https://www.npmjs.com/package/@strapi/strapi) — Current stable version
-- [Tailwind CSS v4.0 Release](https://tailwindcss.com/blog/tailwindcss-v4) — Lightning CSS, CSS-first config
-- [GSAP Pricing](https://gsap.com/pricing/) — Free tier includes ScrollTrigger
-- [Google Structured Data — Product](https://developers.google.com/search/docs/appearance/structured-data/product) — Review schema
-- [Google Structured Data — Recipe](https://developers.google.com/search/docs/appearance/structured-data/recipe) — Recipe schema, CTR data
-- [Google Managing Multi-Regional Sites](https://developers.google.com/search/docs/specialty/international/managing-multi-regional-sites) — hreflang requirements
-- [Instagram oEmbed API](https://developers.facebook.com/docs/instagram-platform/oembed/) — Current oEmbed endpoint
-- [Avoid Non-Composited Animations](https://developer.chrome.com/docs/lighthouse/performance/non-composited-animations) — Animation performance pitfall
+- Existing production codebase (web/src/, scripts/agents/, cms/src/api/) — direct inspection; all STACK.md patterns verified against live files
+- CLAUDE.md conventions — project-specific rules derived from v1.0 production experience
+- docs/architecture.md — verified service topology
+- Strapi 5 i18n docs (https://docs.strapi.io/cms/features/internationalization) — locale PUT + slug body convention
+- Strapi 5 relations docs (https://docs.strapi.io/cms/api/rest/relations) — locale-aware relation resolution
+- Umami API docs (https://docs.umami.is/docs/api) — auth + Bearer token pattern, endpoint list
+- Brevo API docs (https://developers.brevo.com/) — /v3/contacts, api-key header auth
+- nanoid npm (https://www.npmjs.com/package/nanoid) — v5.1.7, ESM-only, 96M weekly downloads confirmed
+- Astro i18n routing (https://docs.astro.build/en/guides/internationalization/) — already implemented in v1.0
 
 ### Secondary (MEDIUM confidence)
+- Cloudflare Pages A/B pattern (https://developers.cloudflare.com/pages/how-to/use-worker-for-ab-testing-in-pages/) — cookie-based variant reference
+- WCAG 2.2 dialog pattern + TPGi/Claspo exit-intent guidance — modal accessibility baseline
+- Omnisend 2026 email benchmark — newsletter conversion rate baselines (4.82% inline, 19.77% exit-intent)
+- NN/g faceted navigation research — >7 facets cause fatigue; small corpora do not benefit from complex faceting
+- arXiv 1908.06256 — Thompson Sampling vs. A/B for news headline optimization (3.69% CTR lift)
+- SearchEngineLand 2025 — Google A/B testing guidance, cloaking definition
 
-- [Paraglide-Astro Integration](https://inlang.com/m/iljlwzfs/paraglide-astro-i18n) — UI i18n with Paraglide
-- [GSAP + Astro Integration Guide (LaunchFast)](https://www.launchfa.st/blog/gsap-astro/) — GSAP island pattern
-- [Instagram Graph API Developer Guide 2026 (Elfsight)](https://elfsight.com/blog/instagram-graph-api-complete-developer-guide-for-2026/) — API rate limits and restrictions
-- [Instagram API Rate Limits 2026 (CreatorFlow)](https://creatorflow.so/blog/instagram-api-rate-limits-explained/) — Rate limit changes
-- [NNGroup — Comparison Tables](https://www.nngroup.com/articles/comparison-tables/) — 5-product comparison cap
-- [AmazingRibs — About Reviews and Medals](https://amazingribs.com/ratings-reviews/about-our-reviews-and-medals/) — Competitor scoring methodology
-- [Recipe Schema SEO (Playwire)](https://www.playwire.com/blog/recipe-site-seo-recommendations-how-to-use-recipe-schema) — 82% CTR improvement data
-- [Building Multi-language Blog with Strapi and Astro](https://noahflk.com/blog/strapi-astro-multilang-blog) — Multilingual content flow
-- [Strapi 5 i18n Guide](https://strapi.io/blog/strapi-5-i18n-complete-guide) — i18n plugin configuration
-- [Shopify Engineering — i18n Best Practices](https://shopify.engineering/internationalization-i18n-best-practices-front-end-developers) — ICU message format, pluralization
-
-### Tertiary (MEDIUM-LOW confidence)
-
-- [Instagram API 2026 Changes (Storrito)](https://storrito.com/resources/Instagram-API-2026/) — API landscape changes
-- [Elementor — Web Design Trends 2026](https://elementor.com/blog/web-design-trends-2026/) — Narrative design trend
-- [Astro vs Next.js Comparison (Pagepro)](https://pagepro.co/blog/astro-nextjs/) — Performance comparison data
-- [Google Recipe Structured Data Update 2025 (Revolutex)](https://revolutexdigital.com/how-googles-2025-recipe-structured-data-update-affects-seo-rankings/) — Exact time value requirement
+### Tertiary (LOW confidence — inferred or single-source)
+- Sample size calculation for 2pp MDE at 10% baseline CTR — standard formula, not domain-specific; validate against actual CTR before Phase 7 commitment
+- Brevo sender reputation decay timeline with single opt-in — industry rule of thumb, not Brevo-specific data; non-negotiable regardless
 
 ---
-*Research completed: 2026-04-01*
+*Research completed: 2026-04-15*
 *Ready for roadmap: yes*

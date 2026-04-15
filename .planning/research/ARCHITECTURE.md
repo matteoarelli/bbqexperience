@@ -1,464 +1,741 @@
-# Architecture Patterns
+# Architecture Research — v1.1 Content Depth & Growth Loop
 
-**Domain:** Premium editorial portal with headless CMS (BBQ content vertical)
-**Researched:** 2026-04-01
+**Domain:** Editorial content portal (integrating 5 new feature clusters into a live Astro 6 SSR + Strapi 5 + Python Growth Engine stack)
+**Researched:** 2026-04-15
+**Confidence:** HIGH (built from direct inspection of production codebase, not hypothetical)
 
-## Standard Architecture: System Overview
+> This document architects how v1.1 features slot into the existing live architecture at bbq-experience.com. All recommendations reuse established patterns (SQLite rate-limit, Brevo wiring, Strapi v5 locale PUT, retry wrappers, atomic writes). No greenfield decisions.
 
-A premium editorial portal with headless CMS follows a **three-tier decoupled architecture**:
-
-```
-+------------------+       REST/GraphQL        +------------------+
-|                  |  <--------------------->  |                  |
-|   Strapi CMS     |       (Content API)       |   Astro SSG/SSR  |
-|   (Backend)      |                           |   (Frontend)     |
-|                  |  ---- Webhooks ---------->|                  |
-+------------------+                           +------------------+
-        |                                              |
-        v                                              v
-+------------------+                           +------------------+
-|   PostgreSQL     |                           |   Static HTML    |
-|   + Uploads      |                           |   + JS Islands   |
-|   (Data Layer)   |                           |   (Output)       |
-+------------------+                           +------------------+
-                                                       |
-                                                       v
-                                               +------------------+
-                                               |   Caddy          |
-                                               |   (Reverse Proxy |
-                                               |    + CDN cache)  |
-                                               +------------------+
-                                                       |
-                           +---------------------------+------------------+
-                           |                           |                  |
-                    +------v------+            +-------v-----+   +-------v-----+
-                    | Instagram   |            | Search      |   | End User    |
-                    | Graph API   |            | (Pagefind)  |   | Browser     |
-                    +-------------+            +-------------+   +-------------+
-```
-
-### Tier 1: Content Management (Strapi CMS)
-The headless CMS manages all content through a structured admin panel. It exposes content via REST API (or GraphQL) and triggers webhooks on content changes. Strapi runs as a Node.js application with its own database.
-
-### Tier 2: Static Site Generator (Astro)
-Astro fetches content from Strapi at build time (SSG) or request time (SSR/hybrid), renders pages to optimized static HTML, and selectively hydrates interactive components using Islands Architecture. This tier handles routing, i18n, image optimization, and page composition.
-
-### Tier 3: Delivery (Caddy + Browser)
-Caddy serves as reverse proxy, handles TLS, and serves static assets. The browser receives mostly static HTML with minimal JavaScript -- only interactive "islands" ship JS.
-
-## Component Responsibilities
-
-| Component | Responsibility | Communicates With | Technology |
-|-----------|---------------|-------------------|------------|
-| **Strapi CMS** | Content modeling, authoring, media upload, i18n content, REST API | PostgreSQL (data), Astro (API + webhooks), Filesystem (uploads) | Node.js, Strapi v5 |
-| **PostgreSQL** | Persistent data storage for all CMS content | Strapi only (never exposed directly) | PostgreSQL 16 |
-| **Astro Frontend** | Page rendering, routing, i18n routing, image optimization, component composition | Strapi (content fetch), Instagram API (embed data), Pagefind (search index) | Astro 5.x |
-| **Interactive Islands** | Micro-interactions, animations, product comparisons, image galleries, search UI | Astro (hydrated within pages) | Svelte 5 (preferred for small bundle size) |
-| **Caddy** | Reverse proxy, TLS termination, static file serving, caching headers | Astro output (static files), Strapi (proxy API for admin) | Caddy v2 |
-| **Instagram Integration** | Fetch posts via Graph API, cache locally, display in content | Instagram Graph API, Strapi (cached data), Astro (display) | Custom Strapi plugin or cron |
-| **Pagefind** | Client-side search across all content | Astro build output (indexes at build time) | Pagefind |
-| **Build Orchestrator** | Triggers rebuild on content change via webhook | Strapi (webhook source), Astro (rebuild target) | Shell script or Node script |
-
-## Recommended Project Structure
-
-```
-bbqexperience/
-+-- cms/                          # Strapi CMS (backend)
-|   +-- config/                   # Strapi configuration
-|   |   +-- database.ts
-|   |   +-- server.ts
-|   |   +-- plugins.ts
-|   |   +-- middlewares.ts
-|   +-- src/
-|   |   +-- api/                  # Content types (auto-generated by Strapi)
-|   |   |   +-- review/
-|   |   |   +-- recipe/
-|   |   |   +-- tutorial/
-|   |   |   +-- blog-post/
-|   |   |   +-- product/
-|   |   |   +-- category/
-|   |   |   +-- instagram-post/   # Cached IG data
-|   |   +-- plugins/              # Custom plugins (IG sync, etc.)
-|   +-- public/uploads/           # Media uploads
-|   +-- Dockerfile
-|   +-- package.json
-|
-+-- web/                          # Astro frontend
-|   +-- src/
-|   |   +-- components/           # UI components
-|   |   |   +-- common/           # Header, Footer, Nav, etc.
-|   |   |   +-- review/           # ReviewCard, ScoreChart, SpecSheet
-|   |   |   +-- recipe/           # RecipeCard, StepList, Timer
-|   |   |   +-- tutorial/         # TutorialCard, TOC
-|   |   |   +-- blog/             # BlogCard, PostBody
-|   |   |   +-- instagram/        # IGFeed, IGEmbed
-|   |   |   +-- interactive/      # Svelte islands (comparisons, galleries, search)
-|   |   +-- layouts/              # Page layouts
-|   |   |   +-- BaseLayout.astro
-|   |   |   +-- ArticleLayout.astro
-|   |   |   +-- ReviewLayout.astro
-|   |   |   +-- RecipeLayout.astro
-|   |   +-- pages/
-|   |   |   +-- [locale]/         # i18n routing
-|   |   |   |   +-- index.astro
-|   |   |   |   +-- reviews/
-|   |   |   |   +-- recipes/
-|   |   |   |   +-- tutorials/
-|   |   |   |   +-- blog/
-|   |   +-- lib/                  # Utilities
-|   |   |   +-- strapi.ts         # Strapi API client
-|   |   |   +-- instagram.ts      # Instagram API helpers
-|   |   |   +-- i18n.ts           # Translation utilities
-|   |   |   +-- scoring.ts        # Review scoring logic
-|   |   +-- styles/               # Global styles, design tokens
-|   |   +-- content/              # Astro content collections config
-|   |   +-- i18n/                 # Translation strings (JSON per locale)
-|   +-- public/                   # Static assets (fonts, icons, og images)
-|   +-- astro.config.mjs
-|   +-- Dockerfile
-|   +-- package.json
-|
-+-- docker-compose.yml            # Orchestrates all services
-+-- scripts/
-|   +-- rebuild.sh                # Webhook-triggered rebuild script
-|   +-- sync-instagram.sh         # Cron-triggered IG sync
-+-- .planning/                    # Project planning
-```
-
-## Architectural Patterns
-
-### Pattern 1: Islands Architecture (Astro)
-
-**What:** Render full pages as static HTML. Only hydrate specific interactive components ("islands") with JavaScript.
-
-**When:** Every page. This is the core architectural approach.
-
-**Why:** Achieves 90+ Lighthouse by shipping near-zero JS for content pages. Only components that genuinely need interactivity (product comparison tool, image lightbox, search modal) load framework code.
-
-**Example:**
-```astro
 ---
-// ReviewPage.astro - mostly static
-import ScoreChart from '../components/interactive/ScoreChart.svelte';
-import ImageGallery from '../components/interactive/ImageGallery.svelte';
-const review = await fetchFromStrapi('/reviews', { slug: Astro.params.slug });
+
+## System Overview (v1.1 deltas only)
+
+```
++------------------------------------------------------------------------+
+|                           EDGE / DELIVERY                              |
+|  Cloudflare CDN  ->  Caddy  ->  Astro SSR (:4321)                      |
+|                                  |                                     |
+|                                  +-- [NEW] middleware.ts               |
+|                                  |       A/B variant cookie assignment |
+|                                  |                                     |
+|                                  +-- /api/newsletter   (EXISTS, extend)|
+|                                  +-- /api/brevo-webhook (EXISTS)       |
+|                                  +-- [NEW] /api/ab/track               |
+|                                  +-- [NEW] /api/reviews-manifest.json  |
+|                                           (optional facet cache)       |
++------------------------------------------------------------------------+
+|                         SVELTE 5 ISLANDS (client)                      |
+|  Existing: BookmarkButton.svelte  ThemeToggle.svelte  SearchDialog     |
+|  [NEW] NewsletterInlineForm.svelte   (replaces inline <script>)        |
+|  [NEW] NewsletterExitIntent.svelte   (mousemove/visibilitychange)      |
+|  [NEW] NewsletterStickyBar.svelte    (scroll-threshold reveal)         |
+|  [NEW] ReviewFilters.svelte          (URL-sync'd facets)               |
+|  [NEW] AbTracker.svelte              (emits umami.track impressions)   |
++------------------------------------------------------------------------+
+|                         STRAPI 5 (:1337) - CMS                         |
+|  Existing: review . product . recipe . blog-post . tutorial .          |
+|            subscriber . brand . content-queue . ...                    |
+|                                                                        |
+|  [NEW] product-category   (collectionType, i18n)                       |
+|  [NEW] collection         (collectionType, i18n - recipe groupings)    |
+|  [NEW] headline-variant   (collectionType, non-i18n - A/B defs)        |
+|  [NEW] variant-impression (collectionType - aggregated analytics)      |
+|                                                                        |
+|  EXTENDED: product.product_category (relation mTo)                     |
+|            review.price_range (enum, cached from product for filter)   |
+|            review/blog-post/recipe/tutorial.traffic_score              |
+|            review/blog-post/recipe/tutorial.traffic_score_updated      |
+|            subscriber.source (enum inline|exit_intent|landing|sticky)  |
++------------------------------------------------------------------------+
+|                    POSTGRES 16  (shared instance "postgres")           |
++------------------------------------------------------------------------+
+|                GROWTH ENGINE (Python) - Hetzner cron                   |
+|  Existing: seo_optimizer.py  keyword_scout.py  competitor_monitor.py   |
+|            partnership_outreach.py  content_generator.py  ...          |
+|                                                                        |
+|  [NEW] umami_feedback.py   (pulls Umami API -> writes traffic_score)   |
+|  [NEW] ab_tester.py        (reads variant-impression -> picks winner)  |
+|  [NEW] lib/umami_client.py (reusable, same retry pattern as strapi)    |
++------------------------------------------------------------------------+
+|                       ANALYTICS (separate stack)                       |
+|  Umami self-hosted (:3000) + umami-pg - already live                   |
+|  Custom events: newsletter-signup (exists + source property),          |
+|                 ab-impression (NEW), ab-click (NEW),                   |
+|                 filter-applied (NEW), exit-intent-shown (NEW)          |
++------------------------------------------------------------------------+
+```
+
 ---
-<ArticleLayout>
-  <!-- Statico: zero JS -->
-  <h1>{review.title}</h1>
-  <div class="prose" set:html={review.content} />
-  
-  <!-- Isola interattiva: carica Svelte solo per questo componente -->
-  <ScoreChart client:visible scores={review.scores} />
-  
-  <!-- Isola interattiva: carica solo quando visibile nel viewport -->
-  <ImageGallery client:visible images={review.gallery} />
-</ArticleLayout>
+
+## Integration Map — What Each Feature Touches
+
+### Feature 1 — Newsletter Signup (4 surfaces)
+
+**Good news:** `/api/newsletter` endpoint, `subscriber` content type, Brevo wiring, HMAC webhook, and SQLite rate-limit are ALL already shipped in v1.0. The work is **surface expansion + double-opt-in hardening**, not plumbing.
+
+| Surface | Mount location | Implementation |
+|---------|---------------|----------------|
+| Inline end-of-article | `ContentLayout.astro` slot after article body (blog/recipe/review/tutorial) | Reuse `NewsletterSignup.astro` full variant |
+| Exit-intent modal | `BaseLayout.astro` body root (same pattern as `MobileMenuPanel` — avoids the backdrop-filter containing-block bug noted in CLAUDE.md) | **NEW** `NewsletterExitIntent.svelte` — listens to `mouseleave` (desktop) + `visibilitychange` (mobile fallback); `sessionStorage` key prevents re-trigger in same session; cookie `bbq-nl-seen` blocks for 30 days |
+| Dedicated `/[locale]/newsletter/` page | NEW route per locale (3 files) | Full-page hero + social proof + signup form; added to `localizedRoutes` in `i18n.ts` |
+| Sticky footer bar | `BaseLayout.astro` body root | **NEW** `NewsletterStickyBar.svelte` — reveals after 50% scroll, dismissible with cookie persist |
+
+**CSRF/Rate-limit:** Extend existing `/api/newsletter` to accept a `source` field (`"inline" | "exit_intent" | "landing" | "sticky"`). Keep the existing 5/min rate limit. No CSRF token — the endpoint is idempotent and creates only `pending` state; Brevo double-opt-in is the security boundary.
+
+**Double opt-in — who sends the email:** **Brevo sends it**, not our code. In Brevo dashboard -> List settings -> "Enable double opt-in" -> Brevo serves the confirmation page + link. Our code only POSTs `/v3/contacts` (already done). The `contact_updated` webhook (already wired in `/api/brevo-webhook.ts`) fires when the user clicks confirm and flips Strapi `status: pending -> active`. **Zero custom email code needed.**
+
+**Form state on static pages:** The existing `NewsletterSignup.astro` uses a vanilla `<script>` which works for one surface but duplicates logic across 4. Promote the shared state (already-subscribed check, submit, success) into a single Svelte 5 island `NewsletterInlineForm.svelte` (runes: `$state`, `$derived`) so all 4 surfaces import the same component. Hydration: `client:visible` for inline/landing, `client:idle` for exit-intent + sticky.
+
+**Modified files:**
+- `web/src/components/common/NewsletterSignup.astro` — thin wrapper around the new Svelte island
+- `web/src/pages/api/newsletter.ts` — add `source` field to Strapi payload
+
+**New files:**
+- `web/src/islands/NewsletterInlineForm.svelte`
+- `web/src/islands/NewsletterExitIntent.svelte`
+- `web/src/islands/NewsletterStickyBar.svelte`
+- `web/src/pages/en/newsletter.astro`, `…/it/newsletter.astro`, `…/es/newsletter.astro`
+- `cms/src/api/subscriber/content-types/subscriber/schema.json` — add `source` enum field
+
+**Env vars:** None new. `BREVO_API_KEY` + `BREVO_LIST_ID` + `BREVO_WEBHOOK_SECRET` all already set.
+
+---
+
+### Feature 2 — Review Filters + Product Category Taxonomy
+
+**Current state:** `reviews/index.astro` is **already SSR** (`prerender = false`) with `?category=X&sort=Y&page=N` query-driven filtering via Strapi `filters[product][category][$eq]`. Categories are a hard-coded enum on `product.category`.
+
+**Architectural decision — DO NOT switch to a full build-time manifest + pure client-side filter.** Reasons:
+1. Filter UX is already URL-synced (shareable, SEO-friendly, cacheable at Cloudflare per-query-string)
+2. Review collection is ~25 items — SSR fetch is <100ms at origin
+3. Build-time manifest forces a rebuild on every review publish (webhook latency 30-90s) and breaks preview mode
+4. SSR keeps the page crawlable without JS
+
+**What changes:**
+- **Enum -> relation.** Current `product.category` is a fixed enum. Replace with `product_category` relation to a new collection type -> lets Matteo add sub-categories (pellet_grill, kamado, offset_smoker) without schema migration. Seed the new type with the 6 existing enum values for clean migration.
+- **New filter dimensions:** brand, price_range, score_threshold. Price range + score are already on data; brand is already a relation. Work is only UI exposure.
+- **Hybrid state model:** SSR default list + `ReviewFilters.svelte` island that owns interactive filter state, syncs to URL via `history.pushState` (instant visual feedback), then triggers a debounced full navigation to the same URL. **Recommendation: full navigation** — Strapi stays single source of truth, no duplicate rendering logic, native Back/Forward, zero new endpoint.
+- **Facet counts (optional polish):** Ship small SSR helper `getReviewFacets(locale)` that fetches all published reviews with minimal fields (`fields=product.category,product.brand_relation,product.price_range,score_overall`, <10KB payload) and computes counts. In-memory cache for 5 min on the SSR process.
+
+**Modified files:**
+- `cms/src/api/product/content-types/product/schema.json` — swap `category` enum for `product_category` relation; keep enum as deprecated alias for 1 release for safety
+- `web/src/pages/en/reviews/index.astro`, `…/it/recensioni/index.astro`, `…/es/resenas/index.astro` — add brand/price/score filter params, pass to `fetchCollection`
+- `web/src/lib/strapi.ts` — extend filter types
+- `cms/src/api/review/content-types/review/schema.json` — optional: denormalize `price_range` onto review for faster filters (avoid nested populate)
+
+**New files:**
+- `cms/src/api/product-category/content-types/product-category/schema.json` (i18n=true; fields: name, slug, description, icon_name, parent relation)
+- `web/src/islands/ReviewFilters.svelte`
+- `web/src/lib/review-facets.ts`
+- Migration script `cms/scripts/migrate-product-category.ts` -> creates 6 default categories + reassigns all products
+
+---
+
+### Feature 3 — Recipe Collections
+
+**New Strapi content type `collection`** (collectionType, i18n=true):
+
+```json
+{
+  "title":           "string (i18n, required)",
+  "slug":            "uid (targetField: title)",
+  "description":     "text (i18n)",
+  "editorial_intro": "richtext (i18n)",
+  "hero_image":      "media (single, images)",
+  "cover_image":     "media (single, images)",
+  "recipes":         "relation manyToMany -> api::recipe.recipe",
+  "recipe_order":    "json  (array of recipe documentIds for display order)",
+  "featured":        "boolean (default false)",
+  "seo_title":       "string (i18n)",
+  "seo_description": "text (i18n)",
+  "published_date":  "date"
+}
 ```
 
-**Hydration directives to use:**
-- `client:visible` -- default choice, loads JS when component scrolls into view (best for performance)
-- `client:load` -- for above-the-fold interactive elements (navigation, search trigger)
-- `client:idle` -- for non-critical interactivity after page load
-- `client:media` -- for mobile-only or desktop-only interactions
+**Why `recipe_order` as json instead of Strapi relation order:** Strapi manyToMany doesn't preserve ordering reliably across locales and re-saves. A `json` array of documentIds is the idiomatic v5 workaround — authored once, consumed in Astro as an index into the populated recipes array.
 
-### Pattern 2: Content-Driven SSG with On-Demand Rebuild
+**i18n model:** Collection title/description/SEO are localized (title "Labor Day Grill Menu" -> IT "Menu BBQ di Ferragosto"). **Recipe relations are shared across locales** — Strapi i18n v5.40 mirrors relations into localized entries automatically, so IT collection auto-shows IT versions of the same recipes. Do NOT duplicate the recipe list manually per locale.
 
-**What:** Pre-build all pages at deploy time. Strapi webhook triggers a rebuild when content changes.
+**Routing — new localized segments:**
 
-**When:** Primary rendering strategy. Use hybrid SSR only for preview/draft mode.
+| Locale | Index | Detail |
+|--------|-------|--------|
+| EN | `/en/collections/` | `/en/collections/[slug]/` |
+| IT | `/it/raccolte/` | `/it/raccolte/[slug]/` |
+| ES | `/es/colecciones/` | `/es/colecciones/[slug]/` |
 
-**Why:** Static pages are fastest possible delivery. Single author means content changes are infrequent (a few times per week), so rebuild cost is negligible. A full rebuild of ~500 pages takes under 60 seconds with Astro.
+Add to `web/src/lib/i18n.ts` -> `localizedRoutes.collections = { en: 'collections', it: 'raccolte', es: 'colecciones' }`. Add to `seo_optimizer.py` -> `ROUTE_BY_LOCALE['collections']` + `CONTENT_FIELD['collections'] = 'editorial_intro'` so internal linking agent picks them up.
 
-**Build trigger flow:**
-```
-Author publishes in Strapi
-        |
-        v
-Strapi fires webhook (POST /hooks/rebuild)
-        |
-        v
-Webhook listener (adnanh/webhook on Hetzner)
-        |
-        v
-rebuild.sh: cd /opt/services/bbqexperience/web && npm run build
-        |
-        v
-New static files served by Caddy immediately
-```
+**Build-time vs SSR:** Collections edited rarely (weekly cadence). `prerender = true` (static). Strapi publish webhook already rebuilds Astro — latency acceptable.
 
-**Important:** This fits perfectly with the existing Hetzner webhook deployment infrastructure documented in PROJECT.md.
+**Affect existing recipe pages:** Yes — add a **"Part of X collection(s)"** block on `recipes/[slug].astro` via reverse query `filters[recipes][documentId][$eq]=<recipe-id>`. New component `CollectionBadges.astro`. Populate at build time alongside the existing recipe fetch (one extra query per recipe).
 
-### Pattern 3: Strapi as Single Source of Truth for Content
+**Modified files:**
+- `web/src/lib/i18n.ts` — add `localizedRoutes.collections`
+- `web/src/lib/types.ts` — `StrapiCollection` type
+- `web/src/pages/*/recipes/[slug].astro` (3 locales) — add `CollectionBadges` block
+- `scripts/agents/seo_optimizer.py` — add `collections` to ROUTE_BY_LOCALE and CONTENT_FIELD
 
-**What:** All content lives in Strapi. Astro has zero content of its own (except UI translation strings). No markdown files, no local content.
+**New files:**
+- `cms/src/api/collection/…/schema.json` + controllers/services (Strapi CLI scaffold)
+- `web/src/pages/en/collections/index.astro`, `/[slug].astro`
+- `web/src/pages/it/raccolte/index.astro`, `/[slug].astro`
+- `web/src/pages/es/colecciones/index.astro`, `/[slug].astro`
+- `web/src/components/content/CollectionBadges.astro`
+- `web/src/components/content/CollectionCard.astro`
+- `web/src/components/content/CollectionHero.astro`
+- `web/src/components/content/CollectionJsonLd.astro` (Schema.org `CollectionPage` — reuses existing `CollectionPageSchema.astro` pattern)
 
-**When:** Always. Do not split content across Strapi and local files.
+---
 
-**Why:** Single author workflow. One place to write, one place to manage translations, one media library. Prevents content drift between systems.
+### Feature 4 — Umami -> Agents Feedback Loop
 
-**Exception:** UI translation strings (button labels, navigation text, footer copy) live in JSON files in `web/src/i18n/` because they are code-adjacent, not editorial content.
+**Where Python runs:** Hetzner cron (existing infra). Append to `/opt/webhooks/scripts/crontab` alongside `seo_optimizer`. Umami API lives on the same machine (`analytics.bbq-experience.com` -> `umami:3000` container). Internal Docker network call avoids public round-trip.
 
-### Pattern 4: Structured Content Modeling in Strapi
-
-**What:** Design content types with clear separation of concerns. Each content type maps to a specific section/page type.
-
-**Content model:**
-```
-Product (standalone entity)
-  - name, brand, category, price_range
-  - specifications (JSON/component)
-  - images[]
-  - affiliate_links[]
-
-Review (references Product)
-  - product -> Product (relation)
-  - title, slug, excerpt, body (rich text)
-  - scores: { overall, quality, value, design, performance, ease_of_use }
-  - pros[], cons[]
-  - verdict
-  - gallery[] (media)
-  - locale (i18n)
-  - publishedAt, updatedAt
-
-Recipe
-  - title, slug, excerpt, body
-  - difficulty (enum: easy, medium, hard, expert)
-  - cook_time, prep_time, servings
-  - ingredients[] (component, repeatable)
-  - steps[] (component: text + image)
-  - equipment[] -> Product (relation)
-  - locale (i18n)
-
-Tutorial
-  - title, slug, excerpt, body
-  - category (enum: technique, equipment, knowledge)
-  - difficulty
-  - related_products[] -> Product
-  - locale (i18n)
-
-BlogPost
-  - title, slug, excerpt, body
-  - tags[]
-  - locale (i18n)
-
-InstagramPost (cached, not authored here)
-  - ig_id, permalink, media_url, caption
-  - media_type (image, video, carousel)
-  - timestamp
-  - cached_at
-```
-
-### Pattern 5: Instagram Integration via Cron + Cache
-
-**What:** A scheduled job fetches recent Instagram posts via the Graph API, stores them in Strapi as cached content, and Astro reads them like any other content at build time.
-
-**When:** For displaying Instagram feed on the site. Do NOT call Instagram API at page render time.
-
-**Why:** Instagram Graph API has rate limits (200 calls/hour). Caching in Strapi means: (a) no API calls during build, (b) no API calls from user browsers, (c) content available even if Instagram is down, (d) can curate which posts appear on site.
-
-**Flow:**
-```
-Cron (every 6 hours)
-    |
-    v
-sync-instagram.sh calls Instagram Graph API
-    |
-    v
-Fetches latest N posts (media, captions, permalinks)
-    |
-    v
-Upserts into Strapi InstagramPost content type
-    |
-    v
-Triggers rebuild webhook (optional, or waits for next scheduled build)
-```
-
-**For embedding individual posts in articles:** Use Strapi rich text with oEmbed integration. The Instagram oEmbed endpoint (`/instagram_oembed`) returns embed HTML for any public post URL. Cache the oEmbed response to avoid repeated API calls.
-
-**IMPORTANT:** Instagram Basic Display API was retired December 4, 2024. All integrations must use the Instagram Graph API, which requires a Business or Creator account connected to a Meta App. The oEmbed Read endpoint is being updated (Meta oEmbed Read replaces legacy oEmbed Read as of April 2025).
-
-## Data Flow
-
-### Content Publishing Flow
-```
-1. Author writes content in Strapi admin (any locale)
-2. Author uploads media -> Strapi stores in /uploads/
-3. Author hits Publish
-4. Strapi saves to PostgreSQL
-5. Strapi fires webhook -> rebuild.sh
-6. Astro fetches all content from Strapi REST API
-7. Astro processes images (resize, WebP/AVIF via Sharp)
-8. Astro generates static HTML for all locales
-9. Caddy serves new static files
-10. User browser loads static HTML (zero JS for content pages)
-```
-
-### User Request Flow
-```
-1. User requests /en/reviews/weber-summit
-2. Caddy serves pre-built static HTML + optimized images
-3. Browser renders HTML immediately (fast FCP)
-4. Interactive islands hydrate on visibility (ScoreChart, Gallery)
-5. Pagefind loads on search interaction only
-6. Total JS: ~15-30KB (Svelte island runtime + components)
-```
-
-### Instagram Sync Flow
-```
-1. Cron fires every 6 hours
-2. Script authenticates with Instagram Graph API (long-lived token)
-3. Fetches /me/media?fields=id,caption,media_url,permalink,timestamp
-4. Compares with existing InstagramPost entries in Strapi
-5. Creates new / updates existing entries
-6. Optionally triggers site rebuild
-```
-
-### Multilingual Content Flow
-```
-1. Author writes EN version first (primary locale)
-2. Author switches locale in Strapi admin -> creates IT/ES version
-3. Strapi stores translations as locale variants of same entry
-4. At build time, Astro fetches with ?locale=en, ?locale=it, ?locale=es
-5. Astro generates /en/reviews/slug, /it/reviews/slug, /es/reviews/slug
-6. hreflang tags link all locale variants for SEO
-7. UI strings loaded from /web/src/i18n/{locale}.json
-```
-
-## Anti-Patterns to Avoid
-
-### Anti-Pattern 1: Client-Side API Calls to CMS
-**What:** Calling Strapi API from the browser at runtime.
-**Why bad:** Exposes API, adds latency, requires CORS config, breaks offline/cache. Defeats the purpose of static generation.
-**Instead:** All Strapi calls happen at build time. Content is baked into HTML.
-
-### Anti-Pattern 2: Monolithic Frontend Framework (Next.js/Nuxt full SPA)
-**What:** Using a full SPA framework that ships 100KB+ of JS to every page.
-**Why bad:** For an editorial site, 90% of pages are read-only content. Shipping React/Vue runtime to render static text is wasteful. Kills Lighthouse scores.
-**Instead:** Astro with Islands. Ship zero JS by default, add it surgically.
-
-### Anti-Pattern 3: Real-Time Instagram API Calls
-**What:** Calling Instagram API on every page load or build.
-**Why bad:** Rate limits (200/hour), API downtime kills your site, slow builds.
-**Instead:** Cron-based sync to local cache (Strapi content type).
-
-### Anti-Pattern 4: Splitting Content Between CMS and Local Files
-**What:** Some content in Strapi, some in markdown files, some in JSON.
-**Why bad:** Author must manage multiple systems. Content gets out of sync. Translation management becomes nightmare.
-**Instead:** All editorial content in Strapi. Only UI strings in local files.
-
-### Anti-Pattern 5: Overusing Client-Side Hydration
-**What:** Adding `client:load` to every component "just in case."
-**Why bad:** Defeats Islands Architecture. Each hydrated component adds JS bundle. A page with 10 `client:load` components is effectively an SPA.
-**Instead:** Default to static. Only hydrate what genuinely requires user interaction. Use `client:visible` over `client:load` when possible.
-
-### Anti-Pattern 6: Using React for Islands
-**What:** Choosing React as the island framework.
-**Why bad:** React runtime is ~30KB+ per island. For small interactive widgets (score chart, image gallery), this is disproportionate overhead.
-**Instead:** Use Svelte 5 for islands. Svelte compiles away the framework -- a Svelte island can be 3-5KB vs 30KB+ for React equivalent. Perfect for the "small interactive widget" pattern this site needs.
-
-## Integration Points
-
-### Strapi <-> Astro
-- **Protocol:** REST API (Strapi's auto-generated endpoints)
-- **Authentication:** API token (read-only for Astro builds)
-- **Data format:** JSON with population of relations
-- **Trigger:** Webhook on publish/unpublish for rebuild
-- **Library:** `@sensinum/astro-strapi-loader` for Content Collections integration, or direct fetch via custom `strapi.ts` client
-
-### Strapi <-> PostgreSQL
-- **Protocol:** Knex.js query builder (Strapi internal)
-- **Config:** `cms/config/database.ts` with Docker network host
-- **Backups:** pg_dump cron job on Hetzner
-
-### Astro <-> Instagram
-- **oEmbed endpoint:** For embedding specific posts in articles (cached)
-- **Display data:** Read from Strapi's InstagramPost cache (not direct API calls)
-
-### Build System <-> Hetzner Webhooks
-- **Webhook listener:** adnanh/webhook (already deployed on Hetzner)
-- **Hook name:** `bbqexperience` (added to `/opt/webhooks/hooks.json`)
-- **Script:** `/opt/webhooks/scripts/deploy-bbqexperience.sh`
-- **Flow:** `git pull -> docker compose build web -> docker compose up -d web`
-
-### Caddy <-> Services
-- **Reverse proxy routes:**
-  - `bbqexperience.com` -> Astro static output (or Node SSR if hybrid)
-  - `cms.bbqexperience.com` -> Strapi admin panel (auth-protected)
-  - `api.bbqexperience.com` -> Strapi API (optional, only if client-side calls needed)
-
-## Scaling Considerations
-
-| Concern | At Launch (~1K daily) | At Growth (~50K daily) | At Scale (~500K daily) |
-|---------|----------------------|----------------------|----------------------|
-| **Page delivery** | Caddy serves static files directly | Add Cloudflare CDN in front of Caddy | Cloudflare CDN with edge caching |
-| **Build time** | ~30s for ~100 pages | ~90s for ~500 pages | Consider incremental builds or hybrid SSR for dynamic sections |
-| **Image serving** | Astro-optimized at build time, served by Caddy | Add Cloudflare image CDN | Dedicated image CDN (Cloudflare Images or imgproxy) |
-| **CMS load** | Single Strapi instance handles easily | Same, only hit at build time | Same -- Strapi only serves build-time requests + admin |
-| **Search** | Pagefind (static, client-side) | Pagefind scales well (index grows but stays client-side) | Consider Meilisearch if content exceeds ~10K pages |
-| **Database** | PostgreSQL single instance | Same with connection pooling | PostgreSQL with read replicas (unlikely needed) |
-| **Instagram sync** | Cron every 6 hours | Same | Same -- rate limits are the bottleneck, not traffic |
-
-**Key insight:** Because the site is statically generated, traffic scaling is essentially a CDN problem, not an application problem. Strapi never sees end-user traffic. This architecture handles massive traffic with minimal infrastructure.
-
-## Build Order (Dependencies)
-
-The following order reflects true technical dependencies:
+**Umami REST API (self-hosted v2):**
 
 ```
-Phase 1: Foundation
-  [PostgreSQL] -> [Strapi CMS setup] -> [Content models]
-  [Astro project scaffold] -> [Base layouts + design system]
-  These can run in parallel: CMS setup and frontend scaffold are independent.
-
-Phase 2: Content Pipeline
-  [Strapi content models] -> [Strapi REST API] -> [Astro Strapi client]
-  [Astro i18n routing setup]
-  Content must be fetchable before pages can render.
-
-Phase 3: Core Content Types
-  [Review pages] (depends on: content models + Strapi client + layouts)
-  [Recipe pages] (same dependencies, independent of reviews)
-  [Tutorial pages] (same)
-  [Blog pages] (same)
-  These are independent and can be built in parallel.
-
-Phase 4: Interactive Features
-  [Svelte islands: ScoreChart, ImageGallery, ProductComparison]
-  [Pagefind search integration]
-  [Animations and micro-interactions]
-  Depends on: pages existing to embed islands into.
-
-Phase 5: Instagram Integration
-  [Instagram Graph API auth + sync script]
-  [InstagramPost content type in Strapi]
-  [IG feed display components]
-  Can start after Phase 2 but not critical path.
-
-Phase 6: Polish + Deploy
-  [Docker Compose for all services]
-  [Hetzner webhook integration]
-  [Performance optimization (Lighthouse 90+)]
-  [SEO: sitemaps, structured data, hreflang]
-  Depends on: everything above existing.
+POST /api/auth/login            -> { token }
+GET  /api/websites/:id/pageviews?startAt=X&endAt=Y&unit=day
+GET  /api/websites/:id/metrics?startAt=X&endAt=Y&type=url
+GET  /api/websites/:id/events?startAt=X&endAt=Y          (custom events)
 ```
 
-**Critical path:** PostgreSQL -> Strapi -> Content Models -> Strapi Client -> Page Templates -> Static Build -> Deploy
+**Data flow (new cron `umami_feedback.py`, daily 04:00 UTC):**
 
-**Parallelizable:** Frontend design system + CMS setup. Individual content type pages. Instagram integration (non-blocking).
+```
+1. umami_client.login() -> Bearer token (cache 23h in /tmp/umami-token.json)
+2. GET /api/websites/<id>/metrics?type=url&startAt=-7d
+   -> [{ x: "/en/reviews/weber-genesis-ii/", y: 482 }, ...]
+3. Parse URL -> (locale, content_type, slug)
+4. For each published content item in Strapi:
+   - Compute traffic_score =
+        (pageviews_last_7d * 0.6)
+      + (avg_session_duration * 0.2)
+      + (ab_click_rate * 0.2)     # from variant-impression aggregate
+   - Normalize per-content-type (reviews outrank blog posts naturally;
+     percentile WITHIN type, not absolute)
+5. PUT /api/<type>/<documentId>?locale=<locale>
+   { data: { traffic_score, traffic_score_updated: now, traffic_pageviews_7d } }
+6. Atomic state write: /opt/state/umami-feedback-state.json (os.replace)
+7. Telegram summary: top 5 gainers / top 5 losers
+```
+
+**Decisions driven by `traffic_score`:**
+- `keyword_scout.py` — prioritize keywords correlating with high-scoring content
+- `content_generator.py` — use top-scoring reviews/recipes as structural templates
+- `content_promoter.py` (IG) — promote high-scoring items to IG (virtuous loop)
+- `claude_strategist.py` — weekly roll-up includes traffic gainers/losers
+
+**New Strapi fields** (applied to blog-post, review, recipe, tutorial):
+- `traffic_score` decimal (0-100, percentile-normalized)
+- `traffic_score_updated` datetime
+- `traffic_pageviews_7d` integer (raw, for debugging)
+
+**Honor existing conventions:**
+- `umami_client.py` mirrors `strapi_client.py` retry pattern (3 attempts, backoff 1/2/4s, skip 4xx, respect 10s timeout)
+- Atomic writes for state JSON via `os.replace()` (CLAUDE.md rule: avoids cron concurrency corruption)
+- Telegram alert on failure via existing `lib/telegram.py`
+
+**New files:**
+- `scripts/agents/umami_feedback.py`
+- `scripts/agents/lib/umami_client.py`
+- `scripts/agents/run-umami-feedback.sh`
+- Strapi migration: add 3 fields to 4 content types
+
+**Env vars:**
+- `UMAMI_URL=http://umami:3000` (server-internal) with `https://analytics.bbq-experience.com` fallback
+- `UMAMI_USERNAME`, `UMAMI_PASSWORD` (read-only service account in Umami admin; rotate quarterly)
+- `UMAMI_WEBSITE_ID=<uuid>` (from Umami dashboard)
+
+Must be present as **both** Dockerfile ARG and `docker run -e` per CLAUDE.md convention.
+
+---
+
+### Feature 5 — A/B Headline Testing
+
+**Design decision: edge assignment + client tracking.** Variant picker runs in **Astro middleware** (not client JS, not build-time) because:
+- Cookie-based visitor stickiness (same visitor always sees same variant)
+- Works for crawlers consistently (user-agent hash fallback = no cloaking flag)
+- Zero CLS / no flash-of-default-headline (variant chosen before render)
+- SSR infra already exists for reviews/recipes/tutorials; extending to blog-post is a `prerender = false` flip on A/B-enabled posts only (trade: lose static caching on those — acceptable, "hero" articles rare)
+
+**Astro middleware** (`web/src/middleware.ts` — new):
+
+```ts
+// Pseudocode
+export const onRequest = async (context, next) => {
+  const url = new URL(context.request.url);
+  if (!needsVariantAssignment(url.pathname)) return next();
+
+  const cookie = context.cookies.get('bbq-ab');
+  let bucket = cookie?.value;
+  if (!bucket) {
+    bucket = crypto.randomUUID().slice(0, 8);
+    context.cookies.set('bbq-ab', bucket, {
+      maxAge: 60*60*24*90, path: '/', sameSite: 'lax', httpOnly: false,
+    });
+  }
+  context.locals.abBucket = bucket;
+  return next();
+};
+```
+
+**Storage model in Strapi:**
+
+```
+headline-variant (collectionType, non-i18n)
+  .- id, documentId
+  .- content_type: enum ["blog-post","review","recipe","newsletter"]
+  .- content_document_id: string   (loose fk - covers 4 types without relation per type)
+  .- locale: enum ["en","it","es"]
+  .- variant_key: string           ("A","B","C")
+  .- headline: string              (actual text shown)
+  .- active: boolean
+  .- is_winner: boolean (default false - admin toggle declares winner)
+
+variant-impression (collectionType, non-i18n, daily aggregate)
+  .- variant: relation manyToOne -> headline-variant
+  .- date: date                    (daily bucket)
+  .- impressions: integer
+  .- clicks: integer
+```
+
+**Why NOT put `headline_variants: string[]` directly on blog-post:** Stats table needs a separate entity; relation lets `ab_tester.py` aggregate without polluting content type admin UI.
+
+**Variant assignment** (in page frontmatter for review/recipe/blog-post):
+
+```ts
+const variants = await fetchVariants(page.documentId, locale);
+const variant = variants.length > 1
+  ? pickVariant(variants, Astro.locals.abBucket)
+  : null;
+const displayHeadline = variant?.headline ?? page.title;
+// emit data-variant-id on <h1> for tracker pickup
+```
+
+**Click tracking — Umami custom events:**
+
+```js
+// Hydrated via AbTracker.svelte:
+umami.track('ab-impression', { variant_id, content_type, bucket });
+// On any click of card/link with [data-variant-tracked]:
+umami.track('ab-click',     { variant_id, content_type, bucket });
+```
+
+**Winner declaration — agent-driven, admin-confirmed:**
+- `ab_tester.py` (weekly, Sunday 06:00 Hetzner cron) reads `variant-impression`, computes CTR, applies Bayesian A/B significance (>95% posterior) -> writes a Telegram recommendation
+- Matteo toggles `is_winner` in Strapi admin -> other variants `active=false` -> only winner rendered next
+- **No auto-promotion** — single author + editorial site = human-in-the-loop preferred
+
+**Consistency per visitor:** Guaranteed by cookie bucket (90-day maxAge). Bucket -> variant mapping = deterministic hash `(bucket + content_document_id) % variant_count`. Same bucket always gets same variant per content, independently across content items.
+
+**New files:**
+- `web/src/middleware.ts`
+- `web/src/lib/ab.ts` (pickVariant, hashBucket, fetchVariants)
+- `web/src/islands/AbTracker.svelte` (emits umami.track on mount + link-click capture)
+- `web/src/pages/api/ab/track.ts` (fallback endpoint if Umami script blocked)
+- `cms/src/api/headline-variant/…`
+- `cms/src/api/variant-impression/…`
+- `scripts/agents/ab_tester.py`
+- Umami dashboard: add 2 custom events (`ab-impression`, `ab-click`)
+
+**Env vars:**
+- `AB_TEST_ENABLED=true` (kill-switch; Dockerfile ARG + docker run -e)
+- `AB_MIN_IMPRESSIONS=500` (minimum before winner declaration)
+
+---
+
+## End-to-End Data Flow Diagrams
+
+### Flow 1 — Newsletter signup (exit-intent modal)
+
+```
+1. User lands on /en/reviews/weber-genesis/
+2. After 30s inactivity OR mouseleave top-of-viewport:
+   NewsletterExitIntent.svelte shows modal
+3. sessionStorage check blocks re-trigger in same session
+4. User submits email
+5. POST /api/newsletter { email, locale:'en', source:'exit_intent' }
+   .- checkRateLimit(ip, 'newsletter', 5)                [SQLite]
+   .- Strapi POST /api/subscribers {status:'pending'}    [10s timeout]
+   .- Brevo POST /v3/contacts {listIds, updateEnabled}   [10s timeout]
+       .- Brevo queues double-opt-in email (native)
+6. 200 OK -> modal shows success, cookie bbq-nl-seen set (30d)
+7. User clicks confirm link in Brevo email
+8. Brevo POST webhook -> /api/brevo-webhook (HMAC validated)
+   .- Strapi PUT /api/subscribers/{documentId} {status:'active'}
+9. umami.track('newsletter-signup', { source: 'exit_intent' })
+```
+
+### Flow 2 — Review filter applied
+
+```
+1. User on /en/reviews/ (SSR, 12 reviews rendered)
+2. User clicks brand=Weber in ReviewFilters.svelte island
+3. Svelte updates URL: /en/reviews/?brand=weber&page=1 via history.pushState
+   (instant visual feedback, no nav yet)
+4. [debounced 200ms] island sets location.href = newUrl (full nav)
+5. Astro SSR re-runs reviews/index.astro frontmatter
+   .- fetchCollection('reviews', { filters: { product: {
+         brand_relation: { slug: { $eq: 'weber' } } }}, populate: '*' })
+   .- Strapi responds ~80ms
+6. Page re-renders with filtered list
+7. umami.track('filter-applied', { filters: { brand: 'weber' }})
+```
+
+### Flow 3 — Umami feedback -> content decision
+
+```
+Daily 04:00 UTC on Hetzner:
+1. umami_feedback.py starts
+2. umami_client.login() -> token (cached 23h)
+3. GET /api/websites/<id>/metrics?type=url&startAt=-7d
+4. Parse 1000+ URL rows into (locale, type, slug, pageviews)
+5. For each Strapi content item:
+   .- Lookup pageviews by matching URL
+   .- Lookup ab_click_rate from variant-impression aggregate
+   .- Compute percentile-normalized traffic_score
+   .- PUT /api/<type>/<documentId>?locale=<locale>
+       { data: { traffic_score, traffic_score_updated, traffic_pageviews_7d } }
+6. os.replace() atomic state write
+7. Telegram: "Top gainer: 'Weber Genesis review' +180% this week"
+
+Monday 05:00 UTC:
+8. keyword_scout.py reads content_queue; boosts priority of items
+   whose same-category peers have traffic_score > 70 percentile
+```
+
+### Flow 4 — A/B headline display + tracking
+
+```
+1. Request: GET /en/blog/best-pellet-grills-2026/
+2. Astro middleware runs:
+   .- URL matches /[locale]/(blog|reviews|recipes)/[slug]/ -> needs variant
+   .- Read cookie bbq-ab -> bucket='a3f7b218' (existing visitor)
+   .- context.locals.abBucket = bucket
+3. Page frontmatter:
+   .- fetchVariants(documentId, 'en')
+   .-   -> [{A:"Best Pellet Grills 2026"}, {B:"The 7 Pellet Grills Worth It"}]
+   .- idx = hash('a3f7b218' + documentId) % 2 = 1
+   .- displayHeadline = variants[1].headline
+4. Render <h1 data-variant-id="<doc-id>">{displayHeadline}</h1>
+5. AbTracker.svelte hydrates (client:idle):
+   .- umami.track('ab-impression', { variant_id, bucket, content_type })
+6. User clicks internal link with [data-variant-tracked]:
+   .- umami.track('ab-click', { variant_id, bucket, content_type })
+
+Sunday 06:00 UTC:
+7. ab_tester.py queries variant-impression, computes CTR + Bayesian posterior,
+   alerts Telegram on >95% significance winners
+8. Matteo toggles is_winner=true in Strapi
+9. Next request -> only winning variant returned by fetchVariants
+```
+
+### Flow 5 — Recipe collection page build
+
+```
+At Strapi publish of collection "labor-day-menu":
+1. Strapi webhook -> Hetzner webhook listener -> rebuild-web.sh
+2. npm run build:
+   .- All 3 locales' /collections/ and /collections/[slug]/ regenerated
+   .- Each collection page:
+      GET /api/collections/<id>?locale=en&populate[recipes][populate]=cover_image
+   .- Recipes re-render with new "Part of: Labor Day Menu" badge
+3. pagefind re-indexes (collections now searchable)
+4. Sitemap regenerates (+3 URLs per locale)
+5. Smoke test: 200 OK on /en/collections/labor-day-menu/
+```
+
+---
+
+## Comprehensive Change Inventory
+
+### NEW Strapi content types (4)
+
+| Type | i18n | Reason |
+|------|------|--------|
+| `product-category` | YES | Replaces hard-coded enum, localized names (Griglie IT / Parrillas ES) |
+| `collection` | YES | Recipe collections with localized title/description/intro |
+| `headline-variant` | NO | Variant lives at (content, locale) tuple — locale is a field not i18n plugin |
+| `variant-impression` | NO | Pure analytics aggregate |
+
+### MODIFIED Strapi content types
+
+| Type | Change |
+|------|--------|
+| `product` | Add `product_category` relation (manyToOne); deprecate `category` enum for 1 release |
+| `review` | Add denormalized `price_range` (for fast filter); add `traffic_score`, `traffic_score_updated`, `traffic_pageviews_7d` |
+| `blog-post` | Add same 3 traffic fields |
+| `recipe` | Add same 3 traffic fields |
+| `tutorial` | Add same 3 traffic fields |
+| `subscriber` | Add `source` enum (`inline | exit_intent | landing | sticky`) |
+
+### NEW Astro components (.astro)
+
+- `web/src/components/content/CollectionBadges.astro`
+- `web/src/components/content/CollectionCard.astro`
+- `web/src/components/content/CollectionHero.astro`
+- `web/src/components/content/CollectionJsonLd.astro`
+- `web/src/components/review/FilterFacetCount.astro`
+
+### NEW Svelte 5 islands (.svelte)
+
+- `web/src/islands/NewsletterInlineForm.svelte`
+- `web/src/islands/NewsletterExitIntent.svelte`
+- `web/src/islands/NewsletterStickyBar.svelte`
+- `web/src/islands/ReviewFilters.svelte`
+- `web/src/islands/AbTracker.svelte`
+
+(Note: project currently has no `src/islands/` directory — Svelte components live alongside Astro components today. Introducing `islands/` as a convention for new interactive Svelte components keeps the hybrid architecture explicit.)
+
+### NEW Astro routes
+
+- `/en/newsletter/`, `/it/newsletter/`, `/es/newsletter/`
+- `/en/collections/`, `/en/collections/[slug]/`
+- `/it/raccolte/`, `/it/raccolte/[slug]/`
+- `/es/colecciones/`, `/es/colecciones/[slug]/`
+
+### NEW API endpoints
+
+- `web/src/pages/api/ab/track.ts` (fallback if Umami script blocked)
+
+### NEW middleware
+
+- `web/src/middleware.ts` (A/B variant cookie assignment)
+
+### MODIFIED existing files (high-signal)
+
+- `web/src/pages/api/newsletter.ts` — add `source` field pass-through
+- `web/src/components/common/NewsletterSignup.astro` — thin wrapper around Svelte island
+- `web/src/layouts/BaseLayout.astro` — mount exit-intent + sticky bar islands at body root
+- `web/src/components/content/ContentLayout.astro` — inline newsletter slot after article
+- `web/src/pages/{en,it,es}/{reviews,recensioni,resenas}/index.astro` — brand/price/score filters
+- `web/src/pages/{en,it,es}/{recipes,ricette,recetas}/[slug].astro` — CollectionBadges block
+- `web/src/lib/i18n.ts` — add `collections` localized route
+- `web/src/lib/strapi.ts` — extend filter types, add `fetchCollections` helper
+- `web/src/lib/types.ts` — `StrapiCollection`, `StrapiProductCategory`, `StrapiHeadlineVariant`
+- `scripts/agents/seo_optimizer.py` — add `collections` to ROUTE_BY_LOCALE + CONTENT_FIELD
+
+### NEW Python modules
+
+- `scripts/agents/umami_feedback.py`
+- `scripts/agents/ab_tester.py`
+- `scripts/agents/lib/umami_client.py`
+- `scripts/agents/run-umami-feedback.sh`
+- `scripts/agents/run-ab-tester.sh`
+
+### NEW env vars (all need Dockerfile ARG + docker run -e per CLAUDE.md convention)
+
+| Name | Consumer | Purpose |
+|------|----------|---------|
+| `UMAMI_URL` | Python agents | Umami API base (internal Docker net preferred) |
+| `UMAMI_USERNAME` | Python agents | Read-only service account |
+| `UMAMI_PASSWORD` | Python agents | Rotate quarterly |
+| `UMAMI_WEBSITE_ID` | Python agents | Umami website UUID |
+| `AB_TEST_ENABLED` | Astro + Python | Global kill-switch |
+| `AB_MIN_IMPRESSIONS` | `ab_tester.py` | Winner threshold |
+
+### NEW cron jobs (append to existing Hetzner crontab)
+
+```cron
+# Umami feedback -> writes traffic_score to Strapi. Daily 04:00 UTC.
+0 4 * * * cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/umami_feedback.py >> /opt/webhooks/logs/umami-feedback.log 2>&1
+
+# A/B winner detector. Sundays 06:00 UTC.
+0 6 * * 0 cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/ab_tester.py >> /opt/webhooks/logs/ab-tester.log 2>&1
+```
+
+### NEW Umami custom events (configure in dashboard)
+
+- `newsletter-signup` (already exists, add `source` property)
+- `ab-impression` `{ variant_id, content_type, bucket }`
+- `ab-click` `{ variant_id, content_type, bucket }`
+- `filter-applied` `{ category, brand, price_range, score_min }`
+- `exit-intent-shown`
+- `sticky-bar-dismissed`
+
+---
+
+## Suggested Build Order (dependency-driven)
+
+### Phase A — Debt closure (per PROJECT.md sequencing)
+Retroactive VERIFICATION.md for phases 03-09, REQUIREMENTS.md traceability reconciliation, Lighthouse 90+ re-measurement. **No v1.1 feature work until this is done.**
+
+### Phase B — Foundation (no feature dependencies, gates C-E-G)
+**B1 — Strapi schema migrations** (pure CMS, no UI impact)
+- Add `product-category` content type + migration seeding 6 defaults + reassign products
+- Add `collection` content type
+- Add `headline-variant` + `variant-impression` content types
+- Add `source` field to `subscriber`
+- Add `traffic_score` + `traffic_score_updated` + `traffic_pageviews_7d` to 4 content types
+- **Deploy Strapi** (restart-only, no frontend change)
+- **Gate:** admin panel can create instances of each new type; migration script reassigned all products successfully
+
+### Phase C — Newsletter multi-surface (independent)
+1. Refactor `NewsletterSignup.astro` -> `NewsletterInlineForm.svelte` island (behavior-preserving extraction)
+2. Add `source` field to `/api/newsletter.ts` + subscriber schema (depends on B1)
+3. `NewsletterExitIntent.svelte` — mount in `BaseLayout.astro`
+4. `NewsletterStickyBar.svelte` — mount in `BaseLayout.astro`
+5. `/newsletter/` landing page (3 locales)
+6. Configure Brevo double-opt-in in list settings; verify webhook end-to-end
+- **Gate:** real signup from exit-intent modal reaches Brevo, confirmation email arrives, `brevo-webhook` flips `active`
+
+### Phase D — Review filters (depends on B1)
+1. `web/src/lib/review-facets.ts` facet aggregator + in-memory cache
+2. `ReviewFilters.svelte` island with URL-sync
+3. Wire into 3 reviews/index pages; extend Strapi filters with brand/price/score
+- **Gate:** 4 filter dimensions work via URL; facet counts match DB truth
+
+### Phase E — Recipe collections (depends on B1)
+1. Scaffold Astro routes + types (empty state OK initially)
+2. `CollectionCard`, `CollectionHero`, `CollectionJsonLd` components
+3. `CollectionBadges` on recipe detail pages (reverse lookup)
+4. Seed 3 demo collections in Strapi (one per locale)
+5. Update sitemap generator + `seo_optimizer.py` `ROUTE_BY_LOCALE` to include collections
+- **Gate:** `/en/collections/labor-day-menu/` renders; hreflang points to `/it/raccolte/…`; JSON-LD validates
+
+### Phase F — Umami feedback loop (parallelizable with C/D/E — backend-only)
+1. `lib/umami_client.py` (login + retry + 23h token cache)
+2. `umami_feedback.py` dry-run mode (prints scores, no Strapi writes)
+3. Enable writes; add Hetzner cron entry
+4. Wire `traffic_score` consumers: `keyword_scout.py` + `content_promoter.py` + `claude_strategist.py`
+- **Gate:** 7 days of consistent traffic_score updates in Strapi; no cron failures; daily Telegram summary lands
+
+### Phase G — A/B headline testing (depends on B1, benefits from F)
+1. `middleware.ts` + `lib/ab.ts` deterministic bucket assignment
+2. Variant fetching + rendering in review/recipe/blog-post frontmatter
+3. `AbTracker.svelte` + Umami custom events wired
+4. Configure Umami dashboard: `ab-impression` / `ab-click` event definitions
+5. `ab_tester.py` (stats only, Telegram alerts, no auto-promote)
+6. Author 2 variants on 1 blog post + 2 reviews; observe 1 week
+- **Gate:** impressions + clicks tracked per bucket; Bayesian significance computes; Matteo gets weekly recommendation
+
+### Build order rationale
+
+- **B1 must ship before C-E-G** — schemas are the foundation. One Strapi deploy delivers all new types (cheaper than staged deploys).
+- **C (newsletter) independent** after B1 — only touches existing endpoint + new islands. Highest user-facing value per week.
+- **D (filters) independent** after B1 — no overlap with newsletter surfaces.
+- **E (collections) independent** after B1 — reuses i18n patterns from existing content types.
+- **F (Umami) parallelizable** — separate Python codebase, no UI overlap.
+- **G (A/B) last** — benefits from F's `traffic_score` for auto-prioritizing which headlines to test; also highest complexity (middleware + client tracking + stats).
+
+**Suggested calendar:** A (debt, 2 weeks) -> B1 (1-2 days) -> C + F parallel (2 weeks) -> D + E parallel (2 weeks) -> G (1-2 weeks observation). Total ~7-9 weeks, matching the pre-July launch window.
+
+---
+
+## Anti-Patterns to Avoid (v1.1 specific)
+
+### AP1 — Building a reviews build-time manifest for filters
+**What people do:** Export review metadata at build time to JSON, filter entirely client-side.
+**Why wrong:** Every publish invalidates manifest -> full rebuild (slow feedback). Breaks preview mode. Loses SEO-discoverable filtered URLs.
+**Instead:** Keep `reviews/index.astro` SSR (already is), URL-sync'd filters, Strapi filters on query.
+
+### AP2 — Adding in-memory Map rate-limit for newsletter surfaces
+**What people do:** New surface -> new `Map` cache for rate limit.
+**Why wrong:** CLAUDE.md explicit rule: "TUTTI gli endpoint devono usare questo [SQLite rate-limit], non in-memory Map". Map resets on container restart.
+**Instead:** Reuse `checkRateLimit(ip, 'newsletter', 5)` — already shipped.
+
+### AP3 — Sending confirmation email from our code
+**What people do:** Write custom Astro endpoint that signs a token, emails via Brevo transactional API, verifies on click.
+**Why wrong:** Brevo does this natively with list double-opt-in. Duplication = bugs + compliance risk + double-email surface.
+**Instead:** Flip the switch in Brevo dashboard. Done.
+
+### AP4 — Client-side A/B variant picker (flicker + SEO risk)
+**What people do:** Render default headline, JS replaces with variant on mount.
+**Why wrong:** Flash-of-default-content (Lighthouse CLS ding). Crawlers see inconsistent content across visits -> Google flags cloaking.
+**Instead:** Middleware assigns variant at SSR time; cookie for stickiness; crawlers get deterministic UA-hash fallback.
+
+### AP5 — A/B variant stats as fields on blog-post/review/recipe
+**What people do:** Add `headline_A_impressions`, `headline_A_clicks`, ... to each content type.
+**Why wrong:** Schema bloat, admin clutter, locks variant count to schema.
+**Instead:** Separate `headline-variant` + `variant-impression` types. Admin stays clean.
+
+### AP6 — Umami writes straight into content Postgres
+**What people do:** Python agent reads Umami, writes pageview logs into Strapi's Postgres tables directly.
+**Why wrong:** Bypasses Strapi audit trail, breaks content type integrity, can't populate in API responses.
+**Instead:** Write `traffic_score` via Strapi REST with API token — same pattern as every existing agent (`strapi_client.py` retry wrapper).
+
+### AP7 — Collection i18n via duplicated recipe lists per locale
+**What people do:** Author IT collection with IT-only recipes, ES with ES-only, etc.
+**Why wrong:** Strapi i18n v5.40 already mirrors relations into localized entries. Manual duplication = drift and maintenance burden.
+**Instead:** Share recipe relation across locales; localize only title/description/SEO.
+
+### AP8 — Exit-intent modal inside `<header>` (Chrome backdrop-filter bug)
+**What people do:** Nest modal/backdrop inside `<header>` or any ancestor with `backdrop-filter`.
+**Why wrong:** Documented project bug (CLAUDE.md): `backdrop-filter` creates a containing block, trapping `position:fixed` children in Chrome.
+**Instead:** Mount exit-intent + sticky bar at body root in `BaseLayout.astro`, same pattern as `MobileMenuPanel.astro`.
+
+### AP9 — Nested anchors from A/B click tracking
+**What people do:** Wrap headlines in `<a>` inside cards that are already `<a>` to emit click events.
+**Why wrong:** Nested anchors = invalid HTML, triggers existing sweep tool failures (`web/scripts/sweep_pages.py`).
+**Instead:** Track via delegated document click listener reading `[data-variant-tracked]` closest-anchor; never wrap.
+
+### AP10 — Strapi PUT without `?locale=` query param on localized fields
+**What people do:** `PUT /api/reviews/<documentId>` to update `traffic_score`, forgetting `?locale=en`.
+**Why wrong:** CLAUDE.md rule: "Strapi v5 localizzazioni — PUT con ?locale=xx nel query param". Without it, writes to default locale only and desyncs EN/IT/ES rows.
+**Instead:** `umami_feedback.py` iterates `for locale in LOCALES` and appends `?locale={locale}` on every PUT (mirrors `seo_optimizer.py`).
+
+---
+
+## Integration Points Summary
+
+### External services
+
+| Service | Integration pattern | Existing/New | Gotchas |
+|---------|---------------------|--------------|---------|
+| Brevo REST v3 | POST `/v3/contacts` from Astro API | EXISTS — extend with `source` attribute | Enable double-opt-in in list settings (not API-controlled); webhook secret in `BREVO_WEBHOOK_SECRET` |
+| Brevo webhook | POST -> `/api/brevo-webhook` (HMAC-SHA256) | EXISTS, production-ready | Fail-closed on missing secret (already implemented) |
+| Umami API | `/api/auth/login` -> Bearer -> `/api/websites/:id/metrics` | **NEW** | Token cache (23h) avoids rate limits; use internal Docker net URL on Hetzner |
+| Instagram Graph | Already wired | UNCHANGED in v1.1 | — |
+
+### Internal boundaries
+
+| Boundary | Communication | Notes |
+|----------|---------------|-------|
+| Astro SSR <-> Strapi | REST + API token, `AbortSignal.timeout(10_000)` | **Reuse existing pattern** on all new endpoints |
+| Astro middleware <-> pages | `Astro.locals.abBucket` | Set in middleware, read in frontmatter |
+| Python agents <-> Strapi | `strapi_client.py` (retry + backoff + 4xx fail-fast) | Umami client uses SAME pattern |
+| Svelte islands <-> Astro API | `fetch` + JSON | Same-origin, no CORS |
+| Strapi <-> Postgres | Native ORM | Container name `postgres` (not `bbqexperience-postgres` per CLAUDE.md) |
+| Strapi publish -> Astro rebuild | Webhook -> `adnanh/webhook` -> `rebuild-web.sh` | EXISTING, triggers on collection publish automatically |
+
+---
+
+## Scaling Considerations (v1.1 reality check)
+
+| Concern | Today | v1.1 launch (+3 mo) | Mitigation |
+|---------|-------|---------------------|------------|
+| Newsletter signups/day | ~0 | 10-50 | SQLite rate-limit handles thousands/min; Brevo free tier = 300 contacts/day OK |
+| Review filter traffic | SSR, 25 reviews | 100 reviews | 5-min in-memory cache in `review-facets.ts` |
+| A/B tracking events | — | 5-10k impressions/day | Umami handles; variant-impression aggregate = ~1 row/variant/day (trivial) |
+| Umami API calls | — | 1 call/day | Token caching |
+| Collections | 0 | 10-30 | Static build, no runtime concern |
+
+**First bottleneck expected:** Brevo free tier (300 contacts/day) if exit-intent over-fires. Mitigated by 30-day `bbq-nl-seen` cookie (already designed).
+
+**Second bottleneck:** Umami self-hosted Postgres writes if A/B events exceed ~50k/day. Unlikely; if it happens, sample at 25% in the tracker.
+
+---
 
 ## Sources
 
-- [Astro Islands Architecture](https://docs.astro.build/en/concepts/islands/) - Official Astro docs (HIGH confidence)
-- [Astro i18n Routing](https://docs.astro.build/en/guides/internationalization/) - Official Astro docs (HIGH confidence)
-- [Astro Image Optimization](https://docs.astro.build/en/guides/images/) - Official Astro docs (HIGH confidence)
-- [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/) - Official Astro docs (HIGH confidence)
-- [Astro CMS Integrations](https://docs.astro.build/en/guides/cms/) - Official Astro docs (HIGH confidence)
-- [Strapi v5 Docker Deployment](https://docs.strapi.io/cms/installation/docker) - Official Strapi docs (HIGH confidence)
-- [Strapi + Astro Integration](https://docs.astro.build/en/guides/cms/strapi/) - Official Astro docs (HIGH confidence)
-- [Instagram oEmbed API](https://developers.facebook.com/docs/instagram-platform/oembed/) - Meta for Developers (HIGH confidence)
-- [Instagram Graph API Guide](https://elfsight.com/blog/instagram-graph-api-complete-developer-guide-for-2026/) - Community guide (MEDIUM confidence)
-- [Instagram API 2026 Changes](https://storrito.com/resources/Instagram-API-2026/) - Third-party analysis (MEDIUM confidence)
-- [Headless CMS Architecture Guide](https://focusreactive.com/blog/headless-cms-architecture/) - Industry guide (MEDIUM confidence)
-- [Building Multi-language Blog with Strapi and Astro](https://noahflk.com/blog/strapi-astro-multilang-blog) - Community tutorial (MEDIUM confidence)
-- [@sensinum/astro-strapi-loader](https://strapi.io/integrations/astro) - Strapi integrations page (MEDIUM confidence)
+- Direct inspection of production codebase at `C:/Users/Matteo/Desktop/Progetti/bbqexperience/`:
+  - `web/src/pages/api/newsletter.ts`, `brevo-webhook.ts`
+  - `web/src/lib/rate-limit.ts`
+  - `web/src/components/common/NewsletterSignup.astro`
+  - `web/src/pages/en/reviews/index.astro`
+  - `cms/src/api/{review,product,recipe,subscriber,brand}/content-types/*/schema.json`
+  - `scripts/agents/seo_optimizer.py`, `lib/strapi_client.py`, `crontab.txt`
+- `docs/architecture.md` — current request/deploy/content-sync flow
+- `.planning/PROJECT.md` — v1.1 milestone scope + decision log
+- `CLAUDE.md` + `.claude/CLAUDE.md` — project conventions (SQLite rate-limit, fetch timeouts, atomic writes, Strapi v5 locale PUT, container names, mobile menu Chrome fix, nested anchor sweep)
+- Strapi v5.41 docs — i18n plugin relation mirroring
+- Umami v2 REST API reference (self-hosted)
+- Brevo API v3 — contacts + webhooks + double-opt-in list flag
+
+---
+
+*Architecture research for: BBQ Experience v1.1 Content Depth & Growth Loop*
+*Researched: 2026-04-15*
+*Confidence: HIGH — grounded in direct codebase inspection, not hypothetical*
