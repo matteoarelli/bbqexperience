@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
-milestone: shipped-v1.0
-milestone_name: awaiting-v1.1
-status: milestone_complete
-stopped_at: v1.0 milestone archived 2026-04-15
-last_updated: "2026-04-15T10:45:00Z"
+milestone: v1.1
+milestone_name: Content Depth & Growth Loop
+status: defining_requirements
+stopped_at: v1.1 milestone started — defining requirements
+last_updated: "2026-04-15T12:00:00Z"
 last_activity: 2026-04-15
 progress:
   total_phases: 0
@@ -18,17 +18,18 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-15 after v1.0)
+See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 **Core value:** The most complete, visually striking, and trustworthy BBQ product review destination online
-**Current focus:** Planning next milestone — run `/gsd:new-milestone` to define v1.1 scope
+**Current focus:** v1.1 Content Depth & Growth Loop — defining requirements
 
 ## Current Position
 
-Milestone: v1.0 shipped 2026-04-15
-Next: v1.1 (not yet planned)
-Status: Awaiting new milestone
-Last activity: 2026-04-15
+Milestone: v1.1 Content Depth & Growth Loop
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-15 — Milestone v1.1 started
 
 Progress: v1.0 [██████████] 100% complete
 

@@ -18,6 +18,19 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 **Code volume:** ~253 commits between 2026-04-01 and 2026-04-14
 **Infrastructure:** Containers all healthy (web, strapi, postgres, caddy). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main.
 
+## Current Milestone: v1.1 Content Depth & Growth Loop
+
+**Goal:** Close v1.0 documentation/measurement debt, expand reader-facing content features (newsletter capture, review filters, recipe collections), and upgrade Growth Engine with a measurable analytics → A/B feedback loop.
+
+**Target features:**
+- Debt closure (sequenced first): retroactive VERIFICATION.md for phases 03–09, REQUIREMENTS.md traceability reconciliation, Lighthouse 90+ re-measurement
+- Newsletter on-site signup across 4 surfaces (inline, exit-intent, dedicated page, sticky footer) with Brevo integration
+- Review filters & taxonomy (brand, category, price range, score threshold) with Product category schema extension
+- Recipe collections (new Strapi content type, curated groupings, 3-locale pages)
+- Growth Engine v2: Umami analytics loop feeding agents + A/B headline testing infrastructure (blog + reviews + recipes + newsletter)
+
+**Sequencing:** Debt phases complete before feature phases. No parallel debt/feature work.
+
 ## Requirements
 
 ### Validated (v1.0)
@@ -43,11 +56,21 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 - ✓ Security hardening: code review P0–P3, backup/restore with integrity verification, DB SSL correction, secret rotation — v3.1
 - ✓ UI/SEO quality pass: hreflang per localized slug, CollectionPage JSON-LD, nested anchor cleanup, mobile menu Chrome fix, Umami admin password rotated — v3.2
 
-### Active (carried into v1.1 planning)
+### Active (v1.1)
 
-- [ ] Lighthouse 90+ formal measurement post-v3.2 (DES-04 verified only in v1 planning, not re-measured after UI/SEO changes)
-- [ ] Retroactive VERIFICATION.md for phases 03–09 (tech debt from v1.0 audit — implementation is live but formal artifacts missing)
+**Debt closure (sequenced first):**
+- [ ] Retroactive VERIFICATION.md for phases 03–09 (7 phases, tech debt from v1.0 audit)
 - [ ] REQUIREMENTS.md traceability reconciliation (REC-04,05,06,07 + CNT-02,03,07,08,10 marked Pending despite live production evidence)
+- [ ] Lighthouse 90+ formal re-measurement post-v3.2 (DES-04 not re-measured after UI/SEO changes) + fixes if below target
+
+**Content features:**
+- [ ] Newsletter on-site signup — inline end-of-article + exit-intent modal + `/newsletter` landing page + sticky footer bar (Brevo integration, multi-surface capture)
+- [ ] Review filters & taxonomy — brand + product category + price range + score threshold (extends Product content type with category taxonomy)
+- [ ] Recipe collections — curated groupings (new Strapi content type + collection listing/detail pages, 3 locales)
+
+**Growth Engine v2:**
+- [ ] Analytics feedback loop — Umami traffic data piped into agents to inform content decisions
+- [ ] A/B headline testing infrastructure — click-tracking + variant selection across blog posts, reviews, recipes, and newsletter subject lines
 
 ### Out of Scope
 
@@ -99,7 +122,18 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 
 This document evolves at phase transitions and milestone boundaries.
 
-**Next:** run `/gsd:new-milestone` to define v1.1 scope (likely: close documentation tech debt, Lighthouse re-measurement, planned content expansion).
+**After each phase transition** (via `/gsd-transition`):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/gsd-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
 
 ---
-*Last updated: 2026-04-15 after v1.0 milestone completion*
+*Last updated: 2026-04-15 after starting milestone v1.1 Content Depth & Growth Loop*
