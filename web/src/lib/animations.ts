@@ -1,16 +1,28 @@
 // Utilita per animazioni GSAP — BBQ Experience
 // REGOLA: solo transform e opacity per performance (no layout properties)
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
+//
+// Lazy-load: gsap + ScrollTrigger (~113 KB) vengono importati DINAMICAMENTE
+// e SOLO se la pagina contiene effettivamente elementi `[data-animate]`.
+// Le pagine review (recensioni/resenas/reviews) non hanno data-animate
+// e quindi pagano ZERO bundle JS GSAP — risolve `unused-javascript` Lighthouse.
 
 /**
- * Inizializza animazioni scroll-triggered su elementi con data-animate
- * Ogni elemento con data-animate viene animato con fadeInUp al scroll
+ * Inizializza animazioni scroll-triggered su elementi con data-animate.
+ * Se nessun elemento ha data-animate, esce subito senza caricare GSAP.
  */
-export function initScrollAnimations(): void {
-  const elements = document.querySelectorAll('[data-animate]');
+export async function initScrollAnimations(): Promise<void> {
+  const elements = document.querySelectorAll<HTMLElement>('[data-animate]');
+  if (elements.length === 0) {
+    // Nessun elemento da animare: skip completo del download GSAP
+    return;
+  }
+
+  // Import dinamici: GSAP e ScrollTrigger arrivano solo se servono
+  const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+  ]);
+  gsap.registerPlugin(ScrollTrigger);
 
   elements.forEach((el) => {
     const delay = parseFloat(el.getAttribute('data-animate-delay') || '0');
@@ -32,9 +44,18 @@ export function initScrollAnimations(): void {
 }
 
 /**
- * Fade in dal basso — per singoli elementi
+ * Fade in dal basso — per singoli elementi.
+ * Lazy-load: importa GSAP solo quando chiamata.
  */
-export function fadeInUp(selector: string, options?: { delay?: number; duration?: number; y?: number }): void {
+export async function fadeInUp(
+  selector: string,
+  options?: { delay?: number; duration?: number; y?: number },
+): Promise<void> {
+  const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+  ]);
+  gsap.registerPlugin(ScrollTrigger);
   gsap.from(selector, {
     scrollTrigger: {
       trigger: selector,
@@ -49,9 +70,19 @@ export function fadeInUp(selector: string, options?: { delay?: number; duration?
 }
 
 /**
- * Reveal scaglionato — per liste di elementi
+ * Reveal scaglionato — per liste di elementi.
+ * Lazy-load: importa GSAP solo quando chiamata.
  */
-export function staggerReveal(parentSelector: string, childSelector: string, stagger: number = 0.1): void {
+export async function staggerReveal(
+  parentSelector: string,
+  childSelector: string,
+  stagger: number = 0.1,
+): Promise<void> {
+  const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+  ]);
+  gsap.registerPlugin(ScrollTrigger);
   gsap.from(`${parentSelector} ${childSelector}`, {
     scrollTrigger: {
       trigger: parentSelector,
@@ -66,9 +97,15 @@ export function staggerReveal(parentSelector: string, childSelector: string, sta
 }
 
 /**
- * Animazione titolo con effetto di scrittura da sinistra
+ * Animazione titolo con effetto di scrittura da sinistra.
+ * Lazy-load: importa GSAP solo quando chiamata.
  */
-export function titleReveal(selector: string): void {
+export async function titleReveal(selector: string): Promise<void> {
+  const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+  ]);
+  gsap.registerPlugin(ScrollTrigger);
   gsap.from(selector, {
     scrollTrigger: {
       trigger: selector,

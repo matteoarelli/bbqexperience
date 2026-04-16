@@ -13,6 +13,15 @@ export default defineConfig({
   image: {
     domains: ['localhost', 'cms.bbq-experience.com'],
   },
+  build: {
+    // Inline TUTTI gli stylesheet scoped emessi per-componente direttamente nell'HTML.
+    // Risolve `render-blocking-insight` Lighthouse: il chunk Footer.css (~56 KB minified
+    // gzipped, contiene scoped styles di Footer + CookieBanner + MobileMenuPanel + altri)
+    // veniva caricato come `<link rel="stylesheet">` render-blocking nell'<head>.
+    // Inlinandolo nell'HTML eliminiamo una roundtrip CSS critical e migliora LCP/FCP
+    // su mobile throttled. L'HTML cresce ma è gzip-comprimibile e cacheable lato CDN.
+    inlineStylesheets: 'always',
+  },
   vite: {
     plugins: [tailwindcss()],
   },
