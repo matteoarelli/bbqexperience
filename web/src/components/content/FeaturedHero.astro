@@ -7,7 +7,7 @@ import type { Locale } from '@lib/i18n';
 import { getTranslation, localizedRoutes } from '@lib/i18n';
 import { fetchCollection } from '@lib/strapi';
 import type { StrapiBlogPost } from '@lib/types';
-import { getStrapiMediaURL } from '@lib/media';
+import { getStrapiMediaURL, buildStrapiSrcset } from '@lib/media';
 import Hero from '@components/common/Hero.astro';
 
 interface Props {
@@ -40,7 +40,10 @@ const hasFeatured = featuredPosts.length > 0;
 const mainPost = hasFeatured ? featuredPosts[0] : null;
 const secondaryPosts = hasFeatured ? featuredPosts.slice(1) : [];
 
-const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
+// Trasformazione Cloudflare: cover LCP della home — width 1280 per desktop-first.
+// srcset emette 640/960/1280/1600 per coprire mobile -> desktop retina (chiude DEBT-03 LCP).
+const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image, { width: 1280, quality: 75 }) : null;
+const mainImageSrcset = mainPost ? buildStrapiSrcset(mainPost.cover_image, [640, 960, 1280, 1600]) : null;
 ---
 
 {hasFeatured ? (
@@ -64,6 +67,8 @@ const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
             // width/height per evitare CLS — CSS object-fit:cover gestisce il display reale.
             <img
               src={mainImageUrl}
+              srcset={mainImageSrcset}
+              sizes="(max-width: 768px) 100vw, 1280px"
               alt={mainPost.cover_image?.alternativeText || mainPost.title}
               class="featured-main__image"
               width="1600"
@@ -93,13 +98,17 @@ const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
       <div class="container-bbq">
         <div class="featured-secondary">
           {secondaryPosts.map((post) => {
-            const imgUrl = getStrapiMediaURL(post.cover_image);
+            // Card secondarie lazy: width 640 di rendering + srcset 320/640/960 per retina
+            const imgUrl = getStrapiMediaURL(post.cover_image, { width: 640, quality: 75 });
+            const imgSrcset = buildStrapiSrcset(post.cover_image, [320, 640, 960]);
             return (
               <a href={`/${locale}/${blogRoute}/${post.slug}/`} class="featured-card">
                 <div class="featured-card__image-wrapper">
                   {imgUrl ? (
                     <img
                       src={imgUrl}
+                      srcset={imgSrcset}
+                      sizes="(max-width: 768px) 100vw, 400px"
                       alt={post.cover_image?.alternativeText || post.title}
                       class="featured-card__image"
                       loading="lazy"

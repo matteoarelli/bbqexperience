@@ -3,7 +3,7 @@
  * Card anteprima recensione — immagine prodotto, punteggio, titolo, excerpt
  */
 import type { StrapiReview, StrapiEntity } from '@lib/types';
-import { getStrapiMediaURL } from '@lib/media';
+import { getStrapiMediaURL, buildStrapiSrcset } from '@lib/media';
 import ImageWithPlaceholder from '@components/common/ImageWithPlaceholder.astro';
 import TopPickBadge from '@components/review/TopPickBadge.astro';
 
@@ -16,8 +16,11 @@ interface Props {
 
 const { review, locale, reviewsRoute, readMoreLabel = 'Read \u2192' } = Astro.props;
 
-// Immagine: primo elemento galleria o immagine prodotto
-const imageUrl = getStrapiMediaURL(review.gallery?.[0] ?? review.product?.images?.[0] ?? null);
+// Card griglia: width 640 coincide con la dimensione di rendering (width="640").
+// srcset 320/640/960 copre mobile + desktop retina senza sprecare bandwidth.
+const sourceMedia = review.gallery?.[0] ?? review.product?.images?.[0] ?? null;
+const imageUrl = getStrapiMediaURL(sourceMedia, { width: 640, quality: 75 });
+const imageSrcset = buildStrapiSrcset(sourceMedia, [320, 640, 960]);
 const score = review.score_overall ?? 0;
 ---
 
@@ -26,6 +29,8 @@ const score = review.score_overall ?? 0;
     {imageUrl ? (
       <ImageWithPlaceholder
         src={imageUrl}
+        srcset={imageSrcset}
+        sizes="(max-width: 640px) 100vw, 400px"
         alt={review.title}
         class="review-card__image"
         width="640"

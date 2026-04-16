@@ -5,7 +5,7 @@
  */
 import type { Locale } from '@lib/i18n';
 import type { StrapiMedia } from '@lib/types';
-import { getStrapiMediaURL } from '@lib/media';
+import { getStrapiMediaURL, buildStrapiSrcset } from '@lib/media';
 import { getTranslation } from '@lib/i18n';
 import { renderMarkdown } from '@lib/markdown';
 import ReadingProgress from '@components/content/ReadingProgress.svelte';
@@ -37,7 +37,10 @@ const {
   translations,
 } = Astro.props;
 
-const imageUrl = getStrapiMediaURL(coverImage);
+// Trasformazione Cloudflare: cover LCP per blog/tutorial (width 1280 desktop-first).
+// srcset copre mobile -> retina. Chiude DEBT-03 image-delivery-insight.
+const imageUrl = getStrapiMediaURL(coverImage, { width: 1280, quality: 75 });
+const imageSrcset = buildStrapiSrcset(coverImage, [640, 960, 1280, 1600]);
 const imageAlt = coverImage?.alternativeText || title;
 
 // Formatta data pubblicazione
@@ -107,6 +110,8 @@ const processedContent = renderedHtml ? addHeadingIds(renderedHtml) : null;
           per evitare CLS al caricamento immagine. */}
       <img
         src={imageUrl}
+        srcset={imageSrcset}
+        sizes="(max-width: 768px) 100vw, 1280px"
         alt={imageAlt}
         class="content-cover-image"
         width="1600"

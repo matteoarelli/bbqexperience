@@ -10,9 +10,13 @@ interface Props {
   width: string | number;
   height: string | number;
   class?: string;
+  /** Attributo srcset (responsive). Passato quando src e' una URL Cloudflare transform. */
+  srcset?: string | null;
+  /** Attributo sizes accoppiato a srcset. */
+  sizes?: string;
 }
 
-const { src, alt, width, height, class: className = '' } = Astro.props;
+const { src, alt, width, height, class: className = '', srcset, sizes } = Astro.props;
 ---
 
 <div class={`img-placeholder-wrap ${className}`} style={`width:100%;aspect-ratio:${width}/${height};`}>
@@ -21,6 +25,8 @@ const { src, alt, width, height, class: className = '' } = Astro.props;
   <!-- Immagine reale, nascosta finche non carica -->
   <img
     src={src}
+    srcset={srcset ?? undefined}
+    sizes={sizes}
     alt={alt}
     width={width}
     height={height}

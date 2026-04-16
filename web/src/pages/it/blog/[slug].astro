@@ -45,7 +45,13 @@ const blogRoute = localizedRoutes.blog[locale];
 const seoTitle = post.seo_title || post.title;
 const seoDescription = post.seo_description || post.excerpt || '';
 const canonicalUrl = `https://bbq-experience.com/${locale}/${blogRoute}/${post.slug}/`;
-const coverImageUrl = getStrapiMediaURL(post.cover_image);
+// LCP preload: versione trasformata via Cloudflare (width 1280 combacia con cover in ContentLayout).
+// Threat T-10.1-09 mitigato (no double-fetch).
+const coverImageUrl = getStrapiMediaURL(post.cover_image, { width: 1280, quality: 75 });
+// og:image e JSON-LD: URL raw Strapi per scrapers social + bot Google.
+// Threat T-10.1-06 (social scrapers non seguono /cdn-cgi/image/ in modo affidabile).
+const ogImageRawUrl = getStrapiMediaURL(post.cover_image, { raw: true });
+const coverImageRawUrl = getStrapiMediaURL(post.cover_image, { raw: true });
 const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbq-experience.com').href;
 
 // Breadcrumbs
@@ -64,7 +70,7 @@ const breadcrumbItems = [
   type="article"
   publishedTime={post.published_date || ''}
   modifiedTime={post.updatedAt || ''}
-  ogImage={coverImageUrl || ''}
+  ogImage={ogImageRawUrl || ''}
   preloadImage={coverImageUrl || ''}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${blogRoute}/${post.slug}/`} />
@@ -75,7 +81,7 @@ const breadcrumbItems = [
     url={canonicalUrl}
     datePublished={post.published_date}
     dateModified={post.updatedAt}
-    imageUrl={coverImageUrl}
+    imageUrl={coverImageRawUrl}
     locale={locale}
   />
 

@@ -5,7 +5,7 @@
  */
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiReview } from '@lib/types';
-import { getStrapiMediaURL, getStrapiMediaAlt } from '@lib/media';
+import { getStrapiMediaURL, getStrapiMediaAlt, buildStrapiSrcset } from '@lib/media';
 import { getContentStatus } from '@lib/preview';
 import { loadTranslations, getTranslation } from '@lib/i18n';
 import BaseLayout from '@layouts/BaseLayout.astro';
@@ -50,7 +50,9 @@ if (!review) {
 const wordCount = review.editorial_content ? review.editorial_content.replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length : 0;
 const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
-const coverImage = getStrapiMediaURL(review.gallery?.[0]);
+// Cover recensione IT: width 1280 per LCP desktop-first, srcset copre mobile -> retina.
+const coverImage = getStrapiMediaURL(review.gallery?.[0], { width: 1280, quality: 75 });
+const coverImageSrcset = buildStrapiSrcset(review.gallery?.[0], [640, 960, 1280, 1600]);
 const coverImageAlt = getStrapiMediaAlt(review.gallery?.[0]) || review.title;
 const productImage = review.product?.images?.[0] ? getStrapiMediaURL(review.product.images[0]) : coverImage;
 const siteUrl = import.meta.env.SITE || 'https://bbq-experience.com';
@@ -90,6 +92,8 @@ const breadcrumbItems = [
       {/* LCP hint: hero recensione è il primo elemento visibile above-the-fold */}
       <img
         src={coverImage}
+        srcset={coverImageSrcset}
+        sizes="(max-width: 768px) 100vw, 1280px"
         alt={coverImageAlt}
         class="review-hero__image"
         width="1600"

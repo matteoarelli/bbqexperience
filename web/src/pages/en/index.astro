@@ -75,7 +75,9 @@ try {
     sort: 'published_date:desc',
     pageSize: 1,
   });
-  lcpPreloadUrl = getStrapiMediaURL(featuredRes.data[0]?.cover_image) || '';
+  // LCP preload: stessa width del <img src> in FeaturedHero (1280) -> no double-fetch.
+  // Mitigazione threat T-10.1-09 (preload-mismatch).
+  lcpPreloadUrl = getStrapiMediaURL(featuredRes.data[0]?.cover_image, { width: 1280, quality: 75 }) || '';
 } catch { /* fallback: niente preload, hero statico */ }
 ---
 
@@ -147,7 +149,8 @@ try {
       <div class="card-grid" data-animate-stagger>
         {latestTutorials.length > 0 ? (
           latestTutorials.map((tutorial) => {
-            const imgUrl = getStrapiMediaURL(tutorial.cover_image);
+            // Card tutorial: width 640 coerente con dimensione rendering griglia
+            const imgUrl = getStrapiMediaURL(tutorial.cover_image, { width: 640, quality: 75 });
             return (
               <a href={`/${locale}/${tutorialsRoute}/${tutorial.slug}/`} class="tutorial-card" data-animate>
                 <div class="tutorial-card__image-wrapper">
