@@ -41,7 +41,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 **Sequencing rule (from PROJECT.md):** Debt phase 10 must complete before any feature phase begins. Schema migration (phase 11) must complete before the feature wave (12–14). Analytics loop (15) must validate before A/B (16) depends on it.
 
 - [x] **Phase 10: Debt Closure & Measurement Baseline** — Backfill VERIFICATION.md for phases 03–09, reconcile v1.0 traceability, fresh Lighthouse 90+ measurement. (completed 2026-04-16, partial DEBT-03 closure — image-delivery deferred to 10.1)
-- [ ] **Phase 10.1: Image Delivery via Cloudflare Resizing** *(INSERTED)* — Close residual DEBT-03 gap: route Strapi media URLs through Cloudflare Image Resizing (or equivalent CDN transformation) so the 6 pages still scoring sub-90 on Lighthouse Performance reach ≥90; re-measure all 15 baseline pages → status=pass.
+- [x] **Phase 10.1: Image Delivery via Cloudflare Resizing** *(INSERTED)* — Close residual DEBT-03 gap: route Strapi media URLs through Cloudflare Image Resizing (or equivalent CDN transformation) so the 6 pages still scoring sub-90 on Lighthouse Performance reach ≥90; re-measure all 15 baseline pages → status=pass. (completed 2026-04-16, 15/15 ≥90 Perf median 0.97, DEBT-03 CLOSED)
 - [ ] **Phase 11: Strapi Schema Migration & Localization Helper** — Land all v1.1 schema changes in one CMS rebuild window (product-category taxonomy, subscriber.source, recipe-collection scaffold, shared locale PUT helper) and migrate existing product data.
 - [ ] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email.
 - [ ] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails.
@@ -80,8 +80,8 @@ Plans:
   5. Implementation respects CLAUDE.md: no new dependency where Cloudflare account-level config suffices, Italian code comments, deploy via webhook (no GH Actions).
 **Plans**: 2 plans
 Plans:
-- [ ] 10.1-01-PLAN.md — Cloudflare dashboard prerequisites: orange-cloud flip, enable Transformations, Sources allowlist (human-gated checkpoint + edge smoke probes)
-- [ ] 10.1-02-PLAN.md — Rewrite getStrapiMediaURL + buildStrapiSrcset, wire 12 hot templates, deploy via webhook, re-measure 15 Lighthouse pages, flip DEBT-03 to CLOSED
+- [x] 10.1-01-PLAN.md — Cloudflare dashboard prerequisites: orange-cloud flip, enable Transformations, Sources allowlist (human-gated checkpoint + edge smoke probes)
+- [x] 10.1-02-PLAN.md — Rewrite getStrapiMediaURL + buildStrapiSrcset, wire 12 hot templates, deploy via webhook, re-measure 15 Lighthouse pages, flip DEBT-03 to CLOSED
 
 ### Phase 11: Strapi Schema Migration & Localization Helper
 **Goal**: A single CMS rebuild window lands every v1.1 schema change the feature wave depends on, and 25 existing products are migrated to the new taxonomy.

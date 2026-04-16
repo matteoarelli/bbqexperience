@@ -1,16 +1,18 @@
 ---
 plan: 10-04
 generated_at: 2026-04-15T16:43:25.647Z
-status: partial_pass
+status: pass
 pages_measured: 15
 pages_above_90_baseline: 7
 pages_below_90_baseline: 8
-pages_above_90_after_fix: 9
-pages_below_90_after_fix: 6
-remediation_plan: 10-05
-remediation_status: shipped_partial
-requirements_completed: [DEBT-03-measurement]
-requirements_still_open: [DEBT-03-image-delivery]
+pages_above_90_after_fix: 15
+pages_below_90_after_fix: 0
+remediation_plan: 10-05 + 10.1-02
+remediation_status: shipped_complete
+requirements_completed: [DEBT-03-measurement, DEBT-03-image-delivery]
+requirements_still_open: []
+phase_10_1_remeasured_at: 2026-04-16T16:40:00Z
+phase_10_1_commit: e41152d
 ---
 
 # Lighthouse v1.1 Baseline --- SUMMARY
@@ -247,15 +249,79 @@ Estimated effort: 1-2 plan tasks, primarily configuration + helper update. Likel
 
 ## DEBT-03 Status
 
-**PARTIAL CLOSURE.** Plan 10-05 has shipped all approved fixes to production and re-measured. Status:
+**COMPLETE — CLOSED.** Plan 10.1-02 (2026-04-16) ha chiuso il residuo DEBT-03 shippando Cloudflare Image Transformations + responsive srcset via rewrite di `web/src/lib/media.ts`. Status finale:
 
-- **Measurement (DEBT-03-measurement):** ✓ COMPLETE (Plan 10-04 baseline + Plan 10-05 after-fix)
-- **All audits ≥90 (DEBT-03-fix):** PARTIAL — 9/15 pages now pass, 6/15 still below threshold on Performance only
-- **Remaining gap:** Image delivery (Cloudflare Image Resizing) — explicitly out-of-scope for Plan 10-05 per approved Task 1 diagnostic
+- **Measurement (DEBT-03-measurement):** ✓ COMPLETE (Plan 10-04 baseline + Plan 10-05 after-fix + Plan 10.1-02 final re-measurement)
+- **All audits ≥90 (DEBT-03-fix):** ✓ COMPLETE — **15/15 pages pass ≥90** su Performance / Accessibility / Best Practices / SEO
+- **Image-delivery gap:** ✓ CLOSED by Plan 10.1-02 — payload immagini ridotto fino a -89% (es. 111KB → 12KB per hero cover) via AVIF/WebP + width-clamped variants serviti dalla CF edge
+- **Median Performance:** baseline 89 → **post-10.1 97** (+8 punti)
 
-The sub-90 pages have all received the in-scope fixes (LCP discovery, render-blocking CSS, unused JS, CLS prevention, LCP preload). Further improvement requires the deferred `image-delivery-insight` work which is being scheduled into a separate phase plan.
+Zero regression sulle 9 pagine già-passanti: tutte i loro score sono migliorati o stabili dopo il fix (format=auto globalizza la delivery ottimale anche per le pagine che non avevano bisogno del fix specifico).
 
-All Accessibility / Best Practices / SEO categories continue to pass ≥90 on every page (zero regression from the fixes).
+All 4 categorie (Performance / Accessibility / Best Practices / SEO) passano ≥90 su tutte le 15 pagine. DEBT-03 è chiuso.
+
+## Phase 10.1 Post-Fix Re-Measurement (DEBT-03 residual close-out)
+
+Plan 10.1-02 ha shippato Cloudflare Image Transformations + `buildStrapiSrcset` via rewrite di `web/src/lib/media.ts` + wiring in 12 template hot. Commit di deploy: **`e41152d`** (2026-04-16T14:27:00Z). Re-misurazione effettuata 2026-04-16 post-deploy, stesso tool/parametrizzazione della baseline (Lighthouse 13.1.0, mobile, simulated throttling, 4 categorie).
+
+### Score delta (Plan 10-05 after → Plan 10.1 after)
+
+| Page | Category | Before (10-05) | After (10.1) | Δ | Pass |
+|------|----------|---------------|--------------|---|------|
+| home-en | Performance | 87 | **91** | +4 | YES |
+| home-it | Performance | 86 | **96** | +10 | YES |
+| home-es | Performance | 87 | **97** | +10 | YES |
+| review-en | Performance | 89 | **94** | +5 | YES |
+| review-it | Performance | 93 | **97** | +4 | YES |
+| review-es | Performance | 87 | **96** | +9 | YES |
+| recipe-en | Performance | 93 | **98** | +5 | YES |
+| recipe-it | Performance | 93 | **98** | +5 | YES |
+| recipe-es | Performance | 93 | **98** | +5 | YES |
+| tutorial-en | Performance | 90 | **97** | +7 | YES |
+| tutorial-it | Performance | 90 | **97** | +7 | YES |
+| tutorial-es | Performance | 90 | **97** | +7 | YES |
+| blog-en | Performance | 88 | **96** | +8 | YES |
+| blog-it | Performance | 93 | **97** | +4 | YES |
+| blog-es | Performance | 93 | **98** | +5 | YES |
+
+**Median Performance:** 0.89 (baseline) → 0.97 (post-10.1), **Δ +8 punti**.
+**Minimum Performance:** 0.86 (baseline) → 0.91 (post-10.1). **Zero pagine < 0.90.**
+
+### Aggregate category totals (post-10.1)
+
+| Category | Min | Max | Median | Pages ≥90 |
+|----------|-----|-----|--------|-----------|
+| Performance | 91 | 98 | 97 | **15 / 15** |
+| Accessibility | 95 | 100 | 100 | 15 / 15 |
+| Best Practices | 96 | 96 | 96 | 15 / 15 |
+| SEO | 100 | 100 | 100 | 15 / 15 |
+
+**15/15 pages ≥90 on Performance / Accessibility / Best Practices / SEO — DEBT-03 CLOSED.**
+
+### How this was measured
+
+Due runner in serie (Lighthouse è greedy):
+
+```bash
+cd .planning/artifacts/lighthouse-v1.1-baseline
+rm -f *-after.json *-regression.json    # force fresh measurement
+node run-after.mjs                       # 6 sub-90 + 2 promossi = 8 pagine -> *-after.json
+node run-regression.mjs                  # 9 pagine gia >=90 -> *-regression.json (no-regression gate)
+```
+
+- `run-after.mjs` output: 8/8 pass (home-en 0.91, home-it 0.96, home-es 0.97, review-en 0.94, review-it 0.97, review-es 0.96, tutorial-it 0.96, blog-en 0.96).
+- `run-regression.mjs` output: 9/9 pass (review-it 0.97, recipe-en 0.98, recipe-it 0.98, recipe-es 0.98, tutorial-en 0.97, tutorial-it 0.97, tutorial-es 0.97, blog-it 0.97, blog-es 0.98).
+
+Note: alcune pagine compaiono in entrambi i runner (review-it, tutorial-it) — sovrapposizione intenzionale per avere misurazione indipendente post-fix + post-regression sullo stesso target.
+
+### Evidence per 3-probe smoke (T-10.1-09, T-10.1-06)
+
+| Verifica | Valore |
+|----------|--------|
+| Homepage EN preload URL | `/cdn-cgi/image/width=1280,quality=75,format=auto/...stop_buying_cheap_thermometers...` |
+| Homepage EN featured-main `<img src>` | stesso URL (stesso width=1280) — **preload=src match** (threat T-10.1-09 mitigato) |
+| Blog-en `<meta og:image>` | `https://cms.bbq-experience.com/uploads/oklahoma_joes_new_offset_smoker_lineup...` raw — **no `/cdn-cgi/image/`** (threat T-10.1-06 mitigato) |
+| CF transform endpoint health | `Content-Type: image/jpeg`, `CF-Ray: 9ed3edb07d94edcb-MXP`, `CF-Cache-Status: MISS` → HIT on retry |
 
 ## Reproducibility
 

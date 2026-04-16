@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Phase 10.1 Plan 01 complete — zone orange-cloud, Transformations enabled, Sources allowlist = [bbq-experience.com, cms.bbq-experience.com]. Plan 02 (helper rewrite + re-measure) is the next gate.
-last_updated: "2026-04-16T14:19:43Z"
-last_activity: 2026-04-16 -- Phase 10.1 Plan 01 complete
+stopped_at: Phase 10.1 complete — DEBT-03 CLOSED, 15/15 pages ≥90 Lighthouse (median Perf 0.97). Next phase is 11 (Strapi Schema Migration).
+last_updated: "2026-04-16T16:50:00Z"
+last_activity: 2026-04-16 -- Phase 10.1 complete (DEBT-03 CLOSED)
 progress:
   total_phases: 8
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
-  percent: 75
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -26,12 +26,12 @@ See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 ## Current Position
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–16)
-Phase: 10.1 (image-delivery-cloudflare) — EXECUTING
-Plan: 2 of 2 (Plan 01 complete)
-Status: Executing Phase 10.1
-Last activity: 2026-04-16 -- Phase 10.1 Plan 01 complete
+Phase: 11 (Strapi Schema Migration) — NEXT
+Plan: 0 of TBD (Phase 10.1 complete: 2/2 plans)
+Status: Phase 10.1 complete — image-delivery CLOSED, hand-off to Phase 11
+Last activity: 2026-04-16 -- Phase 10.1 complete (DEBT-03 CLOSED)
 
-Progress: v1.0 [██████████] 100% · v1.1 [█░░░░░░░░░] ~13% (1/8 phases)
+Progress: v1.0 [██████████] 100% · v1.1 [██░░░░░░░░] ~25% (2/8 phases)
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Recent decisions affecting current work (v1.1):
 ### Roadmap Evolution
 
 - 2026-04-16: Phase 10.1 inserted after Phase 10 (URGENT) — image-delivery via Cloudflare Resizing, closes residual DEBT-03 gap (6/15 baseline pages still sub-90 after Plan 10-05 LCP/CSS/JS fixes; root cause = Strapi serves originals, savings ~624 KB/page).
+- 2026-04-16: Phase 10.1 closed — Cloudflare Image Transformations + responsive srcset shipped via web/src/lib/media.ts rewrite + 12 template wiring. 15/15 pages ≥90 Lighthouse (median Perf 0.97, +8 pts over baseline). DEBT-03 CLOSED.
 
 Key v1.0 decisions still in force:
 
@@ -92,6 +93,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-04-16 — Phase 10.1 Plan 01 complete
-Stopped at: Phase 10.1 Plan 01 complete — CF zone orange-cloud + Transformations + Sources allowlist live. Plan 02 (media.ts rewrite + Lighthouse re-measure) next.
-Resume file: .planning/phases/10.1-image-delivery-cloudflare/10.1-01-SUMMARY.md
+Last session: 2026-04-16 — Phase 10.1 complete (DEBT-03 CLOSED)
+Stopped at: Phase 10.1 complete — Cloudflare Image Transformations live in production (15/15 pages ≥90 Lighthouse, median Perf 0.97, zero regression). Next phase is 11 (Strapi Schema Migration).
+Resume file: .planning/phases/10.1-image-delivery-cloudflare/10.1-02-SUMMARY.md
