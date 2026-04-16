@@ -78,7 +78,10 @@ Plans:
   3. `.planning/artifacts/lighthouse-v1.1-baseline/SUMMARY.md` updates to `status: pass` with all 15 baseline pages ≥90 in all 4 categories; DEBT-03 final disposition flips to **CLOSED**.
   4. No regression on the 9 pages already passing (review-it 93, tutorial-it 90, recipe-*, tutorial-en/es, blog-it/es) — re-measurement confirms each stays ≥90.
   5. Implementation respects CLAUDE.md: no new dependency where Cloudflare account-level config suffices, Italian code comments, deploy via webhook (no GH Actions).
-**Plans**: TBD (run `/gsd:plan-phase 10.1` to break down — likely 2 plans: implement transformation + re-measure)
+**Plans**: 2 plans
+Plans:
+- [ ] 10.1-01-PLAN.md — Cloudflare dashboard prerequisites: orange-cloud flip, enable Transformations, Sources allowlist (human-gated checkpoint + edge smoke probes)
+- [ ] 10.1-02-PLAN.md — Rewrite getStrapiMediaURL + buildStrapiSrcset, wire 12 hot templates, deploy via webhook, re-measure 15 Lighthouse pages, flip DEBT-03 to CLOSED
 
 ### Phase 11: Strapi Schema Migration & Localization Helper
 **Goal**: A single CMS rebuild window lands every v1.1 schema change the feature wave depends on, and 25 existing products are migrated to the new taxonomy.
