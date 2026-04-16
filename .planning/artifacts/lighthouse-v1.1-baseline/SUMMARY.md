@@ -1,11 +1,16 @@
 ---
 plan: 10-04
 generated_at: 2026-04-15T16:43:25.647Z
-status: gaps_found
+status: partial_pass
 pages_measured: 15
-pages_above_90: 7
-pages_below_90: 8
+pages_above_90_baseline: 7
+pages_below_90_baseline: 8
+pages_above_90_after_fix: 9
+pages_below_90_after_fix: 6
+remediation_plan: 10-05
+remediation_status: shipped_partial
 requirements_completed: [DEBT-03-measurement]
+requirements_still_open: [DEBT-03-image-delivery]
 ---
 
 # Lighthouse v1.1 Baseline --- SUMMARY
@@ -178,17 +183,79 @@ Concrete Lighthouse audit IDs below are the input scope for Plan 10-05 (conditio
 
 Note on `color-contrast` audit: appears failing on home-en / home-it / home-es at score 0, but the Accessibility category score is 95 (>=90 threshold) on all pages, so no pass/fail action here. Worth tracking for a future a11y sweep.
 
+## Before / After (Plan 05 Fixes)
+
+Plan 10-05 ha shippato 4 commit fix sulle 8 pagine sub-90 e re-misurato. Risultati per pagina:
+
+| Page | Cat | Before | After | Delta | Pass | Commits applied |
+|------|-----|--------|-------|-------|------|-----------------|
+| home-en | Performance | 86 | 87 | +1 | NO | ae8dd4d, 1d2b2e5, d454671, 576f12a |
+| home-it | Performance | 87 | 86 | -1 | NO | ae8dd4d, 1d2b2e5, d454671, 576f12a |
+| home-es | Performance | 87 | 87 | 0 | NO | ae8dd4d, 1d2b2e5, d454671, 576f12a |
+| review-en | Performance | 86 | 89 | +3 | NO | ae8dd4d, 1d2b2e5, d454671, 576f12a |
+| review-it | Performance | 87 | **93** | +6 | **YES** | ae8dd4d, 1d2b2e5, d454671, 576f12a |
+| review-es | Performance | 87 | 87 | 0 | NO | ae8dd4d, 1d2b2e5, d454671, 576f12a |
+| tutorial-it | Performance | 89 | **90** | +1 | **YES** | ae8dd4d, 1d2b2e5, d454671, 576f12a |
+| blog-en | Performance | 89 | 88 | -1 | NO | ae8dd4d, 1d2b2e5, d454671, 576f12a |
+
+**Score:** 2/8 pagine ora pass (review-it 93, tutorial-it 90). 6/8 ancora sub-90 ma con miglioramenti significativi nelle metriche secondarie:
+
+| Metrica | Baseline median | After-fix median | Delta |
+|---------|-----------------|------------------|-------|
+| FCP | 2.2 s | 2.1 s | -100 ms |
+| CLS (peggior caso) | 0.344 (blog-en) | 0.035 | -0.309 |
+| TTFB | ~600 ms | 100-220 ms | -300 a -500 ms |
+| TBT | mostly 0 | 0 | stable |
+| Render-blocking CSS | 56 KB blocking | 0 (inlined) | eliminated |
+| Unused JS (review) | 113 KB | 0 (lazy) | eliminated |
+
+Combined account category totals (post-fix re-measure of 8 pages, baseline still applies to other 7):
+
+| Category | Baseline pages_above_90 | After-fix pages_above_90 | Delta |
+|----------|--------------------------|---------------------------|-------|
+| Performance | 7 / 15 | 9 / 15 | +2 |
+| Accessibility | 15 / 15 | 15 / 15 | 0 (still pass) |
+| Best Practices | 15 / 15 | 15 / 15 | 0 (still pass) |
+| SEO | 15 / 15 | 15 / 15 | 0 (still pass) |
+
+### Fix commits
+
+| SHA | Description | Files |
+|-----|-------------|-------|
+| `ae8dd4d` | fetchpriority=high on LCP hero images | FeaturedHero, ContentLayout, 3× review pages |
+| `1d2b2e5` | Lazy-load GSAP + inline scoped CSS chunks | animations.ts, astro.config.mjs |
+| `d454671` | Width/height on cover images (CLS fix) | FeaturedHero, ContentLayout |
+| `576f12a` | `<link rel=preload as=image>` for LCP image | BaseLayout + 12 page templates wired |
+
+All commits live on production via adnanh/webhook deploy (verified via SSH log + curl probes).
+
+### Residual gap analysis
+
+The 6 still-sub-90 pages all share the same root cause: **LCP image transfer time on mobile throttled** (3.5-3.7 s). The cover images are served by Strapi at full resolution (~150-300 KB JPG, sometimes larger) without per-device responsive sizes or modern format negotiation. With Lighthouse's "Slow 4G" simulation, even an aggressive preload + fetchpriority can't pull the LCP timing below the 2.5 s "Good" threshold.
+
+**This was anticipated in the Plan 10-05 Task 1 diagnostic (section D, `image-delivery-insight`)** and explicitly marked **out-of-scope** for this plan: "out-of-scope per questa fase (richiede modifica di `getStrapiMediaURL()` o aggiunta Cloudflare image transformation)".
+
+### Remediation roadmap
+
+To close the residual gap and bring all 15 pages ≥90 on Performance, a follow-up phase plan should address:
+
+1. **Cloudflare Image Resizing** for `cms.bbq-experience.com/uploads/*` — generates AVIF/WebP responsive variants on demand. Expected LCP reduction: 1.5-2.0 s on mobile throttled (from ~3.5 s to ~1.5 s).
+2. **Image dimensions metadata in Strapi** — surface `width` / `height` from Strapi media for use as proper `<img>` attributes (currently hardcoded 1600×900 — works for CLS but not optimal for actual aspect ratios).
+3. **Optional: `<picture>` element with srcset** — maximum control over format + sizing per breakpoint.
+
+Estimated effort: 1-2 plan tasks, primarily configuration + helper update. Likely Phase 11 inclusion.
+
 ## DEBT-03 Status
 
-**At least one page scored <90 in at least one category. DEBT-03 measurement half is complete. Plan 10-05 (conditional fix plan) is now required with the sub-90 findings above as its scope.**
+**PARTIAL CLOSURE.** Plan 10-05 has shipped all approved fixes to production and re-measured. Status:
 
-Scope of Plan 10-05:
-- Lift Performance >=90 on all 8 sub-90 pages by addressing the Sub-90 Findings -> Fix Targets list
-- Re-run Lighthouse on at minimum the 8 sub-90 pages (re-running all 15 is cheap via `run-audits.mjs`)
-- Re-write this SUMMARY.md in-place (or produce a sibling post-fix SUMMARY) with new scores
-- Only then mark DEBT-03 fully closed in REQUIREMENTS.md
+- **Measurement (DEBT-03-measurement):** ✓ COMPLETE (Plan 10-04 baseline + Plan 10-05 after-fix)
+- **All audits ≥90 (DEBT-03-fix):** PARTIAL — 9/15 pages now pass, 6/15 still below threshold on Performance only
+- **Remaining gap:** Image delivery (Cloudflare Image Resizing) — explicitly out-of-scope for Plan 10-05 per approved Task 1 diagnostic
 
-All Accessibility / Best Practices / SEO categories currently pass >=90 on every page. Plan 10-05 does not need to touch those unless Performance fixes incidentally regress them.
+The sub-90 pages have all received the in-scope fixes (LCP discovery, render-blocking CSS, unused JS, CLS prevention, LCP preload). Further improvement requires the deferred `image-delivery-insight` work which is being scheduled into a separate phase plan.
+
+All Accessibility / Best Practices / SEO categories continue to pass ≥90 on every page (zero regression from the fixes).
 
 ## Reproducibility
 
@@ -204,6 +271,16 @@ node build-summary.mjs    # regenerates SUMMARY.md from the 15 reports
 ```
 
 To force a fresh run of a single page: delete the matching `<id>.json` then re-run `run-audits.mjs`.
+
+### Re-running only the sub-90 pages (Plan 10-05 after-fix)
+
+```bash
+cd .planning/artifacts/lighthouse-v1.1-baseline
+rm *-after.json          # force fresh re-measure
+node run-after.mjs       # runs only the 8 originally-sub-90 pages → *-after.json
+```
+
+After-fix reports: `*-after.json` (one per remediated page, contains the same Lighthouse JSON shape as baseline reports).
 
 ### Lighthouse CLI shape (per target)
 
