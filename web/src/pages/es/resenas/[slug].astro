@@ -127,11 +127,16 @@ const breadcrumbItems = [
     )}
 
     {coverImage && (
+      // LCP hint: cover reseña è l'immagine principale above-the-fold
       <img
         src={coverImage}
         alt={coverImageAlt}
         class="w-full rounded-[var(--radius-lg)] mb-[var(--space-12)]"
-
+        width="1600"
+        height="900"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
       />
     )}
 

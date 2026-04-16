@@ -60,12 +60,14 @@ const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
       <a href={`/${locale}/${blogRoute}/${mainPost.slug}/`} class="featured-main">
         <div class="featured-main__image-wrapper">
           {mainImageUrl ? (
+            // LCP hint: questa è l'immagine principale above-the-fold della homepage
             <img
               src={mainImageUrl}
               alt={mainPost.cover_image?.alternativeText || mainPost.title}
               class="featured-main__image"
               loading="eager"
               decoding="async"
+              fetchpriority="high"
             />
           ) : (
             <div class="featured-main__placeholder"></div>

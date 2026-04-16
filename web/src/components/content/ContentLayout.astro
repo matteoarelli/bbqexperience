@@ -102,12 +102,14 @@ const processedContent = renderedHtml ? addHeadingIds(renderedHtml) : null;
   <!-- Cover image full-width -->
   {imageUrl && (
     <div class="content-cover">
+      {/* LCP hint: cover image è l'elemento dominante above-the-fold per blog/tutorial */}
       <img
         src={imageUrl}
         alt={imageAlt}
         class="content-cover-image"
         loading="eager"
         decoding="async"
+        fetchpriority="high"
       />
       <div class="content-cover-overlay"></div>
     </div>

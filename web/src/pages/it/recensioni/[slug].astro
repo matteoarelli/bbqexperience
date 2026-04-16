@@ -86,10 +86,16 @@ const breadcrumbItems = [
   <!-- Hero immagine full-width con overlay -->
   {coverImage && (
     <div class="review-hero">
+      {/* LCP hint: hero recensione è il primo elemento visibile above-the-fold */}
       <img
         src={coverImage}
         alt={coverImageAlt}
         class="review-hero__image"
+        width="1600"
+        height="900"
+        loading="eager"
+        decoding="async"
+        fetchpriority="high"
       />
       <div class="review-hero__overlay"></div>
     </div>
