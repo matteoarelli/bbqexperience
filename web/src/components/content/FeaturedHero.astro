@@ -60,11 +60,14 @@ const mainImageUrl = mainPost ? getStrapiMediaURL(mainPost.cover_image) : null;
       <a href={`/${locale}/${blogRoute}/${mainPost.slug}/`} class="featured-main">
         <div class="featured-main__image-wrapper">
           {mainImageUrl ? (
-            // LCP hint: questa è l'immagine principale above-the-fold della homepage
+            // LCP hint: immagine principale above-the-fold della homepage.
+            // width/height per evitare CLS — CSS object-fit:cover gestisce il display reale.
             <img
               src={mainImageUrl}
               alt={mainPost.cover_image?.alternativeText || mainPost.title}
               class="featured-main__image"
+              width="1600"
+              height="900"
               loading="eager"
               decoding="async"
               fetchpriority="high"
