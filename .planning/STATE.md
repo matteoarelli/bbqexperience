@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: ROADMAP.md, STATE.md, REQUIREMENTS.md traceability populated for v1.1.
-last_updated: "2026-04-16T08:32:04.790Z"
-last_activity: 2026-04-16
+stopped_at: Phase 10.1 Plan 01 complete — zone orange-cloud, Transformations enabled, Sources allowlist = [bbq-experience.com, cms.bbq-experience.com]. Plan 02 (helper rewrite + re-measure) is the next gate.
+last_updated: "2026-04-16T14:19:43Z"
+last_activity: 2026-04-16 -- Phase 10.1 Plan 01 complete
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_plans: 7
+  completed_plans: 6
+  percent: 75
 ---
 
 # Project State
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 **Core value:** The most complete, visually striking, and trustworthy BBQ product review destination online.
-**Current focus:** Phase 10.1 — image-delivery-cloudflare (URGENT, inserted to close residual DEBT-03 gap)
+**Current focus:** Phase 10.1 — image-delivery-cloudflare
 
 ## Current Position
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–16)
-Phase: 10.1
-Plan: Not yet planned (run `/gsd:plan-phase 10.1`)
-Status: Phase 10 complete (partial DEBT-03), 10.1 inserted
-Last activity: 2026-04-16 — Phase 10 marked complete (5/5 plans), Phase 10.1 inserted for image-delivery follow-up
+Phase: 10.1 (image-delivery-cloudflare) — EXECUTING
+Plan: 2 of 2 (Plan 01 complete)
+Status: Executing Phase 10.1
+Last activity: 2026-04-16 -- Phase 10.1 Plan 01 complete
 
 Progress: v1.0 [██████████] 100% · v1.1 [█░░░░░░░░░] ~13% (1/8 phases)
 
@@ -92,6 +92,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-04-15 — v1.1 roadmap creation
-Stopped at: ROADMAP.md, STATE.md, REQUIREMENTS.md traceability populated for v1.1.
-Resume file: None (run `/gsd:plan-phase 10` to start planning the first v1.1 phase).
+Last session: 2026-04-16 — Phase 10.1 Plan 01 complete
+Stopped at: Phase 10.1 Plan 01 complete — CF zone orange-cloud + Transformations + Sources allowlist live. Plan 02 (media.ts rewrite + Lighthouse re-measure) next.
+Resume file: .planning/phases/10.1-image-delivery-cloudflare/10.1-01-SUMMARY.md
