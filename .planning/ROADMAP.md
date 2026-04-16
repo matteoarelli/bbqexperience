@@ -40,7 +40,8 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 
 **Sequencing rule (from PROJECT.md):** Debt phase 10 must complete before any feature phase begins. Schema migration (phase 11) must complete before the feature wave (12–14). Analytics loop (15) must validate before A/B (16) depends on it.
 
-- [ ] **Phase 10: Debt Closure & Measurement Baseline** — Backfill VERIFICATION.md for phases 03–09, reconcile v1.0 traceability, fresh Lighthouse 90+ measurement.
+- [x] **Phase 10: Debt Closure & Measurement Baseline** — Backfill VERIFICATION.md for phases 03–09, reconcile v1.0 traceability, fresh Lighthouse 90+ measurement. (completed 2026-04-16, partial DEBT-03 closure — image-delivery deferred to 10.1)
+- [ ] **Phase 10.1: Image Delivery via Cloudflare Resizing** *(INSERTED)* — Close residual DEBT-03 gap: route Strapi media URLs through Cloudflare Image Resizing (or equivalent CDN transformation) so the 6 pages still scoring sub-90 on Lighthouse Performance reach ≥90; re-measure all 15 baseline pages → status=pass.
 - [ ] **Phase 11: Strapi Schema Migration & Localization Helper** — Land all v1.1 schema changes in one CMS rebuild window (product-category taxonomy, subscriber.source, recipe-collection scaffold, shared locale PUT helper) and migrate existing product data.
 - [ ] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email.
 - [ ] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails.
@@ -61,11 +62,23 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
   4. Any page scoring below 90 has a fix shipped to production and a re-measured report included in the baseline folder.
 **Plans**: 5 plans
 Plans:
-- [ ] 10-01-PLAN.md — Backfill VERIFICATION.md for v1.0 phases 03, 04, 05 (DEBT-01)
-- [ ] 10-02-PLAN.md — Backfill VERIFICATION.md for v1.0 phases 06, 07, 08, 09 (DEBT-01)
-- [ ] 10-03-PLAN.md — Reconcile v1.0 REQUIREMENTS.md traceability (DEBT-02)
-- [ ] 10-04-PLAN.md — Fresh Lighthouse 90+ baseline across 15 pages (DEBT-03 measurement)
-- [ ] 10-05-PLAN.md — CONDITIONAL: ship fixes + re-measure if Plan 04 reports sub-90 (DEBT-03 fixes)
+- [x] 10-01-PLAN.md — Backfill VERIFICATION.md for v1.0 phases 03, 04, 05 (DEBT-01)
+- [x] 10-02-PLAN.md — Backfill VERIFICATION.md for v1.0 phases 06, 07, 08, 09 (DEBT-01)
+- [x] 10-03-PLAN.md — Reconcile v1.0 REQUIREMENTS.md traceability (DEBT-02)
+- [x] 10-04-PLAN.md — Fresh Lighthouse 90+ baseline across 15 pages (DEBT-03 measurement)
+- [x] 10-05-PLAN.md — CONDITIONAL: ship fixes + re-measure if Plan 04 reports sub-90 (DEBT-03 fixes)
+
+### Phase 10.1: Image Delivery via Cloudflare Resizing *(INSERTED)*
+**Goal**: Every page in the v1.1 Lighthouse baseline scores ≥90 on Performance by routing Strapi media through CDN-side image transformation, closing the residual DEBT-03 gap left after Plan 10-05.
+**Depends on**: Phase 10 (baseline + LCP/CSS/JS fixes already shipped; this phase only addresses image-delivery payload).
+**Requirements**: DEBT-03 (residual portion — image-delivery savings ~624 KB/page on home & review pages)
+**Success Criteria** (what must be TRUE):
+  1. `getStrapiMediaURL()` (or its callers) emits CDN-transformed URLs that produce responsive sizes (AVIF/WebP, width-clamped to viewport) instead of raw Strapi originals.
+  2. The 6 pages still scoring sub-90 after Plan 10-05 (home-en/it/es, review-en/es, blog-en) re-measure to ≥90 on Performance with all other categories unchanged (Accessibility/BP/SEO already ≥95).
+  3. `.planning/artifacts/lighthouse-v1.1-baseline/SUMMARY.md` updates to `status: pass` with all 15 baseline pages ≥90 in all 4 categories; DEBT-03 final disposition flips to **CLOSED**.
+  4. No regression on the 9 pages already passing (review-it 93, tutorial-it 90, recipe-*, tutorial-en/es, blog-it/es) — re-measurement confirms each stays ≥90.
+  5. Implementation respects CLAUDE.md: no new dependency where Cloudflare account-level config suffices, Italian code comments, deploy via webhook (no GH Actions).
+**Plans**: TBD (run `/gsd:plan-phase 10.1` to break down — likely 2 plans: implement transformation + re-measure)
 
 ### Phase 11: Strapi Schema Migration & Localization Helper
 **Goal**: A single CMS rebuild window lands every v1.1 schema change the feature wave depends on, and 25 existing products are migrated to the new taxonomy.
@@ -160,7 +173,7 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 7. Instagram & Social Integration | v1.0 | 2/2 | Complete | 2026-04-01 |
 | 8. Product Comparison & Advanced Interactions | v1.0 | 3/3 | Complete | 2026-04-01 |
 | 9. SEO Audit, Performance & Launch | v1.0 | 2/2 | Complete | 2026-04-01 |
-| 10. Debt Closure & Measurement Baseline | v1.1 | 0/5 | Planning complete | - |
+| 10. Debt Closure & Measurement Baseline | v1.1 | 5/5 | Complete    | 2026-04-16 |
 | 11. Strapi Schema Migration & Localization Helper | v1.1 | 0/TBD | Not started | - |
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Not started | - |
 | 13. Review Filters & Taxonomy | v1.1 | 0/TBD | Not started | - |

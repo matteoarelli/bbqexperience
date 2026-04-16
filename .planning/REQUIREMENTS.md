@@ -12,9 +12,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Debt cl
 
 <!-- Sequenced first per PROJECT.md: close v1.0 measurement/documentation gaps before building new features. -->
 
-- [ ] **DEBT-01**: Phases 03–09 have retroactive VERIFICATION.md artifacts reconciled against live production evidence
-- [ ] **DEBT-02**: REQUIREMENTS.md traceability for v1.0 marks all shipped requirements Complete (REC-04, REC-05, REC-06, REC-07, CNT-02, CNT-03, CNT-07, CNT-08, CNT-10) instead of Pending
-- [ ] **DEBT-03**: Author obtains a fresh Lighthouse 90+ measurement across Performance, Accessibility, Best Practices, and SEO for home, a review, a recipe, a tutorial, and a blog post in each locale, with fixes applied if any score falls below 90
+- [x] **DEBT-01**: Phases 03–09 have retroactive VERIFICATION.md artifacts reconciled against live production evidence
+- [x] **DEBT-02**: REQUIREMENTS.md traceability for v1.0 marks all shipped requirements Complete (REC-04, REC-05, REC-06, REC-07, CNT-02, CNT-03, CNT-07, CNT-08, CNT-10) instead of Pending
+- [~] **DEBT-03**: Author obtains a fresh Lighthouse 90+ measurement across Performance, Accessibility, Best Practices, and SEO for home, a review, a recipe, a tutorial, and a blog post in each locale, with fixes applied if any score falls below 90 — *measurement complete (15/15), 4 fix commits shipped (9/15 ≥90); residual 6 pages need Cloudflare Image Resizing → deferred to Phase 10.1*
 
 ### Newsletter Signup (Brevo)
 
@@ -118,9 +118,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DEBT-01 | Phase 10 | Pending |
-| DEBT-02 | Phase 10 | Pending |
-| DEBT-03 | Phase 10 | Pending |
+| DEBT-01 | Phase 10 | Complete |
+| DEBT-02 | Phase 10 | Complete |
+| DEBT-03 | Phase 10 / Phase 10.1 | Partial — measurement+fixes shipped (9/15 ≥90); image-delivery deferred to 10.1 |
 | NEWS-01 | Phase 12 | Pending |
 | NEWS-02 | Phase 12 | Pending |
 | NEWS-03 | Phase 12 | Pending |

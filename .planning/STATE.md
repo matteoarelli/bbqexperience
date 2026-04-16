@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
-status: ready_to_plan
-stopped_at: v1.1 roadmap created — ready to plan Phase 10
-last_updated: "2026-04-15T12:30:00Z"
-last_activity: 2026-04-15
+status: executing
+stopped_at: ROADMAP.md, STATE.md, REQUIREMENTS.md traceability populated for v1.1.
+last_updated: "2026-04-16T08:32:04.790Z"
+last_activity: 2026-04-16
 progress:
   total_phases: 7
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 5
+  completed_plans: 5
+  percent: 100
 ---
 
 # Project State
@@ -21,23 +21,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 **Core value:** The most complete, visually striking, and trustworthy BBQ product review destination online.
-**Current focus:** Phase 10 — Debt Closure & Measurement Baseline (v1.1)
+**Current focus:** Phase 10.1 — image-delivery-cloudflare (URGENT, inserted to close residual DEBT-03 gap)
 
 ## Current Position
 
-Milestone: v1.1 Content Depth & Growth Loop (Phases 10–16)
-Phase: 10 of 16 — Debt Closure & Measurement Baseline
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-04-15 — v1.1 roadmap created, 37 requirements mapped across 7 phases (100% coverage)
+Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–16)
+Phase: 10.1
+Plan: Not yet planned (run `/gsd:plan-phase 10.1`)
+Status: Phase 10 complete (partial DEBT-03), 10.1 inserted
+Last activity: 2026-04-16 — Phase 10 marked complete (5/5 plans), Phase 10.1 inserted for image-delivery follow-up
 
-Progress: v1.0 [██████████] 100% · v1.1 [░░░░░░░░░░] 0%
+Progress: v1.0 [██████████] 100% · v1.1 [█░░░░░░░░░] ~13% (1/8 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 23 (v1.0 archive)
+- Total plans completed: 28 (v1.0 archive)
 - Average duration: ~4 min/plan (v1.0)
 - Total execution time: see milestones/v1.0-MILESTONE-AUDIT.md
 
@@ -47,6 +47,7 @@ Progress: v1.0 [██████████] 100% · v1.1 [░░░░░░
 |-------|-------|-------|----------|
 | 1–9 (v1.0) | 23 | shipped 2026-04-15 | ~4 min |
 | 10–16 (v1.1) | TBD | — | — |
+| 10 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -69,7 +70,12 @@ Recent decisions affecting current work (v1.1):
 - [Roadmap v1.1]: Analytics loop (Phase 15) precedes A/B (Phase 16) so umami_client.py is production-validated before ab_tester.py depends on it, and so A/B experiments can be sized against a real traffic baseline.
 - [Roadmap v1.1]: A/B variant edits excluded from the adnanh/webhook rebuild cascade (Phase 16) to prevent 4-minute rebuilds on every editor iteration.
 
+### Roadmap Evolution
+
+- 2026-04-16: Phase 10.1 inserted after Phase 10 (URGENT) — image-delivery via Cloudflare Resizing, closes residual DEBT-03 gap (6/15 baseline pages still sub-90 after Plan 10-05 LCP/CSS/JS fixes; root cause = Strapi serves originals, savings ~624 KB/page).
+
 Key v1.0 decisions still in force:
+
 - i18n custom JSON (NOT Paraglide) · SQLite rate-limit for all endpoints · PostgreSQL for Strapi production · dark theme default · Svelte 5 runes for islands · Strapi v5 locale PUT with ?locale=xx and slug in body.
 
 ### Pending Todos
