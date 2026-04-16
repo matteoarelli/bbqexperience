@@ -71,6 +71,7 @@ const difficultyColors: Record<string, string> = {
   publishedTime={tutorial.published_date || ''}
   modifiedTime={tutorial.updatedAt || ''}
   ogImage={coverImageUrl || ''}
+  preloadImage={coverImageUrl || ''}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${tutorialRoute}/${tutorial.slug}/`} />
 

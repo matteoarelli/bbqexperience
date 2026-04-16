@@ -73,6 +73,7 @@ const breadcrumbItems = [
   publishedTime={review.published_date || ''}
   modifiedTime={review.updatedAt || ''}
   ogImage={`/api/og-image?title=${encodeURIComponent(review.title)}&score=${review.score_overall}&verdict=${encodeURIComponent(review.verdict || '')}&locale=${locale}`}
+  preloadImage={coverImage || ''}
 >
   {Astro.locals.isPreview && (
     <div class="bg-amber-500 text-black text-center py-2 px-4 font-bold text-sm">

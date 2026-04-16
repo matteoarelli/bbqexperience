@@ -65,6 +65,7 @@ const breadcrumbItems = [
   publishedTime={post.published_date || ''}
   modifiedTime={post.updatedAt || ''}
   ogImage={coverImageUrl || ''}
+  preloadImage={coverImageUrl || ''}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${blogRoute}/${post.slug}/`} />
 

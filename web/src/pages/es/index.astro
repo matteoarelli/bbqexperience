@@ -63,6 +63,20 @@ try {
   });
   latestPosts = res.data;
 } catch { /* Strapi non disponibile */ }
+
+// Recupera cover URL del primo featured post per LCP preload
+// (stessa query di FeaturedHero — Strapi cacha la risposta a livello CDN)
+let lcpPreloadUrl = '';
+try {
+  const featuredRes = await fetchCollection<StrapiBlogPost>('blog-posts', {
+    locale,
+    filters: { featured: { $eq: true } },
+    populate: 'cover_image',
+    sort: 'published_date:desc',
+    pageSize: 1,
+  });
+  lcpPreloadUrl = getStrapiMediaURL(featuredRes.data[0]?.cover_image) || '';
+} catch { /* fallback: niente preload, hero statico */ }
 ---
 
 <BaseLayout
@@ -71,6 +85,7 @@ try {
   locale={locale}
   canonicalPath="/"
   ogImage="/api/og-image?title=BBQ+Experience"
+  preloadImage={lcpPreloadUrl}
 >
   <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/`} />
   <WebSiteJsonLd locale={locale} />
