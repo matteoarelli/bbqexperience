@@ -14,9 +14,10 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 
 **Shipped:** v1.0 on 2026-04-15
 **Scale:** 454+ content items across EN/IT/ES, 32 IG posts synced via Graph API
-**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner
+**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations (Phase 10.1)
 **Code volume:** ~253 commits between 2026-04-01 and 2026-04-14
-**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main.
+**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Zone `bbq-experience.com` orange-cloud on Cloudflare with Image Transformations + Sources allowlist (cms.bbq-experience.com, bbq-experience.com).
+**v1.1 progress:** Phase 10 + Phase 10.1 complete — DEBT-03 CLOSED (15/15 pages ≥0.90 Lighthouse Perf, median 0.97). Next: Phase 11 (Strapi Schema Migration).
 
 ## Current Milestone: v1.1 Content Depth & Growth Loop
 
@@ -59,9 +60,9 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 ### Active (v1.1)
 
 **Debt closure (sequenced first):**
-- [ ] Retroactive VERIFICATION.md for phases 03–09 (7 phases, tech debt from v1.0 audit)
-- [ ] REQUIREMENTS.md traceability reconciliation (REC-04,05,06,07 + CNT-02,03,07,08,10 marked Pending despite live production evidence)
-- [ ] Lighthouse 90+ formal re-measurement post-v3.2 (DES-04 not re-measured after UI/SEO changes) + fixes if below target
+- [x] Retroactive VERIFICATION.md for phases 03–09 (7 phases, tech debt from v1.0 audit) — Validated in Phase 10
+- [x] REQUIREMENTS.md traceability reconciliation (REC-04,05,06,07 + CNT-02,03,07,08,10 marked Pending despite live production evidence) — Validated in Phase 10
+- [x] Lighthouse 90+ formal re-measurement post-v3.2 (DES-04 not re-measured after UI/SEO changes) + fixes if below target — Validated in Phase 10 + **Phase 10.1** (image-delivery via Cloudflare Transformations): 15/15 pages ≥0.90 Perf (median 0.97), DEBT-03 CLOSED
 
 **Content features:**
 - [ ] Newsletter on-site signup — inline end-of-article + exit-intent modal + `/newsletter` landing page + sticky footer bar (Brevo integration, multi-surface capture)
@@ -136,4 +137,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-15 after starting milestone v1.1 Content Depth & Growth Loop*
+*Last updated: 2026-04-16 after Phase 10.1 completion (DEBT-03 CLOSED, image-delivery via Cloudflare Transformations)*
