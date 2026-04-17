@@ -31,17 +31,17 @@ Source: `web/src/styles/tokens.css` — all tokens pre-existing from Phase 2.
 
 Declared values (must be multiples of 4). Using the project's existing `--space-*` tokens:
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| space-1 | 4px (0.25rem) | Honeypot field offscreen positioning |
-| space-2 | 8px (0.5rem) | Inline gaps, icon spacing, benefit card icon-to-text |
-| space-3 | 12px (0.75rem) | Form input padding, button padding-block |
-| space-4 | 16px (1rem) | Container padding, sticky bar inline padding, modal card padding-inline |
-| space-6 | 24px (1.5rem) | Section internal spacing, benefit card gap, modal header margin |
-| space-8 | 32px (2rem) | Inline form block padding, modal card padding |
-| space-10 | 40px (2.5rem) | Full newsletter block top/bottom padding (existing) |
-| space-12 | 48px (3rem) | Landing page section spacing |
-| space-16 | 64px (4rem) | Landing page hero top/bottom padding |
+| Token | Value | Usage | Exception Justification |
+|-------|-------|-------|------------------------|
+| space-1 | 4px (0.25rem) | Honeypot field offscreen positioning | — |
+| space-2 | 8px (0.5rem) | Inline gaps, icon spacing, benefit card icon-to-text | — |
+| space-3 | 12px (0.75rem) | Form input padding, button padding-block | Exception: matches existing tokens.css space-3 used across project for form input padding |
+| space-4 | 16px (1rem) | Container padding, sticky bar inline padding, modal card padding-inline | — |
+| space-6 | 24px (1.5rem) | Section internal spacing, benefit card gap, modal header margin | — |
+| space-8 | 32px (2rem) | Inline form block padding, modal card padding | — |
+| space-10 | 40px (2.5rem) | Full newsletter block top/bottom padding | Exception: matches existing tokens.css space-10 used for block-level vertical padding across site |
+| space-12 | 48px (3rem) | Landing page section spacing | — |
+| space-16 | 64px (4rem) | Landing page hero top/bottom padding | — |
 
 Exceptions: Sticky bar height fixed at 56px (14 * 4) to hold one row of input + button comfortably on mobile without crowding.
 
@@ -49,16 +49,16 @@ Exceptions: Sticky bar height fixed at 56px (14 * 4) to hold one row of input + 
 
 ## Typography
 
-All values reference existing `--text-*` and `--font-*` tokens from `tokens.css`.
+All values reference existing `--text-*` and `--font-*` tokens from `tokens.css`. Exactly 4 sizes, 2 weights.
 
 | Role | Token | Size | Weight | Line Height | Font |
 |------|-------|------|--------|-------------|------|
 | Body / subtitle | --text-base | clamp(1rem, 0.925rem + 0.375vw, 1.125rem) | 400 | 1.5 | Inter Variable |
 | Label / input / button | --text-sm | clamp(0.875rem, 0.8rem + 0.375vw, 1rem) | 700 | 1.4 | Inter Variable (input), Oswald Variable (button) |
-| Form heading (inline + modal) | --text-2xl | clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem) | 900 | 1.2 | Oswald Variable |
-| Landing hero heading | --text-3xl | clamp(1.875rem, 1.4rem + 2.375vw, 3rem) | 900 | 1.1 | Oswald Variable |
+| Form heading (inline + modal) | --text-2xl | clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem) | 700 | 1.2 | Oswald Variable |
+| Landing hero heading | --text-3xl | clamp(1.875rem, 1.4rem + 2.375vw, 3rem) | 700 | 1.1 | Oswald Variable |
 
-All headings: `text-transform: uppercase; letter-spacing: 0.02em` per existing pattern.
+All headings: `text-transform: uppercase; letter-spacing: 0.02em` per existing pattern. Oswald at weight 700 uppercase provides sufficient visual impact without requiring weight 900.
 
 ---
 
@@ -170,8 +170,8 @@ Modal overlay: `rgba(0, 0, 0, 0.6)` per D-04.
 **Layout sections (top to bottom):**
 
 1. **Hero** — `padding: var(--space-16) var(--space-4);` centered text
-   - Heading: `--text-3xl`, Oswald, weight 900, uppercase, `--color-text-primary`
-   - Subtitle: `--text-lg`, Inter, weight 400, `--color-text-secondary`, max-width 640px, line-height 1.5
+   - Heading: `--text-3xl`, Oswald, weight 700, uppercase, `--color-text-primary`
+   - Subtitle: `--text-base`, Inter, weight 400, `--color-text-secondary`, max-width 640px, line-height 1.5
    - Spacing between heading and subtitle: `var(--space-4)`
 
 2. **Benefits grid** — 3-column on desktop (>=768px), 1-column on mobile
@@ -179,12 +179,12 @@ Modal overlay: `rgba(0, 0, 0, 0.6)` per D-04.
    - Grid: `display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6);`
    - Each card: `padding: var(--space-6); text-align: center;`
      - Icon: inline SVG, 48x48px, `--color-accent-fire` fill (flame icon for reviews, chef-hat for recipes, lock for secrets)
-     - Title: `--text-lg`, Oswald, weight 700, uppercase, `--color-text-primary`, margin-top `var(--space-3)`
+     - Title: `--text-base`, Oswald, weight 700, uppercase, `--color-text-primary`, margin-top `var(--space-3)`
      - Description: `--text-sm`, Inter, weight 400, `--color-text-muted`, line-height 1.5, margin-top `var(--space-2)`
 
 3. **Social proof** — single centered line
    - `padding: var(--space-8) var(--space-4);`
-   - Text: `--text-xl`, Inter, weight 600, `--color-text-secondary`
+   - Text: `--text-2xl`, Inter, weight 700, `--color-text-secondary`
    - Number "74,000+": `--color-accent-fire`, weight 700
 
 4. **Signup form** — centered, max-width 560px
@@ -192,7 +192,7 @@ Modal overlay: `rgba(0, 0, 0, 0.6)` per D-04.
    - Uses `<NewsletterSignup translations={translations} source="landing" />`
 
 5. **Consent text** — below form
-   - `--text-xs`, Inter, weight 400, `--color-text-muted`, line-height 1.5, max-width 480px, centered
+   - `--text-sm`, Inter, weight 400, `--color-text-muted`, line-height 1.5, max-width 480px, centered
    - Contains link to privacy policy: `--color-accent-fire`, underline on hover
 
 **SEO (D-19):**
