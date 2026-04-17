@@ -110,7 +110,11 @@ Plans:
   4. A first-time visitor on any device sees the sticky footer bar, can dismiss it, and does not see it again for 30 days (suppression cookie verified).
   5. Every confirmed signup receives a welcome email in its signup locale (EN/IT/ES) via Brevo automation, and Brevo contact list shows the SURFACE attribute populated correctly per origin.
   6. The signup endpoint enforces 5 attempts/IP/hour via the shared SQLite rate-limit and rejects any POST with a non-empty honeypot field (403 response, no Brevo call).
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 12-01-PLAN.md — API hardening (honeypot, DOI, source, rate-limit) + NewsletterSignup upgrade + inline placements on 12 article pages
+- [ ] 12-02-PLAN.md — ExitIntentModal + StickyNewsletterBar components + BaseLayout wiring
+- [ ] 12-03-PLAN.md — Newsletter landing pages (EN/IT/ES) + Brevo admin verification checkpoint
 
 ### Phase 13: Review Filters & Taxonomy
 **Goal**: Readers can narrow the reviews index by brand, category, price bucket, and score threshold without leaking crawl budget.
@@ -123,7 +127,11 @@ Plans:
   4. On viewports ≤768 px, the filter UI opens as a bottom-sheet drawer with a sticky "Apply (N)" button; count reflects pending selections before apply.
   5. Zero-match combinations render an empty state with a "Clear filters" button that resets to the canonical index in one click.
   6. `may need /gsd:research-phase before planning` — confirm the canonical+noindex policy for small-corpus editorial facets and identify any filter combinations worth promoting to real indexable taxonomy landing pages.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 12-01-PLAN.md — API hardening (honeypot, DOI, source, rate-limit) + NewsletterSignup upgrade + inline placements on 12 article pages
+- [ ] 12-02-PLAN.md — ExitIntentModal + StickyNewsletterBar components + BaseLayout wiring
+- [ ] 12-03-PLAN.md — Newsletter landing pages (EN/IT/ES) + Brevo admin verification checkpoint
 
 ### Phase 14: Recipe Collections
 **Goal**: The author can curate themed recipe groupings that readers browse as a first-class section of the site in all three locales.
@@ -135,7 +143,11 @@ Plans:
   3. `/{locale}/{collections-route}/{slug}/` renders the editorial intro, ordered recipes (thumbnail + title + cook time), and an author's note; hreflang links point only to sibling locales where a translation actually exists.
   4. Any recipe that belongs to a collection renders a "Part of [Collection Name]" badge on its detail page linking back to that collection in the same locale.
   5. All published collection URLs appear in the per-locale sitemap with correct `<xhtml:link rel="alternate" hreflang="...">` entries and a CollectionPage JSON-LD block on each detail page.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 12-01-PLAN.md — API hardening (honeypot, DOI, source, rate-limit) + NewsletterSignup upgrade + inline placements on 12 article pages
+- [ ] 12-02-PLAN.md — ExitIntentModal + StickyNewsletterBar components + BaseLayout wiring
+- [ ] 12-03-PLAN.md — Newsletter landing pages (EN/IT/ES) + Brevo admin verification checkpoint
 
 ### Phase 15: Growth Engine v2 — Analytics Feedback Loop
 **Goal**: Umami traffic data flows into Python agents as a normalized `traffic_score`, Matteo sees the top/bottom performers in his Telegram digest, and the strategist agent uses the signal to prioritize content decisions.
@@ -147,7 +159,11 @@ Plans:
   3. The daily Telegram dashboard includes a "Top 5 / Bottom 5 by 7-day traffic per locale" section that updates each morning with correct slugs and links to the content in the CMS.
   4. The Claude strategist agent reads `traffic_score` when building the content queue and its decision log records which items were prioritized for refresh/expansion based on the score.
   5. Content with fewer than 50 visits in the measurement window or less than 7 days since first publish is explicitly excluded from any agent action (low-confidence filter verified in a unit test).
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 12-01-PLAN.md — API hardening (honeypot, DOI, source, rate-limit) + NewsletterSignup upgrade + inline placements on 12 article pages
+- [ ] 12-02-PLAN.md — ExitIntentModal + StickyNewsletterBar components + BaseLayout wiring
+- [ ] 12-03-PLAN.md — Newsletter landing pages (EN/IT/ES) + Brevo admin verification checkpoint
 
 ### Phase 16: A/B Headline Testing Infrastructure
 **Goal**: Blog post headlines can be tested with statistically valid assignment and measurement, without triggering SEO cloaking penalties, rebuild cascades, or client-side flicker; newsletter subject lines ride the same feedback loop via Brevo.
@@ -162,7 +178,11 @@ Plans:
   6. Editing an `ab-experiment` or `variant-impression` entry in Strapi does NOT trigger an Astro site rebuild (adnanh/webhook `hooks.json` excludes these content types); verified by editing a variant and confirming no new entry in `/opt/webhooks/logs/bbqexperience.log`.
   7. A newsletter campaign scheduled through Brevo's native A/B feature (subject-line test) gets a winner recommendation surfaced in the same Telegram weekly digest as on-site experiments.
   8. `may need /gsd:research-phase before planning` — validate adnanh/webhook content-type-level exclusion syntax in `hooks.json`, and confirm Astro middleware cookie behavior behind Cloudflare CDN (cache bypass on Set-Cookie, no edge cache poisoning).
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 12-01-PLAN.md — API hardening (honeypot, DOI, source, rate-limit) + NewsletterSignup upgrade + inline placements on 12 article pages
+- [ ] 12-02-PLAN.md — ExitIntentModal + StickyNewsletterBar components + BaseLayout wiring
+- [ ] 12-03-PLAN.md — Newsletter landing pages (EN/IT/ES) + Brevo admin verification checkpoint
 
 ## Progress
 
@@ -182,7 +202,7 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 9. SEO Audit, Performance & Launch | v1.0 | 2/2 | Complete | 2026-04-01 |
 | 10. Debt Closure & Measurement Baseline | v1.1 | 5/5 | Complete    | 2026-04-16 |
 | 11. Strapi Schema Migration & Localization Helper | v1.1 | 3/3 | Complete    | 2026-04-17 |
-| 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Not started | - |
+| 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/3 | Planning complete | - |
 | 13. Review Filters & Taxonomy | v1.1 | 0/TBD | Not started | - |
 | 14. Recipe Collections | v1.1 | 0/TBD | Not started | - |
 | 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 0/TBD | Not started | - |
