@@ -99,6 +99,12 @@
     },
     "published_date": {
       "type": "date"
+    },
+    "collection": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::recipe-collection.recipe-collection",
+      "inversedBy": "recipes"
     }
   }
 }

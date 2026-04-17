@@ -39,6 +39,11 @@
     },
     "unsubscribed_at": {
       "type": "datetime"
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": ["inline", "landing", "footer", "exit-intent", "legacy"],
+      "default": "legacy"
     }
   }
 }

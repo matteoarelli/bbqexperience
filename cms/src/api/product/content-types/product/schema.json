@@ -27,13 +27,13 @@
       "type": "uid",
       "targetField": "name"
     },
-    "category": {
-      "type": "enumeration",
-      "enum": ["grill", "smoker", "accessory", "fuel", "thermometer", "other"]
+    "product_category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::product-category.product-category"
     },
-    "price_range": {
-      "type": "enumeration",
-      "enum": ["budget", "mid-range", "premium", "luxury"]
+    "price": {
+      "type": "decimal"
     },
     "description": {
       "type": "richtext",
