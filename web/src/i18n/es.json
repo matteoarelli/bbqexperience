@@ -224,28 +224,13 @@
     "placeholder": "Tu correo electronico",
     "submit": "Suscribirse",
     "success": "Gracias por suscribirte!",
-    "confirmMessage": "Revisa tu bandeja -- haz clic en el enlace de confirmacion para completar tu suscripcion.",
-    "errorGeneric": "Algo salio mal. Intentalo de nuevo.",
-    "errorRateLimit": "Demasiados intentos. Intentalo mas tarde.",
-    "errorInvalidEmail": "Ingresa un correo electronico valido.",
-    "stickyBarCta": "Consejos BBQ cada semana",
+    "stickyBarCta": "Recibe consejos BBQ semanales",
     "exitModalAriaLabel": "Suscripcion al newsletter",
     "close": "Cerrar",
-    "landing": {
-      "heroTitle": "No Te Pierdas una Resena",
-      "heroSubtitle": "Suscribete al newsletter de BBQ Experience. Cada semana: resenas honestas, recetas originales y secretos probados en la parrilla -- directo a tu bandeja.",
-      "benefit1Title": "Resenas Exclusivas",
-      "benefit1Desc": "Resenas Pitmaster en profundidad antes que nadie. Puntuaciones reales, nada de relleno patrocinado.",
-      "benefit2Title": "Recetas Originales",
-      "benefit2Desc": "Recetas probadas de nuestra parrilla a la tuya. Paso a paso, sin atajos.",
-      "benefit3Title": "Secretos BBQ",
-      "benefit3Desc": "Tecnicas, consejos de equipo y guias de temporada que los profesionales no comparten en redes.",
-      "socialProof": "Unete a {count}+ pitmasters que reciben contenido de fuego cada semana",
-      "consent": "Al suscribirte aceptas nuestra {privacyLink}. Enviamos un correo por semana. Cancela cuando quieras.",
-      "privacyLinkText": "Politica de Privacidad",
-      "metaTitle": "Newsletter BBQ - Resenas, Recetas y Secretos Exclusivos",
-      "metaDesc": "Suscribete al newsletter de BBQ Experience. Resenas semanales, recetas originales y secretos de parrilla de nivel profesional de nuestra comunidad de 74.000+ pitmasters."
-    }
+    "confirmMessage": "Listo! Revisa tu email para confirmar.",
+    "errorGeneric": "Algo salio mal. Intentalo de nuevo.",
+    "errorRateLimit": "Demasiados intentos. Intentalo mas tarde.",
+    "placeholder_short": "Email"
   },
   "author": {
     "name": "BBQ Experience",

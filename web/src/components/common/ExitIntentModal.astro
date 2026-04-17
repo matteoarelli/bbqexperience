@@ -1,0 +1,237 @@
+---
+/**
+ * ExitIntentModal — Modal newsletter che appare quando il mouse esce dal viewport (solo desktop).
+ * Accessibile: focus trap, Escape chiude, aria-live annuncia, role="dialog".
+ * Soppressione: cookie 14 giorni + 1 per sessione.
+ * Animazione: GSAP dynamic import (fadeIn overlay + scaleUp card).
+ */
+import NewsletterSignup from '@components/common/NewsletterSignup.astro';
+import { getTranslation } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { locale, translations } = Astro.props;
+const ariaLabel = getTranslation(translations, 'newsletter.exitModalAriaLabel');
+const closeText = getTranslation(translations, 'newsletter.close');
+---
+
+<div class="exit-modal" data-exit-modal aria-hidden="true" style="display: none;">
+  <!-- Overlay scuro -->
+  <div class="exit-modal__overlay" data-exit-modal-overlay></div>
+  <!-- Card modale -->
+  <div class="exit-modal__card" role="dialog" aria-modal="true" aria-label={ariaLabel}>
+    <!-- Bordo gradiente fuoco in cima -->
+    <div class="exit-modal__fire-border" aria-hidden="true"></div>
+    <!-- Bottone chiudi -->
+    <button class="exit-modal__close" data-exit-modal-close type="button" aria-label={closeText}>
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <!-- Contenuto newsletter -->
+    <div class="exit-modal__content">
+      <NewsletterSignup translations={translations} source="exit-intent" />
+    </div>
+    <!-- Regione aria-live per annuncio apertura -->
+    <div class="sr-only" aria-live="polite" data-exit-modal-announce></div>
+  </div>
+</div>
+
+<script>
+  // Gestione exit-intent modal — solo desktop con mouse reale
+  (function initExitModal() {
+    const modal = document.querySelector('[data-exit-modal]') as HTMLElement | null;
+    if (!modal) return;
+
+    const overlay = modal.querySelector('[data-exit-modal-overlay]') as HTMLElement;
+    const card = modal.querySelector('[role="dialog"]') as HTMLElement;
+    const closeBtn = modal.querySelector('[data-exit-modal-close]') as HTMLElement;
+    const announce = modal.querySelector('[data-exit-modal-announce]') as HTMLElement;
+
+    // D-09: Solo dispositivi con mouse reale (no touch/mobile)
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    // Controlla soppressione
+    const COOKIE_NAME = 'bbq-exit-modal-dismissed';
+    const SESSION_KEY = 'bbq-exit-modal-shown';
+    const SUBSCRIBED_KEY = 'bbq-newsletter-subscribed';
+
+    function getCookie(name: string): string | null {
+      const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+      return match ? match[1] : null;
+    }
+
+    function setCookie(name: string, value: string, days: number): void {
+      const expires = new Date(Date.now() + days * 864e5).toUTCString();
+      document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    // Se gia' dimesso (cookie 14gg), gia' mostrato questa sessione, o gia' iscritto: esci
+    if (getCookie(COOKIE_NAME) || sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SUBSCRIBED_KEY)) return;
+
+    let previousFocus: HTMLElement | null = null;
+
+    async function showModal() {
+      if (modal!.style.display !== 'none') return; // Gia' aperto
+      sessionStorage.setItem(SESSION_KEY, '1');
+      previousFocus = document.activeElement as HTMLElement;
+
+      modal!.style.display = '';
+      modal!.setAttribute('aria-hidden', 'false');
+      announce.textContent = card.getAttribute('aria-label') || '';
+
+      // Animazione GSAP (dynamic import)
+      const { gsap } = await import('gsap');
+      gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' });
+      gsap.fromTo(card, { scale: 0.9, opacity: 0 }, {
+        scale: 1,
+        opacity: 1,
+        duration: 0.4,
+        ease: 'back.out(1.4)',
+        delay: 0.1,
+        onComplete: () => {
+          // Focus sul primo elemento focusabile dentro il dialog
+          const focusable = card.querySelectorAll<HTMLElement>(
+            'input:not([tabindex="-1"]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          focusable[0]?.focus();
+        }
+      });
+    }
+
+    async function closeModal() {
+      setCookie(COOKIE_NAME, '1', 14); // Soppressione 14 giorni
+      const { gsap } = await import('gsap');
+      gsap.to(card, { scale: 0.95, opacity: 0, duration: 0.2, ease: 'power2.in' });
+      gsap.to(overlay, {
+        opacity: 0,
+        duration: 0.25,
+        ease: 'power2.in',
+        delay: 0.05,
+        onComplete: () => {
+          modal!.style.display = 'none';
+          modal!.setAttribute('aria-hidden', 'true');
+          announce.textContent = '';
+          previousFocus?.focus();
+        }
+      });
+    }
+
+    // D-05: mouseleave solo quando clientY < 0 (uscita verso browser chrome)
+    document.documentElement.addEventListener('mouseleave', (e: MouseEvent) => {
+      if (e.clientY < 0) showModal();
+    });
+
+    // Chiudi su click overlay
+    overlay.addEventListener('click', () => closeModal());
+
+    // Chiudi su click bottone X
+    closeBtn.addEventListener('click', () => closeModal());
+
+    // Keyboard: Escape chiude, Tab intrappola focus nel dialog
+    card.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = card.querySelectorAll<HTMLElement>(
+          'input:not([tabindex="-1"]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+  })();
+</script>
+
+<style>
+  .exit-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .exit-modal__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .exit-modal__card {
+    position: relative;
+    max-width: 480px;
+    width: calc(100% - 32px);
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-lg, 12px);
+    overflow: hidden;
+    padding: var(--space-8);
+  }
+
+  @media (max-width: 639px) {
+    .exit-modal__card {
+      padding: var(--space-6);
+    }
+  }
+
+  .exit-modal__fire-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-accent-fire), var(--color-accent-ember, #ea580c), var(--color-accent-fire));
+  }
+
+  .exit-modal__close {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-md, 6px);
+    transition: color var(--transition-fast);
+  }
+
+  .exit-modal__close:hover {
+    color: var(--color-text-primary);
+  }
+
+  .exit-modal__content {
+    margin-top: var(--space-4);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>

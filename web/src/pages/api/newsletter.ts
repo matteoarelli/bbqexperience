@@ -22,13 +22,6 @@ const STRAPI_URL = import.meta.env.STRAPI_URL || 'http://localhost:1337';
 const STRAPI_API_TOKEN = import.meta.env.STRAPI_API_TOKEN || '';
 const BREVO_API_KEY = import.meta.env.BREVO_API_KEY || '';
 const BREVO_LIST_ID = import.meta.env.BREVO_LIST_ID ? Number(import.meta.env.BREVO_LIST_ID) : 0;
-const BREVO_DOI_TEMPLATE_EN = Number(import.meta.env.BREVO_DOI_TEMPLATE_EN || '0');
-const BREVO_DOI_TEMPLATE_IT = Number(import.meta.env.BREVO_DOI_TEMPLATE_IT || '0');
-const BREVO_DOI_TEMPLATE_ES = Number(import.meta.env.BREVO_DOI_TEMPLATE_ES || '0');
-const DOI_TEMPLATES: Record<string, number> = { en: BREVO_DOI_TEMPLATE_EN, it: BREVO_DOI_TEMPLATE_IT, es: BREVO_DOI_TEMPLATE_ES };
-const SITE_URL = import.meta.env.SITE_URL || 'https://bbq-experience.com';
-
-const VALID_SOURCES = ['inline', 'landing', 'footer', 'exit-intent'] as const;
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -36,27 +29,17 @@ function isValidEmail(email: string): boolean {
 
 export const POST: APIRoute = async ({ request }) => {
   const clientIp = getClientIp(request);
-  if (!checkRateLimit(clientIp, 'newsletter', 5, 3_600_000)) {
+  if (!checkRateLimit(clientIp, 'newsletter', 5)) {
     return new Response(JSON.stringify({ error: 'Too many requests' }), {
       status: 429,
-      headers: { 'Content-Type': 'application/json', 'Retry-After': '3600' },
+      headers: { 'Content-Type': 'application/json', 'Retry-After': '60' },
     });
   }
 
   try {
     const body = await request.json();
-
-    // Honeypot: campo nascosto, se compilato e un bot
-    if (body.website) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
     const email = (body.email || '').trim().toLowerCase();
     const locale = body.locale || 'en';
-    const source = VALID_SOURCES.includes(body.source) ? body.source : 'inline';
 
     if (!email || !isValidEmail(email)) {
       return new Response(JSON.stringify({ error: 'Email non valida' }), {
@@ -78,7 +61,6 @@ export const POST: APIRoute = async ({ request }) => {
           locale_preference: locale,
           status: 'pending',
           subscribed_at: new Date().toISOString(),
-          source,
         },
       }),
       signal: AbortSignal.timeout(10_000),
@@ -93,11 +75,10 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    // 2. Invia Double Opt-In via Brevo (se configurato)
+    // 2. Aggiungi contatto in Brevo (se configurato)
     if (BREVO_API_KEY && BREVO_LIST_ID) {
-      const templateId = DOI_TEMPLATES[locale] || DOI_TEMPLATES['en'];
       try {
-        await fetch('https://api.brevo.com/v3/contacts/doubleOptinConfirmation', {
+        await fetch('https://api.brevo.com/v3/contacts', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -105,15 +86,14 @@ export const POST: APIRoute = async ({ request }) => {
           },
           body: JSON.stringify({
             email,
-            includeListIds: [BREVO_LIST_ID],
-            templateId,
-            redirectionUrl: `${SITE_URL}/${locale}/newsletter/?confirmed=true`,
-            attributes: { LOCALE: locale, SURFACE: source },
+            listIds: [BREVO_LIST_ID],
+            attributes: { LOCALE: locale },
+            updateEnabled: true,
           }),
           signal: AbortSignal.timeout(10_000),
         });
       } catch (brevoErr) {
-        captureError(brevoErr, { context: 'brevo-doi-contact', email: '***' });
+        captureError(brevoErr, { context: 'brevo-create-contact', email: '***' });
       }
     }
 

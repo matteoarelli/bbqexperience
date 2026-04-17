@@ -23,20 +23,9 @@ const subtitle = getTranslation(translations, 'newsletter.subtitle');
 const placeholder = getTranslation(translations, 'newsletter.placeholder');
 const submitText = getTranslation(translations, 'newsletter.submit');
 const successText = getTranslation(translations, 'newsletter.success');
-const confirmText = getTranslation(translations, 'newsletter.confirmMessage');
-const errorGeneric = getTranslation(translations, 'newsletter.errorGeneric');
-const errorRateLimit = getTranslation(translations, 'newsletter.errorRateLimit');
-const errorInvalidEmail = getTranslation(translations, 'newsletter.errorInvalidEmail');
 ---
 
-<div
-  class:list={['newsletter', { 'newsletter--compact': compact }]}
-  data-newsletter
-  data-newsletter-source={source}
-  data-error-generic={errorGeneric}
-  data-error-ratelimit={errorRateLimit}
-  data-error-email={errorInvalidEmail}
->
+<div class:list={['newsletter', { 'newsletter--compact': compact }]} data-newsletter data-newsletter-source={source}>
   {!compact && (
     <div class="newsletter__header">
       <h2 class="newsletter__title">{title}</h2>
@@ -56,35 +45,20 @@ const errorInvalidEmail = getTranslation(translations, 'newsletter.errorInvalidE
       />
       <button type="submit" class="newsletter__submit">{submitText}</button>
     </div>
-    <!-- Honeypot: campo invisibile anti-bot -->
-    <input name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="newsletter__honeypot" />
   </form>
 
   <p class="newsletter__success" data-newsletter-success style="display: none;">
     {successText}
   </p>
-
-  <p class="newsletter__confirm" data-newsletter-confirm style="display: none;">
-    {confirmText}
-  </p>
-
-  <p class="newsletter__error" data-newsletter-error style="display: none;"></p>
 </div>
 
 <script>
-  // Gestione submit newsletter — POST al backend con DOI + honeypot
+  // Gestione submit newsletter — POST al backend + salva in localStorage
   document.querySelectorAll('[data-newsletter]').forEach((container) => {
     const form = container.querySelector('[data-newsletter-form]') as HTMLFormElement | null;
     const success = container.querySelector('[data-newsletter-success]') as HTMLElement | null;
-    const confirm = container.querySelector('[data-newsletter-confirm]') as HTMLElement | null;
-    const errorEl = container.querySelector('[data-newsletter-error]') as HTMLElement | null;
     const emailInput = container.querySelector('[data-newsletter-email]') as HTMLInputElement | null;
-    if (!form || !success || !confirm || !errorEl || !emailInput) return;
-
-    const source = (container as HTMLElement).getAttribute('data-newsletter-source') || 'inline';
-    const errorGenericText = (container as HTMLElement).getAttribute('data-error-generic') || 'Something went wrong.';
-    const errorRateLimitText = (container as HTMLElement).getAttribute('data-error-ratelimit') || 'Too many attempts.';
-    const errorEmailText = (container as HTMLElement).getAttribute('data-error-email') || 'Invalid email.';
+    if (!form || !success || !emailInput) return;
 
     // Se gia' iscritto, mostra subito il messaggio di successo
     if (localStorage.getItem('bbq-newsletter-subscribed')) {
@@ -93,60 +67,33 @@ const errorInvalidEmail = getTranslation(translations, 'newsletter.errorInvalidE
       return;
     }
 
-    function showError(msg: string) {
-      errorEl!.textContent = msg;
-      errorEl!.style.display = 'block';
-    }
-
-    function hideError() {
-      errorEl!.style.display = 'none';
-      errorEl!.textContent = '';
-    }
-
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      hideError();
       const email = emailInput.value.trim();
       if (!email) return;
 
-      // Validazione email lato client
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showError(errorEmailText);
-        return;
-      }
-
-      // Leggi honeypot
-      const honeypotInput = form.querySelector('[name="website"]') as HTMLInputElement | null;
-      const honeypotValue = honeypotInput?.value || '';
-
       try {
         const locale = document.documentElement.lang || 'en';
+        const source = container.getAttribute('data-newsletter-source') || 'inline';
         const res = await fetch('/api/newsletter', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, locale, source, website: honeypotValue }),
+          body: JSON.stringify({ email, locale, source }),
         });
-
-        if (res.ok) {
-          // DOI: mostra messaggio di conferma (controlla inbox)
-          localStorage.setItem('bbq-newsletter-subscribed', email);
-          form.style.display = 'none';
-          confirm.style.display = 'block';
-          // Track newsletter signup in Umami
-          if (typeof umami !== 'undefined') umami.track('newsletter-signup', { source });
-          return;
+        if (!res.ok && res.status !== 429) {
+          console.error('Errore iscrizione newsletter:', res.status);
         }
-
-        if (res.status === 429) {
-          showError(errorRateLimitText);
-          return;
-        }
-
-        showError(errorGenericText);
       } catch (err) {
         console.error('Errore invio newsletter:', err);
-        showError(errorGenericText);
       }
+
+      // Salva anche in localStorage come fallback
+      localStorage.setItem('bbq-newsletter-subscribed', email);
+      form.style.display = 'none';
+      success.style.display = 'block';
+
+      // Track newsletter signup in Umami
+      if (typeof umami !== 'undefined') umami.track('newsletter-signup');
     });
   });
 </script>
@@ -255,27 +202,5 @@ const errorInvalidEmail = getTranslation(translations, 'newsletter.errorInvalidE
     font-size: var(--text-base);
     font-weight: 700;
     margin: 0;
-  }
-
-  .newsletter__honeypot {
-    position: absolute;
-    left: -9999px;
-    opacity: 0;
-    height: 0;
-    width: 0;
-  }
-
-  .newsletter__confirm {
-    color: var(--color-accent-fire);
-    font-family: var(--font-heading);
-    font-size: var(--text-base);
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .newsletter__error {
-    color: var(--color-negative, #ef4444);
-    font-size: var(--text-sm);
-    margin: var(--space-2) 0 0;
   }
 </style>
