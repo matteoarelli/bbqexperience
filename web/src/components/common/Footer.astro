@@ -25,7 +25,7 @@ const sectionLinks = ['reviews', 'recipes', 'tutorials', 'blog'] as const;
     <!-- Newsletter — sezione full-width sopra la griglia footer -->
     <div class="footer-newsletter">
       <h4 class="footer-heading">{getTranslation(translations, 'newsletter.title')}</h4>
-      <NewsletterSignup translations={translations} compact />
+      <NewsletterSignup translations={translations} compact source="footer" />
     </div>
 
     <!-- Griglia principale: 1 col mobile, 4 col desktop -->

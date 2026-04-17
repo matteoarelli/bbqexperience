@@ -223,7 +223,29 @@
     "subtitle": "Get exclusive reviews, recipes, and BBQ secrets. No spam, no BS — just fire content.",
     "placeholder": "Your email address",
     "submit": "Subscribe",
-    "success": "Thanks for subscribing!"
+    "success": "Thanks for subscribing!",
+    "confirmMessage": "Check your inbox -- click the confirmation link to complete your subscription.",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "errorRateLimit": "Too many attempts. Please try again later.",
+    "errorInvalidEmail": "Please enter a valid email address.",
+    "stickyBarCta": "Get BBQ tips weekly",
+    "exitModalAriaLabel": "Newsletter signup",
+    "close": "Close",
+    "landing": {
+      "heroTitle": "Never Miss a Review",
+      "heroSubtitle": "Join the BBQ Experience newsletter. Every week: honest reviews, original recipes, and pit-tested secrets -- delivered straight to your inbox.",
+      "benefit1Title": "Exclusive Reviews",
+      "benefit1Desc": "In-depth Pitmaster reviews before anyone else. Real scores, no sponsored fluff.",
+      "benefit2Title": "Original Recipes",
+      "benefit2Desc": "Tested recipes from our pit to your grill. Step-by-step, with no shortcuts.",
+      "benefit3Title": "BBQ Secrets",
+      "benefit3Desc": "Techniques, gear tips, and seasonal guides the pros don't share on social.",
+      "socialProof": "Join {count}+ pitmasters who get fire content every week",
+      "consent": "By subscribing you agree to our {privacyLink}. We send one email per week. Unsubscribe anytime.",
+      "privacyLinkText": "Privacy Policy",
+      "metaTitle": "BBQ Newsletter - Exclusive Reviews, Recipes & Secrets",
+      "metaDesc": "Subscribe to the BBQ Experience newsletter. Weekly reviews, original recipes, and pro-level grilling secrets from our 74K+ pitmaster community."
+    }
   },
   "author": {
     "name": "BBQ Experience",

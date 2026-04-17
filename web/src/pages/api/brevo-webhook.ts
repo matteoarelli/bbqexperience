@@ -19,6 +19,7 @@ export const prerender = false;
 const STRAPI_URL = import.meta.env.STRAPI_URL || 'http://localhost:1337';
 const STRAPI_API_TOKEN = import.meta.env.STRAPI_API_TOKEN || '';
 const BREVO_WEBHOOK_SECRET = import.meta.env.BREVO_WEBHOOK_SECRET || '';
+const BREVO_API_KEY = import.meta.env.BREVO_API_KEY || '';
 
 function validateSignature(body: string, signature: string | null): boolean {
   if (!BREVO_WEBHOOK_SECRET || !signature) return false;
@@ -79,6 +80,27 @@ export const POST: APIRoute = async ({ request }) => {
     switch (event.event) {
       case 'contact_updated':
         await updateSubscriberStatus(email, 'active');
+        // Fallback: sincronizza SURFACE attribute su Brevo (safety net se DOI endpoint non salva attributes)
+        if (BREVO_API_KEY) {
+          try {
+            const subRes = await fetch(
+              `${STRAPI_URL}/api/subscribers?filters[email][$eq]=${encodeURIComponent(email)}&fields[0]=source`,
+              { headers: { Authorization: `Bearer ${STRAPI_API_TOKEN}` }, signal: AbortSignal.timeout(10_000) },
+            );
+            const subData = await subRes.json();
+            const source = subData?.data?.[0]?.source;
+            if (source) {
+              await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email)}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'api-key': BREVO_API_KEY },
+                body: JSON.stringify({ attributes: { SURFACE: source } }),
+                signal: AbortSignal.timeout(10_000),
+              });
+            }
+          } catch (surfaceErr) {
+            captureError(surfaceErr, { context: 'brevo-webhook-surface-sync', email: '***' });
+          }
+        }
         break;
       case 'unsubscribed':
         await updateSubscriberStatus(email, 'unsubscribed');

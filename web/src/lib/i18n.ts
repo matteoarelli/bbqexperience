@@ -23,6 +23,7 @@ export const localizedRoutes: Record<string, Record<Locale, string>> = {
   terms: { en: 'terms', it: 'terms', es: 'terms' },
   contact: { en: 'contact', it: 'contatti', es: 'contacto' },
   bookmarks: { en: 'bookmarks', it: 'preferiti', es: 'favoritos' },
+  newsletter: { en: 'newsletter', it: 'newsletter', es: 'newsletter' },
   // Sotto-segmenti (es. /reviews/category/<cat>/, /recipes/difficulty/<level>/)
   category: { en: 'category', it: 'categoria', es: 'categoria' },
   difficulty: { en: 'difficulty', it: 'difficolta', es: 'dificultad' },
