@@ -24,7 +24,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Debt cl
 - [ ] **NEWS-02**: Visitor can submit email via a dedicated `/newsletter` landing page (EN/IT/ES) with full value proposition, past issues preview, and privacy/consent copy
 - [ ] **NEWS-03**: Visitor can submit email via a sticky footer bar shown on first visit, dismissible with suppression cookie (30 days)
 - [ ] **NEWS-04**: Visitor can submit email via an exit-intent modal on desktop (tab switch excluded on mobile) with accessibility (focus trap, ESC to close, screen-reader announcement) and frequency cap (1 per session, 14-day suppression after dismiss)
-- [x] **NEWS-05**: System records signup source (inline / landing / footer / exit-intent / legacy) as a Brevo contact attribute and a Strapi `subscriber.source` field for attribution reporting
+- [ ] **NEWS-05**: System records signup source (inline / landing / footer / exit-intent / legacy) as a Brevo contact attribute and a Strapi `subscriber.source` field for attribution reporting
 - [ ] **NEWS-06**: System enforces Brevo double opt-in: visitor receives a confirmation email, remains unconfirmed in Brevo until the link is clicked, and sees a locale-specific "please confirm" success state
 - [ ] **NEWS-07**: System rate-limits signup submissions via the shared SQLite rate-limit (5 attempts per IP per hour) and rejects bot submissions via a hidden honey-pot field
 - [ ] **NEWS-08**: Visitor receives a welcome email (Brevo automation) immediately after confirming, in their signup locale (EN/IT/ES)
@@ -34,13 +34,13 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Debt cl
 <!-- Faceted filtering on the reviews index. SEO guardrails are a hard requirement of the same phase (not follow-up). -->
 
 - [ ] **FILT-01**: Reader can filter reviews by brand (from existing `brand_relation`) on the reviews index page in each locale
-- [x] **FILT-02**: Reader can filter reviews by product category (grill / smoker / pellet / thermometer / accessory) via a new localized `product-category` taxonomy that replaces the string enum
+- [ ] **FILT-02**: Reader can filter reviews by product category (grill / smoker / pellet / thermometer / accessory) via a new localized `product-category` taxonomy that replaces the string enum
 - [ ] **FILT-03**: Reader can filter reviews by price range bucket (<€300, €300–€800, €800–€1500, >€1500) derived from the existing product price field
 - [ ] **FILT-04**: Reader can filter reviews by Pitmaster score threshold (8+, 7+, 6+) across categories
 - [ ] **FILT-05**: Reader sees per-facet count badges and an empty-state with "clear filters" affordance when no review matches
 - [ ] **FILT-06**: Filter state persists in the URL via query params (shareable), with a canonical tag pointing to the un-filtered index and `noindex, follow` on any filtered URL to prevent crawl-budget drain
 - [ ] **FILT-07**: On mobile, filters open in a bottom-sheet drawer with "Apply" confirmation, keeping the primary viewport uncluttered
-- [x] **FILT-08**: Data migration tags all 25 existing reviewed products with the new `product-category` relation before the filter UI goes live
+- [ ] **FILT-08**: Data migration tags all 25 existing reviewed products with the new `product-category` relation before the filter UI goes live
 
 ### Recipe Collections
 
@@ -51,7 +51,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Debt cl
 - [ ] **COLL-03**: Reader can open a collection detail page at `/collections/[slug]` showing the editorial intro, ordered recipes with thumbnail/title/time, and author's note
 - [ ] **COLL-04**: Recipe detail pages show a "Part of [Collection]" badge linking back to the collection when the recipe belongs to one
 - [ ] **COLL-05**: Collection URLs are included in the per-locale sitemap with correct hreflang tags to sibling-locale collections
-- [x] **COLL-06**: Collections support Strapi v5 localization (PUT with `?locale=xx` + slug in body) using a shared helper that replaces ad-hoc calls in existing content-type code
+- [ ] **COLL-06**: Collections support Strapi v5 localization (PUT with `?locale=xx` + slug in body) using a shared helper that replaces ad-hoc calls in existing content-type code
 
 ### Growth Engine v2 — Analytics Feedback Loop
 
@@ -125,24 +125,24 @@ Which phases cover which requirements. Populated during roadmap creation.
 | NEWS-02 | Phase 12 | Pending |
 | NEWS-03 | Phase 12 | Pending |
 | NEWS-04 | Phase 12 | Pending |
-| NEWS-05 | Phase 11 | Complete — subscriber.source enum with 5 values shipped |
+| NEWS-05 | Phase 11 | Pending |
 | NEWS-06 | Phase 12 | Pending |
 | NEWS-07 | Phase 12 | Pending |
 | NEWS-08 | Phase 12 | Pending |
 | FILT-01 | Phase 13 | Pending |
-| FILT-02 | Phase 11 | Complete — product-category taxonomy with 5 localized categories |
+| FILT-02 | Phase 11 | Pending |
 | FILT-03 | Phase 13 | Pending |
 | FILT-04 | Phase 13 | Pending |
 | FILT-05 | Phase 13 | Pending |
 | FILT-06 | Phase 13 | Pending |
 | FILT-07 | Phase 13 | Pending |
-| FILT-08 | Phase 11 | Complete — 25 products backfilled with product_category (134/134 rows) |
+| FILT-08 | Phase 11 | Pending |
 | COLL-01 | Phase 14 | Pending |
 | COLL-02 | Phase 14 | Pending |
 | COLL-03 | Phase 14 | Pending |
 | COLL-04 | Phase 14 | Pending |
 | COLL-05 | Phase 14 | Pending |
-| COLL-06 | Phase 11 | Complete — recipe-collection CT + TS locale helper + recipe.collection relation |
+| COLL-06 | Phase 11 | Pending |
 | ANLY-01 | Phase 15 | Pending |
 | ANLY-02 | Phase 15 | Pending |
 | ANLY-03 | Phase 15 | Pending |

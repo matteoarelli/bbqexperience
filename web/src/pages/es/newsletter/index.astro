@@ -1,0 +1,109 @@
+---
+// Pagina dedicata newsletter (ES) — landing page con proposta di valore e form iscrizione
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import NewsletterSignup from '@components/common/NewsletterSignup.astro';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+export const prerender = true;
+
+const locale: Locale = 'es';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+---
+
+<BaseLayout
+  title={t('newsletter.landing.metaTitle')}
+  description={t('newsletter.landing.metaDesc')}
+  locale={locale}
+  canonicalPath={`/${localizedRoutes.newsletter[locale]}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${localizedRoutes.newsletter[locale]}/`} />
+
+  <!-- Hero -->
+  <section class="nl-hero">
+    <div class="container-bbq">
+      <h1 class="nl-hero__title">{t('newsletter.landing.heroTitle')}</h1>
+      <p class="nl-hero__subtitle">{t('newsletter.landing.heroSubtitle')}</p>
+    </div>
+  </section>
+
+  <!-- Benefici: 3-column grid -->
+  <section class="nl-benefits">
+    <div class="container-bbq">
+      <div class="nl-benefits__grid">
+        <div class="nl-benefits__card">
+          <svg class="nl-benefits__icon" width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M24 4C20 10 14 16 14 24c0 5.523 4.477 10 10 10s10-4.477 10-10C34 16 28 10 24 4z" fill="var(--color-accent-fire)"/>
+          </svg>
+          <h3 class="nl-benefits__title">{t('newsletter.landing.benefit1Title')}</h3>
+          <p class="nl-benefits__desc">{t('newsletter.landing.benefit1Desc')}</p>
+        </div>
+        <div class="nl-benefits__card">
+          <svg class="nl-benefits__icon" width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <path d="M24 6c-2 4-6 6-6 12a6 6 0 0012 0c0-6-4-8-6-12zM12 28h24v4c0 6.627-5.373 12-12 12S12 38.627 12 32v-4z" fill="var(--color-accent-fire)"/>
+          </svg>
+          <h3 class="nl-benefits__title">{t('newsletter.landing.benefit2Title')}</h3>
+          <p class="nl-benefits__desc">{t('newsletter.landing.benefit2Desc')}</p>
+        </div>
+        <div class="nl-benefits__card">
+          <svg class="nl-benefits__icon" width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+            <rect x="10" y="20" width="28" height="22" rx="3" fill="var(--color-accent-fire)" opacity="0.2"/>
+            <path d="M24 20V12m0 0l-6 6m6-6l6 6" stroke="var(--color-accent-fire)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="10" y="20" width="28" height="22" rx="3" stroke="var(--color-accent-fire)" stroke-width="2" fill="none"/>
+          </svg>
+          <h3 class="nl-benefits__title">{t('newsletter.landing.benefit3Title')}</h3>
+          <p class="nl-benefits__desc">{t('newsletter.landing.benefit3Desc')}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof -->
+  <section class="nl-social">
+    <div class="container-bbq">
+      <p class="nl-social__text" set:html={t('newsletter.landing.socialProof').replace('{count}', '<span class="nl-social__count">74.000</span>')} />
+    </div>
+  </section>
+
+  <!-- Form iscrizione -->
+  <section class="nl-signup">
+    <div class="container-bbq">
+      <div class="nl-signup__wrapper">
+        <NewsletterSignup translations={translations} source="landing" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Testo consenso -->
+  <section class="nl-consent">
+    <div class="container-bbq">
+      <p class="nl-consent__text" set:html={t('newsletter.landing.consent').replace('{privacyLink}', `<a href="/${locale}/privacy/" class="nl-consent__link">${t('newsletter.landing.privacyLinkText')}</a>`)} />
+    </div>
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .nl-hero { padding: var(--space-16) var(--space-4); text-align: center; }
+  .nl-hero__title { font-family: var(--font-heading); font-size: var(--text-3xl); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--color-text-primary); margin: 0; }
+  .nl-hero__subtitle { font-size: var(--text-base); color: var(--color-text-secondary); max-width: 640px; margin: var(--space-4) auto 0; line-height: 1.5; }
+  .nl-benefits { padding: var(--space-12) var(--space-4); background: var(--color-bg-secondary); }
+  .nl-benefits__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6); }
+  .nl-benefits__card { padding: var(--space-6); text-align: center; }
+  .nl-benefits__icon { margin: 0 auto; }
+  .nl-benefits__title { font-family: var(--font-heading); font-size: var(--text-base); font-weight: 700; text-transform: uppercase; color: var(--color-text-primary); margin: var(--space-3) 0 0; }
+  .nl-benefits__desc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.5; margin: var(--space-2) 0 0; }
+  .nl-social { padding: var(--space-8) var(--space-4); text-align: center; }
+  .nl-social__text { font-size: var(--text-2xl); font-weight: 700; color: var(--color-text-secondary); margin: 0; }
+  .nl-social__count { color: var(--color-accent-fire); }
+  .nl-signup { padding: var(--space-12) var(--space-4); text-align: center; }
+  .nl-signup__wrapper { max-width: 560px; margin: 0 auto; }
+  .nl-consent { padding: 0 var(--space-4) var(--space-12); text-align: center; }
+  .nl-consent__text { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.5; max-width: 480px; margin: 0 auto; }
+  .nl-consent__link { color: var(--color-accent-fire); text-decoration: none; }
+  .nl-consent__link:hover { text-decoration: underline; }
+</style>

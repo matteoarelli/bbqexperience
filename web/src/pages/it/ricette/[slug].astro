@@ -19,7 +19,6 @@ import PrintRecipeCard from '@components/recipe/PrintRecipeCard.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
 import BookmarkButton from '@components/common/BookmarkButton.svelte';
 import AuthorCard from '@components/content/AuthorCard.astro';
-import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import Breadcrumbs from '@components/content/Breadcrumbs.astro';
 import Header from '@components/common/Header.astro';
@@ -194,11 +193,6 @@ const breadcrumbItems = [
           />
         </section>
       )}
-    </div>
-
-    <!-- Newsletter inline -->
-    <div style="margin-top: var(--space-10);">
-      <NewsletterSignup translations={translations} source="inline" />
     </div>
 
     <!-- Card autore -->
