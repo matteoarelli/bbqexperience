@@ -374,22 +374,25 @@ newsletter: { en: 'newsletter', it: 'newsletter', es: 'newsletter' },
 | A3 | `redirectionUrl` in Brevo DOI can include query params (`?confirmed=true`) | Architecture Patterns | Low -- standard URL, confirmed by Brevo docs example |
 | A4 | Vanilla JS focus trap is sufficient for WCAG 2.1 AA compliance | Don't Hand-Roll | Low -- standard pattern used by major a11y implementations |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Brevo DOI Template IDs**
+1. **Brevo DOI Template IDs** (RESOLVED)
    - What we know: Matteo must create 3 DOI email templates in Brevo admin (EN/IT/ES) and note their numeric IDs
    - What's unclear: Whether Matteo has already created these templates or knows how
    - Recommendation: Document as a manual prerequisite in the plan. Provide template ID env var names so Matteo can fill them in.
+   - **Resolution:** Plan 01 documents DOI template IDs as user_setup prerequisite with env var names BREVO_DOI_TEMPLATE_EN/IT/ES. Plan 03 Task 2 (checkpoint) verifies Matteo has created the templates.
 
-2. **Brevo `SURFACE` Attribute on DOI Endpoint**
+2. **Brevo `SURFACE` Attribute on DOI Endpoint** (RESOLVED)
    - What we know: The regular `/v3/contacts` endpoint accepts `attributes`. The DOI endpoint docs show `attributes` as an optional field.
    - What's unclear: Whether attributes are applied immediately or only after DOI confirmation
    - Recommendation: Test with a real call. If attributes are dropped on DOI, add a fallback: set SURFACE via Brevo webhook handler when contact_updated fires.
+   - **Resolution:** Plan 01 Task 1 implements a safety-net fallback in brevo-webhook.ts: when `contact_updated` fires, the handler looks up the subscriber source from Strapi and sets the SURFACE attribute on the Brevo contact via `PUT /v3/contacts/{email}`. This ensures source attribution is preserved even if the DOI endpoint silently drops attributes.
 
-3. **Welcome Email Trigger**
+3. **Welcome Email Trigger** (RESOLVED)
    - What we know: NEWS-08 requires a welcome email on DOI confirmation
    - What's unclear: Whether Brevo automation trigger should be "contact added to list" or "DOI confirmed"
    - Recommendation: Use "contact added to list" trigger in Brevo automation -- this fires ONLY after DOI confirmation, not on initial doubleOptinConfirmation API call.
+   - **Resolution:** Plan 03 Task 2 (checkpoint) instructs Matteo to use "Contact added to list" as the automation trigger, which fires only after DOI confirmation.
 
 ## Environment Availability
 
