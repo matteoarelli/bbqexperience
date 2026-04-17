@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Phase 11 context gathered
-last_updated: "2026-04-17T09:38:40.506Z"
+stopped_at: Phase 12 context gathered
+last_updated: "2026-04-17T10:59:13.127Z"
 last_activity: 2026-04-17
 progress:
   total_phases: 8
@@ -94,6 +94,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-04-17T08:30:12.729Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-strapi-schema-migration-localization-helper/11-CONTEXT.md
+Last session: 2026-04-17T10:59:13.123Z
+Stopped at: Phase 12 context gathered
+Resume file: .planning/phases/12-newsletter-on-site-signup-brevo/12-CONTEXT.md
