@@ -42,7 +42,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 
 - [x] **Phase 10: Debt Closure & Measurement Baseline** — Backfill VERIFICATION.md for phases 03–09, reconcile v1.0 traceability, fresh Lighthouse 90+ measurement. (completed 2026-04-16, partial DEBT-03 closure — image-delivery deferred to 10.1)
 - [x] **Phase 10.1: Image Delivery via Cloudflare Resizing** *(INSERTED)* — Close residual DEBT-03 gap: route Strapi media URLs through Cloudflare Image Resizing (or equivalent CDN transformation) so the 6 pages still scoring sub-90 on Lighthouse Performance reach ≥90; re-measure all 15 baseline pages → status=pass. (completed 2026-04-16, 15/15 ≥90 Perf median 0.97, DEBT-03 CLOSED)
-- [ ] **Phase 11: Strapi Schema Migration & Localization Helper** — Land all v1.1 schema changes in one CMS rebuild window (product-category taxonomy, subscriber.source, recipe-collection scaffold, shared locale PUT helper) and migrate existing product data.
+- [x] **Phase 11: Strapi Schema Migration & Localization Helper** — Land all v1.1 schema changes in one CMS rebuild window (product-category taxonomy, subscriber.source, recipe-collection scaffold, shared locale PUT helper) and migrate existing product data. (completed 2026-04-17)
 - [ ] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email.
 - [ ] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails.
 - [ ] **Phase 14: Recipe Collections** — Curated editorial groupings as a new i18n content type with listing, detail, cross-linking, sitemap, hreflang.
@@ -95,9 +95,9 @@ Plans:
   5. Production `cms` container rebuilds cleanly (`npm run build` + `docker compose up -d --build strapi`) with zero editorial downtime windowed outside peak publish hours.
 **Plans**: 3 plans
 Plans:
-- [ ] 11-01-PLAN.md — Create product-category + recipe-collection content types, modify Product/Subscriber/Recipe schemas
-- [ ] 11-02-PLAN.md — Migration script (seed categories, backfill products, tag subscribers) + TS locale helper + Python agent audit
-- [ ] 11-03-PLAN.md — Deploy to Hetzner, run migration, SQL/REST audits, Matteo admin verification
+- [x] 11-01-PLAN.md — Create product-category + recipe-collection content types, modify Product/Subscriber/Recipe schemas
+- [x] 11-02-PLAN.md — Migration script (seed categories, backfill products, tag subscribers) + TS locale helper + Python agent audit
+- [x] 11-03-PLAN.md — Deploy to Hetzner, run migration, SQL/REST audits, Matteo admin verification
 
 ### Phase 12: Newsletter On-Site Signup (Brevo)
 **Goal**: Readers can subscribe to the newsletter from 4 on-site surfaces with GDPR-compliant double opt-in, and every signup is attributed to a surface for conversion reporting.
@@ -181,7 +181,7 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 8. Product Comparison & Advanced Interactions | v1.0 | 3/3 | Complete | 2026-04-01 |
 | 9. SEO Audit, Performance & Launch | v1.0 | 2/2 | Complete | 2026-04-01 |
 | 10. Debt Closure & Measurement Baseline | v1.1 | 5/5 | Complete    | 2026-04-16 |
-| 11. Strapi Schema Migration & Localization Helper | v1.1 | 0/3 | Planned | - |
+| 11. Strapi Schema Migration & Localization Helper | v1.1 | 3/3 | Complete    | 2026-04-17 |
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Not started | - |
 | 13. Review Filters & Taxonomy | v1.1 | 0/TBD | Not started | - |
 | 14. Recipe Collections | v1.1 | 0/TBD | Not started | - |
