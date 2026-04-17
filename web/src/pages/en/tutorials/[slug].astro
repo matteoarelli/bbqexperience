@@ -13,6 +13,7 @@ import RelatedContent from '@components/content/RelatedContent.astro';
 import SocialShareBar from '@components/social/SocialShareBar.astro';
 import BookmarkButton from '@components/common/BookmarkButton.svelte';
 import AuthorCard from '@components/content/AuthorCard.astro';
+import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import { fetchBySlug } from '@lib/strapi';
 import type { StrapiTutorial } from '@lib/types';
@@ -119,6 +120,10 @@ const difficultyColors: Record<string, string> = {
 
       <RelatedContent slot="related" locale={locale} translations={translations} currentSlug={tutorial.slug} currentType="tutorial" />
     </ContentLayout>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-10);">
+    <NewsletterSignup translations={translations} source="inline" />
   </div>
 
   <div class="max-w-4xl mx-auto px-[var(--container-padding)]">
