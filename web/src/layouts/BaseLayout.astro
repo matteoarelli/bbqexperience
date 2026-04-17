@@ -8,6 +8,8 @@ import BackToTop from '@components/common/BackToTop.astro';
 import KeyboardShortcuts from '@components/common/KeyboardShortcuts.astro';
 import TrustBar from '@components/common/TrustBar.astro';
 import MobileMenuPanel from '@components/common/MobileMenuPanel.astro';
+import ExitIntentModal from '@components/common/ExitIntentModal.astro';
+import StickyNewsletterBar from '@components/common/StickyNewsletterBar.astro';
 import { loadTranslations, getTranslation } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 import '@styles/global.css';
@@ -99,6 +101,8 @@ const translations = await loadTranslations(locale as any);
     <slot name="footer" />
 
     <MobileMenuPanel locale={locale as Locale} translations={translations} currentPath={Astro.url.pathname} />
+    <ExitIntentModal locale={locale as Locale} translations={translations} />
+    <StickyNewsletterBar locale={locale as Locale} translations={translations} />
     <BackToTop />
     <KeyboardShortcuts />
     <CookieConsent locale={locale as Locale} translations={translations} />

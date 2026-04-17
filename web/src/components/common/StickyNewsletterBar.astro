@@ -1,0 +1,334 @@
+---
+/**
+ * StickyNewsletterBar — Barra newsletter fissa in basso.
+ * Appare dopo 5s o 30% scroll (quello che arriva prima).
+ * Si nasconde quando il footer e' visibile (IntersectionObserver).
+ * Soppressione: cookie 30 giorni + localStorage iscritto.
+ * Animazione: GSAP slide-up/slide-down (dynamic import).
+ */
+import { getTranslation } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { locale, translations } = Astro.props;
+
+const ctaText = getTranslation(translations, 'newsletter.stickyBarCta');
+const placeholder = getTranslation(translations, 'newsletter.placeholder');
+const submitText = getTranslation(translations, 'newsletter.submit');
+const confirmText = getTranslation(translations, 'newsletter.confirmMessage');
+const closeText = getTranslation(translations, 'newsletter.close');
+const errorGeneric = getTranslation(translations, 'newsletter.errorGeneric');
+const errorRateLimit = getTranslation(translations, 'newsletter.errorRateLimit');
+---
+
+<div class="sticky-bar" data-sticky-bar aria-label="Newsletter" style="display: none; transform: translateY(100%);"
+  data-error-generic={errorGeneric} data-error-ratelimit={errorRateLimit}>
+  <div class="sticky-bar__inner">
+    <!-- CTA testo (nascosto su <480px) -->
+    <span class="sticky-bar__cta">{ctaText}</span>
+    <!-- Form inline -->
+    <form class="sticky-bar__form" data-sticky-bar-form>
+      <input name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" class="sticky-bar__honeypot" />
+      <input type="email" required placeholder={placeholder} class="sticky-bar__input" data-sticky-bar-email autocomplete="email" />
+      <button type="submit" class="sticky-bar__submit">{submitText}</button>
+    </form>
+    <!-- Messaggio conferma (nascosto) -->
+    <p class="sticky-bar__confirm" data-sticky-bar-confirm style="display: none;">{confirmText}</p>
+    <!-- Errore (nascosto) -->
+    <p class="sticky-bar__error" data-sticky-bar-error style="display: none;"></p>
+    <!-- Bottone chiudi -->
+    <button class="sticky-bar__close" data-sticky-bar-close type="button" aria-label={closeText}>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  // Gestione sticky newsletter bar
+  (function initStickyBar() {
+    const bar = document.querySelector('[data-sticky-bar]') as HTMLElement | null;
+    if (!bar) return;
+
+    const form = bar.querySelector('[data-sticky-bar-form]') as HTMLFormElement;
+    const emailInput = bar.querySelector('[data-sticky-bar-email]') as HTMLInputElement;
+    const confirmEl = bar.querySelector('[data-sticky-bar-confirm]') as HTMLElement;
+    const errorEl = bar.querySelector('[data-sticky-bar-error]') as HTMLElement;
+    const closeBtn = bar.querySelector('[data-sticky-bar-close]') as HTMLElement;
+
+    // Cookie/localStorage helpers
+    const COOKIE_NAME = 'bbq-sticky-bar-dismissed';
+    const SUBSCRIBED_KEY = 'bbq-newsletter-subscribed';
+
+    function getCookie(name: string): string | null {
+      const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+      return match ? match[1] : null;
+    }
+
+    function setCookie(name: string, value: string, days: number): void {
+      const expires = new Date(Date.now() + days * 864e5).toUTCString();
+      document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    // Soppressione: cookie 30gg o gia' iscritto
+    if (getCookie(COOKIE_NAME) || localStorage.getItem(SUBSCRIBED_KEY)) return;
+
+    let isVisible = false;
+    let isDismissed = false;
+    let hasTriggered = false;
+
+    async function slideUp() {
+      if (isVisible || isDismissed) return;
+      isVisible = true;
+      bar!.style.display = '';
+      const { gsap } = await import('gsap');
+      gsap.to(bar, { y: 0, duration: 0.5, ease: 'power3.out' });
+    }
+
+    async function slideDown(permanent: boolean = false) {
+      if (!isVisible) return;
+      isVisible = false;
+      const { gsap } = await import('gsap');
+      gsap.to(bar, {
+        y: '100%',
+        duration: 0.3,
+        ease: 'power2.in',
+        onComplete: () => {
+          if (permanent) {
+            bar!.style.display = 'none';
+          }
+        }
+      });
+      if (permanent) {
+        isDismissed = true;
+        setCookie(COOKIE_NAME, '1', 30); // Soppressione 30 giorni
+      }
+    }
+
+    // Trigger: mostra dopo 5s o 30% scroll (quale arriva prima)
+    function triggerShow() {
+      if (hasTriggered) return;
+      hasTriggered = true;
+      // Pulisci listener
+      clearTimeout(timeoutId);
+      window.removeEventListener('scroll', onScroll);
+      slideUp();
+    }
+
+    const timeoutId = setTimeout(triggerShow, 5000);
+
+    function onScroll() {
+      const scrolled = window.scrollY;
+      const threshold = document.documentElement.scrollHeight * 0.3;
+      if (scrolled >= threshold) triggerShow();
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // D-13: IntersectionObserver sul footer — nasconde la bar quando il footer e' visibile
+    const footer = document.querySelector('footer');
+    if (footer) {
+      const footerObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && isVisible) {
+              // Footer visibile: slide down (temporaneo)
+              slideDownTemp();
+            } else if (!entry.isIntersecting && hasTriggered && !isDismissed) {
+              // Footer non visibile: ri-mostra se non dimesso
+              slideUp();
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      footerObserver.observe(footer);
+    }
+
+    async function slideDownTemp() {
+      if (!isVisible) return;
+      isVisible = false;
+      const { gsap } = await import('gsap');
+      gsap.to(bar, { y: '100%', duration: 0.3, ease: 'power2.in' });
+    }
+
+    // Dismiss permanente su click X
+    closeBtn.addEventListener('click', () => slideDown(true));
+
+    // Form submit: POST a /api/newsletter
+    form.addEventListener('submit', async (e: Event) => {
+      e.preventDefault();
+      const email = emailInput.value.trim();
+      if (!email) return;
+
+      // Honeypot check
+      const honeypot = form.querySelector('[name="website"]') as HTMLInputElement;
+      const honeypotValue = honeypot?.value || '';
+
+      errorEl.style.display = 'none';
+
+      try {
+        const locale = document.documentElement.lang || 'en';
+        const res = await fetch('/api/newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, locale, source: 'footer', website: honeypotValue }),
+          signal: AbortSignal.timeout(10_000),
+        });
+
+        if (res.status === 429) {
+          errorEl.textContent = bar!.getAttribute('data-error-ratelimit') || 'Too many attempts.';
+          errorEl.style.display = '';
+          return;
+        }
+
+        if (!res.ok) {
+          errorEl.textContent = bar!.getAttribute('data-error-generic') || 'Something went wrong.';
+          errorEl.style.display = '';
+          return;
+        }
+
+        // Successo
+        localStorage.setItem(SUBSCRIBED_KEY, email);
+        form.style.display = 'none';
+        confirmEl.style.display = '';
+
+        // Track in Umami
+        if (typeof (window as any).umami !== 'undefined') {
+          (window as any).umami.track('newsletter-signup', { source: 'footer' });
+        }
+
+        // Nascondi la bar dopo 3 secondi
+        setTimeout(() => slideDown(true), 3000);
+      } catch (err) {
+        errorEl.textContent = bar!.getAttribute('data-error-generic') || 'Something went wrong.';
+        errorEl.style.display = '';
+      }
+    });
+  })();
+</script>
+
+<style>
+  .sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    background: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border-default, var(--color-border-subtle));
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .sticky-bar__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: var(--container-max, 1200px);
+    margin: 0 auto;
+  }
+
+  .sticky-bar__cta {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 479px) {
+    .sticky-bar__cta {
+      display: none;
+    }
+  }
+
+  .sticky-bar__form {
+    display: flex;
+    flex: 1;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
+  .sticky-bar__honeypot {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+    height: 0;
+    width: 0;
+  }
+
+  .sticky-bar__input {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-2) var(--space-3);
+    background-color: var(--color-bg-primary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md, 6px);
+    color: var(--color-text-primary);
+    font-size: var(--text-sm);
+    outline: none;
+    transition: border-color var(--transition-fast);
+  }
+
+  .sticky-bar__input:focus {
+    border-color: var(--color-accent-fire);
+  }
+
+  .sticky-bar__input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .sticky-bar__submit {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse, #fff);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-md, 6px);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color var(--transition-fast);
+  }
+
+  .sticky-bar__submit:hover {
+    background-color: var(--color-accent-ember, #ea580c);
+  }
+
+  .sticky-bar__confirm {
+    flex: 1;
+    color: var(--color-accent-fire);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .sticky-bar__error {
+    color: var(--color-negative, #ef4444);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  .sticky-bar__close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: color var(--transition-fast);
+  }
+
+  .sticky-bar__close:hover {
+    color: var(--color-text-primary);
+  }
+</style>
