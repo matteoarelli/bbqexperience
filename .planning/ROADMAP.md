@@ -93,7 +93,11 @@ Plans:
   3. The Subscriber content type has a `source` field (enum: inline, landing, footer, exit-intent, legacy) and the Recipe content type carries a `collection` relation to the new (empty) recipe-collection type.
   4. A shared helper (e.g. `scripts/agents/lib/strapi_locale.py` and/or `cms/src/lib/update-localized.ts`) performs every PUT with `?locale=xx` + slug in body; existing ad-hoc locale PUTs in Growth Engine agents are refactored to use it.
   5. Production `cms` container rebuilds cleanly (`npm run build` + `docker compose up -d --build strapi`) with zero editorial downtime windowed outside peak publish hours.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 11-01-PLAN.md — Create product-category + recipe-collection content types, modify Product/Subscriber/Recipe schemas
+- [ ] 11-02-PLAN.md — Migration script (seed categories, backfill products, tag subscribers) + TS locale helper + Python agent audit
+- [ ] 11-03-PLAN.md — Deploy to Hetzner, run migration, SQL/REST audits, Matteo admin verification
 
 ### Phase 12: Newsletter On-Site Signup (Brevo)
 **Goal**: Readers can subscribe to the newsletter from 4 on-site surfaces with GDPR-compliant double opt-in, and every signup is attributed to a surface for conversion reporting.
@@ -177,7 +181,7 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 8. Product Comparison & Advanced Interactions | v1.0 | 3/3 | Complete | 2026-04-01 |
 | 9. SEO Audit, Performance & Launch | v1.0 | 2/2 | Complete | 2026-04-01 |
 | 10. Debt Closure & Measurement Baseline | v1.1 | 5/5 | Complete    | 2026-04-16 |
-| 11. Strapi Schema Migration & Localization Helper | v1.1 | 0/TBD | Not started | - |
+| 11. Strapi Schema Migration & Localization Helper | v1.1 | 0/3 | Planned | - |
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Not started | - |
 | 13. Review Filters & Taxonomy | v1.1 | 0/TBD | Not started | - |
 | 14. Recipe Collections | v1.1 | 0/TBD | Not started | - |
