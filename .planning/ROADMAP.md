@@ -45,7 +45,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 - [x] **Phase 11: Strapi Schema Migration & Localization Helper** — Land all v1.1 schema changes in one CMS rebuild window (product-category taxonomy, subscriber.source, recipe-collection scaffold, shared locale PUT helper) and migrate existing product data.
 - [x] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email. (completed 2026-04-21)
 - [x] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails. (completed 2026-04-21)
-- [ ] **Phase 14: Recipe Collections** — Curated editorial groupings as a new i18n content type with listing, detail, cross-linking, sitemap, hreflang.
+- [x] **Phase 14: Recipe Collections** — Curated editorial groupings as a new i18n content type with listing, detail, cross-linking, sitemap, hreflang. (completed 2026-04-21)
 - [ ] **Phase 15: Growth Engine v2 — Analytics Feedback Loop** — Umami → traffic_score on content, Telegram top/bottom digest, strategist consumes signal, noise guardrails.
 - [ ] **Phase 16: A/B Headline Testing Infrastructure** — Astro middleware bucket assignment, Umami event attribution, weekly stats agent, webhook rebuild exclusion, newsletter subject-line A/B via Brevo native.
 
@@ -143,7 +143,7 @@ Plans:
 Plans:
 - [x] 14-01-PLAN.md — Foundation: Strapi schema evolution, TS types, i18n keys, CollectionCard + CollectionBadge components
 - [ ] 14-02-PLAN.md — Collection listing + detail pages (EN/IT/ES) + CollectionBadge on recipe detail
-- [ ] 14-03-PLAN.md — Sitemap hreflang extension, navigation link, deploy verification
+- [x] 14-03-PLAN.md — Sitemap hreflang extension, navigation link, deploy verification
 
 ### Phase 15: Growth Engine v2 — Analytics Feedback Loop
 **Goal**: Umami traffic data flows into Python agents as a normalized `traffic_score`, Matteo sees the top/bottom performers in his Telegram digest, and the strategist agent uses the signal to prioritize content decisions.
@@ -192,6 +192,6 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 11. Strapi Schema Migration & Localization Helper | v1.1 | 3/3 | Complete | 2026-04-21 |
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Complete    | 2026-04-21 |
 | 13. Review Filters & Taxonomy | v1.1 | 3/3 | Complete    | 2026-04-21 |
-| 14. Recipe Collections | v1.1 | 1/3 | In Progress|  |
+| 14. Recipe Collections | v1.1 | 1/3 | Complete    | 2026-04-21 |
 | 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 0/TBD | Not started | - |
 | 16. A/B Headline Testing Infrastructure | v1.1 | 0/TBD | Not started | - |
