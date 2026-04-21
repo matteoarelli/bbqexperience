@@ -123,7 +123,13 @@ Plans:
   4. On viewports ≤768 px, the filter UI opens as a bottom-sheet drawer with a sticky "Apply (N)" button; count reflects pending selections before apply.
   5. Zero-match combinations render an empty state with a "Clear filters" button that resets to the canonical index in one click.
   6. `may need /gsd:research-phase before planning` — confirm the canonical+noindex policy for small-corpus editorial facets and identify any filter combinations worth promoting to real indexable taxonomy landing pages.
-**Plans**: TBD
+**Plans**: 3 (1 complete, 2 remaining)
+
+| Plan | Description | Status |
+|------|-------------|--------|
+| 13-01 | Filter Foundation — Types, Utils, SEO, i18n | Complete |
+| 13-02 | Reviews page rewrite with filter UI | Pending |
+| 13-03 | Mobile filter drawer + polish | Pending |
 
 ### Phase 14: Recipe Collections
 **Goal**: The author can curate themed recipe groupings that readers browse as a first-class section of the site in all three locales.
