@@ -89,7 +89,7 @@ def get_metrics_by_path(
     """Recupera metriche per URL path da Umami (timestamp in millisecondi)."""
     url = (
         f"{UMAMI_URL}/api/websites/{UMAMI_SITE_ID}/metrics"
-        f"?startAt={start_ms}&endAt={end_ms}&type=url&limit={limit}"
+        f"?startAt={start_ms}&endAt={end_ms}&type=path&limit={limit}"
     )
     result = _request(url)
     return result if isinstance(result, list) else []
