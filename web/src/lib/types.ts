@@ -14,7 +14,8 @@ export type ContentType =
   | 'keyword-trackers'
   | 'content-queues'
   | 'product-categories'
-  | 'recipe-collections';
+  | 'recipe-collections'
+  | 'ab-experiments';
 
 // ─── Media ───────────────────────────────────────────────────────────────────
 
@@ -276,4 +277,16 @@ export interface StrapiContentQueue {
   ai_generated: boolean;
   published_content_id: string | null;
   generation_log: string | null;
+}
+
+/** Esperimento A/B per titoli e headline dei contenuti */
+export interface StrapiAbExperiment {
+  blog_post: (StrapiBlogPost & StrapiEntity) | null;
+  variant_a: string;
+  variant_b: string;
+  variant_c: string | null;
+  status: 'active' | 'completed' | 'paused';
+  winner: 'control' | 'a' | 'b' | 'c' | null;
+  started_at: string | null;
+  completed_at: string | null;
 }
