@@ -139,7 +139,11 @@ Plans:
   3. `/{locale}/{collections-route}/{slug}/` renders the editorial intro, ordered recipes (thumbnail + title + cook time), and an author's note; hreflang links point only to sibling locales where a translation actually exists.
   4. Any recipe that belongs to a collection renders a "Part of [Collection Name]" badge on its detail page linking back to that collection in the same locale.
   5. All published collection URLs appear in the per-locale sitemap with correct `<xhtml:link rel="alternate" hreflang="...">` entries and a CollectionPage JSON-LD block on each detail page.
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 14-01-PLAN.md — Foundation: Strapi schema evolution, TS types, i18n keys, CollectionCard + CollectionBadge components
+- [ ] 14-02-PLAN.md — Collection listing + detail pages (EN/IT/ES) + CollectionBadge on recipe detail
+- [ ] 14-03-PLAN.md — Sitemap hreflang extension, navigation link, deploy verification
 
 ### Phase 15: Growth Engine v2 — Analytics Feedback Loop
 **Goal**: Umami traffic data flows into Python agents as a normalized `traffic_score`, Matteo sees the top/bottom performers in his Telegram digest, and the strategist agent uses the signal to prioritize content decisions.
@@ -188,6 +192,6 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 11. Strapi Schema Migration & Localization Helper | v1.1 | 3/3 | Complete | 2026-04-21 |
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Complete    | 2026-04-21 |
 | 13. Review Filters & Taxonomy | v1.1 | 3/3 | Complete    | 2026-04-21 |
-| 14. Recipe Collections | v1.1 | 0/TBD | Not started | - |
+| 14. Recipe Collections | v1.1 | 0/3 | Planned | - |
 | 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 0/TBD | Not started | - |
 | 16. A/B Headline Testing Infrastructure | v1.1 | 0/TBD | Not started | - |
