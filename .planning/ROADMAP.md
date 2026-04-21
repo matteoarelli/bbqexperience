@@ -43,7 +43,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 - [x] **Phase 10: Debt Closure & Measurement Baseline** — Backfill VERIFICATION.md for phases 03–09, reconcile v1.0 traceability, fresh Lighthouse 90+ measurement. (completed 2026-04-16, partial DEBT-03 closure — image-delivery deferred to 10.1)
 - [x] **Phase 10.1: Image Delivery via Cloudflare Resizing** *(INSERTED)* — Close residual DEBT-03 gap: route Strapi media URLs through Cloudflare Image Resizing (or equivalent CDN transformation) so the 6 pages still scoring sub-90 on Lighthouse Performance reach ≥90; re-measure all 15 baseline pages → status=pass. (completed 2026-04-16, 15/15 ≥90 Perf median 0.97, DEBT-03 CLOSED)
 - [ ] **Phase 11: Strapi Schema Migration & Localization Helper** — Land all v1.1 schema changes in one CMS rebuild window (product-category taxonomy, subscriber.source, recipe-collection scaffold, shared locale PUT helper) and migrate existing product data.
-- [ ] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email.
+- [x] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email. (completed 2026-04-21)
 - [ ] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails.
 - [ ] **Phase 14: Recipe Collections** — Curated editorial groupings as a new i18n content type with listing, detail, cross-linking, sitemap, hreflang.
 - [ ] **Phase 15: Growth Engine v2 — Analytics Feedback Loop** — Umami → traffic_score on content, Telegram top/bottom digest, strategist consumes signal, noise guardrails.
@@ -182,7 +182,7 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 9. SEO Audit, Performance & Launch | v1.0 | 2/2 | Complete | 2026-04-01 |
 | 10. Debt Closure & Measurement Baseline | v1.1 | 5/5 | Complete    | 2026-04-16 |
 | 11. Strapi Schema Migration & Localization Helper | v1.1 | 0/3 | Planned | - |
-| 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Not started | - |
+| 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Complete    | 2026-04-21 |
 | 13. Review Filters & Taxonomy | v1.1 | 0/TBD | Not started | - |
 | 14. Recipe Collections | v1.1 | 0/TBD | Not started | - |
 | 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 0/TBD | Not started | - |
