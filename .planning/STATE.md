@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-04-21T17:17:46.680Z"
-last_activity: 2026-04-21
+stopped_at: Completed 15-02-PLAN.md (Task 2 checkpoint pending)
+last_updated: "2026-04-21T17:03:24.426Z"
+last_activity: 2026-04-21 -- Phase 16 execution started
 progress:
   total_phases: 8
   completed_phases: 6
-  total_plans: 18
-  completed_plans: 21
+  total_plans: 21
+  completed_plans: 20
   percent: 100
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 **Core value:** The most complete, visually striking, and trustworthy BBQ product review destination online.
-**Current focus:** Phase 14 — recipe-collections
+**Current focus:** Phase 16 — a-b-headline-testing-infrastructure
 
 ## Current Position
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–16)
-Phase: 16
-Plan: Not started
-Status: Executing (Task 3 checkpoint pending)
-Last activity: 2026-04-21
+Phase: 16 (a-b-headline-testing-infrastructure) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 16
+Last activity: 2026-04-21 -- Phase 16 execution started
 
 Progress: v1.0 [██████████] 100% · v1.1 [█████░░░░░] ~50% (4/8 phases)
 
@@ -59,7 +59,6 @@ Progress: v1.0 [██████████] 100% · v1.1 [█████░
 | Phase 11 P03 | 5min | 3 tasks | 0 files |
 | Phase 15 P01 | 3min | 2 tasks | 9 files |
 | Phase 15 P02 | 3min | 1 tasks | 4 files |
-| Phase 16 P03 | 4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -78,7 +77,6 @@ Recent decisions affecting current work (v1.1):
 - [Phase 13]: Toggle behavior on filter pills (clicking active filter deselects it) for intuitive UX
 - [Phase 15]: Umami API type=url for metrics endpoint; token TTL 58min; is_high_confidence >= thresholds (50 visits, 7 days)
 - [Phase 15]: Traffic digest grouped by locale with Top/Bottom 5; strategist prompt includes decline detection heuristic
-- [Phase 16]: Webhook exclusion on bbqexperience-rebuild hook (Strapi content changes) not GitHub push hook
 
 ### Roadmap Evolution
 
@@ -103,6 +101,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-04-21T17:17:46.675Z
-Stopped at: Completed 16-03-PLAN.md
+Last session: 2026-04-21T15:41:27.776Z
+Stopped at: Completed 15-02-PLAN.md (Task 2 checkpoint pending)
 Resume file: None
