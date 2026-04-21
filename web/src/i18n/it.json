@@ -14,7 +14,8 @@
     "compare": "Confronta",
     "bookmarks": "Preferiti",
     "search": "Cerca",
-    "contact": "Contatti"
+    "contact": "Contatti",
+    "collections": "Raccolte"
   },
   "common": {
     "readMore": "Leggi tutto",
@@ -279,6 +280,16 @@
     "ctaTitle": "74K+ Non Possono Sbagliarsi",
     "ctaSubtitle": "La piu grande community BBQ indipendente su Instagram. Contenuti quotidiani, recensioni oneste, zero sponsor.",
     "ctaButton": "Segui @bbqexperience"
+  },
+  "collections": {
+    "title": "Raccolte di Ricette",
+    "allCollections": "Tutte le Raccolte",
+    "recipesCount": "{count} ricette",
+    "partOf": "Parte di",
+    "authorsNote": "Nota dell'Autore",
+    "emptyState": "Nessuna raccolta disponibile al momento.",
+    "viewCollection": "Vedi Raccolta",
+    "description": "Raccolte di ricette curate dai nostri pitmaster"
   },
   "filters": {
     "title": "Filtri",

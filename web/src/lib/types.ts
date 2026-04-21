@@ -13,7 +13,8 @@ export type ContentType =
   | 'partnerships'
   | 'keyword-trackers'
   | 'content-queues'
-  | 'product-categories';
+  | 'product-categories'
+  | 'recipe-collections';
 
 // ─── Media ───────────────────────────────────────────────────────────────────
 
@@ -92,6 +93,19 @@ export interface StrapiProduct {
   affiliate_links: AffiliateLink[] | null;
   partnership_status: 'none' | 'contacted' | 'active' | 'expired' | null;
   brand_relation: (StrapiBrand & StrapiEntity) | null;
+}
+
+/** Raccolta tematica di ricette BBQ */
+export interface StrapiRecipeCollection {
+  title: string;
+  slug: string;
+  description: string | null;
+  editorial_intro: string | null;
+  author_note: string | null;
+  hero_image: StrapiMedia | null;
+  order: number;
+  recipes: (StrapiRecipe & StrapiEntity)[] | null;
+  localizations?: { locale: string; publishedAt: string | null; slug: string }[];
 }
 
 /** Recensione approfondita con punteggi per categoria */
