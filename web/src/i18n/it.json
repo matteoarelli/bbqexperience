@@ -279,5 +279,26 @@
     "ctaTitle": "74K+ Non Possono Sbagliarsi",
     "ctaSubtitle": "La piu grande community BBQ indipendente su Instagram. Contenuti quotidiani, recensioni oneste, zero sponsor.",
     "ctaButton": "Segui @bbqexperience"
+  },
+  "filters": {
+    "title": "Filtri",
+    "brand": "Marca",
+    "category": "Categoria",
+    "price": "Prezzo",
+    "score": "Punteggio Pitmaster",
+    "allBrands": "Tutte le Marche",
+    "allCategories": "Tutte le Categorie",
+    "allPrices": "Tutti i Prezzi",
+    "allScores": "Tutti i Punteggi",
+    "clearFilters": "Cancella Filtri",
+    "applyFilters": "Applica",
+    "noResults": "Nessuna recensione corrisponde ai filtri.",
+    "clearAndBrowse": "Cancella tutti i filtri per vedere tutte le recensioni.",
+    "resultsCount": "recensioni trovate",
+    "underPrice": "Sotto",
+    "overPrice": "Oltre",
+    "scoreAbove": "sopra",
+    "openFilters": "Apri Filtri",
+    "closeFilters": "Chiudi"
   }
 }

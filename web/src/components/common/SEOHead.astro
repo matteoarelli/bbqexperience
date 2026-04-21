@@ -15,6 +15,7 @@ interface Props {
   publishedTime?: string;
   modifiedTime?: string;
   articleAuthor?: string;
+  noindex?: boolean;
 }
 
 const {
@@ -28,6 +29,7 @@ const {
   publishedTime,
   modifiedTime,
   articleAuthor = 'BBQ Experience',
+  noindex = false,
 } = Astro.props;
 
 const siteUrl = 'https://bbq-experience.com';
@@ -68,7 +70,7 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?$
 <meta name="theme-color" content="#0D0D0D" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
 <meta name="generator" content={Astro.generator} />
-<meta name="robots" content="index, follow" />
+<meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
 
 <title>{title}</title>
 <meta name="description" content={safeDescription} />
