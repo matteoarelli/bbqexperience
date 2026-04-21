@@ -402,22 +402,22 @@ declare namespace App {
 | A3 | Strapi webhook payload `model` field contains the API singularName (e.g., "ab-experiment") not the displayName | Architecture Patterns (Pattern 5) | Webhook exclusion rule won't match; would need to test actual payload and adjust value |
 | A4 | Cloudflare does not cache SSR HTML responses for bbq-experience.com | Pitfall 1 | If Cloudflare caches, Set-Cookie would be stripped; verify with curl after deploy |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Strapi webhook `model` field exact value**
+1. **Strapi webhook `model` field exact value** (RESOLVED)
    - What we know: Strapi docs say payload includes `model` field with content type name
-   - What's unclear: Whether value is `ab-experiment` (singularName) or `ab_experiment` (collectionName) or `AB Experiment` (displayName)
-   - Recommendation: Test by creating a test content type and logging the webhook payload. Can be verified in Wave 0 before deploying the exclusion rule.
+   - What was unclear: Whether value is `ab-experiment` (singularName) or `ab_experiment` (collectionName) or `AB Experiment` (displayName)
+   - Resolution: Plan 16-03 Task 2 plans around this ambiguity — the executor reads the current hooks.json before editing, and the action includes an explicit note that the `model` value must be verified against the actual Strapi webhook payload at deploy time. A verification step after restarting the webhook confirms `ab-experiment` matches by checking the rebuild log after editing a test ab-experiment entry. Assumption A3 stands; executor adjusts if the value differs.
 
-2. **Umami event data API filtering capabilities**
+2. **Umami event data API filtering capabilities** (RESOLVED)
    - What we know: Endpoints exist at /api/websites/:id/event-data/fields and /event-data/events
-   - What's unclear: Exact query parameters for filtering by custom property values (e.g., filter events where experiment=X)
-   - Recommendation: Test the API directly against analytics.bbq-experience.com after deploying tracking. Fallback: fetch all ab-impression events and filter in Python.
+   - What was unclear: Exact query parameters for filtering by custom property values (e.g., filter events where experiment=X)
+   - Resolution: Plan 16-03 Task 1 implements the primary path (`?eventName=ab-impression`) and the fallback explicitly: if the response is not a filterable list, `get_experiment_stats()` fetches all ab-impression events and filters by `experiment` property in Python. No blocking dependency.
 
-3. **Brevo campaign stats retrieval for winner detection**
+3. **Brevo campaign stats retrieval for winner detection** (RESOLVED)
    - What we know: Brevo creates A/B campaigns with automatic winner selection after winnerDelay hours
-   - What's unclear: Exact API endpoint to retrieve which subject won after the test period
-   - Recommendation: Use `GET /v3/emailCampaigns/{campaignId}` -- should include A/B results. Test with a real campaign.
+   - What was unclear: Exact API endpoint to retrieve which subject won after the test period
+   - Resolution: Plan 16-03 Task 1 uses `GET /v3/emailCampaigns/{campaignId}` as primary. Brevo_client handles the "stats unavailable" case (campaign still in test period, or abTesting key absent from response) by returning `None` from `get_ab_campaign_results()`. The agent digest section gracefully omits winner data for those campaigns with a note "pending winner selection".
 
 ## Environment Availability
 
