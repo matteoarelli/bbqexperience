@@ -1,6 +1,7 @@
 /**
  * Sitemap XML dinamica — genera URL per tutti i contenuti pubblicati su Strapi
  * e per tutte le pagine statiche, in tutte e 3 le lingue (en, it, es).
+ * Include xhtml:link hreflang per recipe-collections (COLL-05).
  */
 import type { APIRoute } from 'astro';
 import { fetchCollection } from '@lib/strapi';
@@ -10,7 +11,7 @@ import type { Locale } from '@lib/i18n';
 const SITE_URL = 'https://bbq-experience.com';
 
 // Tipi di contenuto Strapi da indicizzare
-const contentTypes = ['reviews', 'recipes', 'tutorials', 'blog-posts'] as const;
+const contentTypes = ['reviews', 'recipes', 'tutorials', 'blog-posts', 'recipe-collections'] as const;
 
 // Mappa content-type Strapi -> chiave localizedRoutes
 const routeKeyMap: Record<string, string> = {
@@ -18,6 +19,7 @@ const routeKeyMap: Record<string, string> = {
   recipes: 'recipes',
   tutorials: 'tutorials',
   'blog-posts': 'blog',
+  'recipe-collections': 'collections',
 };
 
 interface SitemapEntry {
@@ -25,6 +27,7 @@ interface SitemapEntry {
   lastmod?: string;
   changefreq: string;
   priority: string;
+  alternates?: { hreflang: string; href: string }[];
 }
 
 /**
@@ -81,7 +84,7 @@ export const GET: APIRoute = async () => {
   }
 
   // 2. Pagine listing per ogni locale (priorita 0.8)
-  const listingRouteKeys = ['reviews', 'recipes', 'tutorials', 'blog'];
+  const listingRouteKeys = ['reviews', 'recipes', 'tutorials', 'blog', 'collections'];
   for (const locale of locales) {
     for (const key of listingRouteKeys) {
       const route = localizedRoutes[key]?.[locale];
@@ -112,8 +115,9 @@ export const GET: APIRoute = async () => {
     }
   }
 
-  // 4. Pagine dettaglio da Strapi per ogni content type e locale (priorita 0.7)
-  for (const contentType of contentTypes) {
+  // 4. Pagine dettaglio da Strapi per content type standard (no recipe-collections)
+  const standardContentTypes = contentTypes.filter(ct => ct !== 'recipe-collections');
+  for (const contentType of standardContentTypes) {
     const routeKey = routeKeyMap[contentType];
 
     for (const locale of locales) {
@@ -132,16 +136,66 @@ export const GET: APIRoute = async () => {
     }
   }
 
-  // Genera XML
+  // 5. Hreflang per recipe-collections (COLL-05)
+  // Raccogli tutti gli slug per locale per costruire gli alternate
+  const collectionSlugsByLocale: Record<string, { slug: string; updatedAt: string }[]> = {};
+  for (const locale of locales) {
+    collectionSlugsByLocale[locale] = await fetchAllSlugs('recipe-collections', locale);
+  }
+
+  // Per ogni locale, aggiungi gli alternate se lo slug esiste nelle altre lingue
+  for (const locale of locales) {
+    const route = localizedRoutes['collections']?.[locale];
+    if (!route) continue;
+    for (const item of collectionSlugsByLocale[locale].filter(i => i.slug)) {
+      const alternates: { hreflang: string; href: string }[] = [];
+      for (const altLocale of locales) {
+        const altRoute = localizedRoutes['collections']?.[altLocale];
+        // Controlla se lo stesso slug esiste nella locale alternativa
+        const exists = collectionSlugsByLocale[altLocale]?.some(i => i.slug === item.slug);
+        if (altRoute && exists) {
+          alternates.push({
+            hreflang: altLocale,
+            href: `${SITE_URL}/${altLocale}/${altRoute}/${item.slug}/`,
+          });
+        }
+      }
+      // Aggiungi x-default se EN esiste
+      const enExists = alternates.some(a => a.hreflang === 'en');
+      if (enExists) {
+        alternates.push({
+          hreflang: 'x-default',
+          href: `${SITE_URL}/en/${localizedRoutes['collections']?.en}/${item.slug}/`,
+        });
+      }
+
+      entries.push({
+        loc: `${SITE_URL}/${locale}/${route}/${item.slug}/`,
+        lastmod: item.updatedAt,
+        changefreq: 'weekly',
+        priority: '0.7',
+        alternates,
+      });
+    }
+  }
+
+  // Genera XML con supporto xhtml:link hreflang
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${entries
   .map(
     (entry) => `  <url>
     <loc>${entry.loc}</loc>
     <lastmod>${entry.lastmod}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
-    <priority>${entry.priority}</priority>
+    <priority>${entry.priority}</priority>${
+      entry.alternates
+        ? '\n' + entry.alternates.map(alt =>
+            `    <xhtml:link rel="alternate" hreflang="${alt.hreflang}" href="${alt.href}" />`
+          ).join('\n')
+        : ''
+    }
   </url>`,
   )
   .join('\n')}
