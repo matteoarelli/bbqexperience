@@ -30,6 +30,7 @@ import RelatedRecipes from '@components/content/RelatedRecipes.astro';
 import '@styles/print.css';
 import { renderMarkdown } from '@lib/markdown';
 import NewsletterSignup from '@components/common/NewsletterSignup.astro';
+import CollectionBadge from '@components/collection/CollectionBadge.astro';
 
 export const prerender = false;
 
@@ -82,6 +83,17 @@ const breadcrumbItems = [
 
   <article class="max-w-3xl mx-auto px-4 py-12" style="color: var(--color-text-primary);">
     <Breadcrumbs items={breadcrumbItems} locale="es" />
+
+    {recipe.collection && (
+      <div style="margin-bottom: var(--space-4);">
+        <CollectionBadge
+          collectionTitle={recipe.collection.title}
+          collectionSlug={recipe.collection.slug}
+          locale="es"
+          translations={translations}
+        />
+      </div>
+    )}
 
     {recipe.updatedAt && (
       <LastUpdated date={recipe.updatedAt} locale="es" translations={translations} />

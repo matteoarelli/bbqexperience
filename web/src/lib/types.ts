@@ -166,6 +166,8 @@ export interface StrapiRecipe {
   seo_title: string | null;
   seo_description: string | null;
   published_date: string | null;
+  /** Raccolta di appartenenza (opzionale, populated via relazione manyToOne) */
+  collection?: { title: string; slug: string } | null;
 }
 
 /** Tutorial/guida su tecniche BBQ, attrezzatura e sicurezza */
