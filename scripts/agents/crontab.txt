@@ -13,6 +13,9 @@
 # Partnership Outreach — Lunedi 08:00
 0 8 * * 1 cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/partnership_outreach.py >> /opt/webhooks/logs/partnership-outreach.log 2>&1
 
+# Umami Feedback — Ogni giorno 04:00 UTC
+0 4 * * * cd /opt/services/bbqexperience/app && /usr/bin/python3 scripts/agents/umami_feedback.py >> /opt/webhooks/logs/umami-feedback.log 2>&1
+
 # ─── Agenti su 192.168.1.119 (Ollama + Claude Code CLI) ───
 # Content Generator — Ogni giorno 06:00 (Ollama genera draft)
 # 0 6 * * * cd /path/to/bbqexperience && python3 scripts/agents/content_generator.py >> /var/log/bbq-content-generator.log 2>&1

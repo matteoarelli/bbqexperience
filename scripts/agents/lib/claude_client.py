@@ -140,8 +140,21 @@ def generate_strategy(
     content_performance: str,
     competitor_news: str,
     current_queue: str,
+    traffic_scores: str = "",
 ) -> str:
     """Genera analisi strategica settimanale. Ritorna report strutturato."""
+    traffic_section = ""
+    if traffic_scores:
+        traffic_section = f"""
+=== PER-ARTICLE TRAFFIC DATA ===
+{traffic_scores}
+
+Use this data to:
+- Prioritize refresh/expansion for underperforming content with high potential
+- Identify top performers to replicate their patterns
+- Flag content that has been declining (30d >> 7d*4 indicates downtrend)
+"""
+
     prompt = f"""Sei lo strategy advisor di BBQ Experience (bbq-experience.com).
 Analizza i dati della settimana e genera un piano d'azione.
 
@@ -150,7 +163,7 @@ DATI TRAFFICO:
 
 PERFORMANCE CONTENUTI:
 {content_performance}
-
+{traffic_section}
 NOVITA COMPETITOR:
 {competitor_news}
 
@@ -164,6 +177,8 @@ Genera un report con:
 4. CLUSTER FOCUS: quale dei 5 cluster (smoking, grills, thermometers, brisket, sauces) merita piu attenzione questa settimana e perche
 5. AZIONI IMMEDIATE: 2-3 azioni concrete per la settimana
 6. PILLAR CONTENT OUTLINE: se e il momento giusto, outline per un pillar article (5000 parole)
+
+When recommending content for the queue, note which items were selected based on traffic_score data.
 
 Sii conciso e pratico. Zero fuffa."""
     return ask(prompt, timeout=300)

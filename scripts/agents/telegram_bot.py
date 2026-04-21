@@ -48,6 +48,56 @@ def get_umami_stats(token: str) -> dict:
         return json.loads(resp.read())
 
 
+# ─── Digest traffico per contenuto ────────────────────────────────────────────
+
+CONTENT_TYPES = ["blog-posts", "reviews", "recipes", "tutorials"]
+
+
+def get_traffic_digest() -> list[str]:
+    """Genera digest Top 5 / Bottom 5 per traffico 7gg per ogni locale."""
+    lines: list[str] = []
+
+    for locale in ["en", "it", "es"]:
+        all_items: list[dict] = []
+        for ct in CONTENT_TYPES:
+            try:
+                items = strapi.find_all_pages(
+                    ct,
+                    locale=locale,
+                    fields=["title", "slug", "traffic_score_7d"],
+                    sort="traffic_score_7d:desc",
+                    page_size=500,
+                )
+                all_items.extend(items)
+            except Exception:
+                continue
+
+        # Filtra solo items con traffico > 0
+        scored = [
+            it for it in all_items
+            if (it.get("traffic_score_7d") or 0) > 0
+        ]
+        scored.sort(key=lambda x: x.get("traffic_score_7d", 0), reverse=True)
+
+        if not scored:
+            continue
+
+        top5 = scored[:5]
+        bottom5 = scored[-5:] if len(scored) > 5 else []
+
+        lines.append(f"<b>TRAFFICO {locale.upper()} (7gg)</b>")
+        lines.append("Top 5:")
+        for it in top5:
+            lines.append(f"  {it.get('traffic_score_7d', 0)}v - {it.get('title', '?')}")
+        if bottom5:
+            lines.append("Bottom 5:")
+            for it in bottom5:
+                lines.append(f"  {it.get('traffic_score_7d', 0)}v - {it.get('title', '?')}")
+        lines.append("")
+
+    return lines
+
+
 # ─── Conteggio contenuti ─────────────────────────────────────────────────────
 
 def get_content_counts() -> dict[str, int]:
@@ -94,6 +144,16 @@ async def daily_report(context: ContextTypes.DEFAULT_TYPE) -> None:
         lines.append("")
     except Exception as e:
         lines.append(f"<i>Umami non disponibile: {e}</i>")
+        lines.append("")
+
+    # Digest traffico per contenuto
+    try:
+        traffic_lines = get_traffic_digest()
+        if traffic_lines:
+            lines.extend(traffic_lines)
+            lines.append("")
+    except Exception as e:
+        lines.append(f"<i>Traffic digest non disponibile: {e}</i>")
         lines.append("")
 
     # Contenuti

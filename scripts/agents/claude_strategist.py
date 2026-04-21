@@ -77,6 +77,56 @@ def get_content_performance() -> str:
     return "\n".join(lines)
 
 
+CONTENT_TYPES = ["blog-posts", "reviews", "recipes", "tutorials"]
+
+
+def get_traffic_scores() -> str:
+    """Recupera traffic_score per contenuto da Strapi (scritto da umami_feedback.py)."""
+    all_items: list[dict] = []
+
+    for locale in ["en", "it", "es"]:
+        for ct in CONTENT_TYPES:
+            try:
+                items = strapi.find_all_pages(
+                    ct,
+                    locale=locale,
+                    fields=["title", "slug", "traffic_score_7d", "traffic_score_30d"],
+                    page_size=500,
+                )
+                for it in items:
+                    if (it.get("traffic_score_7d") or 0) > 0:
+                        it["_locale"] = locale
+                        it["_type"] = ct
+                        all_items.append(it)
+            except Exception:
+                continue
+
+    if not all_items:
+        return "Nessun dato traffic_score disponibile (umami_feedback non ancora eseguito)"
+
+    all_items.sort(key=lambda x: x.get("traffic_score_7d", 0), reverse=True)
+
+    lines: list[str] = ["TOP PERFORMERS (7d visits):"]
+    for i, it in enumerate(all_items[:10], 1):
+        lines.append(
+            f"{i}. [{it.get('_locale', '?')}] \"{it.get('title', '?')}\" "
+            f"- {it.get('traffic_score_7d', 0)} visits "
+            f"(30d: {it.get('traffic_score_30d', 0)})"
+        )
+
+    lines.append("")
+    lines.append("UNDERPERFORMERS (candidates for refresh):")
+    bottom = all_items[-10:] if len(all_items) > 10 else []
+    for i, it in enumerate(bottom, 1):
+        lines.append(
+            f"{i}. [{it.get('_locale', '?')}] \"{it.get('title', '?')}\" "
+            f"- {it.get('traffic_score_7d', 0)} visits "
+            f"(30d: {it.get('traffic_score_30d', 0)})"
+        )
+
+    return "\n".join(lines)
+
+
 def get_competitor_news() -> str:
     """Recupera ultimi articoli competitor dal file di stato."""
     state_file = STATE_DIR / "competitor_state.json"
@@ -218,12 +268,13 @@ def main():
     performance = get_content_performance()
     competitor = get_competitor_news()
     queue = get_current_queue()
+    traffic_scores = get_traffic_scores()
 
     print("Dati raccolti, genero analisi strategica con Claude...")
 
     # 2. Genera analisi strategica con Claude
     try:
-        strategy = claude.generate_strategy(traffic, performance, competitor, queue)
+        strategy = claude.generate_strategy(traffic, performance, competitor, queue, traffic_scores)
     except Exception as e:
         print(f"[ERRORE] Claude non disponibile: {e}")
         telegram.send_agent_report(
