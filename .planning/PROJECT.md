@@ -17,7 +17,7 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 **Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations (Phase 10.1)
 **Code volume:** ~253 commits between 2026-04-01 and 2026-04-14
 **Infrastructure:** Containers all healthy (web, strapi, postgres, caddy). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Zone `bbq-experience.com` orange-cloud on Cloudflare with Image Transformations + Sources allowlist (cms.bbq-experience.com, bbq-experience.com).
-**v1.1 progress:** Phase 10 + Phase 10.1 complete — DEBT-03 CLOSED (15/15 pages ≥0.90 Lighthouse Perf, median 0.97). Next: Phase 11 (Strapi Schema Migration).
+**v1.1 progress:** Phases 10, 10.1, 11, 12 complete — DEBT-03 CLOSED, Strapi v1.1 schema migrated, Newsletter On-Site Signup shipped (4 surfaces: inline, exit-intent, sticky footer, landing pages + Brevo DOI + honeypot + rate-limit). Next: Phase 13 (Review Filters & Taxonomy).
 
 ## Current Milestone: v1.1 Content Depth & Growth Loop
 
@@ -65,7 +65,7 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 - [x] Lighthouse 90+ formal re-measurement post-v3.2 (DES-04 not re-measured after UI/SEO changes) + fixes if below target — Validated in Phase 10 + **Phase 10.1** (image-delivery via Cloudflare Transformations): 15/15 pages ≥0.90 Perf (median 0.97), DEBT-03 CLOSED
 
 **Content features:**
-- [ ] Newsletter on-site signup — inline end-of-article + exit-intent modal + `/newsletter` landing page + sticky footer bar (Brevo integration, multi-surface capture)
+- [x] Newsletter on-site signup — inline end-of-article + exit-intent modal + `/newsletter` landing page + sticky footer bar (Brevo DOI + honeypot + rate-limit + surface attribution) — Validated in Phase 12
 - [ ] Review filters & taxonomy — brand + product category + price range + score threshold (extends Product content type with category taxonomy)
 - [ ] Recipe collections — curated groupings (new Strapi content type + collection listing/detail pages, 3 locales)
 
