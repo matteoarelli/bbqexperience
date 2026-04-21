@@ -1,0 +1,250 @@
+---
+/**
+ * Pagina dettaglio raccolta ricette (EN) — hero, intro editoriale, griglia ricette ordinata, nota autore.
+ * Hreflang condizionale: emette solo locale con traduzione pubblicata via availableLocales.
+ * SSR per contenuti dinamici da Strapi.
+ */
+import { fetchBySlug } from '@lib/strapi';
+import type { StrapiRecipeCollection } from '@lib/types';
+import { getStrapiMediaURL, buildStrapiSrcset } from '@lib/media';
+import { getContentStatus } from '@lib/preview';
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
+import CollectionPageSchema from '@components/common/CollectionPageSchema.astro';
+import RecipeCard from '@components/home/RecipeCard.astro';
+import { renderMarkdown } from '@lib/markdown';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+export const prerender = false;
+
+const locale: Locale = 'en';
+const { slug } = Astro.params;
+const status = getContentStatus(Astro.cookies);
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+
+const collection = await fetchBySlug<StrapiRecipeCollection>('recipe-collections', slug!, {
+  locale,
+  populate: ['recipes.cover_image', 'hero_image', 'localizations'],
+  status,
+});
+
+if (!collection || !collection.recipes?.length) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+// Hreflang condizionale: solo locale con traduzione pubblicata
+const availableLocales: string[] = [locale];
+if (collection.localizations) {
+  for (const loc of collection.localizations) {
+    if (loc.publishedAt) availableLocales.push(loc.locale);
+  }
+}
+
+const collectionsRoute = localizedRoutes.collections[locale];
+const recipesRoute = localizedRoutes.recipes[locale];
+const heroUrl = getStrapiMediaURL(collection.hero_image, { width: 1280 });
+const heroSrcset = buildStrapiSrcset(collection.hero_image, [640, 960, 1280]);
+const pageDescription = collection.description || collection.editorial_intro?.slice(0, 160) || '';
+
+// Breadcrumbs
+const breadcrumbItems = [
+  { label: t('content.home'), href: `/${locale}/` },
+  { label: t('collections.title'), href: `/${locale}/${collectionsRoute}/` },
+  { label: collection.title },
+];
+---
+
+<BaseLayout
+  title={`${collection.title} - ${t('site.name')}`}
+  description={pageDescription}
+  locale={locale}
+  canonicalPath={`/${collectionsRoute}/${collection.slug}/`}
+  ogImage={getStrapiMediaURL(collection.hero_image, { raw: true }) || ''}
+  availableLocales={availableLocales}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${collectionsRoute}/${collection.slug}/`} />
+
+  <article class="collection-detail">
+    {/* Hero section con immagine full-width e titolo overlay */}
+    {heroUrl && (
+      <div class="collection-hero">
+        <img
+          src={heroUrl}
+          srcset={heroSrcset || undefined}
+          sizes="100vw"
+          alt={collection.hero_image?.alternativeText || collection.title}
+          class="collection-hero__image"
+          width="1280"
+          height="720"
+          loading="eager"
+          fetchpriority="high"
+        />
+        <div class="collection-hero__overlay">
+          <div class="container-bbq">
+            <h1 class="collection-hero__title">{collection.title}</h1>
+            {collection.description && (
+              <p class="collection-hero__description">{collection.description}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div class="container-bbq py-12">
+      {!heroUrl && (
+        <h1 class="page-title">{collection.title}</h1>
+      )}
+
+      <Breadcrumbs items={breadcrumbItems} locale={locale} />
+
+      <CollectionPageSchema
+        title={`${collection.title} - ${t('site.name')}`}
+        description={pageDescription}
+        url={`https://bbq-experience.com/${locale}/${collectionsRoute}/${collection.slug}/`}
+        itemCount={collection.recipes.length}
+      />
+
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+
+      {/* Intro editoriale — renderMarkdown per sicurezza (T-14-03) */}
+      {collection.editorial_intro && (
+        <section class="editorial-intro">
+          <div
+            class="prose prose-invert max-w-none"
+            style="color: var(--color-text-secondary);"
+            set:html={renderMarkdown(collection.editorial_intro)}
+          />
+        </section>
+      )}
+
+      {/* Griglia ricette ordinata */}
+      <section class="recipes-section">
+        <h2 class="section-heading">{t('collections.title')}</h2>
+        <div class="recipe-grid" data-animate>
+          {collection.recipes.map((recipe) => (
+            <RecipeCard
+              recipe={recipe}
+              locale={locale}
+              recipesRoute={recipesRoute}
+              translations={translations}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Nota dell'autore — renderMarkdown per sicurezza (T-14-04) */}
+      {collection.author_note && (
+        <section class="author-note">
+          <h2 class="section-heading">{t('collections.authorsNote')}</h2>
+          <div
+            class="prose prose-invert max-w-none"
+            style="color: var(--color-text-secondary);"
+            set:html={renderMarkdown(collection.author_note)}
+          />
+        </section>
+      )}
+    </div>
+  </article>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .collection-hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    overflow: hidden;
+    max-height: 500px;
+  }
+
+  .collection-hero__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .collection-hero__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    background: linear-gradient(transparent 30%, rgba(0, 0, 0, 0.75) 100%);
+    padding-bottom: var(--space-8);
+  }
+
+  .collection-hero__title {
+    font-family: var(--font-heading);
+    font-size: var(--text-4xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    margin: 0 0 var(--space-2) 0;
+  }
+
+  .collection-hero__description {
+    font-size: var(--text-lg);
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    margin: 0;
+    max-width: 600px;
+  }
+
+  .page-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-6);
+  }
+
+  .editorial-intro {
+    margin-bottom: var(--space-10);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .section-heading {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-accent-amber);
+    margin-bottom: var(--space-6);
+  }
+
+  .recipes-section {
+    margin-bottom: var(--space-10);
+  }
+
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .recipe-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .recipe-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .author-note {
+    margin-top: var(--space-8);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--color-border-subtle);
+  }
+</style>
