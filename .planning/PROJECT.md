@@ -17,7 +17,7 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 **Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations (Phase 10.1)
 **Code volume:** ~253 commits between 2026-04-01 and 2026-04-14
 **Infrastructure:** Containers all healthy (web, strapi, postgres, caddy). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Zone `bbq-experience.com` orange-cloud on Cloudflare with Image Transformations + Sources allowlist (cms.bbq-experience.com, bbq-experience.com).
-**v1.1 progress:** Phases 10, 10.1, 11, 12, 13 complete — DEBT-03 CLOSED, Strapi v1.1 schema migrated, Newsletter On-Site Signup shipped, Review Filters & Taxonomy shipped (multi-facet filtering by brand/category/price/score with count badges, mobile bottom-sheet drawer, noindex+canonical SEO guardrails, 301 redirects from old category routes, data remediation for 25 products). Next: Phase 14 (Recipe Collections).
+**v1.1 progress:** Phases 10, 10.1, 11, 12, 13, 14 complete — DEBT-03 CLOSED, Strapi v1.1 schema migrated, Newsletter shipped, Review Filters shipped, Recipe Collections shipped (listing+detail pages x3 locales, conditional hreflang, CollectionBadge on recipes, sitemap xhtml:link hreflang, nav links). Next: Phase 15 (Growth Engine v2 — Analytics Feedback Loop).
 
 ## Current Milestone: v1.1 Content Depth & Growth Loop
 
