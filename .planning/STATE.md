@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Completed 11-03-PLAN.md
-last_updated: "2026-04-21T14:39:19.812Z"
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-04-21T15:35:51.816Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 8
-  completed_phases: 5
-  total_plans: 16
-  completed_plans: 18
+  completed_phases: 6
+  total_plans: 17
+  completed_plans: 19
   percent: 100
 ---
 
@@ -57,6 +57,7 @@ Progress: v1.0 [██████████] 100% · v1.1 [█████░
 *Updated after each plan completion*
 | Phase 13 P02 | 7min | 2 tasks | 10 files |
 | Phase 11 P03 | 5min | 3 tasks | 0 files |
+| Phase 15 P01 | 3min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,7 @@ Recent decisions affecting current work (v1.1):
 - [Roadmap v1.1]: A/B variant edits excluded from the adnanh/webhook rebuild cascade (Phase 16) to prevent 4-minute rebuilds on every editor iteration.
 - [Phase 13]: Pre-build filter URLs server-side in Astro, pass to Svelte island as props to avoid URL logic duplication
 - [Phase 13]: Toggle behavior on filter pills (clicking active filter deselects it) for intuitive UX
+- [Phase 15]: Umami API type=url for metrics endpoint; token TTL 58min; is_high_confidence >= thresholds (50 visits, 7 days)
 
 ### Roadmap Evolution
 
@@ -97,6 +99,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-04-21T13:25:47Z
-Stopped at: Completed 11-03-PLAN.md
+Last session: 2026-04-21T15:35:51.811Z
+Stopped at: Completed 15-01-PLAN.md
 Resume file: None

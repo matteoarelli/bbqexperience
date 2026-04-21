@@ -44,9 +44,9 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 - [x] **Phase 10.1: Image Delivery via Cloudflare Resizing** *(INSERTED)* — Close residual DEBT-03 gap: route Strapi media URLs through Cloudflare Image Resizing (or equivalent CDN transformation) so the 6 pages still scoring sub-90 on Lighthouse Performance reach ≥90; re-measure all 15 baseline pages → status=pass. (completed 2026-04-16, 15/15 ≥90 Perf median 0.97, DEBT-03 CLOSED)
 - [x] **Phase 11: Strapi Schema Migration & Localization Helper** — Land all v1.1 schema changes in one CMS rebuild window (product-category taxonomy, subscriber.source, recipe-collection scaffold, shared locale PUT helper) and migrate existing product data.
 - [x] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email. (completed 2026-04-21)
-- [x] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails. (completed 2026-04-21)
+- [x] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails. (completed 2026-04-21)
 - [x] **Phase 14: Recipe Collections** — Curated editorial groupings as a new i18n content type with listing, detail, cross-linking, sitemap, hreflang. (completed 2026-04-21)
-- [ ] **Phase 15: Growth Engine v2 — Analytics Feedback Loop** — Umami → traffic_score on content, Telegram top/bottom digest, strategist consumes signal, noise guardrails.
+- [x] **Phase 15: Growth Engine v2 — Analytics Feedback Loop** — Umami → traffic_score on content, Telegram top/bottom digest, strategist consumes signal, noise guardrails. (completed 2026-04-21)
 - [ ] **Phase 16: A/B Headline Testing Infrastructure** — Astro middleware bucket assignment, Umami event attribution, weekly stats agent, webhook rebuild exclusion, newsletter subject-line A/B via Brevo native.
 
 ## Phase Details
@@ -155,10 +155,7 @@ Plans:
   3. The daily Telegram dashboard includes a "Top 5 / Bottom 5 by 7-day traffic per locale" section that updates each morning with correct slugs and links to the content in the CMS.
   4. The Claude strategist agent reads `traffic_score` when building the content queue and its decision log records which items were prioritized for refresh/expansion based on the score.
   5. Content with fewer than 50 visits in the measurement window or less than 7 days since first publish is explicitly excluded from any agent action (low-confidence filter verified in a unit test).
-**Plans**: 2 plans
-Plans:
-- [ ] 15-01-PLAN.md — umami_client.py library, Strapi schema fields, umami_feedback.py agent, low-confidence filter + unit tests
-- [ ] 15-02-PLAN.md — Telegram traffic digest, strategist traffic_score consumption, crontab, deploy + verification
+**Plans**: TBD
 
 ### Phase 16: A/B Headline Testing Infrastructure
 **Goal**: Blog post headlines can be tested with statistically valid assignment and measurement, without triggering SEO cloaking penalties, rebuild cascades, or client-side flicker; newsletter subject lines ride the same feedback loop via Brevo.
@@ -196,5 +193,5 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Complete    | 2026-04-21 |
 | 13. Review Filters & Taxonomy | v1.1 | 3/3 | Complete    | 2026-04-21 |
 | 14. Recipe Collections | v1.1 | 1/3 | Complete    | 2026-04-21 |
-| 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 0/2 | Not started | - |
+| 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 1/1 | Complete   | 2026-04-21 |
 | 16. A/B Headline Testing Infrastructure | v1.1 | 0/TBD | Not started | - |
