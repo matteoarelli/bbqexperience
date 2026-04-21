@@ -47,9 +47,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Debt cl
 <!-- Curated editorial groupings as a new Strapi content type, with 3-locale routing. -->
 
 - [x] **COLL-01**: Author can create a recipe collection in Strapi with title, slug, hero image, intro copy (editorial note), and an ordered list of recipes, localized in EN/IT/ES
-- [ ] **COLL-02**: Reader can browse all collections on `/collections` (per locale) with cover imagery, title, recipe count, and short description
-- [ ] **COLL-03**: Reader can open a collection detail page at `/collections/[slug]` showing the editorial intro, ordered recipes with thumbnail/title/time, and author's note
-- [ ] **COLL-04**: Recipe detail pages show a "Part of [Collection]" badge linking back to the collection when the recipe belongs to one
+- [x] **COLL-02**: Reader can browse all collections on `/collections` (per locale) with cover imagery, title, recipe count, and short description
+- [x] **COLL-03**: Reader can open a collection detail page at `/collections/[slug]` showing the editorial intro, ordered recipes with thumbnail/title/time, and author's note
+- [x] **COLL-04**: Recipe detail pages show a "Part of [Collection]" badge linking back to the collection when the recipe belongs to one
 - [ ] **COLL-05**: Collection URLs are included in the per-locale sitemap with correct hreflang tags to sibling-locale collections
 - [x] **COLL-06**: Collections support Strapi v5 localization (PUT with `?locale=xx` + slug in body) using a shared helper that replaces ad-hoc calls in existing content-type code
 
@@ -138,9 +138,9 @@ Which phases cover which requirements. Populated during roadmap creation.
 | FILT-07 | Phase 13 | Complete |
 | FILT-08 | Phase 11 | Complete |
 | COLL-01 | Phase 14 | Complete |
-| COLL-02 | Phase 14 | Pending |
-| COLL-03 | Phase 14 | Pending |
-| COLL-04 | Phase 14 | Pending |
+| COLL-02 | Phase 14 | Complete |
+| COLL-03 | Phase 14 | Complete |
+| COLL-04 | Phase 14 | Complete |
 | COLL-05 | Phase 14 | Pending |
 | COLL-06 | Phase 11 | Complete |
 | ANLY-01 | Phase 15 | Pending |
