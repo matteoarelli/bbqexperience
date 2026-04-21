@@ -69,6 +69,17 @@
     },
     "published_date": {
       "type": "date"
+    },
+    "traffic_score_7d": {
+      "type": "integer",
+      "default": 0
+    },
+    "traffic_score_30d": {
+      "type": "integer",
+      "default": 0
+    },
+    "traffic_last_updated": {
+      "type": "datetime"
     }
   }
 }
