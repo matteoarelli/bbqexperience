@@ -230,7 +230,22 @@
     "confirmMessage": "You're in! Check your email to confirm.",
     "errorGeneric": "Something went wrong. Try again.",
     "errorRateLimit": "Too many attempts. Try again later.",
-    "placeholder_short": "Email"
+    "placeholder_short": "Email",
+    "landing": {
+      "metaTitle": "Newsletter — BBQ Experience",
+      "metaDesc": "Join 74,000+ pitmasters. Get exclusive BBQ reviews, recipes, and grilling secrets delivered weekly.",
+      "heroTitle": "Stay Ahead of the Fire",
+      "heroSubtitle": "Weekly BBQ reviews, original recipes, and grilling secrets from the largest independent BBQ community online.",
+      "benefit1Title": "Exclusive Reviews",
+      "benefit1Desc": "In-depth Pitmaster-scored reviews before anyone else. No sponsored content, no BS.",
+      "benefit2Title": "Original Recipes",
+      "benefit2Desc": "Step-by-step recipes tested on real grills, with tips you won't find anywhere else.",
+      "benefit3Title": "BBQ Secrets",
+      "benefit3Desc": "Techniques, gear guides, and insider knowledge from 74,000+ pitmasters worldwide.",
+      "socialProof": "Join {count}+ pitmasters who never miss a drop",
+      "consent": "By subscribing you agree to our {privacyLink}. We send one email per week. Unsubscribe anytime.",
+      "privacyLinkText": "Privacy Policy"
+    }
   },
   "author": {
     "name": "BBQ Experience",
