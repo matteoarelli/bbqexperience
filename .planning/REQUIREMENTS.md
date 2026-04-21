@@ -57,11 +57,11 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Debt cl
 
 <!-- Umami traffic data feeds Python agents to inform content decisions. Must precede A/B so events are validated first. -->
 
-- [ ] **ANLY-01**: Nightly Python agent fetches 7d and 30d unique-visit counts per article from the Umami API and writes a `traffic_score` field back to the corresponding Strapi content (blog, review, recipe, tutorial) in each locale
-- [ ] **ANLY-02**: System provides `scripts/agents/lib/umami_client.py` mirroring the retry/timeout/auth patterns of `strapi_client.py` with a cached session token (≤58-minute TTL)
+- [x] **ANLY-01**: Nightly Python agent fetches 7d and 30d unique-visit counts per article from the Umami API and writes a `traffic_score` field back to the corresponding Strapi content (blog, review, recipe, tutorial) in each locale
+- [x] **ANLY-02**: System provides `scripts/agents/lib/umami_client.py` mirroring the retry/timeout/auth patterns of `strapi_client.py` with a cached session token (≤58-minute TTL)
 - [ ] **ANLY-03**: Daily Telegram dashboard surfaces top 5 and bottom 5 content items by 7d traffic per locale, so Matteo can act on signal without dashboard-diving
 - [ ] **ANLY-04**: Existing Claude strategist agent consumes the traffic_score field to prioritize refresh/expansion candidates in the content queue
-- [ ] **ANLY-05**: System rejects low-confidence signals (fewer than 50 visits in the window or <7 days of data) to prevent noise-driven decisions
+- [x] **ANLY-05**: System rejects low-confidence signals (fewer than 50 visits in the window or <7 days of data) to prevent noise-driven decisions
 
 ### A/B Headline Testing
 
@@ -143,11 +143,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 | COLL-04 | Phase 14 | Pending |
 | COLL-05 | Phase 14 | Complete |
 | COLL-06 | Phase 11 | Complete |
-| ANLY-01 | Phase 15 | Pending |
-| ANLY-02 | Phase 15 | Pending |
+| ANLY-01 | Phase 15 | Complete |
+| ANLY-02 | Phase 15 | Complete |
 | ANLY-03 | Phase 15 | Pending |
 | ANLY-04 | Phase 15 | Pending |
-| ANLY-05 | Phase 15 | Pending |
+| ANLY-05 | Phase 15 | Complete |
 | AB-01 | Phase 16 | Pending |
 | AB-02 | Phase 16 | Pending |
 | AB-03 | Phase 16 | Pending |

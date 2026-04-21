@@ -46,7 +46,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 - [x] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email. (completed 2026-04-21)
 - [x] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails. (completed 2026-04-21)
 - [x] **Phase 14: Recipe Collections** — Curated editorial groupings as a new i18n content type with listing, detail, cross-linking, sitemap, hreflang. (completed 2026-04-21)
-- [ ] **Phase 15: Growth Engine v2 — Analytics Feedback Loop** — Umami → traffic_score on content, Telegram top/bottom digest, strategist consumes signal, noise guardrails.
+- [x] **Phase 15: Growth Engine v2 — Analytics Feedback Loop** — Umami → traffic_score on content, Telegram top/bottom digest, strategist consumes signal, noise guardrails. (completed 2026-04-21)
 - [ ] **Phase 16: A/B Headline Testing Infrastructure** — Astro middleware bucket assignment, Umami event attribution, weekly stats agent, webhook rebuild exclusion, newsletter subject-line A/B via Brevo native.
 
 ## Phase Details
@@ -193,5 +193,5 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Complete    | 2026-04-21 |
 | 13. Review Filters & Taxonomy | v1.1 | 3/3 | Complete    | 2026-04-21 |
 | 14. Recipe Collections | v1.1 | 1/3 | Complete    | 2026-04-21 |
-| 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 0/TBD | Not started | - |
+| 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 1/1 | Complete   | 2026-04-21 |
 | 16. A/B Headline Testing Infrastructure | v1.1 | 0/TBD | Not started | - |
