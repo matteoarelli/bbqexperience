@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Completed 13-02-PLAN.md
-last_updated: "2026-04-21T13:20:16.158Z"
-last_activity: 2026-04-21 -- Phase 11 execution started
+stopped_at: Completed 14-01-PLAN.md
+last_updated: "2026-04-21T14:23:31.459Z"
+last_activity: 2026-04-21
 progress:
   total_phases: 8
-  completed_phases: 3
-  total_plans: 13
-  completed_plans: 14
+  completed_phases: 4
+  total_plans: 16
+  completed_plans: 16
   percent: 100
 ---
 
@@ -21,15 +21,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 **Core value:** The most complete, visually striking, and trustworthy BBQ product review destination online.
-**Current focus:** Phase 11 — strapi-schema-migration-localization-helper
+**Current focus:** Phase 14 — recipe-collections
 
 ## Current Position
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–16)
-Phase: 11 (strapi-schema-migration-localization-helper) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 11
-Last activity: 2026-04-21 -- Phase 11 execution started
+Phase: 14 (recipe-collections) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-21
 
 Progress: v1.0 [██████████] 100% · v1.1 [██░░░░░░░░] ~25% (2/8 phases)
 
@@ -56,6 +56,7 @@ Progress: v1.0 [██████████] 100% · v1.1 [██░░░░
 
 *Updated after each plan completion*
 | Phase 13 P02 | 7min | 2 tasks | 10 files |
+| Phase 14 P01 | 4min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions affecting current work (v1.1):
 - [Roadmap v1.1]: A/B variant edits excluded from the adnanh/webhook rebuild cascade (Phase 16) to prevent 4-minute rebuilds on every editor iteration.
 - [Phase 13]: Pre-build filter URLs server-side in Astro, pass to Svelte island as props to avoid URL logic duplication
 - [Phase 13]: Toggle behavior on filter pills (clicking active filter deselects it) for intuitive UX
+- [Phase 14]: CollectionCard uses CF Image Transformations srcset (320/640/960) for responsive hero images
+- [Phase 14]: CollectionBadge fire-orange pill style consistent with existing badge patterns
 
 ### Roadmap Evolution
 
@@ -96,6 +99,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-04-21T12:29:01.878Z
-Stopped at: Completed 13-02-PLAN.md
+Last session: 2026-04-21T14:23:31.455Z
+Stopped at: Completed 14-01-PLAN.md
 Resume file: None
