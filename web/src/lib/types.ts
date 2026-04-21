@@ -207,6 +207,7 @@ export interface AffiliateLink {
 /** Brand BBQ per pipeline partnership */
 export interface StrapiBrand {
   name: string;
+  slug: string;
   website: string | null;
   contact_email: string | null;
   category: 'grill_manufacturer' | 'accessory_brand' | 'thermometer' | 'fuel' | 'sauce_rub' | 'other' | null;

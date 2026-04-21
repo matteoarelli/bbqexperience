@@ -1,0 +1,82 @@
+---
+/**
+ * Stato vuoto per filtri senza risultati — icona, messaggio e link per cancellare i filtri.
+ */
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  basePath: string;
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { basePath, locale, translations } = Astro.props;
+
+// Funzione helper per accedere alle traduzioni
+const t = (key: string): string => {
+  const keys = key.split('.');
+  let value: any = translations;
+  for (const k of keys) {
+    value = value?.[k];
+  }
+  return typeof value === 'string' ? value : key;
+};
+---
+
+<div class="filter-empty-state" data-animate>
+  <svg class="filter-empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    <line x1="8" y1="8" x2="14" y2="14" />
+    <line x1="14" y1="8" x2="8" y2="14" />
+  </svg>
+  <p class="filter-empty-text">{t('filters.noResults')}</p>
+  <p class="filter-empty-hint">{t('filters.clearAndBrowse')}</p>
+  <a href={basePath} class="filter-empty-btn">{t('filters.clearFilters')}</a>
+</div>
+
+<style>
+  .filter-empty-state {
+    text-align: center;
+    padding: var(--space-16) var(--space-4);
+  }
+
+  .filter-empty-icon {
+    color: var(--color-text-muted);
+    opacity: 0.5;
+    margin-bottom: var(--space-4);
+  }
+
+  .filter-empty-text {
+    font-family: var(--font-heading);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .filter-empty-hint {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-6);
+  }
+
+  .filter-empty-btn {
+    display: inline-block;
+    padding: var(--space-2) var(--space-6);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-full);
+    transition: background-color var(--transition-fast);
+  }
+
+  .filter-empty-btn:hover {
+    background-color: var(--color-accent-ember);
+  }
+</style>
