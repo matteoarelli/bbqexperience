@@ -83,6 +83,21 @@ def _request(url: str) -> dict | list:
     raise last_error  # type: ignore[misc]
 
 
+def get_event_data(
+    event_name: str,
+    start_ms: int,
+    end_ms: int,
+) -> list[dict]:
+    """Recupera dati eventi custom da Umami per un evento specifico."""
+    url = (
+        f"{UMAMI_URL}/api/websites/{UMAMI_SITE_ID}/event-data/fields"
+        f"?startAt={start_ms}&endAt={end_ms}"
+        f"&eventName={event_name}"
+    )
+    result = _request(url)
+    return result if isinstance(result, list) else []
+
+
 def get_metrics_by_path(
     start_ms: int, end_ms: int, *, limit: int = 500
 ) -> list[dict]:
