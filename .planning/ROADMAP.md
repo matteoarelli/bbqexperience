@@ -193,5 +193,5 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 12. Newsletter On-Site Signup (Brevo) | v1.1 | 0/TBD | Complete    | 2026-04-21 |
 | 13. Review Filters & Taxonomy | v1.1 | 3/3 | Complete    | 2026-04-21 |
 | 14. Recipe Collections | v1.1 | 1/3 | Complete    | 2026-04-21 |
-| 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 1/1 | Complete   | 2026-04-21 |
+| 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 2/2 | Complete   | 2026-04-21 |
 | 16. A/B Headline Testing Infrastructure | v1.1 | 0/TBD | Not started | - |
