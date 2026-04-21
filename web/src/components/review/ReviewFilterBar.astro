@@ -1,0 +1,247 @@
+---
+/**
+ * Barra filtri desktop per le recensioni — brand, categoria, prezzo, punteggio.
+ * Nascosta su mobile (<=768px), sostituita dal drawer bottom-sheet.
+ * Ogni opzione e un link con URL pre-costruito e badge conteggio.
+ */
+import type { FilterParams, FacetCounts } from '@lib/filters';
+import { buildFilterUrl, hasActiveFilters, PRICE_BUCKET_LABELS, SCORE_THRESHOLDS } from '@lib/filters';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  activeFilters: FilterParams;
+  facetCounts: FacetCounts;
+  brands: Array<{ slug: string; name: string }>;
+  categories: Array<{ slug: string; name: string }>;
+  basePath: string;
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { activeFilters, facetCounts, brands, categories, basePath, locale, translations } = Astro.props;
+
+// Funzione helper per accedere alle traduzioni
+const t = (key: string): string => {
+  const keys = key.split('.');
+  let value: any = translations;
+  for (const k of keys) {
+    value = value?.[k];
+  }
+  return typeof value === 'string' ? value : key;
+};
+
+// Filtro price bucket: mostra solo quelli con conteggio > 0
+const activePriceBuckets = Object.entries(facetCounts.priceBuckets)
+  .filter(([_, count]) => count > 0);
+
+const filtersActive = hasActiveFilters(activeFilters);
+---
+
+<div class="filter-bar">
+  {/* Gruppo Brand */}
+  <div class="filter-group">
+    <span class="filter-label">{t('filters.brand')}</span>
+    <div class="filter-pills">
+      <a
+        href={buildFilterUrl(basePath, { ...activeFilters, brand: null })}
+        class:list={['filter-pill', { 'filter-pill--active': !activeFilters.brand }]}
+      >
+        {t('filters.allBrands')}
+      </a>
+      {brands.map((b) => {
+        const count = facetCounts.brands[b.slug] || 0;
+        return count > 0 ? (
+          <a
+            href={buildFilterUrl(basePath, { ...activeFilters, brand: activeFilters.brand === b.slug ? null : b.slug })}
+            class:list={['filter-pill', { 'filter-pill--active': activeFilters.brand === b.slug }]}
+          >
+            {b.name} <span class="filter-count">({count})</span>
+          </a>
+        ) : null;
+      })}
+    </div>
+  </div>
+
+  {/* Gruppo Categoria */}
+  <div class="filter-group">
+    <span class="filter-label">{t('filters.category')}</span>
+    <div class="filter-pills">
+      <a
+        href={buildFilterUrl(basePath, { ...activeFilters, category: null })}
+        class:list={['filter-pill', { 'filter-pill--active': !activeFilters.category }]}
+      >
+        {t('filters.allCategories')}
+      </a>
+      {categories.map((c) => {
+        const count = facetCounts.categories[c.slug] || 0;
+        return count > 0 ? (
+          <a
+            href={buildFilterUrl(basePath, { ...activeFilters, category: activeFilters.category === c.slug ? null : c.slug })}
+            class:list={['filter-pill', { 'filter-pill--active': activeFilters.category === c.slug }]}
+          >
+            {c.name} <span class="filter-count">({count})</span>
+          </a>
+        ) : null;
+      })}
+    </div>
+  </div>
+
+  {/* Gruppo Prezzo */}
+  {activePriceBuckets.length > 0 && (
+    <div class="filter-group">
+      <span class="filter-label">{t('filters.price')}</span>
+      <div class="filter-pills">
+        <a
+          href={buildFilterUrl(basePath, { ...activeFilters, price: null })}
+          class:list={['filter-pill', { 'filter-pill--active': !activeFilters.price }]}
+        >
+          {t('filters.allPrices')}
+        </a>
+        {activePriceBuckets.map(([key, count]) => (
+          <a
+            href={buildFilterUrl(basePath, { ...activeFilters, price: activeFilters.price === key ? null : key })}
+            class:list={['filter-pill', { 'filter-pill--active': activeFilters.price === key }]}
+          >
+            {PRICE_BUCKET_LABELS[key][locale]} <span class="filter-count">({count})</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Gruppo Punteggio */}
+  <div class="filter-group">
+    <span class="filter-label">{t('filters.score')}</span>
+    <div class="filter-pills">
+      <a
+        href={buildFilterUrl(basePath, { ...activeFilters, score: null })}
+        class:list={['filter-pill', { 'filter-pill--active': !activeFilters.score }]}
+      >
+        {t('filters.allScores')}
+      </a>
+      {SCORE_THRESHOLDS.map((st) => {
+        const count = facetCounts.scoreThresholds[st.value] || 0;
+        return (
+          <a
+            href={buildFilterUrl(basePath, { ...activeFilters, score: activeFilters.score === st.value ? null : st.value })}
+            class:list={['filter-pill', { 'filter-pill--active': activeFilters.score === st.value }]}
+          >
+            {st.label} <span class="filter-count">({count})</span>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+
+  {/* Link Cancella Filtri */}
+  {filtersActive && (
+    <a href={buildFilterUrl(basePath, {})} class="filter-clear">
+      {t('filters.clearFilters')}
+    </a>
+  )}
+</div>
+
+<style>
+  .filter-bar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    padding: var(--space-4);
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  @media (max-width: 768px) {
+    .filter-bar {
+      display: none;
+    }
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .filter-label {
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    padding-top: var(--space-2);
+    min-width: 80px;
+  }
+
+  .filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    overflow-x: auto;
+  }
+
+  .filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-1) var(--space-3);
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-muted);
+    background-color: transparent;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+  }
+
+  .filter-pill:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-text-secondary);
+  }
+
+  .filter-pill--active {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+    border-color: var(--color-accent-fire);
+  }
+
+  .filter-pill--active:hover {
+    background-color: var(--color-accent-ember);
+    border-color: var(--color-accent-ember);
+    color: var(--color-text-inverse);
+  }
+
+  .filter-count {
+    font-weight: 400;
+    opacity: 0.8;
+  }
+
+  .filter-clear {
+    align-self: flex-start;
+    font-family: var(--font-heading);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-accent-fire);
+    text-decoration: none;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--color-accent-fire);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+  }
+
+  .filter-clear:hover {
+    background-color: var(--color-accent-fire);
+    color: var(--color-text-inverse);
+  }
+</style>
