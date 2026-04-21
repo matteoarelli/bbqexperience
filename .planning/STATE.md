@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 ## Current Position
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–16)
-Phase: 14
-Plan: Not started
-Status: Ready to execute
+Phase: 14 (recipe-collections) — EXECUTING
+Plan: 3 of 3
+Status: Executing (Task 3 checkpoint pending)
 Last activity: 2026-04-21
 
 Progress: v1.0 [██████████] 100% · v1.1 [█████░░░░░] ~50% (4/8 phases)
