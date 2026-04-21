@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Phase 11 context gathered
-last_updated: "2026-04-21T10:59:12.256Z"
-last_activity: 2026-04-21 -- Phase 13 execution started
+stopped_at: Completed 13-02-PLAN.md
+last_updated: "2026-04-21T12:29:01.883Z"
+last_activity: 2026-04-21
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 13
-  completed_plans: 11
+  completed_plans: 14
   percent: 100
 ---
 
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–16)
 Phase: 13 (review-filters-taxonomy) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 13
-Last activity: 2026-04-21 -- Phase 13 execution started
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-21
 
 Progress: v1.0 [██████████] 100% · v1.1 [██░░░░░░░░] ~25% (2/8 phases)
 
@@ -55,6 +55,7 @@ Progress: v1.0 [██████████] 100% · v1.1 [██░░░░
 - Trend: Stable (milestone complete, fresh start for v1.1)
 
 *Updated after each plan completion*
+| Phase 13 P02 | 7min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,8 @@ Recent decisions affecting current work (v1.1):
 - [Roadmap v1.1]: Filter phase (13) ships canonical + noindex SEO guardrails in the same PR as the feature — not as a follow-up.
 - [Roadmap v1.1]: Analytics loop (Phase 15) precedes A/B (Phase 16) so umami_client.py is production-validated before ab_tester.py depends on it, and so A/B experiments can be sized against a real traffic baseline.
 - [Roadmap v1.1]: A/B variant edits excluded from the adnanh/webhook rebuild cascade (Phase 16) to prevent 4-minute rebuilds on every editor iteration.
+- [Phase 13]: Pre-build filter URLs server-side in Astro, pass to Svelte island as props to avoid URL logic duplication
+- [Phase 13]: Toggle behavior on filter pills (clicking active filter deselects it) for intuitive UX
 
 ### Roadmap Evolution
 
@@ -93,6 +96,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-04-17T08:30:12.729Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-strapi-schema-migration-localization-helper/11-CONTEXT.md
+Last session: 2026-04-21T12:29:01.878Z
+Stopped at: Completed 13-02-PLAN.md
+Resume file: None
