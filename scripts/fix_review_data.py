@@ -16,11 +16,23 @@ che può eseguire.
 import argparse
 import os
 import sys
+from pathlib import Path
 from datetime import datetime, timezone
 
 # Aggiungi root progetto al path per import moduli agenti
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, PROJECT_ROOT)
+
+# Carica env vars da .env.windows (Windows) o .env (server)
+_script_dir = Path(__file__).parent
+for _env_file in [_script_dir / "agents" / ".env.windows", Path(PROJECT_ROOT) / ".env"]:
+    if _env_file.exists():
+        for _line in _env_file.read_text(encoding="utf-8").splitlines():
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _, _v = _line.partition("=")
+                os.environ.setdefault(_k.strip(), _v.strip())
+        break
 
 from scripts.agents.lib.strapi_client import find, update, find_all_pages
 
@@ -135,7 +147,14 @@ def _get_brand_map() -> dict[str, str]:
             locale="en",
             status="published",
         )
-        return {b.get("slug", ""): b["documentId"] for b in brands if b.get("slug")}
+        # Brand non ha campo slug — usa name in minuscolo con trattini
+        result: dict[str, str] = {}
+        for b in brands:
+            name = b.get("name", "")
+            if name:
+                key = name.lower().replace(" ", "-")
+                result[key] = b["documentId"]
+        return result
     except RuntimeError as e:
         if "403" in str(e):
             _log("ERROR: API token non ha permessi di lettura su 'brands'.")
@@ -225,7 +244,7 @@ def section_2_brands(product_map: dict[str, dict], brand_map: dict[str, str], dr
         if dry_run:
             _log(f"[DRY-RUN] Collegherei {product_slug} -> brand '{brand_slug}' ({brand_doc_id})")
         else:
-            update("products", doc_id, {"brand_relation": brand_doc_id})
+            update("products", doc_id, {"brand_relation": {"connect": [{"documentId": brand_doc_id}]}})
             _log(f"Linked {product_slug} -> brand '{brand_slug}'")
         updated += 1
 
@@ -237,9 +256,9 @@ def section_3_pellet_grills(product_map: dict[str, dict], dry_run: bool) -> int:
     """Ricategorizza pellet grill da Smoker a Pellet Grill. Ritorna conteggio."""
     _log("=== SEZIONE 3: Ricategorizzazione pellet grill ===")
 
-    pellet_cat_id = _get_category_id("pellet-grill")
+    pellet_cat_id = _get_category_id("pellet")
     if not pellet_cat_id:
-        _log("ERROR: Categoria 'pellet-grill' non trovata o non accessibile! Sezione 3 saltata.")
+        _log("ERROR: Categoria 'pellet' non trovata o non accessibile! Sezione 3 saltata.")
         return 0
 
     updated = 0
@@ -250,10 +269,10 @@ def section_3_pellet_grills(product_map: dict[str, dict], dry_run: bool) -> int:
 
         doc_id = product_map[slug]["documentId"]
         if dry_run:
-            _log(f"[DRY-RUN] Ricategorizzerei {slug} -> pellet-grill ({pellet_cat_id})")
+            _log(f"[DRY-RUN] Ricategorizzerei {slug} -> pellet ({pellet_cat_id})")
         else:
-            update("products", doc_id, {"product_category": pellet_cat_id})
-            _log(f"Recategorized {slug} to pellet-grill")
+            update("products", doc_id, {"product_category": {"connect": [{"documentId": pellet_cat_id}]}})
+            _log(f"Recategorized {slug} to pellet")
         updated += 1
 
     _log(f"Sezione 3 completata: {updated} prodotti {'da ricategorizzare' if dry_run else 'ricategorizzati'}")
