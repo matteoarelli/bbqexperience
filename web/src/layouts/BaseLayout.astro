@@ -37,6 +37,8 @@ interface Props {
   preloadImage?: string;
   /** Se true, aggiunge noindex,follow al meta robots (per pagine filtrate) */
   noindex?: boolean;
+  /** Locale disponibili con traduzione pubblicata (se omesso, emette hreflang per tutte le locale) */
+  availableLocales?: string[];
 }
 
 const {
@@ -52,6 +54,7 @@ const {
   class: className = '',
   preloadImage = '',
   noindex = false,
+  availableLocales,
 } = Astro.props;
 
 const translations = await loadTranslations(locale as any);
@@ -86,6 +89,7 @@ const translations = await loadTranslations(locale as any);
       publishedTime={publishedTime}
       modifiedTime={modifiedTime}
       noindex={noindex}
+      availableLocales={availableLocales}
     />
     {/* Slot esteso per <link rel="preload"> e altri tag <head> page-specifici */}
     <slot name="head-extras" />

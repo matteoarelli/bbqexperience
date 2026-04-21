@@ -1,0 +1,130 @@
+---
+/**
+ * Pagina listing raccolte ricette (EN) — griglia di raccolte con immagine hero, titolo e conteggio ricette.
+ * SSR per contenuti dinamici da Strapi.
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import Header from '@components/common/Header.astro';
+import Footer from '@components/common/Footer.astro';
+import Breadcrumbs from '@components/content/Breadcrumbs.astro';
+import CollectionCard from '@components/collection/CollectionCard.astro';
+import CollectionPageSchema from '@components/common/CollectionPageSchema.astro';
+import { fetchCollection } from '@lib/strapi';
+import type { StrapiRecipeCollection } from '@lib/types';
+import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+export const prerender = false;
+
+const locale: Locale = 'en';
+const translations = await loadTranslations(locale);
+const t = (key: string) => getTranslation(translations, key);
+
+const collectionsRoute = localizedRoutes.collections[locale];
+
+let collections: (StrapiRecipeCollection & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
+let fetchError = false;
+
+try {
+  const response = await fetchCollection<StrapiRecipeCollection>('recipe-collections', {
+    locale,
+    populate: ['recipes', 'hero_image'],
+    sort: 'order:asc',
+    pageSize: 50,
+  });
+  // Filtra raccolte vuote (senza ricette)
+  collections = response.data.filter(c => c.recipes && c.recipes.length > 0);
+} catch {
+  fetchError = true;
+}
+
+// Breadcrumbs
+const breadcrumbItems = [
+  { label: t('content.home'), href: `/${locale}/` },
+  { label: t('collections.title') },
+];
+---
+
+<BaseLayout
+  title={`${t('collections.title')} - ${t('site.name')}`}
+  description={t('collections.description')}
+  locale={locale}
+  canonicalPath={`/${collectionsRoute}/`}
+>
+  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${collectionsRoute}/`} />
+
+  <section class="container-bbq py-12">
+    <Breadcrumbs items={breadcrumbItems} locale={locale} />
+
+    <CollectionPageSchema
+      title={`${t('collections.title')} - ${t('site.name')}`}
+      description={t('collections.description')}
+      url={`https://bbq-experience.com/${locale}/${collectionsRoute}/`}
+      itemCount={collections.length}
+    />
+
+    <h1 class="page-title">{t('collections.allCollections')}</h1>
+
+    {fetchError ? (
+      <div class="empty-state" data-animate>
+        <p class="empty-text">{t('common.contentUnavailable')}</p>
+      </div>
+    ) : collections.length > 0 ? (
+      <div class="collection-grid" data-animate>
+        {collections.map((col) => (
+          <CollectionCard
+            collection={col}
+            locale={locale}
+            collectionsRoute={collectionsRoute}
+            translations={translations}
+          />
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state" data-animate>
+        <p class="empty-text">{t('collections.emptyState')}</p>
+      </div>
+    )}
+  </section>
+
+  <Footer slot="footer" locale={locale} translations={translations} />
+</BaseLayout>
+
+<style>
+  .page-title {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-6);
+  }
+
+  .collection-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 768px) {
+    .collection-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .collection-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-24) 0;
+  }
+
+  .empty-text {
+    color: var(--color-text-muted);
+    font-size: var(--text-lg);
+  }
+</style>

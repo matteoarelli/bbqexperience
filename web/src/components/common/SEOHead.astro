@@ -17,6 +17,7 @@ interface Props {
   modifiedTime?: string;
   articleAuthor?: string;
   noindex?: boolean;
+  availableLocales?: string[];
 }
 
 const {
@@ -31,10 +32,16 @@ const {
   modifiedTime,
   articleAuthor = 'BBQ Experience',
   noindex = false,
+  availableLocales,
 } = Astro.props;
 
 const siteUrl = 'https://bbq-experience.com';
 const locales = i18nLocales;
+
+// Se availableLocales e passato, limita hreflang solo alle locale con traduzione pubblicata
+const hreflangLocales = availableLocales
+  ? (availableLocales as typeof locales)
+  : locales;
 
 // Path corrente completo (con prefisso locale) per calcolare gli hreflang tradotti
 const currentFullPath = `/${locale}${canonicalPath}`;
@@ -85,11 +92,13 @@ const robotsContent = getRobotsContent(noindex);
 <!-- Canonical -->
 <link rel="canonical" href={canonicalUrl} />
 
-<!-- Hreflang per tutte le lingue supportate (slug tradotti per locale) -->
-{locales.map((lang) => (
-  <link rel="alternate" hreflang={lang} href={hrefForLocale(lang)} />
+<!-- Hreflang per le lingue disponibili (slug tradotti per locale) -->
+{hreflangLocales.map((lang) => (
+  <link rel="alternate" hreflang={lang} href={hrefForLocale(lang as Locale)} />
 ))}
-<link rel="alternate" hreflang="x-default" href={hrefForLocale('en')} />
+{hreflangLocales.includes('en') && (
+  <link rel="alternate" hreflang="x-default" href={hrefForLocale('en')} />
+)}
 
 <!-- Open Graph -->
 <meta property="og:title" content={title} />
