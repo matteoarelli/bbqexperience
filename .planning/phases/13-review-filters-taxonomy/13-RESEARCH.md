@@ -365,19 +365,19 @@ noindex?: boolean;
 | A2 | Existing `category/[category].astro` routes can be removed with redirects | Architecture | If Google has indexed these and they have backlinks, redirects must be 301 permanent |
 | A3 | 25-item corpus is too small for indexable taxonomy landing pages | SEO Strategy | If Matteo plans rapid content growth (100+ reviews soon), building indexable pages now avoids rework |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Price Data Population**
+1. **Price Data Population** — RESOLVED: Plan 03 Task 1 creates `scripts/fix_review_data.py` with hard-coded EUR price estimates for all 25 products. Plan 03 Task 2 (checkpoint) has Matteo verify and correct prices in Strapi admin before filter goes live.
    - What we know: All 25 products have `price: null`. Phase 11 created the field but did not populate values.
    - What's unclear: Does Matteo want to enter prices manually in Strapi admin, or should we build a script to scrape/estimate from affiliate URLs?
    - Recommendation: Include a data entry task in the plan. If manual, Matteo fills prices in Strapi admin before filter goes live. The plan should handle the NULL case gracefully (hide price filter when no prices exist, or show "Price data coming soon").
 
-2. **Missing Brand Relations (13 of 25 products)**
+2. **Missing Brand Relations (13 of 25 products)** — RESOLVED: Plan 03 Task 1 creates `BRAND_FIXES` dict in `scripts/fix_review_data.py` with hard-coded product-slug → brand-slug mappings for all 13 unlinked products. Script PUTs brand_relation via Strapi REST API.
    - What we know: Products like "Yoder YS640s", "Lodge Cast Iron Sportsman Grill", "Char-Broil Kettleman" have NULL brand_relation despite matching brands existing in the Brand content type.
    - What's unclear: Whether this is intentional or a migration gap.
    - Recommendation: Fix as part of this phase. A small migration script can match product names to brand names and set the relation.
 
-3. **Pellet Grill Category: 0 Products**
+3. **Pellet Grill Category: 0 Products** — RESOLVED: Plan 03 Task 1 creates `PELLET_RECLASSIFY` list in `scripts/fix_review_data.py` to recategorize Traeger Ironwood 885 and Camp Chef Woodwind WiFi 24 from "Smoker" to "Pellet Grill" via Strapi REST API. Plan 02 hides empty categories in ReviewFilterBar (count > 0 guard).
    - What we know: Category exists but no products are tagged "Pellet Grill". Two products (Traeger Ironwood 885, Camp Chef Woodwind WiFi 24) are pellet grills but categorized as "Smoker".
    - What's unclear: Whether these should be recategorized.
    - Recommendation: Recategorize pellet grills. Show Pellet Grill in filter only if count > 0 (hide empty categories).
