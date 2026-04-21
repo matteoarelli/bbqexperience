@@ -279,5 +279,26 @@
     "ctaTitle": "74K+ No Pueden Estar Equivocados",
     "ctaSubtitle": "La comunidad BBQ independiente mas grande en Instagram. Contenido diario, reseñas honestas, cero patrocinadores.",
     "ctaButton": "Seguir @bbqexperience"
+  },
+  "filters": {
+    "title": "Filtros",
+    "brand": "Marca",
+    "category": "Categoria",
+    "price": "Precio",
+    "score": "Puntuacion Pitmaster",
+    "allBrands": "Todas las Marcas",
+    "allCategories": "Todas las Categorias",
+    "allPrices": "Todos los Precios",
+    "allScores": "Todas las Puntuaciones",
+    "clearFilters": "Borrar Filtros",
+    "applyFilters": "Aplicar",
+    "noResults": "Ninguna resena coincide con los filtros.",
+    "clearAndBrowse": "Borra todos los filtros para ver todas las resenas.",
+    "resultsCount": "resenas encontradas",
+    "underPrice": "Menos de",
+    "overPrice": "Mas de",
+    "scoreAbove": "arriba de",
+    "openFilters": "Abrir Filtros",
+    "closeFilters": "Cerrar"
   }
 }

@@ -3,6 +3,7 @@
  * Componente SEO Head — genera meta tags per hreflang, canonical, Open Graph e Twitter Card
  */
 import { getLocalizedPath, locales as i18nLocales, type Locale } from '@lib/i18n';
+import { getRobotsContent, getCanonicalUrl } from '@lib/seo-utils';
 
 interface Props {
   title: string;
@@ -15,6 +16,7 @@ interface Props {
   publishedTime?: string;
   modifiedTime?: string;
   articleAuthor?: string;
+  noindex?: boolean;
 }
 
 const {
@@ -28,6 +30,7 @@ const {
   publishedTime,
   modifiedTime,
   articleAuthor = 'BBQ Experience',
+  noindex = false,
 } = Astro.props;
 
 const siteUrl = 'https://bbq-experience.com';
@@ -60,7 +63,10 @@ const safeDescription = description && description.length > 160
   : description;
 
 // URL canonico per la locale corrente (con query params opzionali per paginazione)
-const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?${canonicalQuery}` : ''}`;
+const canonicalUrl = getCanonicalUrl(`${siteUrl}/${locale}`, canonicalPath, canonicalQuery || undefined);
+
+// Contenuto meta robots (noindex per pagine filtrate)
+const robotsContent = getRobotsContent(noindex);
 ---
 
 <meta charset="utf-8" />
@@ -68,7 +74,7 @@ const canonicalUrl = `${siteUrl}/${locale}${canonicalPath}${canonicalQuery ? `?$
 <meta name="theme-color" content="#0D0D0D" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
 <meta name="generator" content={Astro.generator} />
-<meta name="robots" content="index, follow" />
+<meta name="robots" content={robotsContent} />
 
 <title>{title}</title>
 <meta name="description" content={safeDescription} />

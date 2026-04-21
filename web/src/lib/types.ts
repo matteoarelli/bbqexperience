@@ -12,7 +12,8 @@ export type ContentType =
   | 'brands'
   | 'partnerships'
   | 'keyword-trackers'
-  | 'content-queues';
+  | 'content-queues'
+  | 'product-categories';
 
 // ─── Media ───────────────────────────────────────────────────────────────────
 
@@ -71,12 +72,19 @@ export interface StrapiCollectionResponse<T> {
 
 // ─── Content Types ───────────────────────────────────────────────────────────
 
+/** Categoria prodotto BBQ (relazione da Strapi) */
+export interface StrapiProductCategory {
+  name: string;
+  slug: string;
+  description: string | null;
+}
+
 /** Prodotto BBQ: griglie, affumicatori, accessori */
 export interface StrapiProduct {
   name: string;
   slug: string;
-  category: 'grill' | 'smoker' | 'accessory' | 'fuel' | 'thermometer' | 'other' | null;
-  price_range: 'budget' | 'mid-range' | 'premium' | 'luxury' | null;
+  product_category: (StrapiProductCategory & StrapiEntity) | null;
+  price: number | null;
   description: string | null;
   specifications: Record<string, unknown> | null;
   images: StrapiMedia[] | null;

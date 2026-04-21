@@ -33,12 +33,12 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Debt cl
 
 <!-- Faceted filtering on the reviews index. SEO guardrails are a hard requirement of the same phase (not follow-up). -->
 
-- [ ] **FILT-01**: Reader can filter reviews by brand (from existing `brand_relation`) on the reviews index page in each locale
+- [x] **FILT-01**: Reader can filter reviews by brand (from existing `brand_relation`) on the reviews index page in each locale
 - [ ] **FILT-02**: Reader can filter reviews by product category (grill / smoker / pellet / thermometer / accessory) via a new localized `product-category` taxonomy that replaces the string enum
-- [ ] **FILT-03**: Reader can filter reviews by price range bucket (<€300, €300–€800, €800–€1500, >€1500) derived from the existing product price field
-- [ ] **FILT-04**: Reader can filter reviews by Pitmaster score threshold (8+, 7+, 6+) across categories
-- [ ] **FILT-05**: Reader sees per-facet count badges and an empty-state with "clear filters" affordance when no review matches
-- [ ] **FILT-06**: Filter state persists in the URL via query params (shareable), with a canonical tag pointing to the un-filtered index and `noindex, follow` on any filtered URL to prevent crawl-budget drain
+- [x] **FILT-03**: Reader can filter reviews by price range bucket (<€300, €300–€800, €800–€1500, >€1500) derived from the existing product price field
+- [x] **FILT-04**: Reader can filter reviews by Pitmaster score threshold (8+, 7+, 6+) across categories
+- [x] **FILT-05**: Reader sees per-facet count badges and an empty-state with "clear filters" affordance when no review matches
+- [x] **FILT-06**: Filter state persists in the URL via query params (shareable), with a canonical tag pointing to the un-filtered index and `noindex, follow` on any filtered URL to prevent crawl-budget drain
 - [ ] **FILT-07**: On mobile, filters open in a bottom-sheet drawer with "Apply" confirmation, keeping the primary viewport uncluttered
 - [ ] **FILT-08**: Data migration tags all 25 existing reviewed products with the new `product-category` relation before the filter UI goes live
 
@@ -129,12 +129,12 @@ Which phases cover which requirements. Populated during roadmap creation.
 | NEWS-06 | Phase 12 | Pending |
 | NEWS-07 | Phase 12 | Pending |
 | NEWS-08 | Phase 12 | Pending |
-| FILT-01 | Phase 13 | Pending |
+| FILT-01 | Phase 13 | Complete |
 | FILT-02 | Phase 11 | Pending |
-| FILT-03 | Phase 13 | Pending |
-| FILT-04 | Phase 13 | Pending |
-| FILT-05 | Phase 13 | Pending |
-| FILT-06 | Phase 13 | Pending |
+| FILT-03 | Phase 13 | Complete |
+| FILT-04 | Phase 13 | Complete |
+| FILT-05 | Phase 13 | Complete |
+| FILT-06 | Phase 13 | Complete |
 | FILT-07 | Phase 13 | Pending |
 | FILT-08 | Phase 11 | Pending |
 | COLL-01 | Phase 14 | Pending |

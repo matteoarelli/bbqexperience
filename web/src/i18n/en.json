@@ -279,5 +279,26 @@
     "ctaTitle": "74K+ Can't Be Wrong",
     "ctaSubtitle": "The biggest independent BBQ community on Instagram. Daily content, honest reviews, zero sponsors.",
     "ctaButton": "Follow @bbqexperience"
+  },
+  "filters": {
+    "title": "Filters",
+    "brand": "Brand",
+    "category": "Category",
+    "price": "Price",
+    "score": "Pitmaster Score",
+    "allBrands": "All Brands",
+    "allCategories": "All Categories",
+    "allPrices": "All Prices",
+    "allScores": "All Scores",
+    "clearFilters": "Clear Filters",
+    "applyFilters": "Apply",
+    "noResults": "No reviews match your filters.",
+    "clearAndBrowse": "Clear all filters to browse all reviews.",
+    "resultsCount": "reviews found",
+    "underPrice": "Under",
+    "overPrice": "Over",
+    "scoreAbove": "above",
+    "openFilters": "Open Filters",
+    "closeFilters": "Close"
   }
 }
