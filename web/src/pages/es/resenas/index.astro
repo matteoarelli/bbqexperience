@@ -1,7 +1,9 @@
 ---
 /**
- * Pagina listing recensioni (ES) — griglia di resenas con filtro categoria, ordinamento e paginazione.
- * SSR para soportar filtro categoria, sort y paginacion dinamicos via query param.
+ * Pagina listing recensioni (ES) — griglia di resenas con filtri multi-facet
+ * (marca, categoria, precio, puntuacion), ordinamento e paginazione.
+ * SSR per supportare filtri dinamici via query param.
+ * URL filtrati emettono noindex,follow + canonical alla pagina non filtrata.
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import Header from '@components/common/Header.astro';
@@ -13,10 +15,23 @@ import SortControls from '@components/common/SortControls.astro';
 import PopularReviews from '@components/content/PopularReviews.astro';
 import ContentStats from '@components/content/ContentStats.astro';
 import CollectionPageSchema from '@components/common/CollectionPageSchema.astro';
+import ReviewFilterBar from '@components/review/ReviewFilterBar.astro';
+import ReviewEmptyState from '@components/review/ReviewEmptyState.astro';
+import ReviewFilterDrawer from '@components/review/ReviewFilterDrawer.svelte';
 import { fetchCollection } from '@lib/strapi';
-import type { StrapiReview } from '@lib/types';
+import type { StrapiReview, StrapiProductCategory, StrapiBrand } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
+import {
+  parseFilterParams,
+  hasActiveFilters,
+  buildStrapiFilters,
+  computeFacetCounts,
+  buildFilterUrl,
+  PRICE_BUCKETS,
+  PRICE_BUCKET_LABELS,
+  SCORE_THRESHOLDS,
+} from '@lib/filters';
 
 export const prerender = false;
 
@@ -24,9 +39,9 @@ const locale: Locale = 'es';
 const translations = await loadTranslations(locale);
 const t = (key: string) => getTranslation(translations, key);
 
-// Categorie prodotto disponibili per il filtro
-const categories = ['grill', 'smoker', 'accessory', 'fuel', 'thermometer', 'other'] as const;
-const activeCategory = Astro.url.searchParams.get('category') || null;
+// Parsing filtri dalla URL
+const activeFilters = parseFilterParams(Astro.url.searchParams);
+const filtersActive = hasActiveFilters(activeFilters);
 
 // Paginazione e ordinamento da query params
 const currentPage = Math.max(1, parseInt(Astro.url.searchParams.get('page') || '1', 10));
@@ -46,32 +61,86 @@ const sortOptions = [
   { value: 'lowestScore', label: t('sort.lowestScore') },
 ];
 
-// Recupera le recensioni con filtro categoria opzionale
-const fetchOptions: Parameters<typeof fetchCollection>[1] = {
-  locale,
-  populate: '*',
-  sort: sortMap[activeSort] || sortMap.newest,
-  pageSize: 12,
-  page: currentPage,
-};
-
-if (activeCategory && categories.includes(activeCategory as typeof categories[number])) {
-  fetchOptions.filters = { product: { category: { $eq: activeCategory } } };
-}
+const reviewRoute = localizedRoutes.reviews[locale];
+const basePath = `/${locale}/${reviewRoute}/`;
 
 let reviews: (StrapiReview & { id: number; documentId: string; createdAt: string; updatedAt: string; publishedAt: string | null; locale: string })[] = [];
 let totalCount = 0;
 let totalPages = 1;
 let fetchError = false;
+
+// Conteggi facet e dati filtri
+let facetCounts = { brands: {} as Record<string, number>, categories: {} as Record<string, number>, priceBuckets: {} as Record<string, number>, scoreThresholds: {} as Record<string, number> };
+let brandsWithProducts: Array<{ slug: string; name: string; count: number }> = [];
+let categoriesWithProducts: Array<{ slug: string; name: string; count: number }> = [];
+
 try {
-  const response = await fetchCollection<StrapiReview>('reviews', fetchOptions);
+  // Fetch TUTTE le review (campi minimi) per conteggi facet
+  const allReviewsResponse = await fetchCollection<StrapiReview>('reviews', {
+    locale,
+    populate: ['product', 'product.brand_relation', 'product.product_category'],
+    pageSize: 100,
+  });
+  facetCounts = computeFacetCounts(allReviewsResponse.data);
+
+  // Fetch review filtrate per la pagina corrente
+  const strapiFilters = buildStrapiFilters(activeFilters);
+  const response = await fetchCollection<StrapiReview>('reviews', {
+    locale,
+    populate: ['product', 'product.brand_relation', 'product.product_category', 'gallery'],
+    filters: strapiFilters,
+    sort: sortMap[activeSort] || sortMap.newest,
+    pageSize: 12,
+    page: currentPage,
+  });
   reviews = response.data;
   totalCount = response.meta.pagination.total;
   totalPages = response.meta.pagination.pageCount;
+
+  // Fetch brand e categorie per le label dei filtri (localizzate)
+  const brandsResponse = await fetchCollection<StrapiBrand>('brands', { locale, pageSize: 100 });
+  brandsWithProducts = brandsResponse.data
+    .filter((b) => (facetCounts.brands[b.slug] || 0) > 0)
+    .map((b) => ({ slug: b.slug, name: b.name, count: facetCounts.brands[b.slug] }))
+    .sort((a, b) => b.count - a.count);
+
+  const categoriesResponse = await fetchCollection<StrapiProductCategory>('product-categories', { locale, pageSize: 100 });
+  categoriesWithProducts = categoriesResponse.data
+    .filter((c) => (facetCounts.categories[c.slug] || 0) > 0)
+    .map((c) => ({ slug: c.slug, name: c.name, count: facetCounts.categories[c.slug] }))
+    .sort((a, b) => b.count - a.count);
 } catch {
   fetchError = true;
 }
-const reviewRoute = localizedRoutes.reviews[locale];
+
+// Pre-compute URL per ogni opzione filtro (passati al drawer come props)
+const brandsWithUrls = brandsWithProducts.map((b) => ({
+  ...b,
+  url: buildFilterUrl(basePath, { ...activeFilters, brand: b.slug }),
+}));
+const categoriesWithUrls = categoriesWithProducts.map((c) => ({
+  ...c,
+  url: buildFilterUrl(basePath, { ...activeFilters, category: c.slug }),
+}));
+
+// Dati per il drawer mobile — bucket prezzo con URL
+const priceBucketOptions = Object.entries(PRICE_BUCKETS)
+  .filter(([key]) => (facetCounts.priceBuckets[key] || 0) > 0)
+  .map(([key]) => ({
+    key,
+    label: PRICE_BUCKET_LABELS[key][locale],
+    count: facetCounts.priceBuckets[key],
+    url: buildFilterUrl(basePath, { ...activeFilters, price: key }),
+  }));
+
+const scoreOptions = SCORE_THRESHOLDS.map((st) => ({
+  value: st.value,
+  label: st.label,
+  count: facetCounts.scoreThresholds[st.value] || 0,
+  url: buildFilterUrl(basePath, { ...activeFilters, score: st.value }),
+}));
+
+const clearUrl = buildFilterUrl(basePath, {});
 
 // Breadcrumbs
 const breadcrumbItems = [
@@ -85,9 +154,10 @@ const breadcrumbItems = [
   description={t('site.description')}
   locale={locale}
   canonicalPath={`/${reviewRoute}/`}
-  canonicalQuery={currentPage > 1 ? `page=${currentPage}` : ''}
+  canonicalQuery={!filtersActive && currentPage > 1 ? `page=${currentPage}` : ''}
+  noindex={filtersActive}
 >
-  <Header slot="header" locale={locale} translations={translations} currentPath={`/${locale}/${reviewRoute}/`} />
+  <Header slot="header" locale={locale} translations={translations} currentPath={basePath} />
 
   <section class="container-bbq py-12">
     <Breadcrumbs items={breadcrumbItems} locale={locale} />
@@ -95,29 +165,50 @@ const breadcrumbItems = [
     <CollectionPageSchema
       title={`${t('content.reviews')} - ${t('site.name')}`}
       description={t('site.description')}
-      url={`https://bbq-experience.com/${locale}/${reviewRoute}/`}
+      url={`https://bbq-experience.com${basePath}`}
       itemCount={totalCount}
     />
 
     <h1 class="page-title">{t('content.allReviews')}</h1>
 
-    {/* Barra filtro categorie prodotto */}
-    <div class="category-filter">
-      <a
-        href={`/${locale}/${reviewRoute}/`}
-        class:list={['filter-btn', { 'filter-btn--active': !activeCategory }]}
-      >
-        {t('content.allCategories')}
-      </a>
-      {categories.map((cat) => (
-        <a
-          href={`/${locale}/${reviewRoute}/?category=${cat}`}
-          class:list={['filter-btn', { 'filter-btn--active': activeCategory === cat }]}
-        >
-          {t(`content.${cat}`)}
-        </a>
-      ))}
-    </div>
+    {/* Barra filtri desktop */}
+    <ReviewFilterBar
+      activeFilters={activeFilters}
+      facetCounts={facetCounts}
+      brands={brandsWithProducts}
+      categories={categoriesWithProducts}
+      basePath={basePath}
+      locale={locale}
+      translations={translations}
+    />
+
+    {/* Drawer filtri mobile */}
+    <ReviewFilterDrawer
+      client:visible
+      brands={brandsWithUrls}
+      categories={categoriesWithUrls}
+      priceBuckets={priceBucketOptions}
+      scoreThresholds={scoreOptions}
+      activeFilters={activeFilters}
+      basePath={basePath}
+      clearUrl={clearUrl}
+      applyLabel={t('filters.applyFilters')}
+      clearLabel={t('filters.clearFilters')}
+      closeLabel={t('filters.closeFilters')}
+      brandLabel={t('filters.brand')}
+      categoryLabel={t('filters.category')}
+      priceLabel={t('filters.price')}
+      scoreLabel={t('filters.score')}
+      openLabel={t('filters.openFilters')}
+      resultsLabel={t('filters.resultsCount')}
+    />
+
+    {/* Conteggio risultati filtrati */}
+    {filtersActive && !fetchError && (
+      <p class="result-count">
+        {totalCount} {t('filters.resultsCount')}
+      </p>
+    )}
 
     {/* Barra statistiche */}
     {!fetchError && totalCount > 0 && (
@@ -137,8 +228,8 @@ const breadcrumbItems = [
       baseUrl={Astro.url.href}
     />
 
-    {/* Conteggio risultati */}
-    {!fetchError && totalCount > 0 && (
+    {/* Conteggio risultati generici */}
+    {!filtersActive && !fetchError && totalCount > 0 && (
       <p class="result-count">
         {t('common.showing')} {reviews.length} {t('common.of')} {totalCount} {t('common.results')}
       </p>
@@ -162,9 +253,7 @@ const breadcrumbItems = [
             ))}
           </div>
         ) : (
-          <div class="empty-state" data-animate>
-            <p class="empty-text">{t('content.noArticles')}</p>
-          </div>
+          <ReviewEmptyState basePath={basePath} locale={locale} translations={translations} />
         )}
 
         {/* Paginazione */}
@@ -195,46 +284,6 @@ const breadcrumbItems = [
     text-transform: uppercase;
     color: var(--color-text-primary);
     margin-bottom: var(--space-6);
-  }
-
-  .category-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    margin-bottom: var(--space-4);
-  }
-
-  .filter-btn {
-    display: inline-block;
-    padding: var(--space-2) var(--space-4);
-    font-family: var(--font-heading);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    border-radius: var(--radius-full);
-    border: 1px solid var(--color-border-subtle);
-    color: var(--color-text-muted);
-    background-color: transparent;
-    transition: all var(--transition-fast);
-  }
-
-  .filter-btn:hover {
-    color: var(--color-text-primary);
-    border-color: var(--color-text-secondary);
-  }
-
-  .filter-btn--active {
-    background-color: var(--color-accent-fire);
-    color: var(--color-text-inverse);
-    border-color: var(--color-accent-fire);
-  }
-
-  .filter-btn--active:hover {
-    background-color: var(--color-accent-ember);
-    border-color: var(--color-accent-ember);
-    color: var(--color-text-inverse);
   }
 
   .result-count {
