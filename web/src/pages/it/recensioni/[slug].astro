@@ -28,6 +28,7 @@ import PrevNextNav from '@components/content/PrevNextNav.astro';
 import WhereToBuy from '@components/review/WhereToBuy.astro';
 import { localizedRoutes } from '@lib/i18n';
 import { renderMarkdown } from '@lib/markdown';
+import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 
 export const prerender = false;
 
@@ -235,6 +236,10 @@ const breadcrumbItems = [
     <!-- Navigazione precedente/successivo -->
     <PrevNextNav contentType="reviews" currentSlug={review.slug} locale={locale} translations={t} />
   </article>
+
+  <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-8);">
+    <NewsletterSignup translations={t} source="inline" />
+  </div>
 
   <Footer slot="footer" locale={locale} translations={t} />
 

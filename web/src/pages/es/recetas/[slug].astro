@@ -29,6 +29,7 @@ import PrevNextNav from '@components/content/PrevNextNav.astro';
 import RelatedRecipes from '@components/content/RelatedRecipes.astro';
 import '@styles/print.css';
 import { renderMarkdown } from '@lib/markdown';
+import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 
 export const prerender = false;
 
@@ -191,6 +192,10 @@ const breadcrumbItems = [
     <RecipeJsonLd recipe={recipe} locale="es" />
     <BreadcrumbJsonLd items={breadcrumbItems} />
   </article>
+
+  <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-8);">
+    <NewsletterSignup translations={translations} source="inline" />
+  </div>
 
   <Footer slot="footer" locale="es" translations={translations} />
 </BaseLayout>

@@ -21,6 +21,7 @@ import { getContentStatus } from '@lib/preview';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 import { getStrapiMediaURL } from '@lib/media';
+import NewsletterSignup from '@components/common/NewsletterSignup.astro';
 
 export const prerender = false;
 
@@ -127,6 +128,10 @@ const breadcrumbItems = [
   </div>
 
   <BreadcrumbJsonLd items={breadcrumbItems} />
+
+  <div class="max-w-4xl mx-auto px-[var(--container-padding)]" style="margin-top: var(--space-8);">
+    <NewsletterSignup translations={translations} source="inline" />
+  </div>
 
   <Footer slot="footer" locale={locale} translations={translations} />
 </BaseLayout>
