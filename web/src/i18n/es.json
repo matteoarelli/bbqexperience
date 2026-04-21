@@ -14,7 +14,8 @@
     "compare": "Comparar",
     "bookmarks": "Favoritos",
     "search": "Buscar",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "collections": "Colecciones"
   },
   "common": {
     "readMore": "Leer mas",
@@ -279,6 +280,16 @@
     "ctaTitle": "74K+ No Pueden Estar Equivocados",
     "ctaSubtitle": "La comunidad BBQ independiente mas grande en Instagram. Contenido diario, reseñas honestas, cero patrocinadores.",
     "ctaButton": "Seguir @bbqexperience"
+  },
+  "collections": {
+    "title": "Colecciones de Recetas",
+    "allCollections": "Todas las Colecciones",
+    "recipesCount": "{count} recetas",
+    "partOf": "Parte de",
+    "authorsNote": "Nota del Autor",
+    "emptyState": "No hay colecciones disponibles por el momento.",
+    "viewCollection": "Ver Coleccion",
+    "description": "Colecciones de recetas curadas por nuestros pitmasters"
   },
   "filters": {
     "title": "Filtros",
