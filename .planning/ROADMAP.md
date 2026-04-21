@@ -44,7 +44,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 - [x] **Phase 10.1: Image Delivery via Cloudflare Resizing** *(INSERTED)* — Close residual DEBT-03 gap: route Strapi media URLs through Cloudflare Image Resizing (or equivalent CDN transformation) so the 6 pages still scoring sub-90 on Lighthouse Performance reach ≥90; re-measure all 15 baseline pages → status=pass. (completed 2026-04-16, 15/15 ≥90 Perf median 0.97, DEBT-03 CLOSED)
 - [x] **Phase 11: Strapi Schema Migration & Localization Helper** — Land all v1.1 schema changes in one CMS rebuild window (product-category taxonomy, subscriber.source, recipe-collection scaffold, shared locale PUT helper) and migrate existing product data.
 - [x] **Phase 12: Newsletter On-Site Signup (Brevo)** — Multi-surface capture (inline, exit-intent, sticky footer, dedicated page) with DOI, rate-limit, honeypot, localized welcome email. (completed 2026-04-21)
-- [x] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails. (completed 2026-04-21)
+- [x] **Phase 13: Review Filters & Taxonomy** — Faceted browse on reviews index (brand, category, price, score) with SEO crawl-budget guardrails. (completed 2026-04-21)
 - [x] **Phase 14: Recipe Collections** — Curated editorial groupings as a new i18n content type with listing, detail, cross-linking, sitemap, hreflang. (completed 2026-04-21)
 - [x] **Phase 15: Growth Engine v2 — Analytics Feedback Loop** — Umami → traffic_score on content, Telegram top/bottom digest, strategist consumes signal, noise guardrails. (completed 2026-04-21)
 - [ ] **Phase 16: A/B Headline Testing Infrastructure** — Astro middleware bucket assignment, Umami event attribution, weekly stats agent, webhook rebuild exclusion, newsletter subject-line A/B via Brevo native.
@@ -170,7 +170,11 @@ Plans:
   6. Editing an `ab-experiment` or `variant-impression` entry in Strapi does NOT trigger an Astro site rebuild (adnanh/webhook `hooks.json` excludes these content types); verified by editing a variant and confirming no new entry in `/opt/webhooks/logs/bbqexperience.log`.
   7. A newsletter campaign scheduled through Brevo's native A/B feature (subject-line test) gets a winner recommendation surfaced in the same Telegram weekly digest as on-site experiments.
   8. `may need /gsd:research-phase before planning` — validate adnanh/webhook content-type-level exclusion syntax in `hooks.json`, and confirm Astro middleware cookie behavior behind Cloudflare CDN (cache bypass on Set-Cookie, no edge cache poisoning).
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 16-01-PLAN.md — Foundation: Strapi ab-experiment content type, ab.ts library with tests, middleware cookie assignment
+- [ ] 16-02-PLAN.md — Blog page variant injection (EN/IT/ES detail + listing) + Umami event tracking
+- [ ] 16-03-PLAN.md — Weekly ab_tester.py agent + Brevo A/B client + webhook exclusion on Hetzner
 
 ## Progress
 
@@ -194,4 +198,4 @@ Phases execute in numeric order: 10 → 11 → 12 → 13 → 14 → 15 → 16
 | 13. Review Filters & Taxonomy | v1.1 | 3/3 | Complete    | 2026-04-21 |
 | 14. Recipe Collections | v1.1 | 1/3 | Complete    | 2026-04-21 |
 | 15. Growth Engine v2 — Analytics Feedback Loop | v1.1 | 2/2 | Complete    | 2026-04-21 |
-| 16. A/B Headline Testing Infrastructure | v1.1 | 0/TBD | Not started | - |
+| 16. A/B Headline Testing Infrastructure | v1.1 | 0/3 | Not started | - |
