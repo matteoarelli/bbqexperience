@@ -1,0 +1,57 @@
+---
+/**
+ * Badge "Parte di [Raccolta]" — pill linkato alla raccolta, usato nelle pagine ricetta
+ */
+import { localizedRoutes, getTranslation } from '@lib/i18n';
+import type { Locale } from '@lib/i18n';
+
+interface Props {
+  collectionTitle: string;
+  collectionSlug: string;
+  locale: Locale;
+  translations: Record<string, any>;
+}
+
+const { collectionTitle, collectionSlug, locale, translations } = Astro.props;
+const t = (key: string) => getTranslation(translations, key);
+
+const collectionsRoute = localizedRoutes.collections[locale];
+const partOfLabel = t('collections.partOf');
+---
+
+<a
+  href={`/${locale}/${collectionsRoute}/${collectionSlug}/`}
+  class="collection-badge"
+>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+  </svg>
+  <span>{partOfLabel} <strong>{collectionTitle}</strong></span>
+</a>
+
+<style>
+  .collection-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    background: rgba(249, 115, 22, 0.1);
+    color: var(--color-accent-fire);
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background var(--transition-base);
+  }
+
+  .collection-badge:hover {
+    background: rgba(249, 115, 22, 0.2);
+  }
+
+  .collection-badge strong {
+    font-weight: 800;
+  }
+</style>
