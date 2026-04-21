@@ -12,9 +12,10 @@ import Pagination from '@components/common/Pagination.astro';
 import SortControls from '@components/common/SortControls.astro';
 import CollectionPageSchema from '@components/common/CollectionPageSchema.astro';
 import { fetchCollection } from '@lib/strapi';
-import type { StrapiBlogPost } from '@lib/types';
+import type { StrapiBlogPost, StrapiAbExperiment, StrapiEntity } from '@lib/types';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
+import { assignVariant, VARIANT_NAMES } from '@lib/ab';
 
 export const prerender = false;
 
@@ -67,6 +68,27 @@ try {
 } catch {
   fetchError = true;
 }
+
+// A/B test — carica esperimenti attivi per i post visualizzati
+let experimentsMap = new Map<string, StrapiAbExperiment & StrapiEntity>();
+if (!Astro.locals.isBot) {
+  try {
+    const expResult = await fetchCollection<StrapiAbExperiment>('ab-experiments', {
+      locale,
+      filters: { status: { $eq: 'active' } },
+      populate: 'blog_post',
+      pageSize: 50,
+    });
+    for (const exp of expResult?.data || []) {
+      if (exp.blog_post?.documentId) {
+        experimentsMap.set(exp.blog_post.documentId, exp);
+      }
+    }
+  } catch (e) {
+    console.error('[A/B] Errore caricamento esperimenti listing:', e);
+  }
+}
+
 const blogRoute = localizedRoutes.blog[locale];
 
 // Separa post in evidenza dai normali (solo prima pagina senza filtri/sort personalizzato)
@@ -143,9 +165,61 @@ const breadcrumbItems = [
     {featuredPosts.length > 0 && (
       <div class="featured-section" data-animate>
         <div class="featured-grid">
-          {featuredPosts.map((post) => (
+          {featuredPosts.map((post) => {
+            const experiment = experimentsMap.get(post.documentId);
+            let cardTitle = post.title;
+            let cardVariant: string | null = null;
+            let cardExpDocId: string | null = null;
+            if (experiment) {
+              cardExpDocId = experiment.documentId;
+              const variantCount = experiment.variant_c ? 4 : 3;
+              const variantIndex = assignVariant(Astro.locals.abId, post.documentId, variantCount);
+              cardVariant = VARIANT_NAMES[variantIndex];
+              if (variantIndex === 1) cardTitle = experiment.variant_a;
+              else if (variantIndex === 2) cardTitle = experiment.variant_b;
+              else if (variantIndex === 3 && experiment.variant_c) cardTitle = experiment.variant_c;
+            }
+            return (
+              <ArticleCard
+                title={cardTitle}
+                excerpt={post.excerpt}
+                slug={post.slug}
+                href={`/${locale}/${blogRoute}/${post.slug}/`}
+                coverImage={post.cover_image}
+                category={post.category}
+                readingTime={post.reading_time}
+                publishedDate={post.published_date}
+                locale={locale}
+                translations={translations}
+                experimentDocId={cardExpDocId}
+                activeVariant={cardVariant}
+              />
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {/* Griglia articoli normali */}
+    {regularPosts.length > 0 ? (
+      <div class="blog-grid" data-animate>
+        {regularPosts.map((post) => {
+          const experiment = experimentsMap.get(post.documentId);
+          let cardTitle = post.title;
+          let cardVariant: string | null = null;
+          let cardExpDocId: string | null = null;
+          if (experiment) {
+            cardExpDocId = experiment.documentId;
+            const variantCount = experiment.variant_c ? 4 : 3;
+            const variantIndex = assignVariant(Astro.locals.abId, post.documentId, variantCount);
+            cardVariant = VARIANT_NAMES[variantIndex];
+            if (variantIndex === 1) cardTitle = experiment.variant_a;
+            else if (variantIndex === 2) cardTitle = experiment.variant_b;
+            else if (variantIndex === 3 && experiment.variant_c) cardTitle = experiment.variant_c;
+          }
+          return (
             <ArticleCard
-              title={post.title}
+              title={cardTitle}
               excerpt={post.excerpt}
               slug={post.slug}
               href={`/${locale}/${blogRoute}/${post.slug}/`}
@@ -155,29 +229,11 @@ const breadcrumbItems = [
               publishedDate={post.published_date}
               locale={locale}
               translations={translations}
+              experimentDocId={cardExpDocId}
+              activeVariant={cardVariant}
             />
-          ))}
-        </div>
-      </div>
-    )}
-
-    {/* Griglia articoli normali */}
-    {regularPosts.length > 0 ? (
-      <div class="blog-grid" data-animate>
-        {regularPosts.map((post) => (
-          <ArticleCard
-            title={post.title}
-            excerpt={post.excerpt}
-            slug={post.slug}
-            href={`/${locale}/${blogRoute}/${post.slug}/`}
-            coverImage={post.cover_image}
-            category={post.category}
-            readingTime={post.reading_time}
-            publishedDate={post.published_date}
-            locale={locale}
-            translations={translations}
-          />
-        ))}
+          );
+        })}
       </div>
     ) : featuredPosts.length === 0 && (
       <div class="empty-state" data-animate>

@@ -20,6 +20,8 @@ interface Props {
   publishedDate: string | null;
   locale: Locale;
   translations: Record<string, any>;
+  experimentDocId?: string | null;
+  activeVariant?: string | null;
 }
 
 const {
@@ -32,6 +34,8 @@ const {
   publishedDate,
   locale,
   translations,
+  experimentDocId = null,
+  activeVariant = null,
 } = Astro.props;
 
 const imageUrl = getStrapiMediaURL(coverImage);
@@ -57,7 +61,15 @@ const categoryText = category
   : null;
 ---
 
-<a href={href} class="article-card card-hover">
+<a
+  href={href}
+  class="article-card card-hover"
+  {...(experimentDocId && activeVariant ? {
+    'data-umami-event': 'ab-click',
+    'data-umami-event-experiment': experimentDocId,
+    'data-umami-event-variant': activeVariant,
+  } : {})}
+>
   <!-- Immagine di copertina -->
   <div class="card-image-wrapper">
     {imageUrl ? (
