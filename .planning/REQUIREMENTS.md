@@ -68,10 +68,10 @@ Requirements for this milestone. Each maps to exactly one roadmap phase. Debt cl
 <!-- Middleware-based variant assignment (no CLS, no cloaking). BlogPost first; reviews/recipes/newsletter graduate once infra validates. -->
 
 - [ ] **AB-01**: Author can define 2 or 3 headline variants on any BlogPost via Strapi, stored as a separate `ab-experiment` content type linked to the post
-- [ ] **AB-02**: Astro middleware assigns each visitor a sticky variant via a `ab_id` cookie (30-day TTL, hash-based deterministic assignment via `nanoid`) without client-side content swap
-- [ ] **AB-03**: System tracks variant impressions and clicks via Umami custom events, attributing clicks from listing/card/social surfaces to the variant shown, while the article's detail `<h1>` and URL slug remain stable (SEO-safe)
+- [x] **AB-02**: Astro middleware assigns each visitor a sticky variant via a `ab_id` cookie (30-day TTL, hash-based deterministic assignment via `nanoid`) without client-side content swap
+- [x] **AB-03**: System tracks variant impressions and clicks via Umami custom events, attributing clicks from listing/card/social surfaces to the variant shown, while the article's detail `<h1>` and URL slug remain stable (SEO-safe)
 - [ ] **AB-04**: Weekly Python agent computes variant performance with a two-proportion z-test, enforces minimum thresholds (≥500 impressions per variant, ≥7 days, one active test per post), and posts a winner recommendation to Telegram for Matteo to confirm manually
-- [ ] **AB-05**: System excludes bot and crawler user-agents from A/B allocation, returning the control variant, to avoid cloaking signals and protect Googlebot consistency
+- [x] **AB-05**: System excludes bot and crawler user-agents from A/B allocation, returning the control variant, to avoid cloaking signals and protect Googlebot consistency
 - [ ] **AB-06**: Webhook rebuild pipeline is whitelisted so edits to `ab-experiment` content do NOT trigger an Astro rebuild cascade
 - [ ] **AB-07**: Newsletter subject-line A/B uses Brevo's native A/B feature driven by the same weekly agent, reporting results into the same Telegram digest
 
@@ -149,10 +149,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 | ANLY-04 | Phase 15 | Complete |
 | ANLY-05 | Phase 15 | Complete |
 | AB-01 | Phase 16 | Pending |
-| AB-02 | Phase 16 | Pending |
-| AB-03 | Phase 16 | Pending |
+| AB-02 | Phase 16 | Complete |
+| AB-03 | Phase 16 | Complete |
 | AB-04 | Phase 16 | Pending |
-| AB-05 | Phase 16 | Pending |
+| AB-05 | Phase 16 | Complete |
 | AB-06 | Phase 16 | Pending |
 | AB-07 | Phase 16 | Pending |
 

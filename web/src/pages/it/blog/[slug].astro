@@ -15,9 +15,10 @@ import BookmarkButton from '@components/common/BookmarkButton.svelte';
 import AuthorCard from '@components/content/AuthorCard.astro';
 import BreadcrumbJsonLd from '@components/common/BreadcrumbJsonLd.astro';
 import PopularReviews from '@components/content/PopularReviews.astro';
-import { fetchBySlug } from '@lib/strapi';
-import type { StrapiBlogPost } from '@lib/types';
+import { fetchBySlug, fetchCollection } from '@lib/strapi';
+import type { StrapiBlogPost, StrapiAbExperiment } from '@lib/types';
 import { getContentStatus } from '@lib/preview';
+import { assignVariant, VARIANT_NAMES } from '@lib/ab';
 import { loadTranslations, getTranslation, localizedRoutes } from '@lib/i18n';
 import type { Locale } from '@lib/i18n';
 import { getStrapiMediaURL } from '@lib/media';
@@ -42,6 +43,37 @@ if (!post) {
   return new Response(null, { status: 404, statusText: 'Not Found' });
 }
 
+// A/B test — cerca esperimento attivo per questo post
+let displayTitle = post.title;
+let activeVariant: string = 'control';
+let experimentDocId: string | null = null;
+
+if (!Astro.locals.isBot) {
+  try {
+    const experiments = await fetchCollection<StrapiAbExperiment>('ab-experiments', {
+      locale,
+      filters: {
+        blog_post: { documentId: { $eq: post.documentId } },
+        status: { $eq: 'active' },
+      },
+      populate: '*',
+      pageSize: 1,
+    });
+    const experiment = experiments?.data?.[0];
+    if (experiment) {
+      experimentDocId = experiment.documentId;
+      const variantCount = experiment.variant_c ? 4 : 3;
+      const variantIndex = assignVariant(Astro.locals.abId, post.documentId, variantCount);
+      activeVariant = VARIANT_NAMES[variantIndex];
+      if (variantIndex === 1) displayTitle = experiment.variant_a;
+      else if (variantIndex === 2) displayTitle = experiment.variant_b;
+      else if (variantIndex === 3 && experiment.variant_c) displayTitle = experiment.variant_c;
+    }
+  } catch (e) {
+    console.error('[A/B] Errore lookup esperimento:', e);
+  }
+}
+
 const blogRoute = localizedRoutes.blog[locale];
 const seoTitle = post.seo_title || post.title;
 const seoDescription = post.seo_description || post.excerpt || '';
@@ -55,11 +87,11 @@ const ogImageRawUrl = getStrapiMediaURL(post.cover_image, { raw: true });
 const coverImageRawUrl = getStrapiMediaURL(post.cover_image, { raw: true });
 const pageUrl = new URL(Astro.url.pathname, Astro.site || 'https://bbq-experience.com').href;
 
-// Breadcrumbs
+// Breadcrumbs (ultimo crumb user-facing usa displayTitle)
 const breadcrumbItems = [
   { label: t('content.home'), href: `/${locale}/` },
   { label: t('content.blog'), href: `/${locale}/${blogRoute}/` },
-  { label: post.title },
+  { label: displayTitle },
 ];
 ---
 
@@ -95,7 +127,7 @@ const breadcrumbItems = [
 
   <div data-pagefind-body>
     <ContentLayout
-      title={post.title}
+      title={displayTitle}
       content={post.content}
       coverImage={post.cover_image}
       readingTime={post.reading_time}
@@ -133,6 +165,17 @@ const breadcrumbItems = [
   </div>
 
   <Footer slot="footer" locale={locale} translations={translations} />
+
+  {experimentDocId && (
+    <script define:vars={{ experimentDocId, activeVariant }}>
+      if (typeof umami !== 'undefined') {
+        umami.track('ab-impression', {
+          experiment: experimentDocId,
+          variant: activeVariant,
+        });
+      }
+    </script>
+  )}
 </BaseLayout>
 
 <style>

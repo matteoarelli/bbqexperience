@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Completed 15-02-PLAN.md (Task 2 checkpoint pending)
-last_updated: "2026-04-21T15:45:03.936Z"
+stopped_at: Completed 16-02-PLAN.md
+last_updated: "2026-04-21T17:20:31.004Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 8
@@ -59,6 +59,7 @@ Progress: v1.0 [██████████] 100% · v1.1 [█████░
 | Phase 11 P03 | 5min | 3 tasks | 0 files |
 | Phase 15 P01 | 3min | 2 tasks | 9 files |
 | Phase 15 P02 | 3min | 1 tasks | 4 files |
+| Phase 16 P02 | 6min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,7 @@ Recent decisions affecting current work (v1.1):
 - [Phase 13]: Toggle behavior on filter pills (clicking active filter deselects it) for intuitive UX
 - [Phase 15]: Umami API type=url for metrics endpoint; token TTL 58min; is_high_confidence >= thresholds (50 visits, 7 days)
 - [Phase 15]: Traffic digest grouped by locale with Top/Bottom 5; strategist prompt includes decline detection heuristic
+- [Phase 16]: displayTitle replaces post.title only in visible h1 and breadcrumb; SEO elements always use original post.title
 
 ### Roadmap Evolution
 
@@ -101,6 +103,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-04-21T15:41:27.776Z
-Stopped at: Completed 15-02-PLAN.md (Task 2 checkpoint pending)
+Last session: 2026-04-21T17:20:30.997Z
+Stopped at: Completed 16-02-PLAN.md
 Resume file: None

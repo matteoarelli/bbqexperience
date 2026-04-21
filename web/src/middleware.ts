@@ -3,6 +3,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { isPreviewMode } from '@lib/preview';
 import { initSentry, captureError } from '@lib/sentry';
+import { isBot, generateAbId } from '@lib/ab';
 
 initSentry();
 
@@ -12,7 +13,7 @@ const CSP = [
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' cms.bbq-experience.com data: https://api.qrserver.com",
-  "connect-src 'self' cms.bbq-experience.com *.sentry.io",
+  "connect-src 'self' cms.bbq-experience.com analytics.bbq-experience.com *.sentry.io",
   "frame-src youtube-nocookie.com www.youtube-nocookie.com instagram.com www.instagram.com",
   "font-src 'self'",
   "media-src 'self' cms.bbq-experience.com",
@@ -21,6 +22,21 @@ const CSP = [
 ].join('; ');
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  // A/B testing — cookie di assegnazione variante (30 giorni)
+  const existingAbId = context.cookies.get('ab_id')?.value;
+  const abId = existingAbId || generateAbId();
+  if (!existingAbId) {
+    context.cookies.set('ab_id', abId, {
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60, // 30 giorni
+      httpOnly: false,  // Leggibile da JS per tracking Umami
+      sameSite: 'lax',
+      secure: true,
+    });
+  }
+  context.locals.abId = abId;
+  context.locals.isBot = isBot(context.request.headers.get('user-agent') || '');
+
   context.locals.isPreview = isPreviewMode(context.cookies);
 
   try {

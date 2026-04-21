@@ -3,5 +3,7 @@
 declare namespace App {
   interface Locals {
     isPreview: boolean;
+    abId: string;
+    isBot: boolean;
   }
 }
