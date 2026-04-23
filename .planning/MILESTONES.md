@@ -1,5 +1,21 @@
 # Milestones
 
+## v1.1 Content Depth & Growth Loop (Shipped: 2026-04-23)
+
+**Phases completed:** 8 phases, 21 plans, 43 tasks
+
+**Key accomplishments:**
+
+- Partial closure (measurement half).
+- Median Performance 0.89 → 0.97 (+8 pts). Minimum 0.86 → 0.91. 15/15 pages ≥0.90.
+- Commit:
+- Multi-facet filter UI (brand, category, price, score) with desktop filter bar, mobile bottom-sheet drawer, count badges, empty state, SEO noindex/canonical, and 301 redirects from old category routes across all 3 locales
+- Populated all 25 product prices (5 price buckets), linked 12 missing brand relations, recategorized 2 pellet grills from Smoker category
+- Strapi schema evolution with description/author_note fields, StrapiRecipeCollection TS interface, 3-locale i18n routes+keys, and CollectionCard/CollectionBadge Astro components
+- Strapi ab-experiment content type + FNV-1a variant assignment library with nanoid cookies + Astro middleware extension
+
+---
+
 ## v1.0 BBQ Experience v1.0 Launch (Shipped: 2026-04-15)
 
 **Phases completed:** 9 phases, 23 plans, 47 tasks

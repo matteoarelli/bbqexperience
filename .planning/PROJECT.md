@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A live, production editorial portal for the BBQ Experience brand (74k Instagram followers) at [bbq-experience.com](https://bbq-experience.com), serving as the authoritative online hub for BBQ product reviews, recipes, tutorials, and news in EN/IT/ES. v1.0 shipped 2026-04-15 with an AI-assisted content pipeline (Growth Engine AI, 9 agents) that extends brand reach autonomously. The site is the deep, structured counterpart to the Instagram community — what IG can't deliver.
+A live, production editorial portal for the BBQ Experience brand (74k Instagram followers) at [bbq-experience.com](https://bbq-experience.com), serving as the authoritative online hub for BBQ product reviews, recipes, tutorials, and news in EN/IT/ES. v1.1 shipped 2026-04-23 with reader-facing content features (newsletter, review filters, recipe collections) and a measurable Growth Engine v2 (analytics feedback loop + A/B headline testing). The site is the deep, structured counterpart to the Instagram community — what IG can't deliver.
 
 ## Core Value
 
@@ -12,25 +12,20 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 
 ## Current State
 
-**Shipped:** v1.0 on 2026-04-15
+**Shipped:** v1.1 on 2026-04-23 (v1.0 on 2026-04-15)
 **Scale:** 454+ content items across EN/IT/ES, 32 IG posts synced via Graph API
-**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations (Phase 10.1)
-**Code volume:** ~253 commits between 2026-04-01 and 2026-04-14
-**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Zone `bbq-experience.com` orange-cloud on Cloudflare with Image Transformations + Sources allowlist (cms.bbq-experience.com, bbq-experience.com).
-**v1.1 progress:** All phases complete (10, 10.1, 11, 12, 13, 14, 15, 16). Growth Engine v2 shipped with analytics feedback loop and A/B headline testing infrastructure. Phase 16 added: Strapi ab-experiment content type, variant assignment library, blog variant rendering with Umami tracking, weekly ab_tester.py analysis agent.
+**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations · Umami analytics
+**Code volume:** ~387 commits (253 v1.0 + 134 v1.1)
+**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy, umami). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Umami healthcheck added. Nightly Docker cleanup fixed (image prune only).
+**v1.1 delivered:** 8 phases (10–16), 23 plans, 43 tasks. Newsletter signup (4 surfaces), review filters (brand/category/price/score), recipe collections, Growth Engine v2 (analytics loop + A/B testing).
 
-## Current Milestone: v1.1 Content Depth & Growth Loop
+## Completed Milestone: v1.1 Content Depth & Growth Loop (shipped 2026-04-23)
 
-**Goal:** Close v1.0 documentation/measurement debt, expand reader-facing content features (newsletter capture, review filters, recipe collections), and upgrade Growth Engine with a measurable analytics → A/B feedback loop.
+**Delivered:** Debt closure, 3 reader-facing content features, Growth Engine v2 analytics + A/B testing. See [milestones/v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) for full details.
 
-**Target features:**
-- Debt closure (sequenced first): retroactive VERIFICATION.md for phases 03–09, REQUIREMENTS.md traceability reconciliation, Lighthouse 90+ re-measurement
-- Newsletter on-site signup across 4 surfaces (inline, exit-intent, dedicated page, sticky footer) with Brevo integration
-- Review filters & taxonomy (brand, category, price range, score threshold) with Product category schema extension
-- Recipe collections (new Strapi content type, curated groupings, 3-locale pages)
-- Growth Engine v2: Umami analytics loop feeding agents + A/B headline testing infrastructure (blog + reviews + recipes + newsletter)
+## Next Milestone: TBD
 
-**Sequencing:** Debt phases complete before feature phases. No parallel debt/feature work.
+Planning next milestone. Run `/gsd:new-milestone` to start.
 
 ## Requirements
 
@@ -57,21 +52,18 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 - ✓ Security hardening: code review P0–P3, backup/restore with integrity verification, DB SSL correction, secret rotation — v3.1
 - ✓ UI/SEO quality pass: hreflang per localized slug, CollectionPage JSON-LD, nested anchor cleanup, mobile menu Chrome fix, Umami admin password rotated — v3.2
 
-### Active (v1.1)
+### Validated (v1.1)
 
-**Debt closure (sequenced first):**
-- [x] Retroactive VERIFICATION.md for phases 03–09 (7 phases, tech debt from v1.0 audit) — Validated in Phase 10
-- [x] REQUIREMENTS.md traceability reconciliation (REC-04,05,06,07 + CNT-02,03,07,08,10 marked Pending despite live production evidence) — Validated in Phase 10
-- [x] Lighthouse 90+ formal re-measurement post-v3.2 (DES-04 not re-measured after UI/SEO changes) + fixes if below target — Validated in Phase 10 + **Phase 10.1** (image-delivery via Cloudflare Transformations): 15/15 pages ≥0.90 Perf (median 0.97), DEBT-03 CLOSED
+- ✓ Debt closure: retroactive VERIFICATION.md (phases 03–09), traceability reconciliation, Lighthouse 90+ (15/15 pages ≥0.90, median 0.97) — v1.1 Phases 10, 10.1
+- ✓ Newsletter on-site signup: 4 surfaces (inline, exit-intent, landing page, sticky footer) with Brevo DOI, rate-limit, honeypot, surface attribution — v1.1 Phase 12
+- ✓ Review filters & taxonomy: brand, product category, price range, score threshold with SEO guardrails (noindex/canonical) — v1.1 Phase 13
+- ✓ Recipe collections: curated editorial groupings, 3-locale listing/detail pages, collection badge on recipes — v1.1 Phase 14
+- ✓ Analytics feedback loop: Umami → traffic_score on content, Telegram top/bottom digest, strategist integration — v1.1 Phase 15
+- ✓ A/B headline testing: middleware variant assignment, Umami event tracking, weekly z-test agent, Brevo subject-line A/B — v1.1 Phase 16
 
-**Content features:**
-- [x] Newsletter on-site signup — inline end-of-article + exit-intent modal + `/newsletter` landing page + sticky footer bar (Brevo DOI + honeypot + rate-limit + surface attribution) — Validated in Phase 12
-- [ ] Review filters & taxonomy — brand + product category + price range + score threshold (extends Product content type with category taxonomy)
-- [ ] Recipe collections — curated groupings (new Strapi content type + collection listing/detail pages, 3 locales)
+### Active
 
-**Growth Engine v2:**
-- [x] Analytics feedback loop — Umami traffic data piped into agents to inform content decisions — Validated in Phase 15
-- [x] A/B headline testing infrastructure — click-tracking + variant selection across blog posts, reviews, recipes, and newsletter subject lines — Validated in Phase 16
+(No active requirements — next milestone not yet planned)
 
 ### Out of Scope
 
@@ -84,17 +76,17 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 
 ## Context
 
-- **Single author** (Matteo) still the content model, now amplified by Growth Engine AI for drafts/translations/SEO linking
+- **Single author** (Matteo) still the content model, amplified by Growth Engine AI v2 (10 agents, analytics-driven prioritization)
 - **Instagram remains primary funnel** — bidirectional sync operational, first-comment deep links auto-posted
 - **Budget:** ~$100/yr infrastructure (Hetzner CX21 shared with other projects) — well under €30k allocation
-- **Timeline:** launched 2026-04-15, ~3 months before July 2026 target
-- **Known tech debt:** 7 phases without VERIFICATION.md, DES-04 not re-measured post-v3.2, 9 requirements marked Pending in traceability despite live implementation
-- **Monitoring:** UptimeRobot (site + CMS), Umami analytics, Sentry error tracking, Telegram daily dashboard
+- **Timeline:** launched 2026-04-15, v1.1 shipped 2026-04-23, ahead of July 2026 target
+- **Known tech debt:** v1.0 documentation debt CLOSED in Phase 10. Minor: ROADMAP SC6 wording inconsistency (variant-impression reference), some summary one-liners missing
+- **Monitoring:** UptimeRobot (site + CMS), Umami analytics (healthcheck added), Sentry error tracking, Telegram daily dashboard + weekly A/B digest
 
 ## Constraints
 
 - **Tech stack:** Custom/headless — no WordPress ✓ respected
-- **Lighthouse:** 90+ target — needs fresh measurement post-v3.2
+- **Lighthouse:** 90+ target — ✓ achieved (15/15 pages ��90, median 0.97)
 - **Multilingual:** EN/IT/ES from day one — ✓ delivered with per-locale sitemaps + hreflang
 - **Instagram API:** Graph API rate limits managed via 6h cron cadence
 - **Solo author workflow:** Streamlined admin + AI augmentation — ✓ delivered
@@ -117,7 +109,11 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 | Ollama 7b for translations only | Field-per-field pattern reliable, bulk cost zero | ✓ Good — separation of concerns |
 | SQLite rate-limit over in-memory Map | Survive container restart | ✓ Good — hardened in v3.1 |
 | Dual DB config (PG prod / SQLite dev) | Dev ergonomics | ✓ Good — no setup friction |
-| Milestone v1.0 accepted with documentation tech debt | Production-proven, re-verifying retro is low ROI | ⚠️ Revisit in v1.1 cleanup phase |
+| Milestone v1.0 accepted with documentation tech debt | Production-proven, re-verifying retro is low ROI | ✓ Resolved — Phase 10 closed all debt |
+| Cloudflare Image Transformations over self-hosted Sharp | CDN-side resizing, zero compute cost | ✓ Good — +8 pts Lighthouse Performance median |
+| FNV-1a hash for A/B variant assignment | Deterministic, fast, no external dependency | ✓ Good — consistent assignment, 13 tests passing |
+| Umami custom events for A/B tracking | No new Strapi content type for impressions | ✓ Good — simpler architecture, fewer webhook exclusions |
+| docker image prune over docker system prune | Prevent accidental container removal | ✓ Good — fixed Umami data loss root cause |
 
 ## Evolution
 
@@ -137,4 +133,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-23 after Phase 16 completion (A/B Headline Testing — final v1.1 phase)*
+*Last updated: 2026-04-23 after v1.1 milestone completion*
