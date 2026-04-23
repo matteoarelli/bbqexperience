@@ -17,7 +17,7 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 **Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations (Phase 10.1)
 **Code volume:** ~253 commits between 2026-04-01 and 2026-04-14
 **Infrastructure:** Containers all healthy (web, strapi, postgres, caddy). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Zone `bbq-experience.com` orange-cloud on Cloudflare with Image Transformations + Sources allowlist (cms.bbq-experience.com, bbq-experience.com).
-**v1.1 progress:** Phases 10, 10.1, 11, 12, 13, 14, 15 complete — Growth Engine v2 shipped (umami_client.py, umami_feedback.py nightly agent, traffic_score fields on all 4 content types, Telegram Top/Bottom 5 digest, strategist traffic-aware prioritization, 24 Python unit tests). Next: Phase 16 (A/B Headline Testing — final phase).
+**v1.1 progress:** All phases complete (10, 10.1, 11, 12, 13, 14, 15, 16). Growth Engine v2 shipped with analytics feedback loop and A/B headline testing infrastructure. Phase 16 added: Strapi ab-experiment content type, variant assignment library, blog variant rendering with Umami tracking, weekly ab_tester.py analysis agent.
 
 ## Current Milestone: v1.1 Content Depth & Growth Loop
 
@@ -70,8 +70,8 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 - [ ] Recipe collections — curated groupings (new Strapi content type + collection listing/detail pages, 3 locales)
 
 **Growth Engine v2:**
-- [ ] Analytics feedback loop — Umami traffic data piped into agents to inform content decisions
-- [ ] A/B headline testing infrastructure — click-tracking + variant selection across blog posts, reviews, recipes, and newsletter subject lines
+- [x] Analytics feedback loop — Umami traffic data piped into agents to inform content decisions — Validated in Phase 15
+- [x] A/B headline testing infrastructure — click-tracking + variant selection across blog posts, reviews, recipes, and newsletter subject lines — Validated in Phase 16
 
 ### Out of Scope
 
@@ -137,4 +137,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-16 after Phase 10.1 completion (DEBT-03 CLOSED, image-delivery via Cloudflare Transformations)*
+*Last updated: 2026-04-23 after Phase 16 completion (A/B Headline Testing — final v1.1 phase)*
