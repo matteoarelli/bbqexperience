@@ -19,6 +19,7 @@ def _headers() -> dict[str, str]:
     return {
         "Authorization": f"Bearer {STRAPI_API_TOKEN}",
         "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     }
 
 
@@ -27,10 +28,14 @@ def _request(method: str, url: str, data: dict | None = None) -> dict:
     body = json.dumps(data).encode("utf-8") if data else None
     last_error: Exception | None = None
 
-    for attempt in range(MAX_RETRIES):
+    # No retry on POST/PUT/PATCH to avoid duplicate creates on timeout (no idempotency key)
+    retries = MAX_RETRIES if method == "GET" else 1
+    for attempt in range(retries):
         req = Request(url, data=body, headers=_headers(), method=method)
         try:
-            with urlopen(req, timeout=30) as resp:
+            # Larger timeout for write operations (body can be 10KB+)
+            req_timeout = 60 if method != "GET" else 30
+            with urlopen(req, timeout=req_timeout) as resp:
                 return json.loads(resp.read().decode("utf-8"))
         except HTTPError as e:
             error_body = e.read().decode("utf-8") if e.fp else ""
@@ -45,7 +50,7 @@ def _request(method: str, url: str, data: dict | None = None) -> dict:
         except (URLError, TimeoutError, OSError) as e:
             last_error = RuntimeError(f"Strapi {method} {url} -> network error: {e}")
 
-        if attempt < MAX_RETRIES - 1:
+        if attempt < retries - 1:
             wait = RETRY_BACKOFF[attempt]
             print(f"[RETRY] Strapi {method} tentativo {attempt + 2}/{MAX_RETRIES} tra {wait}s...")
             time.sleep(wait)

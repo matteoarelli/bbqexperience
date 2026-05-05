@@ -19,7 +19,8 @@ from agents.lib import strapi_client as strapi
 from agents.lib import telegram
 
 # Soglia engagement per espansione in articolo
-MIN_ENGAGEMENT_SCORE = 70  # Su scala 0-100
+# Scala normalizzata 0.0-1.0 (vedi sync-instagram.mjs). 0.5 ~ top 25% nei dati 2026-05.
+MIN_ENGAGEMENT_SCORE = 0.5
 
 # Cluster detection da caption
 CLUSTER_KEYWORDS = {
@@ -125,7 +126,7 @@ def create_content_from_ig(post: dict) -> dict | None:
             "priority": 3,  # Priorita media-alta (da engagement reale)
             "ai_generated": True,
             "generation_log": (
-                f"from_ig:{ig_id} | engagement:{engagement:.0f} | "
+                f"from_ig:{ig_id} | engagement:{engagement:.2f} | "
                 f"likes:{likes} comments:{comments} | {permalink}"
             ),
         })
@@ -163,7 +164,7 @@ def main():
             title = result.get("title", "?")
             created.append(
                 f"<b>{title}</b> "
-                f"(engagement: {post.get('engagement_score', 0):.0f}, "
+                f"(engagement: {post.get('engagement_score', 0):.2f}, "
                 f"likes: {post.get('like_count', 0)})"
             )
             print(f"Creato: {title}")

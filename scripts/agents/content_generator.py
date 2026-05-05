@@ -119,7 +119,7 @@ EXCERPT: ...
 SEO_TITLE: ...
 SEO_DESCRIPTION: ..."""
 
-    seo_raw = claude.ask(seo_prompt, timeout=60)
+    seo_raw = claude.ask(seo_prompt, timeout=120)
 
     excerpt = ""
     seo_title = title[:60]
@@ -228,7 +228,18 @@ def main():
     try:
         # Genera articolo
         article = generate_article(title, keyword, cluster, content_type_raw)
-        print(f"Articolo generato: {len(article['content'])} caratteri")
+        word_count = len(article['content'].split())
+        print(f"Articolo generato: {len(article['content'])} caratteri ({word_count} parole)")
+
+        # Quality gate: validate before publishing
+        if word_count < 1000:
+            raise ValueError(f"Articolo troppo corto: {word_count} parole (min 1000, target 1500-2000)")
+        if not article.get('excerpt') or len(article.get('excerpt') or '') < 50:
+            raise ValueError(f"Excerpt mancante/corto: {len(article.get('excerpt') or '')} chars")
+        if not article.get('seo_title') or not article.get('seo_description'):
+            raise ValueError("SEO title o description mancanti")
+        if '<h2' not in article['content']:
+            raise ValueError("Articolo senza H2 — struttura incompleta")
 
         # Pubblica
         published_id = publish_article(queue_item, article, content_type_strapi, content_type_raw)
@@ -238,6 +249,7 @@ def main():
             strapi.update("content-queues", doc_id_queue, {
                 "status": "published",
                 "published_content_id": published_id,
+                "ai_generated": True,
                 "body_en": article["content"][:500],
                 "generation_log": f"Generato da Claude Max {datetime.now().isoformat()} - {len(article['content'].split())} parole",
             })
