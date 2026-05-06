@@ -158,3 +158,30 @@ def _flatten_filters(
             _flatten_filters(value, param_key, out)
         else:
             out[param_key] = str(value)
+
+
+def upload_file(file_bytes: bytes, filename: str, mime: str = "image/png") -> list[dict]:
+    """POST /api/upload — multipart upload media. Ritorna lista di media records (con id e url)."""
+    boundary = f"----StrapiClient{int(time.time() * 1000)}"
+    crlf = "\r\n"
+    head = (
+        f"--{boundary}{crlf}"
+        f'Content-Disposition: form-data; name="files"; filename="{filename}"{crlf}'
+        f"Content-Type: {mime}{crlf}{crlf}"
+    ).encode("utf-8")
+    tail = f"{crlf}--{boundary}--{crlf}".encode("utf-8")
+    body = head + file_bytes + tail
+    headers = {
+        "Authorization": f"Bearer {STRAPI_API_TOKEN}",
+        "Content-Type": f"multipart/form-data; boundary={boundary}",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
+        "Content-Length": str(len(body)),
+    }
+    url = f"{STRAPI_URL}/api/upload"
+    req = Request(url, data=body, headers=headers, method="POST")
+    try:
+        with urlopen(req, timeout=120) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except HTTPError as e:
+        error_body = e.read().decode("utf-8") if e.fp else ""
+        raise RuntimeError(f"Strapi upload {filename} -> {e.code}: {error_body}") from e

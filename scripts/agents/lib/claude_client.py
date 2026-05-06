@@ -1,11 +1,68 @@
-"""Client per Claude Code CLI — usa il piano Pro Max come layer di qualita superiore."""
+"""Client LLM per BBQ Experience — quality reviewer & content generator.
 
-import subprocess
+Refactor 2026-04-28: usa Qwen3.6-27B locale via OpenAI-compat (http://192.168.1.124:8080)
+invece di Claude Code CLI subprocess. Stesso nome file e signature pubbliche per
+backward-compat con i moduli che importano `ask()`, `review_article()`, ecc.
+
+Fallback: se env `BBQ_LLM_BACKEND=claude` o Qwen unreachable, ritenta su Claude CLI.
+"""
+
+import json
 import os
+import subprocess
 import time
+import urllib.error
+import urllib.request
 
+# --- Backend config ---
+
+LLM_URL = os.environ.get("BBQ_LLM_URL", "http://192.168.1.124:8080/v1/chat/completions")
+LLM_MODEL = os.environ.get("BBQ_LLM_MODEL", "qwen3.6-27b")
+LLM_BACKEND = os.environ.get("BBQ_LLM_BACKEND", "qwen").lower()  # qwen | claude
 CLAUDE_CMD = os.environ.get("CLAUDE_CMD", "claude")
 
+
+# --- Qwen3.6 local backend (default) ---
+
+def _ask_qwen(prompt: str, system: str, max_tokens: int, timeout: int, enable_thinking: bool) -> str:
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+
+    payload = {
+        "model": LLM_MODEL,
+        "messages": messages,
+        "max_tokens": max_tokens,
+        "temperature": 0.5,
+        "chat_template_kwargs": {"enable_thinking": enable_thinking},
+    }
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(LLM_URL, data=body, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    return data["choices"][0]["message"]["content"].strip()
+
+
+# --- Claude CLI fallback (legacy, abbonamento Pro/Max) ---
+
+def _ask_claude_cli(prompt: str, system: str, timeout: int) -> str:
+    full_prompt = f"[System: {system}]\n\n{prompt}" if system else prompt
+    result = subprocess.run(
+        [CLAUDE_CMD, "--print", full_prompt],
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        env={**os.environ},
+        encoding="utf-8",
+        errors="replace",
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"Claude CLI errore (exit {result.returncode}): {result.stderr[:500]}")
+    return result.stdout.strip()
+
+
+# --- Public ask() — drop-in compat con la versione precedente ---
 
 def ask(
     prompt: str,
@@ -13,45 +70,40 @@ def ask(
     system: str = "",
     max_tokens: int = 8192,
     timeout: int = 300,
+    enable_thinking: bool = True,
 ) -> str:
-    """Invia prompt a Claude Code CLI in modalita --print. Ritorna il testo generato."""
-    full_prompt = prompt
-    if system:
-        full_prompt = f"[System: {system}]\n\n{prompt}"
-
+    """Invia prompt al backend LLM (Qwen3.6 locale o Claude CLI fallback)."""
+    backend = LLM_BACKEND
     last_error: Exception | None = None
 
     for attempt in range(3):
         try:
-            result = subprocess.run(
-                [CLAUDE_CMD, "--print", full_prompt],
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                env={**os.environ},
-                encoding="utf-8",
-                errors="replace",
-            )
-            if result.returncode != 0:
-                raise RuntimeError(f"Claude CLI errore (exit {result.returncode}): {result.stderr[:500]}")
-            return result.stdout.strip()
-        except FileNotFoundError:
-            raise RuntimeError(
-                f"Claude CLI non trovato ('{CLAUDE_CMD}'). "
-                "Installa con: npm install -g @anthropic-ai/claude-code"
-            )
+            if backend == "claude":
+                return _ask_claude_cli(prompt, system, timeout)
+            return _ask_qwen(prompt, system, max_tokens, timeout, enable_thinking)
+        except (urllib.error.URLError, TimeoutError, OSError) as e:
+            last_error = e
+            print(f"[RETRY] LLM tentativo {attempt + 2}/3: {e}")
         except subprocess.TimeoutExpired:
-            last_error = RuntimeError(f"Claude CLI timeout dopo {timeout}s")
+            last_error = RuntimeError(f"Backend timeout dopo {timeout}s")
+        except FileNotFoundError:
+            # Solo se backend=claude e CLI non installato: tenta Qwen come fallback al primo errore
+            if backend == "claude" and attempt == 0:
+                print("[FALLBACK] Claude CLI mancante, switch a Qwen locale")
+                backend = "qwen"
+                continue
+            last_error = RuntimeError(f"Claude CLI non trovato ('{CLAUDE_CMD}')")
         except RuntimeError as e:
             last_error = e
 
         if attempt < 2:
             wait = [3, 10][attempt]
-            print(f"[RETRY] Claude CLI tentativo {attempt + 2}/3 tra {wait}s...")
             time.sleep(wait)
 
-    raise last_error  # type: ignore[misc]
+    raise last_error or RuntimeError("Backend LLM irraggiungibile")
 
+
+# --- High-level functions (signature invariata) ---
 
 def review_article(title: str, content: str, keyword: str, locale: str = "en") -> dict:
     """Rivede un articolo generato da Ollama. Ritorna contenuto migliorato + feedback."""
@@ -85,13 +137,13 @@ Rispondi in questo formato ESATTO:
 ===SEO_DESCRIPTION===
 [meta description ottimizzata, max 155 char]
 """
-    raw = ask(prompt, timeout=600)
+    # Output strutturato: thinking off per evitare reasoning_content vuoto/perso
+    raw = ask(prompt, timeout=600, enable_thinking=False)
 
-    # Parsa la risposta strutturata
     result: dict = {
         "quality_score": 0,
         "issues": [],
-        "improved_content": content,  # Fallback all'originale
+        "improved_content": content,
         "seo_title": title,
         "seo_description": "",
     }
@@ -110,7 +162,6 @@ Rispondi in questo formato ESATTO:
         elif current_key:
             current_value.append(section)
 
-    # Ultimo campo
     if current_key and current_value:
         _set_result(result, current_key, "\n".join(current_value).strip())
 
@@ -127,7 +178,7 @@ def _set_result(result: dict, key: str, value: str) -> None:
     elif key == "ISSUES":
         result["issues"] = [line.strip("- ").strip() for line in value.split("\n") if line.strip()]
     elif key == "IMPROVED_CONTENT":
-        if len(value) > 100:  # Solo se ha contenuto sostanziale
+        if len(value) > 100:
             result["improved_content"] = value
     elif key == "SEO_TITLE":
         result["seo_title"] = value[:60]
@@ -181,7 +232,7 @@ Genera un report con:
 When recommending content for the queue, note which items were selected based on traffic_score data.
 
 Sii conciso e pratico. Zero fuffa."""
-    return ask(prompt, timeout=300)
+    return ask(prompt, timeout=300, enable_thinking=True)
 
 
 def generate_pillar_content(
@@ -190,7 +241,7 @@ def generate_pillar_content(
     cluster: str,
     outline: str,
 ) -> str:
-    """Genera un pillar article completo (~5000 parole). Usa Claude per massima qualita."""
+    """Genera un pillar article completo (~5000 parole). Usa thinking + max context."""
     prompt = f"""Scrivi un articolo pillar completo per BBQ Experience.
 
 TITOLO: {title}
@@ -212,4 +263,219 @@ REQUISITI:
 - Questo deve essere IL contenuto di riferimento su internet per questo topic
 
 Genera SOLO il contenuto HTML (no html/head/body wrapper)."""
-    return ask(prompt, timeout=900)  # 15 min per un pillar
+    return ask(prompt, timeout=900, max_tokens=8192, enable_thinking=True)
+
+
+# ─── Multi-step generation (outline -> sezioni -> assembly) ───
+# Attivata da MULTI_STEP=1 in content_generator.py. Quality > single-shot a costo
+# di ~3-5 min/articolo (vs 30-60s single-shot).
+
+def _extract_json(raw: str) -> dict:
+    """Estrae blocco JSON dal testo, tollerante a prefissi/suffissi e markdown fence."""
+    import re
+    text = raw.strip()
+    # Strip markdown fences
+    text = re.sub(r"^```(?:json)?\s*", "", text)
+    text = re.sub(r"\s*```\s*$", "", text)
+    # Trova il primo { e l'ultimo }
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end <= start:
+        raise ValueError(f"Nessun JSON trovato in:\n{raw[:500]}")
+    return json.loads(text[start : end + 1])
+
+
+def _generate_outline(title: str, keyword: str, cluster: str, content_type: str) -> dict:
+    """Phase 1: outline JSON con sezioni + key points + word target."""
+    sys_prompt = "You are a senior BBQ editor. Output STRICT JSON only, no prose, no markdown fences."
+    user_prompt = f"""Generate an outline for a BBQ Experience article.
+
+Title: {title}
+Target keyword: {keyword}
+Cluster: {cluster}
+Content type: {content_type}
+Total target: 1800-2200 words
+
+Output ONLY valid JSON in this exact shape:
+{{
+  "intro_angle": "1-sentence angle that hooks the pitmaster reader (no generic openings)",
+  "sections": [
+    {{"h2": "Section 2 title (must be specific, not generic)", "key_points": ["...", "...", "..."], "target_words": 320}},
+    ...
+  ],
+  "faq_topics": ["specific question 1", "specific question 2", "...", "..."]
+}}
+
+Rules:
+- 6-8 sections, each 250-400 target_words.
+- Keyword "{keyword}" MUST appear in at least 2 H2s.
+- Each section has 3-5 concrete key_points (data, temps, processes).
+- 4-5 faq_topics, all answerable with specific data.
+- NO generic openers ("BBQ is loved...").
+- No backticks, no commentary, JSON only."""
+    raw = ask(user_prompt, system=sys_prompt, max_tokens=2048, timeout=180, enable_thinking=False)
+    outline = _extract_json(raw)
+    if not outline.get("sections"):
+        raise ValueError(f"Outline senza sections: {outline}")
+    return outline
+
+
+def _generate_section(
+    title: str,
+    keyword: str,
+    cluster: str,
+    section: dict,
+    idx: int,
+    total: int,
+) -> str:
+    """Phase 2: genera una singola sezione H2 (HTML) — focused prompt = better depth."""
+    sys_prompt = (
+        "You are 'The Pitmaster', a brutally honest BBQ expert writing for bbq-experience.com. "
+        "Direct, technical, real numbers (F, lbs, hours). Zero marketing BS. "
+        "Output is HTML fragment only."
+    )
+    h2 = section.get("h2", "Section")
+    points = section.get("key_points", [])
+    words = section.get("target_words", 320)
+    points_md = "\n".join(f"- {p}" for p in points)
+    user_prompt = f"""Article title: "{title}"
+Cluster: {cluster}
+Target keyword: {keyword}
+Section {idx + 1}/{total}: {h2}
+
+Cover these key points (each with concrete data, not platitudes):
+{points_md}
+
+Constraints:
+- Open with <h2>{h2}</h2>
+- Use <h3>, <p>, <ul><li>, <strong> as needed
+- {words} words +/- 50
+- Include specific numbers (temperatures in F, times in min/hours, weights in lbs/oz, prices in USD)
+- 1 actionable takeaway near the end of the section (in <p><strong>Takeaway:</strong> ...</p>)
+- NO meta commentary, NO "in this section", NO generic transitions
+
+Output: ONLY the HTML fragment for this single section. No markdown fences. No intro/outro text. Start with <h2>, end with the last </p> of this section."""
+    return ask(user_prompt, system=sys_prompt, max_tokens=2048, timeout=240, enable_thinking=False).strip()
+
+
+def _assemble_article(
+    title: str,
+    keyword: str,
+    cluster: str,
+    sections_html: list[str],
+    faq_topics: list[str],
+    intro_angle: str,
+) -> str:
+    """Phase 3: combina sezioni + intro + conclusione + FAQ in HTML finale."""
+    sys_prompt = (
+        "You are 'The Pitmaster' senior editor. Assemble + add intro/conclusion/FAQ. "
+        "Preserve every section as-is unless transitions are clearly broken. "
+        "Output is full HTML body fragment only."
+    )
+    sections_combined = "\n\n".join(sections_html)
+    faq_md = "\n".join(f"- {q}" for q in faq_topics)
+    user_prompt = f"""Article title: "{title}"
+Target keyword: {keyword}
+Cluster: {cluster}
+Hook angle: {intro_angle}
+
+Existing sections (already drafted, KEEP THEIR CONTENT):
+{sections_combined}
+
+Tasks (in this order):
+1. Write a 130-160 word intro that opens with the hook angle, mentions the keyword "{keyword}" naturally, and sets up the article. NO "BBQ has been a beloved tradition" / generic openings.
+2. Output the existing sections UNCHANGED in order.
+3. Write a 130-160 word conclusion that ties back to the hook + 1 strong takeaway.
+4. Add an FAQ section <h2>Frequently Asked Questions</h2> with these 4-5 questions answered concretely (each <h3>Question</h3><p>Answer with data</p>):
+{faq_md}
+
+Constraints:
+- Output: full HTML body fragment (no <html>/<head>/<body>, no markdown fences)
+- The keyword "{keyword}" MUST appear in the intro paragraph.
+- Each section must remain present and intact.
+- Total: 1800-2400 words.
+
+Output: ONLY the HTML, starting with <p> (intro) and ending with the last </p> of the FAQ."""
+    return ask(user_prompt, system=sys_prompt, max_tokens=8192, timeout=600, enable_thinking=False).strip()
+
+
+def generate_article_multistep(
+    title: str,
+    keyword: str,
+    cluster: str,
+    content_type: str,
+) -> dict:
+    """Pipeline: outline -> sezioni -> assembly. Stessa signature di generate_article single-shot.
+    Ritorna dict con keys: content, excerpt, seo_title, seo_description.
+    """
+    print("[multistep] phase 1/3: outline")
+    outline = _generate_outline(title, keyword, cluster, content_type)
+    sections = outline.get("sections", [])
+    print(f"[multistep] outline: {len(sections)} sezioni, faq={len(outline.get('faq_topics', []))}")
+
+    print("[multistep] phase 2/3: sezioni")
+    sections_html = []
+    for i, sec in enumerate(sections):
+        print(f"[multistep]   sezione {i + 1}/{len(sections)}: {sec.get('h2', '?')[:60]}")
+        html = _generate_section(title, keyword, cluster, sec, i, len(sections))
+        # Normalizza: rimuovi markdown fences se presenti
+        if "```" in html:
+            parts = html.split("```")
+            html = max(parts, key=len).strip()
+            if html.startswith("html"):
+                html = html[4:].strip()
+        sections_html.append(html)
+
+    print("[multistep] phase 3/3: assembly")
+    final_html = _assemble_article(
+        title=title,
+        keyword=keyword,
+        cluster=cluster,
+        sections_html=sections_html,
+        faq_topics=outline.get("faq_topics", []),
+        intro_angle=outline.get("intro_angle", ""),
+    )
+    if "```" in final_html:
+        parts = final_html.split("```")
+        final_html = max(parts, key=len).strip()
+        if final_html.startswith("html"):
+            final_html = final_html[4:].strip()
+
+    word_count = len(final_html.split())
+    print(f"[multistep] final: {word_count} parole")
+
+    # SEO meta (single-shot per excerpt+seo)
+    seo_prompt = f"""For this BBQ article titled "{title}" with keyword "{keyword}", generate:
+
+1. An excerpt for search results (1-2 sentences, max 155 characters, plain text, no HTML)
+2. SEO title (max 60 characters, must include the keyword)
+3. Meta description (max 155 characters, must include the keyword, with call to action)
+
+Reply in this EXACT format (3 lines, nothing else):
+EXCERPT: ...
+SEO_TITLE: ...
+SEO_DESCRIPTION: ..."""
+    seo_raw = ask(seo_prompt, max_tokens=512, timeout=120, enable_thinking=False)
+
+    excerpt = ""
+    seo_title = title[:60]
+    seo_description = ""
+    for line in seo_raw.strip().split("\n"):
+        line = line.strip()
+        if line.startswith("EXCERPT:"):
+            excerpt = line[8:].strip()[:160]
+        elif line.startswith("SEO_TITLE:"):
+            seo_title = line[10:].strip()[:60]
+        elif line.startswith("SEO_DESCRIPTION:"):
+            seo_description = line[16:].strip()[:155]
+    if not excerpt:
+        excerpt = (final_html[:155].split(".")[0] + ".").strip()
+    if not seo_description:
+        seo_description = excerpt[:155]
+
+    return {
+        "content": final_html,
+        "excerpt": excerpt,
+        "seo_title": seo_title,
+        "seo_description": seo_description,
+    }

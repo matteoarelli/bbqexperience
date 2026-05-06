@@ -1,3 +1,110 @@
+## 2026-05-06 (sera) — Cover image auto-gen SDXL + multi-step content gen
+
+### Cover image automatica (SDXL Base 1.0)
+
+Sblocco `blog_to_ig_promo`: ora ogni articolo generato dal pipeline ha una cover. Prima erano skipped per assenza cover.
+
+**Architettura swap VRAM (3090 24GB)**:
+- 5:30 AM: content_generator (Qwen 27B :8080 attivo)
+- 6:00 AM: scheduled task Windows `switch-to-sd` -> taskkill llama-server :8080, start SDXL :8085 (~7 GB VRAM)
+- 6:10 AM: cron `cover_generator.py` su Ubuntu -> SDXL endpoint -> Strapi upload + attach
+- 6:50 AM: scheduled task `switch-to-qwen` -> kill SDXL, restart Qwen task
+- email-idle.service pause 6:00, restart 6:55 (bge-m3 :8082 e Phi-4 :8081 restano up — su altra GPU o non condividono VRAM con SDXL)
+
+**SDXL setup Windows .124**:
+- venv Python 3.12 a `C:\AI\sd-server\venv` (torch 2.11+cu126, diffusers 0.38, transformers 5.8, fastapi 0.136)
+- Modello SDXL Base 1.0 fp16 in `C:\AI\models\sdxl-base-1.0` (~6.5 GB)
+- `sd_server.py` FastAPI con lifespan: carica pipeline una sola volta allavvio, espone POST /generate -> PNG bytes (1216x832, 28 steps, ~9s/cover sulla 3090)
+- `start-sdxl-8085.cmd`, `switch-to-sd.cmd`, `switch-to-qwen.cmd`
+
+**Nuovo agente Ubuntu `cover_generator.py`**:
+- Cron 6:10 AM
+- Lista Strapi blog-posts/tutorials/recipes published last 26h con cover_image=null
+- Build prompt fotografico BBQ-themed da title/keyword/cluster (no LLM call: Qwen e down)
+- POST .124:8085/generate -> PNG -> Strapi /api/upload -> PUT cover_image=media_id
+- Telegram report con link media
+
+**strapi_client.py**: aggiunta `upload_file(bytes, filename, mime)` per multipart upload.
+
+**health-monitor patch**: `check_llm_endpoint` skipta Qwen :8080 se hour=6 e minute<55 (silenzia false alert durante swap).
+
+**Test live 6 mag 12:03**: 2 articoli "Best Bbq Grill 2025" + "Best Bbq Grills Propane" -> 2 cover generate (media#300, #301) -> live su bbq-experience.com. Quality eccellente: BBQ shot fotografici, dramatic lighting, no text artifacts.
+
+### Multi-step content generation (opt-in via MULTI_STEP=1)
+
+`generate_article_multistep()` aggiunta a `lib/claude_client.py`. Pipeline:
+
+1. **Outline (Qwen, ~15s)**: prompt JSON-only -> {intro_angle, sections[], faq_topics[]}
+2. **Sezioni (Qwen, ~30s ciascuna)**: 6-8 chiamate sequenziali, ognuna con focus su 1 H2 + key_points specifici
+3. **Assembly (Qwen, ~30s)**: combina sezioni + scrive intro/conclusione/FAQ + verifica keyword in intro
+
+`content_generator.py` ora controlla env `MULTI_STEP=1` per scegliere tra:
+- Default (off): single-shot 1 prompt -> 1500-2000 parole, ~30-60s
+- MULTI_STEP=1: pipeline -> 2500-3500 parole, ~5 min, struttura piu profonda (7+ H2, 20+ H3)
+
+**Test 6 mag 12:14**: "Best Pellet Smokers Under \$1000 in 2026" -> 4.8 min totali, 3246 parole, 7 H2, 20 H3, keyword in intro+H2s, FAQ con domande specifiche. Tono Pitmaster mantenuto, no generic openings.
+
+### Cron Ubuntu modificati
+
+- `0 6` -> `30 5` content_generator.py (parte mentre Qwen e ancora up, finisce prima dello swap a SDXL)
+- `+10 6` cover_generator.py (NEW)
+- `+0 6` systemctl --user stop email-idle.service (NEW)
+- `+55 6` systemctl --user start email-idle.service (NEW)
+
+### Note operative
+
+- Multi-step e OPT-IN: cron default resta single-shot. Per attivare per un singolo run: `MULTI_STEP=1 ./run-agent.sh content_generator.py`. Per attivare in cron: aggiungere `MULTI_STEP=1` davanti al comando o esportare in `.env`.
+- Pellet smoker test article saved a `/tmp/test_multistep_output.html` su Ubuntu (per ispezione qualita).
+
+## 2026-05-05/06 — Pipeline content unblock + SSH tunnel Cloudflare bypass
+
+### Problema diagnosticato
+Pipeline content_generator BBQ ferma da 17 giorni (ultimo articolo published 2026-04-19). Cron mancante + bug ai_generated flag + Cloudflare WAF blocca POST con body grandi.
+
+### Fix applicati
+
+**content_generator.py**:
+- Quality gate prima di publish: min 1000 parole, almeno 1 H2, excerpt >= 50 chars, SEO title/description popolati. Fail → queue item failed.
+- `ai_generated=True` flag spostato nell'update content-queue post-publish (era erroneamente in base_data dell'article, non presente nello schema tutorial/blog-post — Strapi 400 validation).
+- Timeout SEO prompt 60s → 120s (evita fail su warm-up Qwen).
+- Cron daily `0 6 * * *` aggiunto su .119 (era assente da 11 apr).
+
+**lib/strapi_client.py**:
+- User-Agent Mozilla/5.0 (era Python-urllib/3.12, blocked da Cloudflare).
+- POST timeout 30s → 60s. No retry su POST/PUT/PATCH (no idempotency, evita duplicati).
+
+**ig_to_content.py**:
+- MIN_ENGAGEMENT_SCORE 70 → 0.5 (la scala era normalizzata 0.0-1.0, non 0-100. Soglia 70 mai raggiungibile per costruzione). Pipeline IG-popular → blog article ora attiva.
+- Format strings `:.0f` → `:.2f` (mostrava sempre 0 o 1).
+
+**Strapi container Hetzner**:
+- mem_limit 384MB → 1024MB nel docker-compose.yml. Era cause secondary di slow validation su body grandi.
+
+**SSH tunnel Cloudflare bypass** (la fix decisiva):
+- Cloudflare WAF su cms.bbq-experience.com blocca POST con body > ~5KB anche con UA Mozilla. Diagnosi: GET piccoli OK, POST canary 514 byte OK, POST 7KB → silently dropped al CDN (non arriva a Caddy/Strapi).
+- Architettura tunnel: Windows .124 → SSH `-L 192.168.1.124:8001:172.19.0.8:1337` → Strapi container interno (network docker `internal`). Bypassa CF + Caddy.
+- `STRAPI_URL` in `.env` cambiato a `http://192.168.1.124:8001`. Tutti gli agenti (content_generator, translation_agent, ig_to_content, content_promoter, claude_reviewer, partnership_outreach, claude_strategist, ab_tester, weekly_newsletter) ereditano via env.
+- Persistenza: scheduled task user-level Windows `hetzner-tunnel` AtLogon, script `C:\Hetzner-tunnel\hetzner-tunnel.cmd` con auto-reconnect loop.
+- Test live 5 mag 18:48: end-to-end Qwen 27B → content_generator → Strapi POST via tunnel → live article `bbq-experience.com/en/blog/best-bbq-grills-propane` (4 min totali).
+
+**Stack AI persistenza** (correlato):
+- 3 LLM (Qwen :8080, Phi-4 :8081, bge-m3 :8082) erano lanciati da console manuale, non sopravvivevano reboot.
+- Aggiunti 3 scheduled task user-level Windows AtLogon: `llama-qwen-8080`, `llama-phi-8081`, `llama-bge-8082`. Auto-restart al login utente.
+
+### Side effects
+- `weekly_newsletter.py` BBQ ora funziona (Brevo API key + LIST_ID 3 settati, cron Dom 10:00 esistente, preview HTML pulita 3 articles + 2 reviews + 1 recipe).
+- `content_promoter` ora trova post con `ai_generated=true` filter (era vuoto da 25 giorni → ora sblocca recycle queue).
+
+### Verification
+- ContentQueue dopo fix: 24 ready / 15 published (era 13) / 7 failed (test diagnostici).
+- Webhook deploy Hetzner triggered, container `bbqexperience-web` rebuildato healthy.
+- Test pubblico HTTP 200 su articolo nuovo.
+- 3 stories BBQ pubblicate Mar 6/05 mattina (S9 alle 10:12, prima volta dopo blocco shadowban-style su account ScattoPro IG).
+
+### Commit
+`e7b25c2` su main, push GitHub OK, webhook deploy Hetzner OK.
+
+
 # Changelog — BBQ Experience
 
 ## 2026-04-13/14 — v3.2 Content Quality, Mobile UI & SEO Coverage
@@ -304,3 +411,19 @@
 - Roadmap 9 fasi creata
 - Dominio bbq-experience.com configurato con DNS Cloudflare
 - Email configurata su A2 Hosting con SPF/DKIM/DMARC
+
+## 2026-04-29 — Bootstrap stack AI locale (sessione 28-29 aprile)
+
+Refactor major + nuove integrazioni come parte del bootstrap dello stack AI locale di Matteo. **Vedi `~/scripts/STACK-AI-CHANGELOG-2026-04-28-29.md` (e `C:\Progetti\STACK-AI-CHANGELOG-2026-04-28-29.md` lato Windows) per panoramica completa cross-project.**
+
+Modifiche specifiche a questo project sono indicate sotto.
+
+**Modifiche specifiche a bbqexperience:**
+- `scripts/agents/lib/claude_client.py`: `ask()` ora chiama Qwen3.6-27B locale (`http://192.168.1.124:8080/v1/chat/completions`) invece di subprocess `claude --print` (Claude Code CLI subscription Pro/Max). Toglie dipendenza da abbonamento + aumenta velocita.
+  - Env override `BBQ_LLM_BACKEND=claude` per fallback emergency
+  - `enable_thinking=True` per generate_strategy/generate_pillar_content (qualita)
+  - `enable_thinking=False` per review_article (parsing strutturato `===KEY===`)
+- `scripts/agents/lib/ollama.py`: file riscritto, chiama OpenAI-compat /v1/chat/completions
+- `.env`: `OLLAMA_URL`/`OLLAMA_MODEL` aggiornati a Phi-4 locale
+- Test live 29 apr: prompt BBQ tip Phi-4 -> on-brand 1.5s
+- Backup: `claude_client.py.bak-qwen-20260428-*`, `ollama.py.bak-20260428-*`

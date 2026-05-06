@@ -227,3 +227,22 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 > Profile not yet configured. Run `/gsd:profile-user` to generate your developer profile.
 > This section is managed by `generate-claude-profile` -- do not edit manually.
 <!-- GSD:profile-end -->
+
+---
+
+## Cross-project: stack AI locale (28-29 apr 2026)
+
+Questo project fa parte dell'ecosistema agenti AI di Matteo. Stack centrale documentato in:
+- Master changelog: `~/scripts/STACK-AI-CHANGELOG-2026-04-28-29.md` (Ubuntu) o `C:\Progetti\STACK-AI-CHANGELOG-2026-04-28-29.md` (Windows)
+- Memoria Claude Code: `C:\Users\pozzu\.claude\projects\C--Progetti\memory\`
+
+Quick context:
+- LLM endpoint: Phi-4 `http://192.168.1.124:8081`, Qwen3.6 `http://192.168.1.124:8080`
+- Embedding: bge-m3 `http://192.168.1.124:8082` (multilingual, dim 1024)
+- ChromaDB: `http://192.168.1.124:8001` (4 collections `*_v2`: bbq_content, reflexmania_inventory, fixboard_repairs, normative — 1497 chunks total)
+- n8n: `http://192.168.1.119:5678/webhook/{translate,classify-email,sentiment,content,bbq-ask}`
+- RAG proxy: `http://192.168.1.119:8002/query`
+- Stack-AI Telegram bot: `@ReflexMania_bot` (`/inventario /repair /normativa /bbq /ask /help`)
+
+Wrapper Python `LocalLlamaEmbeddingFunction` (modulo `embedding_local.py`) sia su Windows (`C:\llama.cpp\_dl\`) che Ubuntu (`~/rag-proxy/`).
+

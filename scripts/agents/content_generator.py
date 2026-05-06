@@ -58,8 +58,14 @@ def get_next_queue_item() -> dict | None:
 
 
 def generate_article(title: str, keyword: str, cluster: str, content_type: str) -> dict:
-    """Genera articolo completo in EN con Claude Code CLI (piano Max).
-    Un singolo prompt produce l'intero articolo — Claude e abbastanza potente."""
+    """Genera articolo completo in EN. Default single-shot Qwen.
+    Se env MULTI_STEP=1: usa pipeline outline -> sezioni -> assembly (qualità più alta)."""
+
+    if os.environ.get("MULTI_STEP", "").strip() in ("1", "true", "yes"):
+        print("  [generator] MULTI_STEP attivo")
+        return claude.generate_article_multistep(title, keyword, cluster, content_type)
+
+    # --- Single-shot path (default) ---
 
     prompt = f"""Write a complete, publication-ready BBQ article for bbq-experience.com.
 
