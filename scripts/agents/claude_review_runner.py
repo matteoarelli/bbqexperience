@@ -109,13 +109,20 @@ def apply_review(content: dict, review: ReviewResult, queue_doc_id: str) -> str:
         except Exception as e:
             print(f"[WARN] Could not patch {ct}/{doc_id}: {e}")
 
-    # 2. Map next_step -> queue status
+    # 2. Map next_step -> queue status (constrained to existing Strapi enum:
+    # idea, research, ready, generating, draft_review, published, failed).
+    # TODO: extend Strapi enum with preview_pending + needs_human for cleaner
+    # state. For now we collapse:
+    #   auto_publish    -> published
+    #   preview_first   -> published (corrected_html already applied; Telegram preview marks it)
+    #   human_required  -> failed (corrected_html applied but flagged as needing human review)
+    # Article body is patched in all 3 cases; status reflects "queue done" outcome.
     if next_step == "auto_publish":
         new_queue_status = "published"
     elif next_step == "preview_first":
-        new_queue_status = "preview_pending"
+        new_queue_status = "published"
     else:  # human_required
-        new_queue_status = "needs_human"
+        new_queue_status = "failed"
 
     log_line = (
         f"Claude gate {datetime.now().isoformat()}: "
@@ -134,6 +141,11 @@ def apply_review(content: dict, review: ReviewResult, queue_doc_id: str) -> str:
     return next_step
 
 
+def _esc(s: str) -> str:
+    """Escape characters that Telegram HTML parse mode chokes on."""
+    return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
 def telegram_report(
     title: str,
     queue_item: dict,
@@ -141,7 +153,8 @@ def telegram_report(
     review: ReviewResult,
     next_step: str,
 ) -> None:
-    """Send a structured Telegram report tagged [BBQ]."""
+    """Send a structured Telegram report tagged [BBQ]. Splits to multiple
+    messages if the body would exceed Telegram's 4096-char limit."""
     ct = content.get("_strapi_type", "blog-posts")
     slug = content.get("slug", "")
     preview_url = f"{SITE_PREVIEW_BASE}/en/{ct.rstrip('s')}/{slug}" if slug else "(no slug)"
@@ -152,26 +165,45 @@ def telegram_report(
         "human_required": "HUMAN REVIEW REQUIRED",
     }.get(next_step, next_step.upper())
 
-    lines: list[str] = [
+    header_lines: list[str] = [
         f"<b>[BBQ] {headline}</b>",
-        f"<b>{title}</b>",
+        f"<b>{_esc(title)}</b>",
         f"Score: {review.score}/10  |  Words: {review.word_count}",
-        f"{review.summary}",
-        f"<a href='{preview_url}'>Preview link</a>",
+        _esc(review.summary),
+        f"<a href=\"{_esc(preview_url)}\">Preview link</a>",
     ]
-    if review.issues:
-        lines.append("\n<b>Issues:</b>")
-        for issue in review.issues[:8]:
-            sev = issue.severity.upper()
-            verdict = f" → {issue.verdict}" if issue.verdict else ""
-            loc = f" @ {issue.location}" if issue.location else ""
-            lines.append(f"• [{sev}] <i>{issue.category}</i>{loc}{verdict}: {issue.description[:200]}")
-    if review.broken_product_links:
-        lines.append(f"\n<b>Broken product links:</b> {', '.join(review.broken_product_links[:5])}")
-    if review.broken_blog_links:
-        lines.append(f"<b>Broken blog links:</b> {', '.join(review.broken_blog_links[:5])}")
+    telegram.send_agent_report("BBQ Claude Gate", "\n".join(header_lines))
 
-    telegram.send_agent_report("BBQ Claude Gate", "\n".join(lines))
+    if review.issues:
+        # One message per chunk of issues to stay under 4096 chars.
+        chunk: list[str] = ["<b>Issues:</b>"]
+        chunk_len = len(chunk[0])
+        for issue in review.issues:
+            sev = _esc(issue.severity.upper())
+            verdict = f" -&gt; {_esc(issue.verdict)}" if issue.verdict else ""
+            loc = f" @ {_esc(issue.location[:80])}" if issue.location else ""
+            line = f"\n[{sev}] <i>{_esc(issue.category)}</i>{loc}{verdict}\n  {_esc(issue.description[:300])}"
+            if issue.fix_applied:
+                line += f"\n  fix: {_esc(issue.fix_applied[:200])}"
+            if issue.suggested_fix:
+                line += f"\n  sugg: {_esc(issue.suggested_fix[:200])}"
+            if chunk_len + len(line) > 3800:
+                telegram.send_agent_report("BBQ Claude Gate", "\n".join(chunk))
+                chunk = [line]
+                chunk_len = len(line)
+            else:
+                chunk.append(line)
+                chunk_len += len(line)
+        if chunk:
+            telegram.send_agent_report("BBQ Claude Gate", "\n".join(chunk))
+
+    extras: list[str] = []
+    if review.broken_product_links:
+        extras.append(f"<b>Broken product links:</b> {_esc(', '.join(review.broken_product_links[:8]))}")
+    if review.broken_blog_links:
+        extras.append(f"<b>Broken blog links:</b> {_esc(', '.join(review.broken_blog_links[:8]))}")
+    if extras:
+        telegram.send_agent_report("BBQ Claude Gate", "\n".join(extras))
 
 
 def process_one(queue_item: dict, catalog: list[dict], blog_wl: list[dict]) -> bool:
