@@ -251,24 +251,26 @@ def main():
         published_id = publish_article(queue_item, article, content_type_strapi, content_type_raw)
 
         if published_id:
-            # Aggiorna ContentQueue — pubblicato direttamente (Claude genera qualita)
+            # Aggiorna ContentQueue — Qwen ha finito, ora aspetta Claude Opus quality gate
+            # (claude_review_runner.py poll su Windows, transitions to published / preview_pending / needs_human)
             strapi.update("content-queues", doc_id_queue, {
-                "status": "published",
+                "status": "draft_review",
                 "published_content_id": published_id,
                 "ai_generated": True,
                 "body_en": article["content"][:500],
-                "generation_log": f"Generato da Claude Max {datetime.now().isoformat()} - {len(article['content'].split())} parole",
+                "generation_log": f"Qwen draft pronto {datetime.now().isoformat()} - {len(article['content'].split())} parole - awaiting Claude gate",
             })
 
             telegram.send_agent_report(
                 "Content Generator",
-                f"Articolo pubblicato in 3 lingue",
+                f"Draft Qwen pronto, in coda per Claude gate",
                 [
                     f"<b>{title}</b>",
                     f"Keyword: {keyword}",
                     f"Cluster: {cluster}",
                     f"Tipo: {content_type_strapi}",
                     f"ID: {published_id}",
+                    f"Claude gate gira ogni 15 min su Windows",
                 ],
             )
         else:
