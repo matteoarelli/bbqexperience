@@ -17,6 +17,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import strapi_client as strapi
 from agents.lib import telegram
+from agents.keyword_scout import is_acceptable_topic
 
 # Soglia engagement per espansione in articolo
 # Scala normalizzata 0.0-1.0 (vedi sync-instagram.mjs). 0.5 ~ top 25% nei dati 2026-05.
@@ -47,18 +48,22 @@ def detect_cluster(caption: str) -> str:
 
 
 def extract_topic(caption: str) -> str:
-    """Estrae un topic/titolo dalla caption per l'articolo."""
-    # Prendi la prima riga significativa della caption
+    """Estrae un topic/titolo dalla caption per l'articolo.
+
+    Tronca al word boundary se troppo lungo (no "..." dangling che finirebbe
+    letteralmente nel titolo pubblicato — vedi audit 12 mag, articolo
+    "Deep Dive: When you marinate pork in Dr Pepper...").
+    """
     lines = [l.strip() for l in caption.split("\n") if l.strip() and not l.startswith("#")]
-    if lines:
-        topic = lines[0]
-        # Rimuovi emoji
-        topic = re.sub(r'[^\w\s\-:,.]', '', topic).strip()
-        # Tronca se troppo lungo
-        if len(topic) > 80:
-            topic = topic[:77] + "..."
-        return topic
-    return "Untitled BBQ Post"
+    if not lines:
+        return "Untitled BBQ Post"
+    topic = lines[0]
+    # Rimuovi emoji
+    topic = re.sub(r'[^\w\s\-:,.]', '', topic).strip()
+    # Tronca al word boundary, no "..."
+    if len(topic) > 80:
+        topic = topic[:80].rsplit(" ", 1)[0].rstrip(",.:-")
+    return topic
 
 
 def get_high_engagement_posts() -> list[dict]:
@@ -102,6 +107,13 @@ def create_content_from_ig(post: dict) -> dict | None:
 
     topic = extract_topic(caption)
     cluster = detect_cluster(caption)
+
+    # Filtro qualità condiviso con keyword_scout: stop ai topic stagionali fuori
+    # finestra, ai year-modifier stale, ai trailing modifier ("reddit", "uk").
+    ok, reason = is_acceptable_topic(topic)
+    if not ok:
+        print(f"  [skip ig_id:{ig_id}] {topic!r}: {reason}")
+        return None
 
     # Determina il content type basandosi sul contenuto
     content_type = "blog"

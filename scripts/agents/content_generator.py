@@ -196,17 +196,19 @@ def publish_article(
     elif content_type_strapi == "recipes":
         base_data["editorial_intro"] = article["content"]
 
-    # Pubblica EN (traduzioni IT/ES gestite dal translation_agent separato)
+    # Crea EN come DRAFT. Il quality gate decide se promuovere a published
+    # (vedi claude_review_runner.apply_review). Le traduzioni IT/ES sono
+    # gestite dal translation_agent separato sul lato Ubuntu.
     try:
-        resp = strapi.create(content_type_strapi, base_data)
+        resp = strapi.create(content_type_strapi, base_data, status="draft")
         doc_id = resp.get("data", {}).get("documentId")
         if not doc_id:
             print(f"[ERRORE] Nessun documentId nella risposta per '{title}'")
             return None
-        print(f"  Pubblicato EN: {content_type_strapi}/{doc_id}")
+        print(f"  Draft creato EN: {content_type_strapi}/{doc_id} (publish gated da Claude review)")
         return doc_id
     except Exception as e:
-        print(f"[ERRORE] Pubblicazione EN fallita per '{title}': {e}")
+        print(f"[ERRORE] Creazione draft EN fallita per '{title}': {e}")
         return None
 
 

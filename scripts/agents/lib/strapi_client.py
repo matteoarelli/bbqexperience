@@ -98,20 +98,45 @@ def find_one(content_type: str, document_id: str, *, populate: str = "*") -> dic
     return _request("GET", url)
 
 
-def create(content_type: str, data: dict) -> dict:
-    """POST /api/{content_type} — crea nuova entry."""
-    url = f"{STRAPI_URL}/api/{content_type}"
+def create(content_type: str, data: dict, *, status: str = "published") -> dict:
+    """POST /api/{content_type} — crea nuova entry.
+
+    status="draft" crea l'entry senza pubblicarla (publishedAt resta null).
+    Usato dal drafter AI per separare creazione da publish: il quality gate
+    promuove la draft a published solo se la review è approvata.
+    """
+    params = {"status": status} if status == "draft" else {}
+    qs = f"?{urlencode(params)}" if params else ""
+    url = f"{STRAPI_URL}/api/{content_type}{qs}"
     return _request("POST", url, {"data": data})
 
 
-def update(content_type: str, document_id: str, data: dict, *, locale: str = "") -> dict:
-    """PUT /api/{content_type}/{documentId} — aggiorna entry esistente."""
+def update(content_type: str, document_id: str, data: dict, *, locale: str = "", status: str = "") -> dict:
+    """PUT /api/{content_type}/{documentId} — aggiorna entry esistente.
+
+    status="draft" target la versione draft, "published" target la published.
+    Default (vuoto) usa il default Strapi (draft se esiste, altrimenti published).
+    """
     params = {}
     if locale:
         params["locale"] = locale
+    if status:
+        params["status"] = status
     qs = f"?{urlencode(params)}" if params else ""
     url = f"{STRAPI_URL}/api/{content_type}/{document_id}{qs}"
     return _request("PUT", url, {"data": data})
+
+
+def publish(content_type: str, document_id: str) -> dict:
+    """Promuove una draft a published in Strapi v5.
+
+    Strapi v5 separa documento e versione: una draft con publishedAt=null
+    non è visibile sul sito; per pubblicarla bisogna creare la versione
+    'published'. Via REST si usa PUT con ?status=published (lo stesso path
+    funziona come no-op se è già published).
+    """
+    url = f"{STRAPI_URL}/api/{content_type}/{document_id}?status=published"
+    return _request("PUT", url, {"data": {}})
 
 
 def find_all_pages(

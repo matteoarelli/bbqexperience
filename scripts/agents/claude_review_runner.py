@@ -100,23 +100,33 @@ def apply_review(content: dict, review: ReviewResult, queue_doc_id: str) -> str:
     field_name = CONTENT_FIELD.get(ct, "content")
     next_step = decide_next_step(review)
 
-    # 1. Always write back the corrected_html (even if approved without changes,
-    # they should be byte-identical to the input — safe no-op).
+    # 1. Always write back the corrected_html on the draft version (even if
+    # approved without changes, they should be byte-identical to the input —
+    # safe no-op). Note: content_generator.py creates entries as DRAFT in
+    # Strapi v5, so this patch always targets the draft.
     if doc_id and review.corrected_html and len(review.corrected_html) > 100:
         update_payload = {field_name: review.corrected_html}
         try:
-            strapi.update(ct, doc_id, update_payload)
+            strapi.update(ct, doc_id, update_payload, status="draft")
         except Exception as e:
             print(f"[WARN] Could not patch {ct}/{doc_id}: {e}")
 
-    # 2. Map next_step -> queue status (constrained to existing Strapi enum:
-    # idea, research, ready, generating, draft_review, published, failed).
-    # TODO: extend Strapi enum with preview_pending + needs_human for cleaner
-    # state. For now we collapse:
-    #   auto_publish    -> published
-    #   preview_first   -> published (corrected_html already applied; Telegram preview marks it)
-    #   human_required  -> failed (corrected_html applied but flagged as needing human review)
-    # Article body is patched in all 3 cases; status reflects "queue done" outcome.
+    # 2. Publish authority: only the gate decides if an article goes live.
+    #   - auto_publish    -> promote draft to published, queue=published
+    #   - preview_first   -> KEEP AS DRAFT, queue=published (Telegram preview flags
+    #                        the entry for a human eyeball before publish via admin)
+    #   - human_required  -> KEEP AS DRAFT, queue=failed (corrected_html applied
+    #                        but the article is not visible until a human fixes it)
+    # Article body is patched in all 3 cases; publish state reflects gate verdict.
+    publish_now = next_step == "auto_publish"
+    if publish_now and doc_id:
+        try:
+            strapi.publish(ct, doc_id)
+            print(f"[gate] {ct}/{doc_id} promoted draft->published")
+        except Exception as e:
+            print(f"[WARN] Could not publish {ct}/{doc_id}: {e}")
+            publish_now = False
+
     if next_step == "auto_publish":
         new_queue_status = "published"
     elif next_step == "preview_first":
