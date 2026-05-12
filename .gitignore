@@ -11,6 +11,27 @@ public/uploads/
 .DS_Store
 state/*
 !state/.gitkeep
+# Stock covers: tieni README e struttura tracked, ma NON le foto stesse
+!state/stock-covers/
+state/stock-covers/*
+!state/stock-covers/README.md
+!state/stock-covers/.gitkeep
+!state/stock-covers/blog/
+!state/stock-covers/tutorial/
+!state/stock-covers/recipe/
+!state/stock-covers/default/
+state/stock-covers/blog/*
+state/stock-covers/tutorial/*
+state/stock-covers/recipe/*
+state/stock-covers/default/*
+!state/stock-covers/blog/.gitkeep
+!state/stock-covers/tutorial/.gitkeep
+!state/stock-covers/recipe/.gitkeep
+!state/stock-covers/default/.gitkeep
+# Fonts editoriale per overlay cover (Oswald-Bold.ttf etc.)
+!state/fonts/
+state/fonts/*
+!state/fonts/.gitkeep
 .env.windows
 scripts/agents/.env.windows
 docs/audit/
