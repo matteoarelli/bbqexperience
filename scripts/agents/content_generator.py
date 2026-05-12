@@ -33,6 +33,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import strapi_client as strapi
 from agents.lib import telegram
 from agents.lib import claude_client as claude
+from agents.keyword_scout import is_acceptable_topic
 
 # ─── Mappe content type Strapi ────────────────────────────────────────────────
 
@@ -55,6 +56,39 @@ def get_next_queue_item() -> dict | None:
     )
     items = resp.get("data", [])
     return items[0] if items else None
+
+
+def get_next_acceptable_queue_item(max_attempts: int = 15) -> dict | None:
+    """Pesca il prossimo item che passa is_acceptable_topic.
+
+    Difesa contro queue legacy (pre-filter): se un item non passa
+    (modifier-as-title, year stale, off-season, truncated "..."), lo marca
+    come failed e pesca il prossimo. Senza questo, la garbage accumulata
+    prima del fix 734195d girerebbe attraverso il drafter sprecando cicli.
+    """
+    for attempt in range(max_attempts):
+        item = get_next_queue_item()
+        if item is None:
+            return None
+        title = item.get("title", "") or ""
+        target = item.get("target_keyword", "") or title
+        ok, reason = is_acceptable_topic(target)
+        if ok:
+            return item
+
+        doc_id = item.get("documentId", "")
+        print(f"  [skip queue:{doc_id}] {target!r}: {reason}")
+        try:
+            strapi.update("content-queues", doc_id, {
+                "status": "failed",
+                "generation_log": f"Filtered by is_acceptable_topic: {reason}",
+            })
+        except Exception as e:
+            print(f"  [WARN] could not mark {doc_id} failed: {e}")
+            return None  # evita loop infinito se update fallisce
+
+    print(f"  [WARN] {max_attempts} consecutive items rejected — queue da revisionare")
+    return None
 
 
 def generate_article(title: str, keyword: str, cluster: str, content_type: str) -> dict:
@@ -215,7 +249,7 @@ def publish_article(
 def main():
     print(f"[{datetime.now().isoformat()}] Content Generator avviato")
 
-    queue_item = get_next_queue_item()
+    queue_item = get_next_acceptable_queue_item()
     if not queue_item:
         print("Nessun item nella ContentQueue con status 'ready'")
         telegram.send_agent_report("Content Generator", "Nessun articolo in coda oggi.")

@@ -110,7 +110,7 @@ A top-class editorial portal for the BBQ Experience brand (74k Instagram followe
 |-----------|-------------|-------------|-------|
 | Node.js | 22.0.0 | 22 LTS | Astro 6 dropped Node 18/20 support |
 | Astro | 6.0.0 | 6.1.2 | Current stable |
-| Strapi | 5.0.0 | 5.40.0 | Current stable |
+| Strapi | 5.0.0 | 5.41.0 | Current stable |
 | Tailwind CSS | 4.0.0 | 4.x | Requires Vite plugin |
 | PostgreSQL | 14 | 16 | Alpine Docker image |
 | GSAP | 3.12+ | 3.x | Free tier includes ScrollTrigger |
@@ -161,7 +161,7 @@ A top-class editorial portal for the BBQ Experience brand (74k Instagram followe
 - **Claude CLI** — funziona solo su Windows (`claude -p`). NON funziona via SSH su 192.168.1.119. Agenti Claude girano su Windows Task Scheduler
 - **Ollama 7b** — OK per traduzioni campo-per-campo. NON usare per generazione articoli (troppo corto). Claude Max per generazione
 - **AI Agents** — scripts in `scripts/agents/`, librerie condivise in `scripts/agents/lib/`. Env vars in `.env.windows` (Windows) o `.env` (server)
-- **Strapi 12 content types** — blog-post, recipe, review, tutorial, product, instagram-post, subscriber, editorial-calendar, brand, partnership, keyword-tracker, content-queue
+- **Strapi 13 content types** — blog-post, recipe, review, tutorial, product, instagram-post, subscriber, editorial-calendar, brand, partnership, keyword-tracker, content-queue, ab-experiment
 - **Product brand** — usare SOLO `brand_relation` (relazione a Brand), NON il campo stringa `brand` (rimosso dallo schema). Populate con `product.brand_relation` e accedere via `product.brand_relation?.name`
 - **Fetch timeouts** — TUTTI i fetch() verso servizi esterni devono avere `signal: AbortSignal.timeout(10_000)`
 - **Agent retry** — strapi_client, ollama, claude_client hanno retry con backoff esponenziale (3 tentativi). Non aggiungere retry custom nei singoli agenti
@@ -179,6 +179,11 @@ A top-class editorial portal for the BBQ Experience brand (74k Instagram followe
 - **Audit tool** — `scripts/random_check.py` e `web/scripts/sweep_pages.py` per verifiche periodiche (HTTP, markdown raw, nested anchors, JSON-LD, ecc.)
 - **Hreflang** — SEOHead calcola gli hreflang con `getLocalizedPath()` per tradurre il route slug per ogni locale target. Non replicare il canonicalPath identico per tutti i locale (era il bug che generava 135 404 in Search Console)
 - **Language switcher in header** — genera link cross-locale legittimi su ogni pagina. Gli sweep automatici devono escluderli dai check "cross_locale_anchor" altrimenti sono falsi positivi
+- **A/B testing** — ab-experiment content type in Strapi. Variant assignment via FNV-1a hash in `web/src/lib/ab.ts` con nanoid cookie. Middleware Astro inietta variant nei locals. Tracking via Umami custom events (ab-impression, ab-click). z-test settimanale in `scripts/agents/ab_tester.py`
+- **Newsletter signup** — 4 superfici (inline CTA, exit-intent modal, landing page, sticky footer). Brevo DOI obbligatorio. Rate-limit SQLite su endpoint `/api/subscribe`. Honeypot field. Surface attribution su subscriber.source
+- **Review filters** — brand, product_category, price_range (5 bucket), score threshold. Svelte island `ReviewFilters.svelte`. Pagine filtrate hanno `noindex` + canonical alla listing base. 301 redirect dalle vecchie route `/reviews/category/*`
+- **Recipe collections** — content type recipe-collection con description + author_note. Listing e detail pages in 3 locale. CollectionBadge su ricette che appartengono a una collection
+- **Analytics feedback loop** — `scripts/agents/analytics_loop.py` legge Umami → calcola traffic_score su contenuti Strapi. Telegram top/bottom digest. Strategist usa traffic_score per prioritizzare
 <!-- GSD:conventions-end -->
 
 <!-- GSD:architecture-start source:ARCHITECTURE.md -->
@@ -203,7 +208,9 @@ Vedi docs/architecture.md per diagrammi completi. Sintesi:
 - **Partnership:** Hetzner lun 08:00 → partnership_outreach.py → email brand
 - **Site→IG:** 192.168.1.119 */6h → content_promoter.py → site_promo_queue + first_comments
 - **IG→Site:** 192.168.1.119 10:00 → ig_to_content.py → post virali → ContentQueue
-- **Strategy:** Windows dom 07:00 → claude_strategist.py → analisi + pillar content
+- **Strategy:** Windows dom 07:00 → claude_strategist.py → analisi + pillar content (integra traffic_score)
+- **A/B testing:** Hetzner sab → ab_tester.py → z-test settimanale + Brevo subject-line A/B
+- **Analytics loop:** Hetzner daily → analytics_loop.py → Umami → traffic_score su Strapi + Telegram digest
 <!-- GSD:architecture-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->

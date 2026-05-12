@@ -57,7 +57,12 @@ export const GET: APIRoute = async () => {
     ]);
 
     // Mappa recensioni
+    // Defense-in-depth: skippa drafts (publishedAt null) anche se
+    // fetchCollection già filtra a status=published — protezione contro
+    // futuri cambi di default e contro versioni published che il drafter
+    // potrebbe creare per errore (vedi commit 734195d, fix gate veto).
     for (const item of reviews.data) {
+      if (!item.publishedAt) continue;
       const route = localizedRoutes.reviews[LOCALE];
       feedItems.push({
         title: item.title,
@@ -70,6 +75,7 @@ export const GET: APIRoute = async () => {
 
     // Mappa ricette
     for (const item of recipes.data) {
+      if (!item.publishedAt) continue;
       const route = localizedRoutes.recipes[LOCALE];
       feedItems.push({
         title: item.title,
@@ -82,6 +88,7 @@ export const GET: APIRoute = async () => {
 
     // Mappa tutorial
     for (const item of tutorials.data) {
+      if (!item.publishedAt) continue;
       const route = localizedRoutes.tutorials[LOCALE];
       feedItems.push({
         title: item.title,
@@ -94,6 +101,7 @@ export const GET: APIRoute = async () => {
 
     // Mappa blog post
     for (const item of blogPosts.data) {
+      if (!item.publishedAt) continue;
       const route = localizedRoutes.blog[LOCALE];
       feedItems.push({
         title: item.title,

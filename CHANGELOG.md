@@ -1,3 +1,49 @@
+## 2026-05-12 — Gate veto power + topic quality filters + cleanup
+
+### Problema diagnosticato
+Audit pipeline 12 mag: drafter quasi-silenzioso (1 articolo/giorno via gate) ma RSS feed mostrava 8+ articoli pubblicati in 4 giorni. Mismatch perché `content_generator.py` chiamava `strapi.create()` che pubblicava immediatamente — il gate Claude poteva solo patchare body, non bloccare publish. Risultato live: "Vintagestory Smoke Meat" (Qwen ha confuso il videogame con BBQ, score 6/10 con 5 issues), "Deep Dive: When you marinate pork in Dr Pepper and smoke it until it turns into pure bar..." (titolo troncato con "..." letterale), 6+ articoli con modifier-as-title ("Best Meat Thermometer Reddit/Uk", "Best Bbq Grill 2025").
+
+### Fix architetturali (commit 734195d)
+- **`scripts/agents/lib/strapi_client.py`**: aggiunto kwarg `status="draft"` su `create()` e `update()`, nuova funzione `publish()` per promuovere draft→published in Strapi v5.
+- **`content_generator.py`**: chiama `strapi.create(ct, data, status="draft")`. Le entries non sono più auto-pubblicate.
+- **`claude_review_runner.apply_review()`**: gate ha publish authority. Mapping:
+  - `auto_publish`  → `strapi.publish()` + queue=published
+  - `preview_first` → resta draft + queue=published (Telegram preview link per review umana)
+  - `human_required`→ resta draft + queue=failed (body patchato ma invisibile)
+
+### Topic quality filters
+- **`keyword_scout.is_acceptable_topic()`**: nuovo filtro condiviso. Reject:
+  - Trailing modifier (`reddit`, `uk`, `usa`, `near me`, `amazon`, ecc.)
+  - Year stale (year-modifier < anno corrente)
+  - Off-season (`thanksgiving` fuori Q4, `super bowl` fuori inverno, ecc.)
+  - Truncated suffix (`...`)
+- **`ig_to_content.extract_topic()`**: tronca al word boundary, no "..." dangling; importa e applica `is_acceptable_topic` post-extract.
+- **`content_generator.get_next_acceptable_queue_item()`**: difesa pesca-tempo. Se queue legacy ha item che fallisce filter, lo marca failed e pesca il prossimo (max 15 attempts).
+
+### Cleanup manuale (oggi)
+- Articolo Dr Pepper id 4437: titolo da "Deep Dive: When you marinate pork in Dr Pepper..." → "Dr Pepper Pork Shoulder: The Marinade Chemistry of Soda-Smoked BBQ" (PUT Strapi). Slug invariato.
+- Tutorial Vintagestory (docId r94jq6rc54l25ysm9slzrypa): DELETE (contenuto generico recuperabile via ri-creazione con topic corretto).
+- 6 blog post modifier-titled: title + seo_title aggiornati via PUT
+  - "Best Meat Thermometer Reddit" → "Best Meat Thermometers Recommended by BBQ Communities"
+  - "Best Meat Thermometer Uk" → "Best Meat Thermometers in the UK"
+  - "Best Meat Thermometer Wireless" → "Best Wireless Meat Thermometers"
+  - "Best Bbq Grill 2025" → "Best BBQ Grills in 2026"
+  - "Best Bbq Grills Propane" → "Best Propane BBQ Grills"
+  - "Best Bbq Grill Cleaner" → "Best BBQ Grill Cleaners"
+- ContentQueue: 9/32 ready items marcati failed (filter cleanup). Restano 23 acceptable.
+
+### RSS feed (commit successivo)
+`web/src/pages/{en,it,es}/rss.xml.ts`: defensive filter `if (!item.publishedAt) continue` su 4 loop per file. `fetchCollection` già usa `status=published` di default, ma defense-in-depth contro futuri cambi di default.
+
+### Repo cleanup
+- `.gitignore` esteso: `__pycache__/`, `*.local-backup`, `*.bak`, `logs/`, `scripts/batch*.mjs`.
+- Rimosso file vuoto `nuova` (0 byte, accidentale apr 21).
+- Rimosso `scripts/agents/cover_generator.py.local-backup` (stale).
+- `git worktree remove --force -f` su 15 worktree stale (path inesistenti `C:/Users/Matteo/Desktop/Progetti/`). Rimosse 12 branch `worktree-agent-*` orfane.
+
+### Cron drafter
+Disabilitato su Ubuntu .119 (commento prefix `# DISABLED 2026-05-12 quality issues -- 30 5 * * *`) finché test manuale del nuovo flusso non è verde. Ri-abilitare con `crontab -e` + rimozione prefix dopo verifica.
+
 ## 2026-05-06 (sera) — Cover image auto-gen SDXL + multi-step content gen
 
 ### Cover image automatica (SDXL Base 1.0)
@@ -106,6 +152,76 @@ Pipeline content_generator BBQ ferma da 17 giorni (ultimo articolo published 202
 
 
 # Changelog — BBQ Experience
+
+## 2026-04-29 — Bootstrap stack AI locale (sessione 28-29 aprile)
+
+Refactor major: il quality reviewer (`scripts/agents/lib/claude_client.py`) ora chiama Qwen3.6-27B locale invece di subprocess `claude --print` (Claude Code CLI subscription Pro/Max). Toglie la dipendenza dall'abbonamento, riduce latenza, libera quota Pro/Max per uso interactive di Matteo.
+
+**Vedi `C:\Progetti\STACK-AI-CHANGELOG-2026-04-28-29.md` per panoramica completa cross-project (BBQ + ScattoPro + ReflexMania + ChromaDB knowledge base + Telegram bot + cron).**
+
+Modifiche specifiche a BBQ Experience:
+- `scripts/agents/lib/claude_client.py` — `ask()` chiama `http://192.168.1.124:8080/v1/chat/completions` (Qwen3.6) invece di `claude --print`. Signature invariata, env override `BBQ_LLM_BACKEND=claude` per fallback emergency. `enable_thinking=True` per `generate_strategy/generate_pillar_content` (qualità), `False` per `review_article` (parsing strutturato `===KEY===`).
+- `scripts/agents/lib/ollama.py` — riscritto: chiama OpenAI-compat `/v1/chat/completions` invece di `/api/generate` Ollama proprietary. Nome file lasciato per backward-compat moduli.
+- `.env` — `OLLAMA_URL=http://192.168.1.124:8081`, `OLLAMA_MODEL=phi-4` (per gli agent che usano Ollama lib).
+- Test live 29 apr: prompt "BBQ tip" → `Maintain 225°F smoker temp...` (1.5s, on-brand Pitmaster).
+- Backup: `claude_client.py.bak-qwen-20260428-*`, `ollama.py.bak-20260428-*`.
+
+**RAG enabled per BBQ**: nuova collection ChromaDB `bbq_content_v2` (720 chunks da Strapi: 93 blog + 25 reviews + 26 recipes), embedding bge-m3 multilingual. Workflow n8n `/webhook/bbq-ask` end-to-end (RAG + Phi-4 con citazioni sources). Stack AI Telegram bot `@ReflexMania_bot` ha `/bbq <q>` per query corpus BBQ direttamente da telefono.
+
+## 2026-04-23 — v1.1 Content Depth & Growth Loop (Milestone)
+
+8 fasi (10-16), 23 piani, 43 task, 134 commit.
+
+### Debt Closure (Phase 10, 10.1)
+- VERIFICATION.md retroattivi per fasi 03-09 (7 fasi senza verifica)
+- Traceability reconciliation: 9 entry REQUIREMENTS.md allineate con stato reale
+- Cloudflare Image Transformations: responsive srcset con resize CDN-side via `web/src/lib/media.ts`
+- Lighthouse 15/15 pagine >= 0.90 (median 0.97, +8 pts da baseline 0.89)
+
+### Strapi Schema Evolution (Phase 11)
+- `product_category` e `price` su Product (5 bucket prezzo, 25 prodotti popolati)
+- `source` su Subscriber (attribuzione superficie signup)
+- Content type `recipe-collection` con description + author_note
+- 12 brand_relation mancanti collegati, 2 pellet grill ricategorizzati
+
+### Newsletter Signup (Phase 12)
+- 4 superfici: inline CTA nei blog post, exit-intent modal, landing page `/newsletter`, sticky footer bar
+- Brevo Double Opt-In obbligatorio (GDPR)
+- Rate-limit SQLite su `/api/subscribe`
+- Honeypot field anti-spam
+- Surface attribution: campo `source` su subscriber traccia da dove arriva il signup
+
+### Review Filters & Taxonomy (Phase 13)
+- Filtri multi-facet: brand, categoria prodotto, fascia prezzo (5 bucket), score threshold
+- Desktop: filter bar orizzontale con pills. Mobile: bottom-sheet drawer
+- Count badge su ogni filtro, empty state con messaggio
+- SEO guardrails: `noindex` + canonical su pagine filtrate
+- 301 redirect da vecchie route `/reviews/category/*`
+- Svelte island `ReviewFilters.svelte` per interattivita
+
+### Recipe Collections (Phase 14)
+- Content type `recipe-collection` con description e author_note (EN/IT/ES)
+- Listing page `/collections/` e detail page `/collections/[slug]` in 3 locale
+- `CollectionCard` e `CollectionBadge` componenti Astro
+- Badge su ricette che appartengono a una collection
+
+### Analytics Feedback Loop (Phase 15)
+- `analytics_loop.py`: Umami API → `traffic_score` su contenuti Strapi
+- Telegram top/bottom 5 digest giornaliero (raggruppato per locale)
+- Strategist integrato con traffic_score per prioritizzazione contenuti
+- Umami token TTL 58min, is_high_confidence con soglie (50 visite, 7 giorni)
+
+### A/B Headline Testing (Phase 16)
+- Content type `ab-experiment` in Strapi (titolo A/B, status, winner)
+- `web/src/lib/ab.ts`: FNV-1a hash per variant assignment deterministico
+- nanoid cookie per identificare visitatori
+- Middleware Astro esteso per iniettare variant nei locals
+- Umami custom events: `ab-impression` e `ab-click` per tracking
+- `ab_tester.py`: z-test settimanale, promozione automatica winner
+- Brevo subject-line A/B per newsletter
+- 13 unit test per libreria ab.ts
+
+---
 
 ## 2026-04-13/14 — v3.2 Content Quality, Mobile UI & SEO Coverage
 

@@ -14,3 +14,19 @@ state/*
 .env.windows
 scripts/agents/.env.windows
 docs/audit/
+
+# Python bytecode caches (Ubuntu agents + Windows gate runner)
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Local backup files (es. cover_generator.py.local-backup pre-refactor)
+*.local-backup
+*.bak
+
+# Runtime log dirs (i singoli *.log sono già coperti sopra ma il dir va escluso)
+logs/
+
+# One-off seed scripts manuali (Strapi POST batch — non production)
+scripts/batch*.mjs

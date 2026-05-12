@@ -55,6 +55,7 @@ export const GET: APIRoute = async () => {
     ]);
 
     for (const item of reviews.data) {
+      if (!item.publishedAt) continue;
       const route = localizedRoutes.reviews[LOCALE];
       feedItems.push({
         title: item.title,
@@ -66,6 +67,7 @@ export const GET: APIRoute = async () => {
     }
 
     for (const item of recipes.data) {
+      if (!item.publishedAt) continue;
       const route = localizedRoutes.recipes[LOCALE];
       feedItems.push({
         title: item.title,
@@ -77,6 +79,7 @@ export const GET: APIRoute = async () => {
     }
 
     for (const item of tutorials.data) {
+      if (!item.publishedAt) continue;
       const route = localizedRoutes.tutorials[LOCALE];
       feedItems.push({
         title: item.title,
@@ -88,6 +91,7 @@ export const GET: APIRoute = async () => {
     }
 
     for (const item of blogPosts.data) {
+      if (!item.publishedAt) continue;
       const route = localizedRoutes.blog[LOCALE];
       feedItems.push({
         title: item.title,

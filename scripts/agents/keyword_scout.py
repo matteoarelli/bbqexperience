@@ -110,6 +110,11 @@ def is_acceptable_topic(keyword: str, today: datetime | None = None) -> tuple[bo
     if not tokens:
         return False, "empty"
 
+    # Topic troncato con "..." (residuo di IG caption truncate o keyword_scout
+    # bug pre-fix 734195d) — non utilizzabile come titolo, scarta a monte.
+    if kw.endswith("...") or kw.endswith("…"):
+        return False, "truncated-suffix"
+
     # Trailing modifier (1 o 2 token in coda)
     if tokens[-1] in JUNK_TRAILING_MODIFIERS:
         return False, f"trailing-modifier:{tokens[-1]}"
