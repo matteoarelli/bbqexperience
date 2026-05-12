@@ -73,15 +73,20 @@ def fetch_pending_reviews() -> list[dict]:
 
 
 def fetch_published_content(queue_item: dict) -> dict | None:
-    """Pull the actual content entry pointed to by the queue."""
+    """Pull the actual content entry pointed to by the queue.
+
+    Strapi v5: l'entry creata da content_generator è DRAFT (publishedAt=null).
+    Senza ?status=draft, Strapi default 'published' ritorna 404. La versione
+    draft esiste sempre (anche per documenti già published), quindi è la query
+    safe per il gate review-pre-publish.
+    """
     content_id = queue_item.get("published_content_id", "")
     raw_type = queue_item.get("content_type", "blog")
     ct = STRAPI_CONTENT_TYPES.get(raw_type, "blog-posts")
     if not content_id:
         return None
     try:
-        # Strapi v5: status=draft to fetch entries that are still draft
-        resp = strapi.find_one(ct, content_id, populate="*")
+        resp = strapi.find_one(ct, content_id, populate="*", status="draft")
         data = resp.get("data") or {}
         data["_strapi_type"] = ct
         return data

@@ -91,9 +91,16 @@ def find(
     return _request("GET", url)
 
 
-def find_one(content_type: str, document_id: str, *, populate: str = "*") -> dict:
-    """GET /api/{content_type}/{documentId}."""
-    params = {"populate": populate}
+def find_one(content_type: str, document_id: str, *, populate: str = "*", status: str = "") -> dict:
+    """GET /api/{content_type}/{documentId}.
+
+    status="draft" target la versione draft (sempre esistente in Strapi v5,
+    anche per documenti già pubblicati). status="published" target la published
+    (404 se draft-only). Default vuoto = Strapi default (published).
+    """
+    params: dict[str, str] = {"populate": populate}
+    if status:
+        params["status"] = status
     url = f"{STRAPI_URL}/api/{content_type}/{document_id}?{urlencode(params)}"
     return _request("GET", url)
 
