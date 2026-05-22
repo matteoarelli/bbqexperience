@@ -172,7 +172,10 @@ Minimal valid example (format reference only, do NOT copy contents):
 ## Pipeline decision (post-review)
 
 ```python
-if review.has_critical_issues:
+# A critical issue blocks ONLY if unresolved (verdict != "fixed"). Criticals
+# Claude auto-corrected are already inside corrected_html and must not veto an
+# approved article.
+if review.has_unresolved_critical_issues:
     return "human_required"      # bypass cover, Telegram with issue list, no publish
 if review.approved and review.score >= 7:
     return "auto_publish"        # apply corrected_html + cover SDXL + publish

@@ -66,6 +66,21 @@ class ReviewResult:
         return any(i.severity == "critical" for i in self.issues)
 
     @property
+    def has_unresolved_critical_issues(self) -> bool:
+        """Critical issues that Claude could NOT auto-fix.
+
+        Per prompts/claude_review.md the gate sets verdict="fixed" when it
+        auto-corrects an error (the fix is already inside corrected_html), and
+        "needs_human"/"uncertain" when a human decision is required. A critical
+        issue with verdict="fixed" is already remediated and must NOT block an
+        otherwise-approved article — only unresolved criticals do.
+        """
+        return any(
+            i.severity == "critical" and i.verdict != "fixed"
+            for i in self.issues
+        )
+
+    @property
     def has_major_issues(self) -> bool:
         return any(i.severity in ("critical", "major") for i in self.issues)
 
@@ -176,8 +191,14 @@ def decide_next_step(result: ReviewResult) -> str:
     """Pipeline decision logic post-review.
 
     Returns one of: 'auto_publish', 'preview_first', 'human_required'.
+
+    A critical issue blocks publication ONLY if it is unresolved
+    (verdict != "fixed"). Criticals that Claude auto-corrected are already
+    reflected in corrected_html and must not veto an approved article — that
+    over-strict veto was blocking every article from 13 May onward even when
+    approved with score 7-8 (see .planning/debug/gate-articoli-non-pubblicati.md).
     """
-    if result.has_critical_issues:
+    if result.has_unresolved_critical_issues:
         return "human_required"
     if result.approved and result.score >= 7:
         return "auto_publish"
