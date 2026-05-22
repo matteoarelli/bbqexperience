@@ -12,11 +12,13 @@ Resolved debug sessions. Used by `gsd-debugger` to surface known-pattern hypothe
 - **Files changed:** scripts/agents/claude_quality_gate.py, scripts/agents/prompts/claude_review.md
 ---
 
-## FOLLOW-UP (non risolto, sessione separata) — Topic duplicati in ContentQueue -> 400 slug must be unique al publish
+## FOLLOW-UP — Topic duplicati in ContentQueue -> 400 slug must be unique al publish
 - **Date:** 2026-05-22
 - **Error patterns:** 400 ValidationError, slug must be unique, topic duplicati, content-queue dedup, doppioni articoli
 - **Sintomo:** quando il gate prova a pubblicare un articolo il cui topic e' gia' stato pubblicato, Strapi rifiuta con `400 ValidationError: slug must be unique`. content_generator/keyword_scout/ig_to_content accodano lo stesso topic piu' volte e/o topic gia' pubblicati.
-- **Direzione fix (da fare):** dedup topic in ContentQueue + check slug esistente PRIMA di generare/pubblicare. Affrontare a monte nella pipeline di accodamento, non nel gate.
-- **Status:** OPEN — registrato come follow-up dalla sessione gate-articoli-non-pubblicati.
+- **Fix:** (quick task 260522-goj) slugify centralizzato in `scripts/agents/lib/slugify.py` (era duplicato in content_generator.generate_slug; keyword_scout usava un naïf `kw.replace(" ","-")`). Aggiunto guard chokepoint `published_slug_exists()` in content_generator: `get_next_acceptable_queue_item` marca l'item `failed` (enum valido in content-queue schema) e passa al prossimo se lo slug esiste gia' pubblicato — niente ciclo Qwen+Claude sprecato ne' 400 al gate. Helper DIFENSIVO: su errore di rete logga e ritorna False (la pipeline notturna non deve fermarsi). Dedup a monte: ig_to_content skippa l'accodamento di slug gia' live; keyword_scout confronta con `slugify(kw)`. Test in `scripts/agents/tests/test_slugify_dedup.py` (12 test, 19/19 con suite esistente).
+- **Files changed:** scripts/agents/lib/slugify.py (new), scripts/agents/content_generator.py, scripts/agents/ig_to_content.py, scripts/agents/keyword_scout.py, scripts/agents/tests/test_slugify_dedup.py (new)
+- **Commits:** 3a71930 (slugify + guard), 63e8d99 (dedup a monte), ad2b58b (test)
+- **Status:** RESOLVED.
 ---
 
