@@ -17,7 +17,33 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import strapi_client as strapi
 from agents.lib import telegram
+from agents.lib.slugify import slugify
 from agents.keyword_scout import is_acceptable_topic
+
+# Mappa content_type -> plural Strapi (allineata a content_generator.STRAPI_CONTENT_TYPES)
+STRAPI_CONTENT_TYPES = {
+    "blog": "blog-posts",
+    "tutorial": "tutorials",
+    "recipe": "recipes",
+    "comparison": "blog-posts",
+}
+
+
+def _published_slug_exists(content_type_strapi: str, slug: str) -> bool:
+    """True se esiste già un contenuto pubblicato con questo slug.
+
+    Difensivo: su errore di rete logga e ritorna False (non bloccare l'accodamento
+    per un problema transitorio — meglio un eventuale doppione che la pipeline ferma).
+    Stesso pattern di content_generator.published_slug_exists.
+    """
+    if not slug:
+        return False
+    try:
+        resp = strapi.find(content_type_strapi, filters={"slug": {"$eq": slug}}, page_size=1)
+        return resp.get("meta", {}).get("pagination", {}).get("total", 0) > 0
+    except Exception as e:
+        print(f"  [WARN] check slug pubblicato fallito ({content_type_strapi}/{slug}), skip: {e}")
+        return False
 
 # Soglia engagement per espansione in articolo
 # Scala normalizzata 0.0-1.0 (vedi sync-instagram.mjs). 0.5 ~ top 25% nei dati 2026-05.
@@ -126,6 +152,14 @@ def create_content_from_ig(post: dict) -> dict | None:
         content_type = "blog"  # Reviews manuali, blog per espansioni
 
     title = f"Deep Dive: {topic}" if not topic.startswith(("How", "The", "Best", "Why")) else topic
+
+    # Dedup a monte: se lo slug derivato esiste già pubblicato, non accodare
+    # (eviterebbe poi il 400 "slug must be unique" al gate).
+    slug = slugify(title)
+    ct = STRAPI_CONTENT_TYPES.get(content_type, "blog-posts")
+    if _published_slug_exists(ct, slug):
+        print(f"  [skip ig_id:{ig_id}] slug già pubblicato: {slug}")
+        return None
 
     try:
         resp = strapi.create("content-queues", {

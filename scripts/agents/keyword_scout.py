@@ -18,6 +18,7 @@ from urllib.parse import quote_plus
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import strapi_client as strapi
 from agents.lib import telegram
+from agents.lib.slugify import slugify
 
 # ─── Configurazione ──────────────────────────────────────────────────────────
 
@@ -210,8 +211,10 @@ def scout_keywords() -> list[dict]:
                     continue
                 if len(kw.split()) < 2:
                     continue
-                # Controlla che non sia gia un contenuto esistente
-                slug_version = kw.replace(" ", "-")
+                # Controlla che non sia gia un contenuto esistente.
+                # Usa il vero slugify (allineato allo slug pubblicato da Strapi),
+                # non il naïf replace(" ","-") che mancava punteggiatura/troncamento.
+                slug_version = slugify(kw)
                 if kw in existing_titles or slug_version in existing_titles:
                     continue
 
