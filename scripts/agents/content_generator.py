@@ -8,7 +8,6 @@ Cron: Daily 06:00 via Windows Task Scheduler (Claude CLI funziona solo su Window
 
 import os
 import sys
-import re
 import io
 from datetime import datetime
 from pathlib import Path
@@ -33,6 +32,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import strapi_client as strapi
 from agents.lib import telegram
 from agents.lib import claude_client as claude
+from agents.lib.slugify import slugify
 from agents.keyword_scout import is_acceptable_topic
 
 # ─── Mappe content type Strapi ────────────────────────────────────────────────
@@ -43,6 +43,33 @@ STRAPI_CONTENT_TYPES = {
     "recipe": "recipes",
     "comparison": "blog-posts",  # Le comparazioni sono blog post con categoria specifica
 }
+
+
+def published_slug_exists(content_type_strapi: str, slug: str) -> bool:
+    """True se esiste già un contenuto PUBBLICATO con questo slug.
+
+    Evita il 400 ValidationError "slug must be unique" che il quality gate
+    sbatteva quando provava a promuovere a published un articolo con slug
+    coincidente con uno già live (vedi knowledge-base follow-up duplicati).
+
+    Difensivo: la pipeline gira di notte non presidiata. Se la query Strapi
+    fallisce (timeout/rete), logga e ritorna False — non deve mai bloccare la
+    generazione per un errore di rete. Lo scopo è evitare duplicati NOTI, non
+    introdurre un nuovo single point of failure.
+    """
+    if not slug:
+        return False
+    try:
+        resp = strapi.find(
+            content_type_strapi,
+            filters={"slug": {"$eq": slug}},
+            page_size=1,
+        )
+        total = resp.get("meta", {}).get("pagination", {}).get("total", 0)
+        return total > 0
+    except Exception as e:
+        print(f"  [WARN] published_slug_exists({content_type_strapi},{slug}) fallita, skip check: {e}")
+        return False
 
 
 def get_next_queue_item() -> dict | None:
@@ -72,16 +99,30 @@ def get_next_acceptable_queue_item(max_attempts: int = 15) -> dict | None:
             return None
         title = item.get("title", "") or ""
         target = item.get("target_keyword", "") or title
+        doc_id = item.get("documentId", "")
         ok, reason = is_acceptable_topic(target)
+
+        # Guard slug duplicato: se lo slug derivato dal titolo esiste già
+        # pubblicato, generare sarebbe sprecato (Qwen+Claude) e il gate
+        # sbatterebbe poi un 400 "slug must be unique". Marca failed e prosegui.
+        slug = slugify(title)
+        ct = STRAPI_CONTENT_TYPES.get(item.get("content_type", "blog"), "blog-posts")
+        if ok and published_slug_exists(ct, slug):
+            ok = False
+            reason = f"Duplicate slug (already published): {slug}"
+
         if ok:
             return item
 
-        doc_id = item.get("documentId", "")
         print(f"  [skip queue:{doc_id}] {target!r}: {reason}")
         try:
             strapi.update("content-queues", doc_id, {
                 "status": "failed",
-                "generation_log": f"Filtered by is_acceptable_topic: {reason}",
+                "generation_log": (
+                    f"Filtered by is_acceptable_topic: {reason}"
+                    if not reason.startswith("Duplicate slug")
+                    else reason
+                ),
             })
         except Exception as e:
             print(f"  [WARN] could not mark {doc_id} failed: {e}")
@@ -188,12 +229,8 @@ SEO_DESCRIPTION: ..."""
 
 
 def generate_slug(title: str) -> str:
-    """Genera slug URL-safe dal titolo."""
-    slug = title.lower().strip()
-    slug = re.sub(r"[^a-z0-9\s-]", "", slug)
-    slug = re.sub(r"[\s]+", "-", slug)
-    slug = re.sub(r"-+", "-", slug)
-    return slug[:80].strip("-")
+    """Genera slug URL-safe dal titolo. Delega a lib.slugify (unica fonte)."""
+    return slugify(title)
 
 
 def publish_article(
