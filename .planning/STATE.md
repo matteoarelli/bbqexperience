@@ -29,7 +29,7 @@ Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–16)
 Phase: 16
 Plan: Not started
 Status: Executing Phase 16
-Last activity: 2026-04-23
+Last activity: 2026-05-22 - Completed quick task 260522-goj (dedup slug ContentQueue)
 
 Progress: v1.0 [██████████] 100% · v1.1 [█████░░░░░] ~50% (4/8 phases)
 
@@ -98,6 +98,12 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 - **Phase 16 research flag:** Run `/gsd:research-phase` before planning — adnanh/webhook content-type exclusion syntax in `hooks.json` + Astro middleware cookie behavior behind Cloudflare CDN.
 - **Phase 16 baseline:** Needs a 1-week traffic measurement after Phase 15 goes live before committing to AB_MIN_IMPRESSIONS thresholds.
 - **Carried v1.0 debt (addressed by Phase 10):** 7 phases missing VERIFICATION.md (03–09), REQUIREMENTS.md traceability drift (9 entries Pending despite live implementation), DES-04 Lighthouse not re-measured after v3.2 UI/SEO changes.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260522-goj | Dedup topic ContentQueue — guard slug duplicati (evita 400 slug must be unique al gate) | 2026-05-22 | 3a71930 | [260522-goj-dedup-topic-contentqueue-guard-slug-dupl](./quick/260522-goj-dedup-topic-contentqueue-guard-slug-dupl/) |
 
 ## Session Continuity
 
