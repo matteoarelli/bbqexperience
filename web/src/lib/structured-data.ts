@@ -140,15 +140,24 @@ export function extractHowToSteps(
 
 /**
  * Costruisce SpeakableSpecification per Article schema.
- * Selectors STRUTTURALI (NON class-based) per resistere a refactor Astro/Tailwind:
- * - 'article > p:first-of-type' = primo paragrafo (intro/lead)
- * - 'article h2' = ogni section heading (TOC riassuntivo)
+ *
+ * Selectors compatibili col DOM reale di BBQ (verificato live 2026-05-26 via sweep_pages):
+ * - '.content-body p:first-of-type' = primo paragrafo content (esclude <p class="last-updated"> meta)
+ * - '.content-body h2' = ogni section heading strutturale (TOC riassuntivo)
+ *
+ * Nota: '.content-body' e' la convenzione stabile del template Astro BaseLayout per
+ * il content area degli articoli. Se la classe venisse rinominata, aggiornare entrambi
+ * questo file E SPEAKABLE_SELECTORS in scripts/sweep_pages.py per mantenere coerenza.
+ *
+ * Iterazione precedente usava 'article > p:first-of-type' + 'article h2' (selettori
+ * "strutturali pure") ma non matchavano: <p> direct children di <article> sono solo
+ * meta info, non content; <h2> dentro <article> esistono solo annidati in .content-body.
  *
  * Schema.org spec: cssSelector O xPath (mai entrambi). Usiamo cssSelector.
  */
 export function buildSpeakableSpec(): SpeakableSpec {
   return {
     '@type': 'SpeakableSpecification',
-    cssSelector: ['article > p:first-of-type', 'article h2'],
+    cssSelector: ['.content-body p:first-of-type', '.content-body h2'],
   };
 }

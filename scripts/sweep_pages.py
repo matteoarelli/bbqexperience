@@ -81,11 +81,14 @@ HOWTO_STEP_PATTERNS = [
     r"\bPaso\s+\d+",
 ]
 
-# Selectors STRUTTURALI per speakable (NON class-based — resistente a refactor).
-# DEVE matchare exactly buildSpeakableSpec() in web/src/lib/structured-data.ts.
+# Selectors per speakable. DEVE matchare exactly buildSpeakableSpec() in
+# web/src/lib/structured-data.ts. Iterazione precedente usava
+# ['article > p:first-of-type','article h2'] — non matchava su DOM BBQ (i <p>
+# diretti di <article> sono meta info, non content). Fix 2026-05-26: usiamo
+# '.content-body' classe stabile del template Astro BaseLayout.
 SPEAKABLE_SELECTORS = [
-    "article > p:first-of-type",
-    "article h2",
+    ".content-body p:first-of-type",
+    ".content-body h2",
 ]
 
 

@@ -34,7 +34,7 @@ def _wrap_html(article_jsonld: dict | None, extra_blocks: list[dict] | None = No
     for blk in extra_blocks or []:
         scripts += f'<script type="application/ld+json">{json.dumps(blk)}</script>\n'
     html = f"""<!DOCTYPE html>
-<html><head>{scripts}</head><body><article>{body_html}</article></body></html>"""
+<html><head>{scripts}</head><body><article><div class="content-body">{body_html}</div></article></body></html>"""
     return html.encode("utf-8")
 
 
@@ -45,7 +45,7 @@ def _article_with_speakable() -> dict:
         "headline": "Test",
         "speakable": {
             "@type": "SpeakableSpecification",
-            "cssSelector": ["article > p:first-of-type", "article h2"],
+            "cssSelector": [".content-body p:first-of-type", ".content-body h2"],
         },
     }
 
@@ -132,7 +132,7 @@ def test_check_howto_on_recipe_flagged_conflict():
 # ─── Test speakable selectors ───────────────────────────────────────────────
 
 def test_speakable_selector_resolves():
-    """I selectors 'article > p:first-of-type' e 'article h2' devono trovare nodi reali."""
+    """I selectors '.content-body p:first-of-type' e '.content-body h2' devono trovare nodi reali."""
     body = "<p>First paragraph (intro)</p><h2>Section 1</h2><p>Body</p>"
     html = _wrap_html(_article_with_speakable(), [], body)
     with patch.object(sweep_pages, "fetch", return_value=(200, html)):
@@ -194,7 +194,7 @@ def test_constants_exported():
     assert hasattr(sweep_pages, "FAQ_VISIBLE_HEADINGS")
     assert hasattr(sweep_pages, "HOWTO_STEP_PATTERNS")
     assert hasattr(sweep_pages, "SPEAKABLE_SELECTORS")
-    assert "article > p:first-of-type" in sweep_pages.SPEAKABLE_SELECTORS
+    assert ".content-body p:first-of-type" in sweep_pages.SPEAKABLE_SELECTORS
     assert "FAQ" in sweep_pages.FAQ_VISIBLE_HEADINGS
     assert "Domande frequenti" in sweep_pages.FAQ_VISIBLE_HEADINGS
     assert "Preguntas frecuentes" in sweep_pages.FAQ_VISIBLE_HEADINGS

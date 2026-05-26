@@ -137,7 +137,7 @@ describe('buildSpeakableSpec', () => {
   it('test_buildSpeakable_format: returns SpeakableSpecification with cssSelector', () => {
     const spec = buildSpeakableSpec();
     expect(spec['@type']).toBe('SpeakableSpecification');
-    expect(spec.cssSelector).toEqual(['article > p:first-of-type', 'article h2']);
+    expect(spec.cssSelector).toEqual(['.content-body p:first-of-type', '.content-body h2']);
   });
 
   it('test_buildSpeakable_no_xpath: NO xPath key (Schema.org spec: cssSelector OR xPath, not both)', () => {
