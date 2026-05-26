@@ -34,3 +34,20 @@
 # 0 4 * * 1 cd /opt/services/bbqexperience/app && node scripts/refresh-instagram-token.mjs
 # 0 */6 * * * cd /opt/services/bbqexperience/app && node scripts/sync-instagram.mjs
 # 0 10 * * 0 cd /opt/services/bbqexperience/app && python3 scripts/weekly_newsletter.py
+
+# ─── Phase 17 — GSC-driven content pipeline (added 2026-05-26) ───
+#
+# DEPLOY TARGET: Ubuntu .119 (192.168.1.119), NON Hetzner.
+# Path su .119: ~/bbqexperience/scripts/agents/, run via ~/bbqexperience/run-agent.sh
+# Installazione: ssh matteo@192.168.1.119 'crontab -e' e copia le righe sotto.
+#
+# Meta Optimizer drafter — .119 cron 03:30 UTC year-round.
+# PRIMA della finestra SDXL 04:00-05:00 UTC summer (CEST) / 05:00-06:00 UTC winter (CET).
+# Defense-in-depth: meta_optimizer._sdxl_guard ricontrolla h_utc in (4,5) e fa exit 0.
+# TZ=UTC prefix evita ambiguita' DST sulla colonna ora.
+TZ=UTC
+30 3 * * * /home/matteo/bbqexperience/run-agent.sh meta_optimizer.py >> /home/matteo/bbqexperience/logs/meta_optimizer.log 2>&1
+#
+# Meta Review consumer (Claude gate) gira su Windows Task Scheduler, NON cron.
+# Setup: schtasks /Create /TN "BBQ Meta Review" /SC DAILY /ST 09:00 /TR \
+#          "C:\Progetti\bbqexperience\scripts\agents\meta_review.cmd" /F
