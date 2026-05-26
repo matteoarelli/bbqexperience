@@ -1,0 +1,13 @@
+# MATTEO: rivedi questi default e aggiungi 5-10 power words BBQ specifici per IT
+# dopo aver visto i primi 5 proposal IT/ES in state/meta_changes.jsonl.
+# Una power word per riga. Le righe che iniziano con # sono ignorate.
+Guida completa
+Migliori
+Come fare
+Trucchi del Pitmaster
+Consigli pratici
+Top 10
+Recensione 2026
+Tutto sul
+Guida 2026
+Pitmaster italiano

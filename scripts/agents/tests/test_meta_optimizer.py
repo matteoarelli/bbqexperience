@@ -162,32 +162,28 @@ class TestJsonlAtomicAppend:
 
 
 class TestSdxlGuard:
+    def _freeze_now(self, mo, monkeypatch, *, hour: int, month: int = 5):
+        """Patcha datetime.now nel modulo meta_optimizer (locale import)."""
+        from datetime import datetime as _real_dt, timezone as _real_tz
+
+        class _FrozenDt(_real_dt):
+            @classmethod
+            def now(cls, tz=None):  # type: ignore[override]
+                return _real_dt(2026, month, 25, hour, 30,
+                                tzinfo=tz or _real_tz.utc)
+
+        monkeypatch.setattr(mo, "datetime", _FrozenDt)
+
     def test_skip_during_sdxl_utc_hour_4(self, monkeypatch, tmp_path):
         mo = _fresh_meta_optimizer(monkeypatch, tmp_path)
-        # Freeze UTC hour to 4
-        import agents.meta_optimizer as _mod_ref
-
-        class _FrozenDt:
-            @classmethod
-            def now(cls, tz=None):
-                # ritorna sempre 2026-05-25 04:30 UTC
-                return datetime(2026, 5, 25, 4, 30, tzinfo=tz or timezone.utc)
-
-        monkeypatch.setattr(_mod_ref, "datetime", _FrozenDt)
+        self._freeze_now(mo, monkeypatch, hour=4)
         with pytest.raises(SystemExit) as exc:
             mo._sdxl_guard()
         assert exc.value.code == 0
 
     def test_skip_during_sdxl_utc_hour_5(self, monkeypatch, tmp_path):
         mo = _fresh_meta_optimizer(monkeypatch, tmp_path)
-        import agents.meta_optimizer as _mod_ref
-
-        class _FrozenDt:
-            @classmethod
-            def now(cls, tz=None):
-                return datetime(2026, 12, 25, 5, 45, tzinfo=tz or timezone.utc)
-
-        monkeypatch.setattr(_mod_ref, "datetime", _FrozenDt)
+        self._freeze_now(mo, monkeypatch, hour=5, month=12)
         with pytest.raises(SystemExit) as exc:
             mo._sdxl_guard()
         assert exc.value.code == 0
@@ -195,14 +191,7 @@ class TestSdxlGuard:
     def test_no_skip_when_hour_3(self, monkeypatch, tmp_path):
         """03:30 UTC (cron schedule) deve passare il guard."""
         mo = _fresh_meta_optimizer(monkeypatch, tmp_path)
-        import agents.meta_optimizer as _mod_ref
-
-        class _FrozenDt:
-            @classmethod
-            def now(cls, tz=None):
-                return datetime(2026, 5, 25, 3, 30, tzinfo=tz or timezone.utc)
-
-        monkeypatch.setattr(_mod_ref, "datetime", _FrozenDt)
+        self._freeze_now(mo, monkeypatch, hour=3)
         # NON deve raise
         mo._sdxl_guard()  # OK
 
