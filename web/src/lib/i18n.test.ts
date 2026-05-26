@@ -78,6 +78,8 @@ describe('getTranslation', () => {
   });
 
   it('ritorna la chiave stessa se non trovata', () => {
+    // DEBT-04 (v1.2 Phase 19): intentional invalid key per testare il fallback. Type system cattura la chiave invalida — qui by design la bypassiamo.
+    // @ts-expect-error — 'nonexistent.key' is intentionally outside the TranslationKey union to test runtime fallback behavior
     expect(getTranslation(translations, 'nonexistent.key')).toBe('nonexistent.key');
   });
 });
