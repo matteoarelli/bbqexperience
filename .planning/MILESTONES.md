@@ -1,18 +1,19 @@
 # Milestones
 
-## v1.1 Content Depth & Growth Loop (Shipped: 2026-04-23)
+## v1.1 Content Depth & Growth Loop (Shipped: 2026-05-26)
 
-**Phases completed:** 8 phases, 21 plans, 43 tasks
+**Phases completed:** 9 phases (10, 10.1, 11–17), 27 plans
 
 **Key accomplishments:**
 
-- Partial closure (measurement half).
-- Median Performance 0.89 → 0.97 (+8 pts). Minimum 0.86 → 0.91. 15/15 pages ≥0.90.
-- Commit:
-- Multi-facet filter UI (brand, category, price, score) with desktop filter bar, mobile bottom-sheet drawer, count badges, empty state, SEO noindex/canonical, and 301 redirects from old category routes across all 3 locales
-- Populated all 25 product prices (5 price buckets), linked 12 missing brand relations, recategorized 2 pellet grills from Smoker category
-- Strapi schema evolution with description/author_note fields, StrapiRecipeCollection TS interface, 3-locale i18n routes+keys, and CollectionCard/CollectionBadge Astro components
-- Strapi ab-experiment content type + FNV-1a variant assignment library with nanoid cookies + Astro middleware extension
+- Cloudflare Image Transformations + srcset → Lighthouse Performance median 0.89 → 0.97 (+8 pts). Min 0.86 → 0.91. 15/15 pages ≥0.90 across all 4 categories. DEBT-03 CLOSED.
+- Strapi schema migration window: product-category taxonomy (5 categories EN/IT/ES), subscriber.source attribution field, recipe-collection content type scaffold, shared `update-localized` PUT helper. All 25 reviewed products backfilled.
+- Newsletter on-site signup (Brevo): 4 surfaces (inline + landing /newsletter/ + sticky footer + desktop exit-intent), DOI mandatory, 5/IP/hr rate-limit SQLite, honeypot, surface attribution, welcome email automation EN/IT/ES.
+- Multi-facet filter UI (brand, category, price, score) — desktop filter bar, mobile bottom-sheet drawer, count badges, empty state, SEO noindex/canonical, 301 redirects from old category routes across all 3 locales. 25 product prices populated (5 buckets), 12 missing brand relations linked, 2 pellet grills recategorized.
+- Recipe collections: Strapi schema evolution with description/author_note, StrapiRecipeCollection TS interface, 3-locale i18n routes (`/en/collections/`, `/it/raccolte/`, `/es/colecciones/`), CollectionCard + CollectionBadge components, hreflang sitemap extension.
+- Growth Engine v2 — Analytics Feedback Loop: `umami_client.py` mirroring strapi_client retry/timeout pattern, nightly `analytics_loop.py` writes `traffic_score` to Strapi for blog/review/recipe/tutorial in each locale, Telegram top 5 + bottom 5 daily digest, strategist consumes signal with ≥7d/≥50-visit confidence filter.
+- A/B Headline Testing Infrastructure: Strapi `ab-experiment` content type, FNV-1a variant assignment with nanoid cookie 30d TTL, Astro middleware injection, Umami custom events (ab-impression / ab-click), weekly `ab_tester.py` z-test agent ≥500 impr / ≥7d gate, Brevo native A/B subject-line + Telegram digest, bot UA exclusion, webhook rebuild whitelist.
+- **GSC-Driven Content Pipeline (Phase 17, 2026-05-26)**: Pipeline smette di essere cieca su query reali. `lib/gsc_client.py` (port da IG bot, sc-domain:bbq-experience.com), `meta_optimizer.py` daily cron `.119` 03:30 UTC con CTR_BENCHMARK per-position FirstPageSage 2026 + Qwen drafter + Claude sonnet gate Windows. `gsc_refresh.py` weekly Sun 08:00 UTC con Claude Opus quality gate (test live: blocco corretto su 6 fact_accuracy issues critical, score 5/10). `keyword_scout` striking-distance source da GSC. `content_generator` GSC priming. `claude_strategist` GSC weekly digest. `ArticleSchema.astro` centralizza FAQPage/HowTo/speakable JSON-LD per AI search (Perplexity/Gemini/Bing/ChatGPT). X-Skip-Rebuild header + Hetzner hooks.json rule (protezione preventiva — Strapi config attuale ascolta solo entry.publish). IndexNow fallback per Indexing API soft-fail. Schema sweep PASS 268/287 (93.4%). Tutti i 5 SEO-08..12 requirements verified.
 
 ---
 

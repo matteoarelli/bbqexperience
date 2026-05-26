@@ -12,16 +12,18 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 
 ## Current State
 
-**Shipped:** v1.1 on 2026-04-23 (v1.0 on 2026-04-15)
+**Shipped:** v1.1 on 2026-05-26 (v1.0 on 2026-04-15) — 9 phases total in v1.1 including Phase 17 inserted post-baseline GSC discovery
 **Scale:** 454+ content items across EN/IT/ES, 32 IG posts synced via Graph API
-**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations · Umami analytics
-**Code volume:** ~387 commits (253 v1.0 + 134 v1.1)
-**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy, umami). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Umami healthcheck added. Nightly Docker cleanup fixed (image prune only).
-**v1.1 delivered:** 8 phases (10–16), 23 plans, 43 tasks. Newsletter signup (4 surfaces), review filters (brand/category/price/score), recipe collections, Growth Engine v2 (analytics loop + A/B testing).
+**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations · Umami analytics · GSC Search Console API + IndexNow (Phase 17)
+**Code volume:** ~420+ commits (253 v1.0 + 167+ v1.1)
+**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy, umami). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Webhook now extended con X-Skip-Rebuild header rule (Phase 17 protection).
+**v1.1 delivered:** 9 phases (10, 10.1, 11–17), 27 plans. Debt closure (10/10.1), Strapi schema migration (11), Newsletter signup 4 surfaces (12), review filters brand/category/price/score (13), recipe collections (14), Growth Engine v2 analytics loop (15), A/B headline testing (16), **GSC-Driven Content Pipeline (17 — meta_optimizer daily + gsc_refresh weekly + Claude Opus quality gate + ArticleSchema.astro centralized FAQPage/HowTo/speakable JSON-LD for AI search engines)**.
 
-## Completed Milestone: v1.1 Content Depth & Growth Loop (shipped 2026-04-23)
+## Completed Milestone: v1.1 Content Depth & Growth Loop (shipped 2026-05-26)
 
-**Delivered:** Debt closure, 3 reader-facing content features, Growth Engine v2 analytics + A/B testing. See [milestones/v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) for full details.
+**Delivered:** Debt closure, schema migration, 3 reader-facing content features, Growth Engine v2 analytics + A/B testing, **GSC-driven content pipeline (Phase 17)** — Search Console finalmente fonte primaria di verità per content gen/refresh/SEO meta, AI-search JSON-LD signals live. See [milestones/v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) for full details.
+
+**Phase 17 outcome trajectory (measure +30 days, ~2026-06-25):** baseline 2026-05-25 = 35 clicks / 29k impressions / CTR 0.12% / pos 6.7. Target lift: 10–30× CTR su ~50 articoli live, +30–50% search-intent fit nuovi articoli.
 
 ## Next Milestone: TBD
 
@@ -133,4 +135,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-23 after v1.1 milestone completion*
+*Last updated: 2026-05-26 after v1.1 milestone completion (incl. Phase 17 GSC pipeline shipped same day)*
