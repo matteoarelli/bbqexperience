@@ -1,13 +1,15 @@
 # Milestones
 
-## v1.2 Consolidation & Outcome Measurement (Planned: 2026-05-26, in progress)
+## v1.2 Consolidation & Outcome Measurement (Shipped: 2026-05-26)
 
-**Phases planned:** 3 phases (18, 19, 20), 9 requirements
+**Phases completed:** 3 phases (18, 19, 20), 9 requirements (SEO-13/14/15, DEBT-04/05/06, MEASURE-01/02/03)
+**Mode:** Autonomous-mode end-to-end (open → ship in single session 2026-05-26 post v1.1 close)
 
-**Scope:**
-- Phase 18 GSC Pipeline Polish — FAQ parser-v2 + topical_relevance gate + Indexing API enable
-- Phase 19 Tech Debt Cleanup — TS errors + Phase 10 VERIFICATION + state files cleanup
-- Phase 20 Outcome Measurement Framework — Phase 17 lift tracker + weekly Telegram + decision tree
+**Key accomplishments:**
+
+- **Phase 18 GSC Pipeline Polish** — FAQ parser-v2 con suffix lookahead positivo per `about|on|for|regarding|sui|sull[oa]|sulle|sobre|acerca` + strong separators `:|—|–|-` (recupera ~19 pagine FAQ-suffix non rilevate da Phase 17 strict regex). `topical_relevance` dimension aggiunta al Claude quality gate prompt (cattura sezioni off-topic da query GSC spurie). IndexNow re-ping verificato già in entrambi i siti promotion (Phase 17 publish hook + gsc_refresh_review). Doc `indexing_api_enabled_2026.md` per Matteo-side GCP enable 1-click. 27/27 vitest pass (8 nuovi test SEO-13).
+- **Phase 19 Tech Debt Cleanup** — Pre-existing TS errors chiusi (`@ts-expect-error` su i18n.test:81 + `npm i -D @types/better-sqlite3`). Phase 10 missing VERIFICATION.md consolidato retroattivamente da 5 plan SUMMARYs. Phase 14-02-PLAN checkbox flip (SUMMARY esisteva, era solo tracking error). State file orphan `gsc_refresh_queue.jsonl` rimosso. `cd web && npx tsc --noEmit` → exit 0.
+- **Phase 20 Outcome Measurement Framework** — `scripts/agents/phase17_outcome_tracker.py` (313 LOC) shipped, cron `.119` Lun 09:00 UTC installato + smoke-tested (week 0 baseline registrato: lift_ctr_x 0.71, verdict `monitoring`, traffic clicks +191%/impr +315%/CTR -29% pre-meta-operation). Decision tree 4 trigger ranges (success ≥10×, on-track 3-10×, revisit_prompts <3×@14gg, degraded_rollback <1.5×@30gg) + monitoring catch-all. Telegram report weekly via `lib.telegram.send_agent_report`. 20 nuovi unit test.
 
 ---
 

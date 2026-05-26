@@ -12,18 +12,18 @@ When someone searches for a BBQ product review, BBQ Experience must be the most 
 
 ## Current State
 
-**Shipped:** v1.1 on 2026-05-26 (v1.0 on 2026-04-15) — 9 phases total in v1.1 including Phase 17 inserted post-baseline GSC discovery
+**Shipped:** v1.2 on 2026-05-26 (v1.1 same day, v1.0 on 2026-04-15) — 12 phases total across 3 milestones
 **Scale:** 454+ content items across EN/IT/ES, 32 IG posts synced via Graph API
-**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations · Umami analytics · GSC Search Console API + IndexNow (Phase 17)
-**Code volume:** ~420+ commits (253 v1.0 + 167+ v1.1)
-**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy, umami). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Webhook now extended con X-Skip-Rebuild header rule (Phase 17 protection).
-**v1.1 delivered:** 9 phases (10, 10.1, 11–17), 27 plans. Debt closure (10/10.1), Strapi schema migration (11), Newsletter signup 4 surfaces (12), review filters brand/category/price/score (13), recipe collections (14), Growth Engine v2 analytics loop (15), A/B headline testing (16), **GSC-Driven Content Pipeline (17 — meta_optimizer daily + gsc_refresh weekly + Claude Opus quality gate + ArticleSchema.astro centralized FAQPage/HowTo/speakable JSON-LD for AI search engines)**.
+**Tech:** Astro 6 + Svelte 5 islands · Strapi 5.41 + PostgreSQL 16 · Tailwind 4 · GSAP · Docker + Caddy on Hetzner · Cloudflare Image Transformations · Umami analytics · GSC Search Console API + IndexNow + Web Search Indexing API best-effort (Phase 17/18)
+**Code volume:** ~430+ commits (253 v1.0 + 167 v1.1 + 10 v1.2)
+**Infrastructure:** Containers all healthy (web, strapi, postgres, caddy, umami). Sitemap regenerating daily. Deploy via adnanh/webhook on push to main. Webhook X-Skip-Rebuild rule attivo. 3 cron `.119` Phase 17+20 active (meta_optimizer daily 03:30 UTC, gsc_refresh Sun 08:00 UTC, phase17_outcome_tracker Mon 09:00 UTC). 2 Windows Task Scheduler (BBQ Meta Review daily 09:00, BBQ GSC Refresh Review Sun 10:00).
+**v1.1+v1.2 delivered:** 12 phases. v1.1 (9 phases, 27 plans): debt closure, schema migration, newsletter, filters, collections, Growth Engine v2 analytics+A/B, GSC pipeline. v1.2 (3 phases, 3 plans autonomous): GSC polish FAQ-v2 + topical_relevance + Indexing API enable doc, tech debt closure (TS errors + Phase 10 VERIFICATION backfill), outcome measurement framework (phase17_outcome_tracker weekly cron + decision tree 4 trigger ranges).
 
-## Completed Milestone: v1.1 Content Depth & Growth Loop (shipped 2026-05-26)
+## Completed Milestone: v1.2 Consolidation & Outcome Measurement (shipped 2026-05-26)
 
-**Delivered:** Debt closure, schema migration, 3 reader-facing content features, Growth Engine v2 analytics + A/B testing, **GSC-driven content pipeline (Phase 17)** — Search Console finalmente fonte primaria di verità per content gen/refresh/SEO meta, AI-search JSON-LD signals live. See [milestones/v1.1-ROADMAP.md](milestones/v1.1-ROADMAP.md) for full details.
+**Delivered:** Polish del Phase 17 GSC pipeline (FAQ parser-v2, topical_relevance gate), tech debt cleanup (TS errors + Phase 10 VERIFICATION + state cleanup), outcome measurement framework con phase17_outcome_tracker.py weekly + decision tree 4 trigger ranges. **Mode:** autonomous end-to-end in single session. See [milestones/v1.2-ROADMAP.md](milestones/v1.2-ROADMAP.md) for full details.
 
-**Phase 17 outcome trajectory (measure +30 days, ~2026-06-25):** baseline 2026-05-25 = 35 clicks / 29k impressions / CTR 0.12% / pos 6.7. Target lift: 10–30× CTR su ~50 articoli live, +30–50% search-intent fit nuovi articoli.
+**Phase 17 outcome trajectory (measure +30 days, ~2026-06-25):** baseline 2026-05-25 = 35 clicks / 29k impressions / CTR 0.12% / pos 6.7. Target lift: 10–30× CTR su ~50 articoli live, +30–50% search-intent fit nuovi articoli. **T0 measurement live (2026-05-26 week 0):** lift_ctr_x 0.71 (pre-meta-operation), verdict `monitoring` — tracker funziona end-to-end, attende prima esecuzione meta_optimizer (domani 03:30 UTC) e gsc_refresh (dom 31/05 08:00 UTC).
 
 ## Next Milestone: TBD
 
@@ -135,4 +135,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-05-26 after v1.1 milestone completion (incl. Phase 17 GSC pipeline shipped same day)*
+*Last updated: 2026-05-26 after v1.2 milestone completion (autonomous-mode end-to-end: v1.1 archive → v1.2 plan+ship in single session)*
