@@ -15,23 +15,41 @@ MAX_RETRIES = 3
 RETRY_BACKOFF = [1, 2, 4]  # secondi tra i tentativi
 
 
-def _headers() -> dict[str, str]:
-    return {
+def _headers(skip_rebuild: bool = False) -> dict[str, str]:
+    """Costruisce header standard Strapi. Header X-Skip-Rebuild solo se richiesto.
+
+    Phase 17 (PLAN 17-02): meta_review.py imposta skip_rebuild=True per le
+    update di seo_title/seo_description, cosi' il webhook adnanh su Hetzner
+    (vedi /opt/webhooks/hooks.json regola not su X-Skip-Rebuild=1) NON triggera
+    un Astro rebuild — perche' meta-only changes non richiedono ricostruzione
+    statica (i meta sono inline nel template ma il rebuild storm da CTR loop
+    saturerebbe il deploy).
+    """
+    h = {
         "Authorization": f"Bearer {STRAPI_API_TOKEN}",
         "Content-Type": "application/json",
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
     }
+    if skip_rebuild:
+        h["X-Skip-Rebuild"] = "1"
+    return h
 
 
-def _request(method: str, url: str, data: dict | None = None) -> dict:
-    """Esegue richiesta HTTP verso Strapi con retry e backoff esponenziale."""
+def _request(method: str, url: str, data: dict | None = None,
+             *, skip_rebuild: bool = False) -> dict:
+    """Esegue richiesta HTTP verso Strapi con retry e backoff esponenziale.
+
+    skip_rebuild=True propaga X-Skip-Rebuild: 1 header per i write op che NON
+    devono triggerare un rebuild Astro su Hetzner (vedi _headers docstring).
+    """
     body = json.dumps(data).encode("utf-8") if data else None
     last_error: Exception | None = None
 
     # No retry on POST/PUT/PATCH to avoid duplicate creates on timeout (no idempotency key)
     retries = MAX_RETRIES if method == "GET" else 1
     for attempt in range(retries):
-        req = Request(url, data=body, headers=_headers(), method=method)
+        req = Request(url, data=body, headers=_headers(skip_rebuild=skip_rebuild),
+                      method=method)
         try:
             # Larger timeout for write operations (body can be 10KB+)
             req_timeout = 60 if method != "GET" else 30
@@ -118,11 +136,21 @@ def create(content_type: str, data: dict, *, status: str = "published") -> dict:
     return _request("POST", url, {"data": data})
 
 
-def update(content_type: str, document_id: str, data: dict, *, locale: str = "", status: str = "") -> dict:
+def update(content_type: str, document_id: str, data: dict,
+           *, locale: str = "", status: str = "",
+           skip_rebuild: bool = False) -> dict:
     """PUT /api/{content_type}/{documentId} — aggiorna entry esistente.
 
     status="draft" target la versione draft, "published" target la published.
     Default (vuoto) usa il default Strapi (draft se esiste, altrimenti published).
+
+    skip_rebuild=True (Phase 17 PLAN 17-02): aggiunge header X-Skip-Rebuild: 1
+    per evitare che il webhook adnanh su Hetzner triggeri un Astro rebuild.
+    Da usare SOLO per update meta-only (seo_title/seo_description) che non
+    cambiano il contenuto renderizzato dal template — i meta sono inline ma
+    rebuild costa 4 min e una rewrite-storm CTR loop ne genererebbe decine
+    al giorno. NB: create() e delete() NON supportano skip_rebuild (quelli
+    genuinamente richiedono rebuild per nuovo contenuto / removal).
     """
     params = {}
     if locale:
@@ -131,7 +159,7 @@ def update(content_type: str, document_id: str, data: dict, *, locale: str = "",
         params["status"] = status
     qs = f"?{urlencode(params)}" if params else ""
     url = f"{STRAPI_URL}/api/{content_type}/{document_id}{qs}"
-    return _request("PUT", url, {"data": data})
+    return _request("PUT", url, {"data": data}, skip_rebuild=skip_rebuild)
 
 
 def publish(content_type: str, document_id: str) -> dict:
