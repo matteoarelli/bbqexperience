@@ -51,3 +51,6 @@ logs/
 
 # One-off seed scripts manuali (Strapi POST batch — non production)
 scripts/batch*.mjs
+
+# Phase 17 _reference snapshots (capture-only, not source-of-truth)
+.planning/milestones/*/17-*/_reference/

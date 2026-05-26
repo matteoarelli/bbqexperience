@@ -1,0 +1,13 @@
+{
+  "inspectionResult": {
+    "indexStatusResult": {
+      "verdict": "PASS",
+      "coverageState": "Submitted and indexed",
+      "robotsTxtState": "ALLOWED",
+      "lastCrawlTime": "2026-05-20T03:00:00Z"
+    },
+    "mobileUsabilityResult": {"verdict": "PASS"},
+    "richResultsResult": {"verdict": "NEUTRAL"},
+    "ampResult": {"verdict": "NEUTRAL"}
+  }
+}

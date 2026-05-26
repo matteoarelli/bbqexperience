@@ -1,0 +1,10 @@
+{
+  "rows": [
+    {"keys": ["https://bbq-experience.com/en/blog/best-pellet-grill-2026"], "clicks": 12, "impressions": 4200, "ctr": 0.0029, "position": 6.4},
+    {"keys": ["https://bbq-experience.com/en/recipes/smoked-brisket"], "clicks": 8, "impressions": 2100, "ctr": 0.0038, "position": 7.1},
+    {"keys": ["https://bbq-experience.com/it/blog/migliori-griglie-pellet"], "clicks": 3, "impressions": 890, "ctr": 0.0034, "position": 9.2},
+    {"keys": ["https://bbq-experience.com/es/recetas/brisket-ahumado"], "clicks": 1, "impressions": 420, "ctr": 0.0024, "position": 11.5},
+    {"keys": ["https://bbq-experience.com/en/reviews/weber-kettle"], "clicks": 0, "impressions": 156, "ctr": 0.0, "position": 14.8}
+  ],
+  "responseAggregationType": "byProperty"
+}
