@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Completed 17-01-PLAN.md automated tasks (Task 4 SSH smoke-test checkpoint pending Matteo)
-last_updated: "2026-05-26T07:58:46Z"
+stopped_at: Completed 17-02-PLAN.md automated tasks (Task 5 webhook hooks.json + control test checkpoint pending Matteo SSH)
+last_updated: "2026-05-26T12:04:34Z"
 last_activity: 2026-05-26
 progress:
   total_phases: 8
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–17)
 Phase: 17
-Plan: 17-01 (automated tasks shipped; Task 4 SSH smoke awaiting Matteo)
+Plan: 17-02 (automated tasks shipped; Task 5 webhook hooks.json checkpoint awaiting Matteo SSH)
 Status: Executing Phase 17
-Last activity: 2026-05-26 - Completed 17-01 automated tasks (5 commits, 42 tests green, INDEXNOW_KEY generated)
+Last activity: 2026-05-26 - Completed 17-02 automated tasks (10 commits, 42 new tests green / 84 full suite, meta_optimizer + meta_review + X-Skip-Rebuild + GSC striking + GSC priming)
 
 Progress: v1.0 [██████████] 100% · v1.1 [█████░░░░░] ~50% (4/8 phases)
 
@@ -60,6 +60,7 @@ Progress: v1.0 [██████████] 100% · v1.1 [█████░
 | Phase 15 P01 | 3min | 2 tasks | 9 files |
 | Phase 15 P02 | 3min | 1 tasks | 4 files |
 | Phase 17 P01 | 9min | 4 tasks | 16 files |
+| Phase 17 P02 | 16min | 4 tasks + 1 checkpoint | 20 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,10 @@ Recent decisions affecting current work (v1.1):
 - [Phase 17 P01]: Shared CTR_BENCHMARK in lib/ctr_benchmark.py (single source of truth) — meta_optimizer + keyword_scout + claude_strategist import via `from agents.lib.ctr_benchmark`. No try/except ImportError fallbacks; no inline duplicates.
 - [Phase 17 P01]: INDEXNOW_KEY=133e22d3c55db2ef97c9de8733025635 generated; key file at web/public/<key>.txt is SOLE OWNER (Plan 17-04 only verifies existence).
 - [Phase 17 P01]: EN-only indexing for v1 — IT/ES promotion via translation_agent on .119 deferred to Phase 17 v2 (1-3day natural sitemap lag acceptable at 35 click/week baseline).
+- [Phase 17 P02]: meta_optimizer cron on .119 (NOT Hetzner) — Plan 17-01 smoke test discovered agents Python run on .119, Hetzner only Strapi+Astro. crontab.txt + cron_registry.md document the convention.
+- [Phase 17 P02]: X-Skip-Rebuild HTTP header pattern locked over Strapi lifecycle hooks. Header-match in adnanh/webhook is debuggable + reversible (Phase 16 ab-experiment exclusion precedent reused).
+- [Phase 17 P02]: Claude sonnet for review_meta (m2 lock) — opus reserved for full article semantic review. Length/keyword/claim check on metas sufficient with sonnet at ~1/5 cost.
+- [Phase 17 P02]: Direct slug-match dedup between Suggest and GSC striking; semantic similarity (bge-m3 cosine) deferred to v2.
 
 ### Roadmap Evolution
 
@@ -113,6 +118,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-05-26T07:58:46Z
-Stopped at: Completed 17-01-PLAN.md automated tasks (Task 4 SSH smoke-test checkpoint pending Matteo)
-Resume file: .planning/milestones/v1.1-phases/17-gsc-driven-content-pipeline/17-01-SUMMARY.md (see "Smoke Test Results" section for Steps A,C,D,E,F commands)
+Last session: 2026-05-26T12:04:34Z
+Stopped at: Completed 17-02-PLAN.md automated tasks (Task 5 webhook hooks.json + control test checkpoint pending Matteo SSH)
+Resume file: .planning/milestones/v1.1-phases/17-gsc-driven-content-pipeline/17-02-SUMMARY.md (see "Webhook Suppression Test Results" section for SSH commands)
