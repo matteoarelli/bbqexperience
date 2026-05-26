@@ -187,6 +187,140 @@ def review_article(
     )
 
 
+def review_meta(
+    current_title: str,
+    current_meta: str,
+    proposed_title: str,
+    proposed_meta: str,
+    queries: list[str],
+    locale: str,
+    excerpt: str,
+    timeout_seconds: int = 120,
+) -> ReviewResult:
+    """Claude review per cambio meta (variante leggera di review_article).
+
+    Verifica:
+    1. LENGTH cap 60/155 (pre-check senza Claude, fail-fast)
+    2. ACCURACY claim vs excerpt (Claude semantic check)
+    3. KEYWORD MATCH almeno 1 target query (Claude semantic check)
+    4. NO CLICKBAIT (Claude)
+    5. LOCALE accenti corretti (Claude)
+    6. TONE Pitmaster (Claude)
+
+    Decisione: ReviewResult.approved True/False + ReviewIssue list.
+
+    Model lock (m2 fix): --model sonnet sufficiente per length/keyword check,
+    opus solo per review semantica completa (vedi review_article).
+    """
+    # Hard pre-checks (zero costo, fail-fast prima di Claude).
+    # B4 fix: usa ReviewIssue(severity=, category=, description=), NON Issue(...).
+    issues: list[ReviewIssue] = []
+    if len(proposed_title) > 60:
+        issues.append(ReviewIssue(
+            severity="critical", category="length",
+            description=f"title > 60 chars ({len(proposed_title)})",
+        ))
+    if len(proposed_meta) > 155:
+        issues.append(ReviewIssue(
+            severity="critical", category="length",
+            description=f"meta > 155 chars ({len(proposed_meta)})",
+        ))
+    if issues:
+        return ReviewResult(
+            approved=False, score=0,
+            summary=f"Pre-check fail: {issues[0].description}",
+            corrected_html="",
+            issues=issues,
+        )
+
+    # Claude CLI semantic check (m2 fix: sonnet sufficiente per length/keyword
+    # check, opus solo per review semantica completa — vedi RESEARCH.md Open
+    # Questions: meta-review model).
+    prompt_path = ROOT / "prompts" / "claude_meta_review.md"
+    template = prompt_path.read_text(encoding="utf-8")
+    user_prompt = template.format(
+        current_title=current_title,
+        current_meta=current_meta,
+        proposed_title=proposed_title,
+        proposed_meta=proposed_meta,
+        queries_json=json.dumps(queries, ensure_ascii=False),
+        locale=locale,
+        excerpt=(excerpt or "")[:500],
+    )
+
+    cmd = [
+        CLAUDE_BIN,
+        "-p",
+        "--output-format", "json",
+        "--append-system-prompt",
+        "You are reviewing SEO meta changes for accuracy and length compliance.",
+        "--model", "sonnet",
+    ]
+
+    try:
+        res = subprocess.run(
+            cmd, input=user_prompt, capture_output=True,
+            text=True, encoding="utf-8", timeout=timeout_seconds,
+        )
+    except subprocess.TimeoutExpired:
+        return ReviewResult(
+            approved=False, score=0,
+            summary=f"Claude CLI timeout dopo {timeout_seconds}s",
+            corrected_html="",
+            issues=[ReviewIssue(severity="major", category="infrastructure",
+                                  description="Claude CLI timeout")],
+        )
+
+    # Parse: Claude CLI ritorna envelope {"type":"result","result":"..."} o
+    # direttamente {"decision":..., "reasoning":...} (test/mock fanno il
+    # secondo). Proviamo entrambi i shape.
+    decision = "reject"
+    reasoning = ""
+    parsed: dict | None = None
+    try:
+        outer = json.loads(res.stdout)
+    except json.JSONDecodeError:
+        outer = None
+
+    if isinstance(outer, dict):
+        # Shape 1: direct {"decision":..., "reasoning":...}
+        if "decision" in outer:
+            parsed = outer
+        # Shape 2: Claude envelope con 'result'
+        elif "result" in outer:
+            result_field = outer.get("result", "")
+            if isinstance(result_field, dict):
+                parsed = result_field
+            elif isinstance(result_field, str):
+                clean = re.sub(r"^```(?:json)?\s*\n", "", result_field.strip())
+                clean = re.sub(r"\n```\s*$", "", clean)
+                try:
+                    parsed = json.loads(clean)
+                except json.JSONDecodeError:
+                    parsed = None
+
+    if parsed is None:
+        decision = "reject"
+        reasoning = "Claude output unparseable"
+    else:
+        decision = parsed.get("decision", "reject")
+        reasoning = parsed.get("reasoning", "")
+
+    approved = (decision == "approve")
+    if not approved:
+        issues.append(ReviewIssue(
+            severity="major", category="semantic",
+            description=reasoning or "Claude rejected",
+        ))
+    return ReviewResult(
+        approved=approved,
+        score=(10 if approved else 0),
+        summary=reasoning,
+        corrected_html="",
+        issues=issues,
+    )
+
+
 def decide_next_step(result: ReviewResult) -> str:
     """Pipeline decision logic post-review.
 
