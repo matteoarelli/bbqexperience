@@ -29,6 +29,7 @@ Canonicalizzato 2026-05-26 da Phase 17 Plan 17-04 (Task 4).
 | `*/6h` | site_bridge.py | Strapi -> JSON per IG bot | original | — |
 | `30 3 * * *` (daily 03:30) | scripts/agents/meta_optimizer.py | GSC CTR scan + Qwen meta draft -> state/meta_changes_pending.jsonl | 2026-05-26 | 17-02 |
 | `0 8 * * 0` (Sun 08:00) | scripts/agents/gsc_refresh.py | Sun decay+CTR-opportunity selection -> state/gsc_refresh_queue.jsonl | 2026-05-26 | 17-03 |
+| `0 9 * * 1` (Mon 09:00) | scripts/agents/phase17_outcome_tracker.py | Weekly CTR lift measurement vs baseline 2026-05-25 -> state/phase17_outcome.jsonl + Telegram. **to-install** (Matteo or autonomous-mode trigger post-merge) | 2026-05-26 | 20 |
 | Various | instagram-bot/* | IG automation (Phase 17 NOT touched) | original | — |
 
 ## Windows .124 Task Scheduler (Matteo user)
@@ -84,3 +85,12 @@ Stessa logica vale per qualsiasi futuro cron data-fetch / DB-only / API-only.
 
 Tutti i 4 cron Phase 17 hanno `send_agent_report` su success + empty + error paths
 (verificato Plan 17-04 Task 4 — 12 chiamate totali su 4 file).
+
+## Phase 20 status (Outcome Measurement Framework)
+
+| Cron | Status | Install command (.119) |
+|------|--------|------------------------|
+| phase17_outcome_tracker (Mon 09:00 UTC) | code shipped, **to-install** | `ssh matteo@192.168.1.119 'crontab -e'` -> append: `0 9 * * 1 /home/matteo/bbqexperience/run-agent.sh phase17_outcome_tracker.py >> /home/matteo/bbqexperience/logs/phase17_outcome.log 2>&1` (sotto blocco `TZ=UTC` esistente Phase 17) |
+
+Telegram report weekly: "📈 Phase 17 Outcome — Week N (lift CTR Nx, VERDICT)".
+Decision tree: `.planning/milestones/v1.2-phases/20-outcome-measurement-framework/_reference/decision_tree.md`

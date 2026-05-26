@@ -61,3 +61,12 @@ TZ=UTC
 # Setup: schtasks /Create /TN "BBQ GSC Refresh Review" /SC WEEKLY /D SUN /ST 10:00 /TR \
 #          "C:\Progetti\bbqexperience\scripts\agents\gsc_refresh_review.cmd" /F
 # Gap di 2h Sun 08:00 UTC -> Sun 10:00 local da' tempo alla queue di essere scritta.
+
+# ─── Phase 20 — Outcome Measurement Framework (added 2026-05-26) ───
+#
+# Phase 17 Outcome Tracker — Lun 09:00 UTC weekly su .119.
+# Misura lift CTR vs baseline 2026-05-25 (35 clicks / 29k impr / 0.12% / pos 6.7).
+# Produce state/phase17_outcome.jsonl + Telegram report con decision-tree verdict.
+# TZ=UTC ereditato dal blocco Phase 17 sopra (no duplicate prefix).
+# Decision tree: .planning/milestones/v1.2-phases/20-outcome-measurement-framework/_reference/decision_tree.md
+0 9 * * 1 /home/matteo/bbqexperience/run-agent.sh phase17_outcome_tracker.py >> /home/matteo/bbqexperience/logs/phase17_outcome.log 2>&1
