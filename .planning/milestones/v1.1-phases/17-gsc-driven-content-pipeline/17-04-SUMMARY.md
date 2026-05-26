@@ -282,6 +282,28 @@ None — Plan 17-04 emette schema markup direttamente dal markdown content esist
 (non hardcoded placeholder). Auto-detect "no FAQ section -> no FAQPage emitted" e'
 behavior corretto, NON stub.
 
+## Task 5 Checkpoint — Eseguito 2026-05-26 da orchestrator
+
+| Step | Risultato | Dettaglio |
+|------|-----------|-----------|
+| A — git push + Hetzner rebuild | ✓ DEPLOYED | Push `5d37599..ae463da`, Hetzner rebuild completato `2026-05-26 13:13:51 UTC`. Container `bbqexperience-web` UP. |
+| B — verifica schema live (initial) | ❌ ZERO MATCH | Curl articolo live → 0 JSON-LD blocks visibili al sweep. Speakable selectors hardcoded `'article > p:first-of-type'` + `'article h2'` non matchavano sul DOM reale BBQ (i `<p>` direct children di `<article>` sono solo meta info `.last-updated`; gli `<h2>` esistono solo dentro `<div class="content-body">` nested). |
+| C — fix 1: selectors `.content-body` | ✓ COMMIT `a268365` | Aggiornato `structured-data.ts` + `sweep_pages.py` + 2 test files a `['.content-body p:first-of-type', '.content-body h2']`. Push triggera Hetzner rebuild `13:23:54 UTC`. Sweep post-deploy: PASS 84/101 (83%), 17 FAIL (12 FAQ-suffix + 5 speakable h2 missing su short articles). |
+| D — fix 2: speakable "at least one matches" | ✓ COMMIT `9eeb93a` | `_speakable_selectors_resolve` cambiata da "tutti devono matchare" → "almeno uno matcha" (Schema.org cssSelector array spec). Recupera 5 short articles senza h2. |
+| E — sweep schema FINALE | ✓ **PASS: 268/287 (93.4%)** | 19 FAIL restanti TUTTI "Visible FAQ section but NO FAQPage JSON-LD" — pattern strict bloccato da test guard `## FAQ at a barbecue`. Tracked in `deferred-items.md` come Phase 18 follow-up (regex con lookahead `\s*$|[\s:]+(about\|on\|for\|regarding\|—)\b`). |
+| F — IndexNow key health | ✓ | `curl -I https://bbq-experience.com/133e22d3c55db2ef97c9de8733025635.txt` → HTTP/1.1 200 OK. |
+| G — Article + Speakable JSON-LD live | ✓ VERIFICATO | `curl /en/blog/kamado-joe-vs-big-green-egg-2026-comparison/` mostra `@type:Article`, `@type:SpeakableSpecification`, `"cssSelector":[".content-body p:first-of-type",".content-body h2"]`. NEW signal per AI search (Perplexity/Gemini/Bing/ChatGPT) live. |
+
+**Lift Phase 17-04 ottenuto:**
+- Da **0 pagine** con speakable JSON-LD ad **287 pagine emettono** (100% sito)
+- Da **0 pagine** con speakable selectors funzionanti a **268 pagine matchano** (93.4%)
+- 19 pagine (6.6%) hanno FAQ section visibile ma non emettono FAQPage — fix in coda
+
+**Deferred items aggiornati:**
+1. FAQ heading con suffix (`about/on/for/regarding`) — parser-v2 in Phase 18
+2. Quality gate `topical_relevance` dimension (da 17-03 dry-run) — Phase 18
+3. Pre-existing TS errors (i18n.test + rate-limit.ts) — quick-task
+
 ## Self-Check: PASSED
 
 - web/src/lib/structured-data.ts — FOUND
