@@ -51,3 +51,13 @@ TZ=UTC
 # Meta Review consumer (Claude gate) gira su Windows Task Scheduler, NON cron.
 # Setup: schtasks /Create /TN "BBQ Meta Review" /SC DAILY /ST 09:00 /TR \
 #          "C:\Progetti\bbqexperience\scripts\agents\meta_review.cmd" /F
+#
+# GSC Refresh selector — .119 cron Sun 08:00 UTC, dopo claude_strategist (Sun 07:00 local Windows).
+# Fuori dalla finestra SDXL Windows; _sdxl_guard belt-and-suspenders attivo comunque.
+# TZ=UTC ereditato dalla riga sopra (no duplicate prefix).
+0 8 * * 0 /home/matteo/bbqexperience/run-agent.sh gsc_refresh.py >> /home/matteo/bbqexperience/logs/gsc_refresh.log 2>&1
+#
+# GSC Refresh Review consumer (Claude Opus rewrite) gira su Windows Task Scheduler, NON cron.
+# Setup: schtasks /Create /TN "BBQ GSC Refresh Review" /SC WEEKLY /D SUN /ST 10:00 /TR \
+#          "C:\Progetti\bbqexperience\scripts\agents\gsc_refresh_review.cmd" /F
+# Gap di 2h Sun 08:00 UTC -> Sun 10:00 local da' tempo alla queue di essere scritta.

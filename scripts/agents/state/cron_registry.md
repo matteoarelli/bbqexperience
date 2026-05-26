@@ -17,13 +17,8 @@ storiche (Phase 10-16); per ora documenta solo le voci Phase 17.
 |---------------|------|--------|---------|-------|------|
 | `30 3 * * *` (daily 03:30) | Ubuntu .119 | meta_optimizer.py | GSC CTR scan + Qwen draft -> meta_changes_pending.jsonl | 2026-05-26 | 17-02 |
 | `DAILY 09:00 local` | Windows .124 (Task Scheduler) | meta_review.cmd | Claude sonnet gate -> Strapi PUT skip_rebuild=True | 2026-05-26 | 17-02 |
-
-## Plan 17-03 (NEXT — non installate)
-
-| Schedule (UTC) | Host | Script | Purpose | Plan |
-|---------------|------|--------|---------|------|
-| `0 8 * * 0` (Sun 08:00) | Ubuntu .119 | gsc_refresh.py | Top decay/CTR-opportunity selection -> queue | 17-03 |
-| `WEEKLY SUN 10:00 local` | Windows .124 | gsc_refresh_review.cmd | Claude Opus rewrite + Strapi PUT | 17-03 |
+| `0 8 * * 0` (Sun 08:00) | Ubuntu .119 | gsc_refresh.py | Sun: select decay+CTR-opportunity pages, write state/gsc_refresh_queue.jsonl | 2026-05-26 | 17-03 |
+| `WEEKLY SUN 10:00 local` | Windows .124 (Task Scheduler) | gsc_refresh_review.cmd | Claude Opus rewrite + quality gate + Strapi PUT (rebuild fires) + re-index | 2026-05-26 | 17-03 |
 
 ## SDXL window (NON cron, FYI)
 
