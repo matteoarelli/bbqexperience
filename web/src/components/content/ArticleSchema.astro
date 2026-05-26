@@ -1,9 +1,28 @@
 ---
 /**
- * ArticleSchema — Componente JSON-LD Schema.org per articoli
- * Genera structured data di tipo Article per SEO rich results.
- * Omette i campi null dall'output JSON-LD.
+ * ArticleSchema — Componente JSON-LD Schema.org per articoli.
+ *
+ * M1 fix (Phase 17-04): CENTRALIZZA tutti gli emitter Schema.org "AI-search-ready"
+ * (Article + speakable + FAQPage auto-detect + HowTo auto-detect) in un unico
+ * componente. Tutte le pagine blog/tutorial detail che importano ArticleSchema
+ * beneficiano automaticamente di FAQ/HowTo/speakable senza modifiche per-page.
+ *
+ * Rationale:
+ * - Google deprecated FAQPage rich result il 7 May 2026 + HowTo da Sep 2023, ma
+ *   AI engines (Perplexity, ChatGPT, Gemini, Bing) le consumano ancora.
+ * - speakable e' BETA ma e' content-priority signal per AI Overviews.
+ *
+ * Backward compat: i props content + contentType sono OPTIONAL — call site
+ * pre-Phase-17 funzionano identicamente, emettono solo Article + speakable
+ * (no FAQ/HowTo se content non passato).
  */
+import {
+  buildSpeakableSpec,
+  detectFaqFromMarkdown,
+  extractHowToSteps,
+  type Locale,
+} from '../../lib/structured-data';
+
 interface Props {
   title: string;
   description: string;
@@ -13,6 +32,9 @@ interface Props {
   authorName?: string;
   imageUrl: string | null;
   locale: string;
+  // M1 fix — props opzionali per auto-detect FAQ/HowTo centralizzato.
+  content?: string;
+  contentType?: 'blog-posts' | 'reviews' | 'recipes' | 'tutorials';
 }
 
 const {
@@ -24,9 +46,11 @@ const {
   authorName = 'BBQ Experience',
   imageUrl,
   locale,
+  content,
+  contentType,
 } = Astro.props;
 
-// Costruisci l'oggetto JSON-LD omettendo i campi null
+// Costruisci l'oggetto JSON-LD Article omettendo i campi null.
 const jsonLd: Record<string, unknown> = {
   '@context': 'https://schema.org',
   '@type': 'Article',
@@ -67,6 +91,61 @@ if (imageUrl) {
     url: imageUrl,
   };
 }
+
+// M1 fix — speakable: aggiunto a TUTTI gli Article (signal universale AI Overviews).
+jsonLd.speakable = buildSpeakableSpec();
+
+// Locale fallback: se non e' it/es, usa 'en' per i parser (covers also 'en-US', etc.).
+const localeKey: Locale =
+  locale === 'it' || locale === 'es' ? locale : 'en';
+
+// M1 fix — FAQPage auto-detect dal content markdown (>=2 Q-A required).
+let faqJsonLd: object | null = null;
+if (content) {
+  const detected = detectFaqFromMarkdown(content, localeKey);
+  if (detected) {
+    faqJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: detected.questions.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: f.answer,
+        },
+      })),
+    };
+  }
+}
+
+// M1 fix — HowTo auto-detect SOLO per tutorials (recipes hanno gia' Recipe schema,
+// HowTo creerebbe conflict; reviews/blog non sono "how to" structurally).
+let howToJsonLd: object | null = null;
+if (content && contentType === 'tutorials') {
+  const howTo = extractHowToSteps(content, localeKey, title);
+  if (howTo) {
+    howToJsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: howTo.name,
+      description: description || '',
+      url: url,
+      step: howTo.steps.map((s, idx) => ({
+        '@type': 'HowToStep',
+        position: idx + 1,
+        name: s.name,
+        text: s.text,
+      })),
+    };
+  }
+}
 ---
 
 <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+{faqJsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+)}
+{howToJsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(howToJsonLd)} />
+)}
