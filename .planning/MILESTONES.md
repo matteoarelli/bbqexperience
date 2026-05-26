@@ -1,5 +1,16 @@
 # Milestones
 
+## v1.2 Consolidation & Outcome Measurement (Planned: 2026-05-26, in progress)
+
+**Phases planned:** 3 phases (18, 19, 20), 9 requirements
+
+**Scope:**
+- Phase 18 GSC Pipeline Polish — FAQ parser-v2 + topical_relevance gate + Indexing API enable
+- Phase 19 Tech Debt Cleanup — TS errors + Phase 10 VERIFICATION + state files cleanup
+- Phase 20 Outcome Measurement Framework — Phase 17 lift tracker + weekly Telegram + decision tree
+
+---
+
 ## v1.1 Content Depth & Growth Loop (Shipped: 2026-05-26)
 
 **Phases completed:** 9 phases (10, 10.1, 11–17), 27 plans
