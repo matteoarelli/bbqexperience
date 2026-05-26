@@ -195,11 +195,22 @@ Captured via SSH from `matteo@192.168.1.119:~/instagram-bot/gsc_client.py` (191 
 
 No code changes propagated back to IG bot (per locked decision — leave .119 stable).
 
-## Smoke Test Results (Task 4 — to be filled post-checkpoint)
+## Smoke Test Results (Task 4 — eseguito 2026-05-26 da orchestrator via SSH)
 
-**Step B (auto):** INDEXNOW_KEY generated (133e22d3c55db2ef97c9de8733025635), key file deployed to `web/public/<key>.txt`. Will resolve to `https://bbq-experience.com/<key>.txt` after next webhook rebuild.
+| Step | Risultato | Dettaglio |
+|------|-----------|-----------|
+| A — env vars | ✓ | `GSC_SERVICE_ACCOUNT_KEY=/home/matteo/secrets/gsc-merchant-sync.json`, `GSC_SITE_URL=sc-domain:bbq-experience.com`, `INDEXNOW_KEY=133e22d3c55db2ef97c9de8733025635`, `INDEXNOW_HOST=bbq-experience.com` aggiunte a `~/bbqexperience/.env` su `.119` E a `scripts/agents/.env.windows` locale |
+| B — IndexNow key public | ✓ | `curl https://bbq-experience.com/133e22d3c55db2ef97c9de8733025635.txt` → HTTP 200, body match (Hetzner webhook deploy completato post `git push 17a32b4`) |
+| C — `gsc_client.top_pages(28d)` | ✓ | 20 rows reali, URL keys con prefix locale (`/en/`, `/it/`); top: napoleon-prestige-pro-500-review (en, 7 clicks/178 impr/pos 11.1) |
+| D — `request_indexing` | ⚠ soft-fail by design | `success: False, reason: SERVICE_DISABLED` — Web Search Indexing API non abilitata sul progetto GCP `reflexmania-2025-1751381493636` (project 898950023483). Il codice gestisce come best-effort non-bloccante: pipeline continua. Per abilitare: Matteo clicca Enable su https://console.developers.google.com/apis/api/indexing.googleapis.com/overview?project=898950023483 |
+| E — `indexnow.ping` | ✓ | `success: True, code: 202` (Bing/Yandex IndexNow accepted, processing) |
+| F — per-locale aggregation | ✓ | Output di Step C mostra `/en/`, `/it/` URL paths; convenzione locked: caller filtra per path prefix |
 
-**Steps A, C, D, E, F (awaiting Matteo SSH):** see CHECKPOINT REACHED section below.
+**Wave 0 deps install su `.119`:** `pip3 install --user --break-system-packages google-api-python-client google-auth pytest` — successo, versions: google-api-python-client 2.196.0, google-auth 2.53.0, pytest 9.0.3.
+
+**Discrepanza scoperta durante smoke test:** Plan 17-01 ha menzionato il deploy path Hetzner `/opt/services/bbqexperience/app/`. In realtà gli agents Python girano su Ubuntu `.119` (`~/bbqexperience/`); Hetzner serve solo Strapi+Astro. Tutti i smoke test sono stati eseguiti su `.119`. Implicazione per Wave 2: cron meta_optimizer + gsc_refresh vanno su `.119` crontab (NOT Hetzner) — istruzione esplicita data agli executor Wave 2.
+
+**Decisione per `_sdxl_guard()`:** Math UTC corretta su `.119` (CEST/CET) perché usa `datetime.now(timezone.utc)`. Cron timing 03:30 UTC va espresso come `30 5 * * *` (CEST) o via `TZ=UTC` crontab prefix per evitare ambiguità DST.
 
 ## INDEXNOW_KEY Rotation Procedure
 
