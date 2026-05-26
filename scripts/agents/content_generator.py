@@ -236,7 +236,16 @@ def generate_slug(title: str) -> str:
 def publish_article(
     queue_item: dict, article: dict, content_type_strapi: str, content_type_raw: str
 ) -> str | None:
-    """Pubblica articolo in EN e traduzioni IT/ES su Strapi. Ritorna documentId."""
+    """Pubblica articolo in EN e traduzioni IT/ES su Strapi. Ritorna documentId.
+
+    Phase 17 wiring note: questo path crea l'entry come DRAFT (status='draft').
+    La promotion draft->published e l'indicizzazione SE seguono:
+    - Promotion: claude_review_runner.apply_review() chiama strapi.publish() dopo
+      Claude quality gate (WIRE_SITE: claude_review_runner.py:129 — discovered
+      Phase 17 Wave 0). Vedi _notify_search_engines() in claude_review_runner.
+    - Translation IT/ES: translation_agent.py su .119 (TODO follow-up Phase 17 v2:
+      hookare _notify_search_engines anche li' quando promuove le traduzioni).
+    """
     title = queue_item.get("title", "Untitled")
     slug = generate_slug(title)
     keyword = queue_item.get("target_keyword", "")

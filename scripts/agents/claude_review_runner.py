@@ -61,6 +61,54 @@ STRAPI_CONTENT_TYPES = {
 
 SITE_PREVIEW_BASE = os.environ.get("SITE_PREVIEW_BASE", "https://bbq-experience.com")
 
+# ─── Phase 17 — post-publish indexing hook ────────────────────────────────
+# LOCALIZED_ROUTES: stesso source-of-truth di web/scripts/sweep_pages.py.
+# Mappa il content_type Strapi al segmento di route per locale.
+LOCALIZED_ROUTES: dict[str, dict[str, str]] = {
+    "blog-posts": {"en": "blog", "it": "blog", "es": "blog"},
+    "tutorials": {"en": "tutorials", "it": "guide", "es": "tutoriales"},
+    "reviews": {"en": "reviews", "it": "recensioni", "es": "resenas"},
+    "recipes": {"en": "recipes", "it": "ricette", "es": "recetas"},
+}
+BASE_URL = "https://bbq-experience.com"
+
+
+def _canonical_url(content_type_strapi: str, locale: str, slug: str) -> str:
+    """Costruisce l'URL canonico per content_type+locale+slug.
+
+    Esempi:
+      _canonical_url("blog-posts","en","best-grill") -> https://bbq-experience.com/en/blog/best-grill
+      _canonical_url("recipes","it","brisket") -> https://bbq-experience.com/it/ricette/brisket
+    """
+    route = LOCALIZED_ROUTES.get(content_type_strapi, {}).get(locale, "blog")
+    return f"{BASE_URL}/{locale}/{route}/{slug}"
+
+
+def _notify_search_engines(url: str) -> None:
+    """Best-effort: notifica Google Indexing API + IndexNow (Bing/Yandex).
+
+    Mai bloccare: ogni errore loggato, mai sollevato.
+    Per locale IT/ES chiamare di nuovo con l'URL tradotto (per ora il path
+    translation lo fa translation_agent su .119 — TODO follow-up).
+
+    Wired Phase 17 plan 17-01: chiamata dopo strapi.publish() in apply_review().
+    """
+    # Import locali per evitare hard dependency al boot del runner
+    from agents.lib import gsc_client, indexnow_client
+    try:
+        r = gsc_client.request_indexing(url)
+        if not r.get("success"):
+            print(f"  [WARN] Indexing API non confermata per {url}: {r.get('reason')}")
+    except Exception as e:
+        print(f"  [WARN] Indexing API errore inatteso {url}: {e}")
+    try:
+        r = indexnow_client.ping([url])
+        if not r.get("success"):
+            print(f"  [WARN] IndexNow ping non riuscito per {url}: "
+                  f"{r.get('reason') or r.get('code')}")
+    except Exception as e:
+        print(f"  [WARN] IndexNow errore inatteso {url}: {e}")
+
 
 def fetch_pending_reviews() -> list[dict]:
     """Queue items ready for Claude review (Qwen done, awaiting fact-check)."""
@@ -128,6 +176,17 @@ def apply_review(content: dict, review: ReviewResult, queue_doc_id: str) -> str:
         try:
             strapi.publish(ct, doc_id)
             print(f"[gate] {ct}/{doc_id} promoted draft->published")
+            # WIRE_SITE: claude_review_runner.py:129 (discovered Wave 0 — M2 fix)
+            # Phase 17 plan 17-01: notifica Google Indexing API + IndexNow
+            # SOLO sul promotion EN. IT/ES verranno coperti via translation_agent.
+            # TODO Phase 17 follow-up: hook _notify_search_engines into
+            # translation_agent promotion path on .119 quando IT/ES draft -> published.
+            # Per v1, indexing fires solo per EN promotion; IT/ES verranno indicizzate
+            # al prossimo sitemap fetch di Google (1-3gg lag accettabile).
+            slug = content.get("slug", "")
+            if slug:
+                en_url = _canonical_url(ct, "en", slug)
+                _notify_search_engines(en_url)
         except Exception as e:
             print(f"[WARN] Could not publish {ct}/{doc_id}: {e}")
             publish_now = False
