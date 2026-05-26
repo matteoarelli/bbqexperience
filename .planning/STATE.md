@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Content Depth & Growth Loop
+milestone: v1.0
+milestone_name: milestone
 status: executing
-stopped_at: Completed 17-04-PLAN.md automated tasks (schema markup audit + cron registry canonical + telegram coverage verified; Task 5 checkpoint pending Matteo git push + live sweep verification)
-last_updated: "2026-05-26T13:10:00Z"
+stopped_at: Completed 17-04-PLAN.md automated tasks (Task 5 checkpoint pending Matteo git push + live sweep_pages.py --check schema verification)
+last_updated: "2026-05-26T13:43:37.451Z"
 last_activity: 2026-05-26
 progress:
-  total_phases: 8
-  completed_phases: 7
-  total_plans: 21
-  completed_plans: 23
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
   percent: 100
 ---
 
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–17)
 Phase: 17
-Plan: 17-04 (automated tasks shipped; Task 5 checkpoint awaiting Matteo deploy + live sweep verification)
+Plan: Not started
 Status: Executing Phase 17 (Plan 17-04 — LAST plan of Phase 17)
-Last activity: 2026-05-26 - Completed 17-04 automated tasks (7 commits, structured-data.ts + ArticleSchema M1 + sweep_pages --check schema + cron_registry canonical; 19 vitest + 11 pytest GREEN, 140 agents pytest pass)
+Last activity: 2026-05-26
 
 Progress: v1.0 [██████████] 100% · v1.1 [█████░░░░░] ~50% (4/8 phases)
 
