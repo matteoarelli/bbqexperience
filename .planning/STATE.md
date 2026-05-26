@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Completed 17-02-PLAN.md automated tasks (Task 5 webhook hooks.json + control test checkpoint pending Matteo SSH)
-last_updated: "2026-05-26T12:04:34Z"
+stopped_at: Completed 17-03-PLAN.md automated tasks (Task 5 dry-run + sample-review checkpoint pending Matteo verification before live Claude Opus content refresh)
+last_updated: "2026-05-26T12:35:00Z"
 last_activity: 2026-05-26
 progress:
   total_phases: 8
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–17)
 Phase: 17
-Plan: 17-02 (automated tasks shipped; Task 5 webhook hooks.json checkpoint awaiting Matteo SSH)
+Plan: 17-03 (automated tasks shipped; Task 5 dry-run + sample-review checkpoint awaiting Matteo verification)
 Status: Executing Phase 17
-Last activity: 2026-05-26 - Completed 17-02 automated tasks (10 commits, 42 new tests green / 84 full suite, meta_optimizer + meta_review + X-Skip-Rebuild + GSC striking + GSC priming)
+Last activity: 2026-05-26 - Completed 17-03 automated tasks (7 commits, 45 new tests green / 129 full suite, gsc_refresh + gsc_refresh_review + strategist GSC digest)
 
 Progress: v1.0 [██████████] 100% · v1.1 [█████░░░░░] ~50% (4/8 phases)
 
@@ -61,6 +61,7 @@ Progress: v1.0 [██████████] 100% · v1.1 [█████░
 | Phase 15 P02 | 3min | 1 tasks | 4 files |
 | Phase 17 P01 | 9min | 4 tasks | 16 files |
 | Phase 17 P02 | 16min | 4 tasks + 1 checkpoint | 20 files |
+| Phase 17 P03 | 12min | 4 tasks + 1 checkpoint | 11 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,13 @@ Recent decisions affecting current work (v1.1):
 - [Phase 17 P02]: X-Skip-Rebuild HTTP header pattern locked over Strapi lifecycle hooks. Header-match in adnanh/webhook is debuggable + reversible (Phase 16 ab-experiment exclusion precedent reused).
 - [Phase 17 P02]: Claude sonnet for review_meta (m2 lock) — opus reserved for full article semantic review. Length/keyword/claim check on metas sufficient with sonnet at ~1/5 cost.
 - [Phase 17 P02]: Direct slug-match dedup between Suggest and GSC striking; semantic similarity (bge-m3 cosine) deferred to v2.
+- [Phase 17 P03]: gsc_refresh weekly loop deployed on Ubuntu .119 (Sun 08:00 UTC) -> Windows Task Scheduler gsc_refresh_review (Sun 10:00 local). JSONL queue bridges the two hosts (atomic_io.append_jsonl_atomic).
+- [Phase 17 P03]: skip_rebuild=False (default) on gsc_refresh_review Strapi update — refresh IS full content change, rebuild fires per design (contrast with meta_optimizer skip_rebuild=True for meta-only).
+- [Phase 17 P03]: Cover image refresh OUT OF SCOPE (m4 lock); deferred to Phase 18 candidate (SDXL cover regen if CTR doesn't improve 14d post-rewrite).
+- [Phase 17 P03]: M7 cluster reverse-lookup — blog-post Strapi schema has NO 'cluster' field; gsc_refresh_review._cluster_for_keyword scans keyword_scout.CLUSTERS at runtime, fallback 'uncategorized'.
+- [Phase 17 P03]: M8 conditional metrics_block — branches stored as LIST in queue record; _build_prompt only injects 'Decay' line if 'decay' in branches, only 'CTR opportunity' line if 'ctr_opportunity' in branches.
+- [Phase 17 P03]: claude_strategist.get_gsc_digest 4-section dict (summary_delta + striking_top10 + ctr_opportunity_top10 + declining_top10) — graceful degrade on GSC API errors.
+- [Phase 17 P03]: lib/claude_client.generate_strategy gsc_digest as keyword-only kwarg with default None — backward-compat with pre-Phase-17 callers; prompt injects GSC WEEKLY DIGEST block + REQUIREMENT for >=3 GSC-anchored recs.
 
 ### Roadmap Evolution
 
@@ -118,6 +126,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-05-26T12:04:34Z
-Stopped at: Completed 17-02-PLAN.md automated tasks (Task 5 webhook hooks.json + control test checkpoint pending Matteo SSH)
-Resume file: .planning/milestones/v1.1-phases/17-gsc-driven-content-pipeline/17-02-SUMMARY.md (see "Webhook Suppression Test Results" section for SSH commands)
+Last session: 2026-05-26T12:35:00Z
+Stopped at: Completed 17-03-PLAN.md automated tasks (Task 5 dry-run + sample-review checkpoint pending Matteo verification before live Claude Opus content refresh)
+Resume file: .planning/milestones/v1.1-phases/17-gsc-driven-content-pipeline/17-03-SUMMARY.md (see "Task 5 Checkpoint — Awaiting Matteo" section for install + dry-run commands)
