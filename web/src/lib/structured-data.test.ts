@@ -60,8 +60,43 @@ describe('detectFaqFromMarkdown', () => {
   it('test_detectFaq_false_positive_guard: "## FAQ at a barbecue" does NOT trigger', () => {
     const md = '## FAQ at a barbecue\n### Q1\nA1\n### Q2\nA2\n';
     const result = detectFaqFromMarkdown(md, 'en');
-    // Strict regex requires "## FAQ" (or full heading) as the entire line; trailing text fails.
+    // SEO-13 (v1.2 Phase 18): "at" NON e' in prepositional whitelist (about|on|for|regarding|sui|sull|sulle|sobre|acerca|—)
     expect(result).toBeNull();
+  });
+
+  // SEO-13 — parser-v2 lookahead positive suffixes (v1.2 Phase 18)
+  it('test_detectFaq_en_suffix_about: "## Frequently Asked Questions about Propane" triggers', () => {
+    const md = '## Frequently Asked Questions about Propane Grills\n### How hot does it get?\n450F.\n### Setup?\nDIY.\n';
+    expect(detectFaqFromMarkdown(md, 'en')).not.toBeNull();
+  });
+  it('test_detectFaq_en_suffix_on: "## FAQ on Wireless Thermometers" triggers', () => {
+    const md = '## FAQ on Wireless Thermometers\n### Battery?\n6mo.\n### Range?\n100ft.\n';
+    expect(detectFaqFromMarkdown(md, 'en')).not.toBeNull();
+  });
+  it('test_detectFaq_en_suffix_em_dash: "## FAQ — Best Practices" triggers', () => {
+    const md = '## FAQ — Best Practices\n### Tip 1?\nA1.\n### Tip 2?\nA2.\n';
+    expect(detectFaqFromMarkdown(md, 'en')).not.toBeNull();
+  });
+  it('test_detectFaq_en_suffix_colon: "## FAQs: Quick Tips" triggers', () => {
+    const md = '## FAQs: Quick Tips\n### Tip?\nDo X.\n### Other?\nDo Y.\n';
+    expect(detectFaqFromMarkdown(md, 'en')).not.toBeNull();
+  });
+  it('test_detectFaq_it_suffix_sui: "## Domande frequenti sui pellet" triggers', () => {
+    const md = '## Domande frequenti sui pellet\n### Tempo cottura?\n4 ore.\n### Marche?\nHickory.\n';
+    expect(detectFaqFromMarkdown(md, 'it')).not.toBeNull();
+  });
+  it('test_detectFaq_es_suffix_sobre: "## Preguntas frecuentes sobre carbón" triggers', () => {
+    const md = '## Preguntas frecuentes sobre carbón\n### Temperatura?\n450F.\n### Tipo?\nLeña.\n';
+    expect(detectFaqFromMarkdown(md, 'es')).not.toBeNull();
+  });
+  it('test_detectFaq_en_narrative_at_blocked: "## FAQ at a backyard" stays blocked', () => {
+    // "at" still NOT in suffix whitelist — narrative, not FAQ list
+    const md = '## FAQ at a backyard\n### Q1\nA1\n### Q2\nA2\n';
+    expect(detectFaqFromMarkdown(md, 'en')).toBeNull();
+  });
+  it('test_detectFaq_it_narrative_durante_blocked: "## Domande frequenti durante l\'evento" stays blocked', () => {
+    const md = '## Domande frequenti durante l\'evento\n### Q1\nA1\n### Q2\nA2\n';
+    expect(detectFaqFromMarkdown(md, 'it')).toBeNull();
   });
 
   it('test_detectFaq_no_section: returns null when no FAQ heading present', () => {

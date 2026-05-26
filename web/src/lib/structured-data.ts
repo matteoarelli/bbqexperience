@@ -19,13 +19,23 @@
 
 // FAQ heading patterns sono /im (NON /g) — .exec() su pattern non-global parte
 // sempre da inizio stringa, no stale lastIndex.
-// Strict end-of-line per evitare false-positive tipo "## FAQ at a barbecue" (narrative).
-// Trade-off: gli articoli reali con suffix legittimo ("## Frequently Asked Questions about Propane")
-// NON vengono rilevati → tracked come deferred-item per parser-iterazione futura su corpus reale.
+//
+// SEO-13 (v1.2 Phase 18) — parser-v2 con lookahead positivo per suffix legittimi.
+// Pattern: dopo "FAQ|FAQs|Frequently Asked Questions?", accetta:
+//   - end-of-line strict: "## FAQ" / "## Frequently Asked Questions"
+//   - separator + preposition legittima: "## Frequently Asked Questions about X",
+//     "## FAQ on Wireless", "## FAQ for Beginners", "## FAQ regarding pellet",
+//     "## FAQ — Best Practices", "## FAQ: Tips" (also IT "sui/sulle/sul", ES "sobre/acerca")
+// Resta strict su narrative tipo "## FAQ at a barbecue" / "## Domande frequenti durante" — "at|durante"
+// NON sono nei prepositional patterns accettati.
+// Accepta: end-of-line | "FAQ: X" / "FAQ — X" (strong separator markers) | "FAQ <preposition> X"
+const FAQ_SUFFIX_EN = '(\\s*$|\\s*[:—–-]\\s*\\S|\\s+(about|on|for|regarding|concerning)\\b)';
+const FAQ_SUFFIX_IT = '(\\s*$|\\s*[:—–-]\\s*\\S|\\s+(sui|sull[oa]|sulle|riguardo|circa)\\b)';
+const FAQ_SUFFIX_ES = '(\\s*$|\\s*[:—–-]\\s*\\S|\\s+(sobre|acerca|para|de\\s+los?)\\b)';
 export const FAQ_HEADING_PATTERNS = {
-  en: /^##\s+(FAQ|Frequently Asked Questions)\s*$/im,
-  it: /^##\s+Domande frequenti\s*$/im,
-  es: /^##\s+Preguntas frecuentes\s*$/im,
+  en: new RegExp(`^##\\s+(FAQs?|Frequently Asked Questions?)${FAQ_SUFFIX_EN}`, 'im'),
+  it: new RegExp(`^##\\s+Domande frequenti${FAQ_SUFFIX_IT}`, 'im'),
+  es: new RegExp(`^##\\s+Preguntas frecuentes${FAQ_SUFFIX_ES}`, 'im'),
 } as const;
 
 // Step heading patterns sono /gim — usiamo SEMPRE matchAll() per evitare stale state.

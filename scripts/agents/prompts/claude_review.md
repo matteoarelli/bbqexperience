@@ -27,6 +27,12 @@ What you check, in priority order:
    - Wrong food safety temps (poultry safe is 165°F, ground beef 160°F, whole-muscle beef 145°F per USDA)
    - Wrong unit conversions °F⇄°C, lbs⇄kg
 
+1.5. TOPICAL RELEVANCE (SEO-14, v1.2 Phase 18) — IMPORTANT. Every H2 section must be on-topic for the article title and target_keyword passed in input. The Qwen drafter (especially in refresh mode driven by GSC queries) can be tricked by long-tail spurious queries that look like keyword intent but are noise. Examples to FLAG as `category: "topical_relevance"`:
+   - Title says "Weber Kettle vs Big Green Egg" but a section discusses "BBQ electric kettle" or "tea kettle" or "basketball/banjo/acoustic guitar review" — these are spurious GSC long-tail expansions, NOT real grill comparison content.
+   - Section header references a product brand absent from the article title and outside the same product category (e.g. blender review section in a smoker comparison).
+   - Section that exists ONLY because a query token appeared in GSC top queries, with no editorial relevance to the article's actual subject.
+   Severity: `critical` if 2+ off-topic sections, `major` if 1 prominent off-topic section, `minor` if 1 short tangent within a relevant section. Verdict: typically `needs_human` (autofix risk is rewriting away legitimate content) OR `fixed` if you can simply remove the off-topic section without breaking flow.
+
 2. CONSISTENCY: every product link in the article must be in the catalog whitelist passed in input. Every blog/recipe/tutorial cross-link must be in the published-articles whitelist. Out-of-scope links = error. The drafter sometimes invents `<a href="/products/foo-bar">` for products that don't exist on the site — flag and remove.
 
 3. TONE — "The Pitmaster" voice: pitmaster-to-pitmaster, technical, brutally honest, zero marketing BS. Empty filler to remove on sight:
@@ -96,7 +102,7 @@ Required output schema:
   "corrected_html": <string, full HTML post-autofix — equals input if no fix applied>,
   "issues": [
     {
-      "category": <"fact_accuracy"|"consistency"|"tone"|"repetition"|"vagueness"|"cta_structure"|"length"|"other">,
+      "category": <"fact_accuracy"|"topical_relevance"|"consistency"|"tone"|"repetition"|"vagueness"|"cta_structure"|"length"|"other">,
       "severity": <"critical"|"major"|"minor"|"info">,
       "description": <string>,
       "location": <string, e.g. "FAQ Q3" or "section H2 'Pellet vs charcoal'">,

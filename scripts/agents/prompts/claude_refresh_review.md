@@ -31,4 +31,12 @@ Genera la nuova versione completa secondo le regole di "The Pitmaster":
 - Tono tecnico, dati specifici (temp F, tempi min/h, prezzi USD)
 - NO ALL CAPS, NO clickbait, NO frasi generiche tipo "BBQ is loved"
 
+ATTENZIONE TOPICAL RELEVANCE (SEO-14, v1.2 Phase 18):
+Le query GSC reali possono includere long-tail spurie auto-espanse da Google Suggest tipo
+"big green egg basketball review 2026", "big green egg banjo review", "big green egg electric
+kettle review". NON ti far ingannare: queste sono NOISE, non keyword intent reale. La tua
+regola: ogni H2 deve essere on-topic per "{current_title}" + il dominio reale del prodotto.
+Se una query GSC suggerisce un argomento incompatibile (es. "basketball" su una review di
+grill), IGNORA quella query. Meglio articolo focused + corto che articolo lungo + diluito.
+
 Output: solo HTML body fragment, no markdown fences, no meta-commento.
