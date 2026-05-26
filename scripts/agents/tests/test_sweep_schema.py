@@ -109,7 +109,7 @@ def test_check_howto_present_on_tutorial():
 def test_check_howto_absent_on_recipe():
     """Recipe page deliberatamente NON emette HowTo (Recipe schema dominante)."""
     recipe_block = {"@context": "https://schema.org", "@type": "Recipe", "name": "Test recipe"}
-    body = "<p>Intro</p><ol><li>1</li><li>2</li><li>3</li></ol>"
+    body = "<p>Intro</p><h2>Ingredients</h2><ol><li>1</li><li>2</li><li>3</li></ol>"
     # Article + Recipe + speakable, NO HowTo
     html = _wrap_html(_article_with_speakable(), [recipe_block], body)
     with patch.object(sweep_pages, "fetch", return_value=(200, html)):
@@ -121,7 +121,7 @@ def test_check_howto_absent_on_recipe():
 def test_check_howto_on_recipe_flagged_conflict():
     """Recipe con HowTo JSON-LD = conflict, deve essere flagged."""
     recipe_block = {"@context": "https://schema.org", "@type": "Recipe", "name": "Test recipe"}
-    body = "<p>Intro</p><ol><li>1</li><li>2</li><li>3</li></ol>"
+    body = "<p>Intro</p><h2>Instructions</h2><ol><li>1</li><li>2</li><li>3</li></ol>"
     html = _wrap_html(_article_with_speakable(), [recipe_block, _howto_block()], body)
     with patch.object(sweep_pages, "fetch", return_value=(200, html)):
         result = sweep_pages.check_schema("https://bbq-experience.com/en/recipes/test/")

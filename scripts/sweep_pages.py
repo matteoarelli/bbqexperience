@@ -1,19 +1,36 @@
 #!/usr/bin/env python3
 """Verifica qualita rendering su un campione di pagine live.
 
-Per ogni pagina controlla:
+Modalita supportate (--check arg):
+- markdown (default legacy): soft hyphen, anchor annidati, markdown raw, cross-locale
+- schema (NEW Phase 17-04): FAQPage / HowTo / speakable audit
+- all: esegue entrambi
+
+Per ogni pagina markdown-check:
 - Status HTTP (200)
 - Soft hyphen veri U+00AD (decoded UTF-8)
 - Anchor annidati <a><a>
 - Markdown raw non convertito (## headings, ** bold, | tabelle non rese)
 - Link cross-locale (slug di route in locale sbagliato)
 - JSON-LD presente
+
+Per ogni pagina schema-check:
+- FAQPage JSON-LD presente quando il body contiene visible FAQ heading
+- HowTo JSON-LD presente quando il tutorial body ha step structure
+- HowTo NON presente su recipe pages (conflict con Recipe schema)
+- speakable cssSelector array nel Article JSON-LD
+- speakable selectors resolve a real DOM nodes
 """
+import argparse
+import json as _json
 import os
 import re
+import re as _re
 import sys
 import io
 from urllib.request import Request, urlopen
+
+from bs4 import BeautifulSoup
 
 if sys.stdout and hasattr(sys.stdout, 'buffer') and sys.stdout.encoding != "utf-8":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
@@ -46,6 +63,31 @@ WRONG_SLUGS_BY_LOCALE = {
 
 BASE = "https://bbq-experience.com"
 
+# ─── Phase 17-04: schema audit constants ──────────────────────────────────────
+# Headings visible che indicano una FAQ section nel body HTML.
+# Locale-aware: EN + IT + ES (DEVE matchare i FAQ_HEADING_PATTERNS di structured-data.ts).
+FAQ_VISIBLE_HEADINGS = [
+    "FAQ",
+    "Frequently Asked Questions",
+    "Domande frequenti",
+    "Preguntas frecuentes",
+]
+
+# Regex patterns per riconoscere headings "Step N" in tutorial pages.
+# Match anche heading multilingue (Step EN / Passo IT / Paso ES).
+HOWTO_STEP_PATTERNS = [
+    r"\bStep\s+\d+",
+    r"\bPasso\s+\d+",
+    r"\bPaso\s+\d+",
+]
+
+# Selectors STRUTTURALI per speakable (NON class-based — resistente a refactor).
+# DEVE matchare exactly buildSpeakableSpec() in web/src/lib/structured-data.ts.
+SPEAKABLE_SELECTORS = [
+    "article > p:first-of-type",
+    "article h2",
+]
+
 
 def fetch(url: str) -> tuple[int, bytes]:
     req = Request(url, headers={"User-Agent": "BBQ-Sweep/1.0"})
@@ -61,7 +103,7 @@ def analyze(url: str, body_bytes: bytes, locale: str) -> dict:
     issues = {}
 
     # Soft hyphen vero (U+00AD nel decoded text)
-    n_sh = text.count("\u00AD")
+    n_sh = text.count("­")
     if n_sh:
         issues["soft_hyphen"] = n_sh
 
@@ -93,8 +135,128 @@ def analyze(url: str, body_bytes: bytes, locale: str) -> dict:
     return issues
 
 
-def main():
-    samples: list[tuple[str, str, str]] = []  # (locale, content_type, slug)
+# ─── Phase 17-04: schema audit helpers ────────────────────────────────────────
+
+def _has_visible_faq(soup) -> bool:
+    """True se il body HTML contiene un H2/H3 con visible FAQ heading."""
+    for h in soup.find_all(["h2", "h3"]):
+        text = h.get_text(strip=True)
+        # Confronto strict: match esatto OR startswith piu' separator (es. "FAQ:").
+        for p in FAQ_VISIBLE_HEADINGS:
+            if text == p or text.startswith(p + ":") or text.startswith(p + " -"):
+                return True
+    return False
+
+
+def _has_step_structure(soup) -> bool:
+    """True se il body HTML contiene >=3 step-like headings OR <ol><li>x3."""
+    step_headings = 0
+    for h in soup.find_all(["h2", "h3"]):
+        text = h.get_text(strip=True)
+        if any(_re.match(p, text) for p in HOWTO_STEP_PATTERNS):
+            step_headings += 1
+    if step_headings >= 3:
+        return True
+    for ol in soup.find_all("ol"):
+        if len(ol.find_all("li", recursive=False)) >= 3:
+            return True
+    return False
+
+
+def _jsonld_blocks(soup) -> list[dict]:
+    """Estrae e parse tutti i <script type='application/ld+json'> blocks."""
+    out = []
+    for s in soup.find_all("script", {"type": "application/ld+json"}):
+        try:
+            out.append(_json.loads(s.string or "{}"))
+        except Exception:
+            continue
+    return out
+
+
+def _has_schema_type(blocks: list[dict], t: str) -> bool:
+    """True se almeno un blocco JSON-LD ha @type == t (anche dentro @graph)."""
+    for b in blocks:
+        if b.get("@type") == t:
+            return True
+        for item in b.get("@graph", []) or []:
+            if isinstance(item, dict) and item.get("@type") == t:
+                return True
+    return False
+
+
+def _speakable_selectors_resolve(soup) -> tuple[bool, str]:
+    """True se TUTTI gli SPEAKABLE_SELECTORS trovano >=1 node nel DOM."""
+    for sel in SPEAKABLE_SELECTORS:
+        try:
+            nodes = soup.select(sel)
+        except Exception as e:
+            return False, f"selector '{sel}' invalid: {e}"
+        if not nodes:
+            return False, f"selector '{sel}' matched 0 nodes"
+    return True, "ok"
+
+
+def check_schema(url: str) -> dict:
+    """Audit FAQPage / HowTo / speakable per una pagina live.
+
+    Returns dict: {url, decision: 'pass'|'fail'|'skip', issues?: list[str], reason?: str}
+    """
+    status, html_bytes = fetch(url)
+    if status != 200:
+        return {"url": url, "decision": "skip", "reason": f"HTTP {status}"}
+
+    soup = BeautifulSoup(html_bytes, "html.parser")
+    blocks = _jsonld_blocks(soup)
+    issues: list[str] = []
+
+    # FAQPage check: visible heading <-> JSON-LD coerenza.
+    visible_faq = _has_visible_faq(soup)
+    has_faq_schema = _has_schema_type(blocks, "FAQPage")
+    if visible_faq and not has_faq_schema:
+        issues.append("Visible FAQ section but NO FAQPage JSON-LD")
+    if has_faq_schema and not visible_faq:
+        issues.append("FAQPage JSON-LD present but NO visible FAQ section (Google spam policy)")
+
+    # HowTo check: solo su tutorials.
+    is_tutorial = any(seg in url for seg in ["/tutorials/", "/guide/", "/tutoriales/"])
+    if is_tutorial:
+        has_step = _has_step_structure(soup)
+        has_howto = _has_schema_type(blocks, "HowTo")
+        if has_step and not has_howto:
+            issues.append("Tutorial has step structure but NO HowTo JSON-LD")
+
+    # Recipe pages: HowTo NON deve esserci (conflict con Recipe schema).
+    is_recipe = any(seg in url for seg in ["/recipes/", "/ricette/", "/recetas/"])
+    if is_recipe and _has_schema_type(blocks, "HowTo"):
+        issues.append("Recipe page has HowTo JSON-LD (conflict with Recipe schema)")
+
+    # Speakable check: ogni Article deve averlo.
+    article_blocks = [b for b in blocks if b.get("@type") == "Article"]
+    for ab in article_blocks:
+        spk = ab.get("speakable")
+        if not spk:
+            issues.append("Article JSON-LD missing speakable property")
+        elif spk.get("@type") != "SpeakableSpecification":
+            issues.append("speakable @type incorrect")
+        elif not isinstance(spk.get("cssSelector"), list) or not spk["cssSelector"]:
+            issues.append("speakable cssSelector empty or not array")
+
+    # Speakable selectors devono risolvere a nodi reali nel DOM.
+    ok, reason = _speakable_selectors_resolve(soup)
+    if not ok and article_blocks:
+        issues.append(f"Speakable selectors broken: {reason}")
+
+    return {
+        "url": url,
+        "decision": "fail" if issues else "pass",
+        "issues": issues,
+    }
+
+
+def _gather_live_urls(limit: int = 50) -> list[tuple[str, str, str]]:
+    """Raccoglie (locale, ct, slug) da Strapi per tutti i content type."""
+    samples: list[tuple[str, str, str]] = []
     for ct in ["blog-posts", "reviews", "recipes", "tutorials"]:
         for locale in ["en", "it", "es"]:
             items = strapi.find_all_pages(
@@ -103,8 +265,14 @@ def main():
             slugs = [i.get("slug") for i in items if i.get("slug")]
             for s in slugs:
                 samples.append((locale, ct, s))
+            if len(samples) >= limit:
+                return samples
+    return samples
 
-    print(f"Sweeping {len(samples)} pages...")
+
+def _run_markdown_check(samples: list[tuple[str, str, str]]) -> int:
+    """Modalita legacy: esegue analyze() su ogni pagina."""
+    print(f"Sweeping {len(samples)} pages (markdown check)...")
     failures: list[tuple[str, dict]] = []
     bad_status: list[tuple[str, int]] = []
 
@@ -119,7 +287,7 @@ def main():
         if issues:
             failures.append((url, issues))
 
-    print(f"\n=== RESULT ===")
+    print(f"\n=== RESULT (markdown) ===")
     print(f"Sampled: {len(samples)}")
     print(f"HTTP non-200: {len(bad_status)}")
     print(f"Pages with issues: {len(failures)}")
@@ -135,6 +303,60 @@ def main():
                 print(f"    {k}: {v}")
     if not failures and not bad_status:
         print("\nAll pages CLEAN")
+    return 1 if (failures or bad_status) else 0
+
+
+def _run_schema_check(samples: list[tuple[str, str, str]]) -> int:
+    """Modalita Phase 17-04: esegue check_schema() su ogni pagina."""
+    print(f"Sweeping {len(samples)} pages (schema check)...")
+    pass_n = fail_n = skip_n = 0
+    failures: list[dict] = []
+
+    for locale, ct, slug in samples:
+        route = LOCALIZED_ROUTES[ct][locale]
+        url = f"{BASE}/{locale}/{route}/{slug}/"
+        r = check_schema(url)
+        if r["decision"] == "pass":
+            pass_n += 1
+        elif r["decision"] == "fail":
+            fail_n += 1
+            failures.append(r)
+        else:
+            skip_n += 1
+
+    print(f"\n=== SWEEP SCHEMA SUMMARY ===")
+    print(f"PASS: {pass_n} | FAIL: {fail_n} | SKIP: {skip_n}")
+    if failures:
+        print("\nFailures (first 20):")
+        for f in failures[:20]:
+            print(f"  FAIL {f['url']}: {'; '.join(f['issues'])}")
+    return 1 if fail_n > 0 else 0
+
+
+def main():
+    parser = argparse.ArgumentParser(description="BBQ sweep_pages — markdown + schema audit")
+    parser.add_argument(
+        "--check",
+        choices=["all", "schema", "markdown"],
+        default="markdown",
+        help="Modalita di check (default: markdown, legacy behavior)",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=200,
+        help="Max numero pagine da campionare (default: 200, take all if higher)",
+    )
+    args = parser.parse_args()
+
+    samples = _gather_live_urls(limit=args.limit)
+
+    rc = 0
+    if args.check in ("markdown", "all"):
+        rc |= _run_markdown_check(samples)
+    if args.check in ("schema", "all"):
+        rc |= _run_schema_check(samples)
+    sys.exit(rc)
 
 
 if __name__ == "__main__":
