@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Content Depth & Growth Loop
 status: executing
-stopped_at: Completed 17-03-PLAN.md automated tasks (Task 5 dry-run + sample-review checkpoint pending Matteo verification before live Claude Opus content refresh)
-last_updated: "2026-05-26T12:35:00Z"
+stopped_at: Completed 17-04-PLAN.md automated tasks (schema markup audit + cron registry canonical + telegram coverage verified; Task 5 checkpoint pending Matteo git push + live sweep verification)
+last_updated: "2026-05-26T13:10:00Z"
 last_activity: 2026-05-26
 progress:
   total_phases: 8
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 Milestone: v1.1 Content Depth & Growth Loop (Phases 10–10.1, 11–17)
 Phase: 17
-Plan: 17-03 (automated tasks shipped; Task 5 dry-run + sample-review checkpoint awaiting Matteo verification)
-Status: Executing Phase 17
-Last activity: 2026-05-26 - Completed 17-03 automated tasks (7 commits, 45 new tests green / 129 full suite, gsc_refresh + gsc_refresh_review + strategist GSC digest)
+Plan: 17-04 (automated tasks shipped; Task 5 checkpoint awaiting Matteo deploy + live sweep verification)
+Status: Executing Phase 17 (Plan 17-04 — LAST plan of Phase 17)
+Last activity: 2026-05-26 - Completed 17-04 automated tasks (7 commits, structured-data.ts + ArticleSchema M1 + sweep_pages --check schema + cron_registry canonical; 19 vitest + 11 pytest GREEN, 140 agents pytest pass)
 
 Progress: v1.0 [██████████] 100% · v1.1 [█████░░░░░] ~50% (4/8 phases)
 
@@ -62,6 +62,7 @@ Progress: v1.0 [██████████] 100% · v1.1 [█████░
 | Phase 17 P01 | 9min | 4 tasks | 16 files |
 | Phase 17 P02 | 16min | 4 tasks + 1 checkpoint | 20 files |
 | Phase 17 P03 | 12min | 4 tasks + 1 checkpoint | 11 files |
+| Phase 17 P04 | 12min | 4 tasks + 1 checkpoint | 13 files |
 
 ## Accumulated Context
 
@@ -96,6 +97,14 @@ Recent decisions affecting current work (v1.1):
 - [Phase 17 P03]: M8 conditional metrics_block — branches stored as LIST in queue record; _build_prompt only injects 'Decay' line if 'decay' in branches, only 'CTR opportunity' line if 'ctr_opportunity' in branches.
 - [Phase 17 P03]: claude_strategist.get_gsc_digest 4-section dict (summary_delta + striking_top10 + ctr_opportunity_top10 + declining_top10) — graceful degrade on GSC API errors.
 - [Phase 17 P03]: lib/claude_client.generate_strategy gsc_digest as keyword-only kwarg with default None — backward-compat with pre-Phase-17 callers; prompt injects GSC WEEKLY DIGEST block + REQUIREMENT for >=3 GSC-anchored recs.
+- [Phase 17 P04]: M1 fix — schema emission CENTRALIZZATA in ArticleSchema.astro (un solo wiring point per speakable + FAQPage + HowTo auto-detect). Tutte le 6 page templates blog/tutorial (EN/IT/ES) beneficiano automaticamente di nuovi schema types via content+contentType props. No drift, no per-page modifiche per nuovi schema.
+- [Phase 17 P04]: M6 fix — structured-data.ts usa .matchAll() invece di while+exec su pattern /g (no stale .lastIndex state tra chiamate consecutive). 2 idempotence test verificano fix.
+- [Phase 17 P04]: M9 fix — npm run build come final smoke (verifica Astro render-time errors che tsc --noEmit non beccia). Build PASS confermato pre-commit.
+- [Phase 17 P04]: FAQPage + HowTo emessi anche post-Google-deprecation (FAQ 7 May 2026, HowTo Sep 2023). Rationale: AI engines (Perplexity, ChatGPT browse, Gemini, Bing) consumano ancora — zero-cost AI-search signal.
+- [Phase 17 P04]: speakable cssSelectors STRUTTURALI ('article > p:first-of-type', 'article h2'), NON class-based — resistente a refactor Astro/Tailwind class. Stessi selectors esposti in sweep_pages.py SPEAKABLE_SELECTORS per single source of truth.
+- [Phase 17 P04]: HowTo emesso SOLO per contentType='tutorials' (recipes hanno Recipe schema, conflict evitato; reviews/blog non strutturalmente 'how to'). sweep_pages.check_schema flag-ga HowTo su recipe.
+- [Phase 17 P04]: m3 fix — cron_registry.md include NOTE esplicita che umami_feedback @ 04:00 UTC e' DENTRO finestra SDXL ma SAFE (HTTP-only, no Qwen). Regola: solo cron Qwen-dipendenti evitano la finestra.
+- [Phase 17 P04]: Telegram coverage verified — 12 chiamate send_agent_report distribuite ~3/agente (success+empty+error paths) sui 4 Phase 17 agents. >=8 required, excede.
 
 ### Roadmap Evolution
 
@@ -126,6 +135,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-05-26T12:35:00Z
-Stopped at: Completed 17-03-PLAN.md automated tasks (Task 5 dry-run + sample-review checkpoint pending Matteo verification before live Claude Opus content refresh)
-Resume file: .planning/milestones/v1.1-phases/17-gsc-driven-content-pipeline/17-03-SUMMARY.md (see "Task 5 Checkpoint — Awaiting Matteo" section for install + dry-run commands)
+Last session: 2026-05-26T13:10:00Z
+Stopped at: Completed 17-04-PLAN.md automated tasks (Task 5 checkpoint pending Matteo git push + live sweep_pages.py --check schema verification)
+Resume file: .planning/milestones/v1.1-phases/17-gsc-driven-content-pipeline/17-04-SUMMARY.md (see "Task 5 Checkpoint — Awaiting Matteo" section for deploy + verify commands)
