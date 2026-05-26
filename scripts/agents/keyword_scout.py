@@ -18,7 +18,11 @@ from urllib.parse import quote_plus
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import strapi_client as strapi
 from agents.lib import telegram
+from agents.lib import gsc_client
 from agents.lib.slugify import slugify
+# B1 fix: import dal modulo condiviso (NON da meta_optimizer per evitare
+# circular import). Single source of truth per CTR benchmark.
+from agents.lib.ctr_benchmark import CTR_BENCHMARK, benchmark_for_position
 
 # ─── Configurazione ──────────────────────────────────────────────────────────
 
@@ -97,6 +101,14 @@ SEASONAL_KEYWORDS: dict[str, list[int]] = {
 # Year-modifier obsoleti: "best bbq grill 2025" pubblicato nel 2026 = topic stale.
 # Manteniamo solo year corrente e prossimo (forward-looking ok).
 STALE_YEAR_RE = re.compile(r"\b(20[12]\d)\b")
+
+# ─── GSC striking-distance config (Phase 17) ──────────────────────────────
+
+# Striking-distance: query con posizione fuori top 10 ma sotto il limite della
+# 2a SERP (20), con impressions sufficienti per essere segnale (>=30/28gg).
+# Locked per il plan 17-02 (RESEARCH.md sezione E).
+STRIKING_POSITION_RANGE = (8, 20)
+STRIKING_MIN_IMPRESSIONS = 30
 
 
 def is_acceptable_topic(keyword: str, today: datetime | None = None) -> tuple[bool, str]:
@@ -239,6 +251,110 @@ def scout_keywords() -> list[dict]:
     return discoveries
 
 
+def scout_gsc_striking(days: int = 28) -> list[dict]:
+    """Pesca query GSC in striking-distance: pos 8-20, imp>=30, ctr<benchmark.
+
+    Ritorna lista di dict pronti per merge con i risultati Google Suggest:
+      {"query","clicks","impressions","ctr","position","source":"gsc"}
+
+    Fallback graceful: se la GSC fetch fallisce (rete/auth/quota), ritorna []
+    e l'agente continua col solo Google Suggest source — il scouting non deve
+    mai bloccarsi su un errore GSC.
+    """
+    try:
+        from datetime import date as _date, timedelta as _td
+        end = _date.today() - _td(days=3)  # dataState=final ha 2-3gg di lag
+        start = end - _td(days=days)
+        rows = gsc_client.search_analytics(
+            start_date=start.isoformat(),
+            end_date=end.isoformat(),
+            dimensions=["query"],
+            row_limit=5000,
+        )
+    except Exception as e:
+        print(f"[scout_gsc] GSC fetch fallita, skip striking source: {e}")
+        return []
+
+    results: list[dict] = []
+    lo, hi = STRIKING_POSITION_RANGE
+    for row in rows:
+        pos = row.get("position", 0)
+        imp = row.get("impressions", 0)
+        ctr = row.get("ctr", 0)
+        if not (lo <= pos <= hi):
+            continue
+        if imp < STRIKING_MIN_IMPRESSIONS:
+            continue
+        # skip se gia converte sopra benchmark (non e striking-distance vera).
+        # benchmark_for_position clampa pos a 1..10 — perfetto per pos 8-20.
+        if ctr >= benchmark_for_position(pos):
+            continue
+        results.append({
+            "query": row["keys"][0],
+            "clicks": row.get("clicks", 0),
+            "impressions": imp,
+            "ctr": ctr,
+            "position": pos,
+            "source": "gsc",
+        })
+    results.sort(key=lambda r: r["impressions"], reverse=True)
+    return results
+
+
+def _dedup_candidates(suggest: list[dict], striking: list[dict]) -> list[dict]:
+    """Dedup Suggest+GSC via slugify. Source unificato 'gsc+suggest' se overlap.
+
+    Strategia: chiave = slugify(query). Se uno stesso slug compare sia in
+    Suggest che in GSC striking, manteniamo l'entry Suggest (per preservare
+    cluster/source_seed) ma sovrascriviamo metriche GSC e marchiamo
+    source='gsc+suggest'. Pure GSC entries mantengono source='gsc'.
+    Pure Suggest entries mantengono source='suggest'.
+    """
+    out: dict[str, dict] = {}
+    for s in suggest:
+        key = slugify(s.get("query", s.get("keyword", "")))
+        out[key] = {**s, "source": "suggest"}
+    for g in striking:
+        key = slugify(g["query"])
+        if key in out:
+            out[key]["source"] = "gsc+suggest"
+            # mantieni metriche GSC (utili per ranking + report)
+            for k in ("clicks", "impressions", "ctr", "position"):
+                if k in g:
+                    out[key][k] = g[k]
+        else:
+            out[key] = g
+    return list(out.values())
+
+
+def build_report(merged: list[dict]) -> str:
+    """Formatta i candidati per il Telegram report con source labels.
+
+    Format:
+        [GSC striking] "query" — pos 11.3, 47 imp, 0.0% CTR
+        [Suggest] "query" — seed "best meat thermometer"
+        [GSC+Suggest] "query" — pos 9.1, 124 imp, 1.6% CTR
+    """
+    lines: list[str] = []
+    for c in merged:
+        src = c.get("source", "suggest")
+        q = c.get("query") or c.get("keyword", "?")
+        if src == "gsc":
+            lines.append(
+                f"[GSC striking] \"{q}\" — pos {c.get('position', 0):.1f}, "
+                f"{c.get('impressions', 0)} imp, {c.get('ctr', 0):.1%} CTR"
+            )
+        elif src == "gsc+suggest":
+            lines.append(
+                f"[GSC+Suggest] \"{q}\" — pos {c.get('position', 0):.1f}, "
+                f"{c.get('impressions', 0)} imp, {c.get('ctr', 0):.1%} CTR"
+            )
+        else:  # 'suggest' o sconosciuto
+            seed = c.get("source_seed", "?")
+            lines.append(f"[Suggest] \"{q}\" — seed \"{seed}\"")
+    return "\n".join(lines)
+
+
 def prioritize_and_create_queue(discoveries: list[dict], max_items: int = 7) -> list[dict]:
     """Seleziona le top keyword e crea entry in ContentQueue."""
     # Priorita: distribuisci equamente tra cluster
@@ -297,22 +413,50 @@ def prioritize_and_create_queue(discoveries: list[dict], max_items: int = 7) -> 
 def main():
     print(f"[{datetime.now().isoformat()}] Keyword Scout avviato")
 
+    # 1) Suggest source (path storico)
     discoveries = scout_keywords()
-    print(f"Scoperte {len(discoveries)} keyword candidate")
+    # Normalizza shape per dedup helper (keyword -> query)
+    suggest_candidates = [
+        {**d, "query": d.get("keyword", "")}
+        for d in discoveries
+    ]
+    print(f"Scoperte {len(suggest_candidates)} keyword candidate (Google Suggest)")
 
-    created = prioritize_and_create_queue(discoveries, max_items=7)
+    # 2) GSC striking-distance source (Phase 17 — fusione prima del dedup)
+    striking = scout_gsc_striking(days=28)
+    print(f"Striking-distance GSC: {len(striking)} query candidate")
+
+    # 3) Fusione + dedup via slugify
+    merged = _dedup_candidates(suggest_candidates, striking)
+    print(f"Merged (dopo dedup Suggest+GSC): {len(merged)} candidati totali")
+
+    # Per backward-compat con prioritize_and_create_queue: assicurati che
+    # ogni candidato abbia 'keyword' + 'cluster' + 'content_type'. I candidati
+    # pure-GSC potrebbero non averli; assegna cluster 'gsc-striking' di default
+    # e content_type 'blog' (Matteo riassegna in editing).
+    for m in merged:
+        if "keyword" not in m:
+            m["keyword"] = m.get("query", "")
+        if "cluster" not in m:
+            m["cluster"] = "gsc-striking"
+        if "content_type" not in m:
+            m["content_type"] = "blog"
+
+    created = prioritize_and_create_queue(merged, max_items=7)
     print(f"Create {len(created)} entry in ContentQueue")
 
-    # Report Telegram
+    # Report Telegram con source labels
+    report_lines = build_report(merged[:15])  # top 15 per non saturare il msg
+    summary = (
+        f"Piano settimanale: {len(created)} nuovi topic ContentQueue | "
+        f"Candidati: {len(merged)} (Suggest {len(suggest_candidates)} + "
+        f"GSC striking {len(striking)})"
+    )
     if created:
-        details = [
-            f"<b>{item['keyword']}</b> ({item['cluster']}, {item['content_type']})"
-            for item in created
-        ]
         telegram.send_agent_report(
             "Keyword Scout",
-            f"Piano settimanale: {len(created)} nuovi topic scoperti da {len(discoveries)} candidati",
-            details,
+            summary,
+            details=[report_lines] if report_lines else None,
         )
     else:
         telegram.send_agent_report(

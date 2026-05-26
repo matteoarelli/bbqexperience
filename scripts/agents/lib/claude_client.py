@@ -285,9 +285,42 @@ def _extract_json(raw: str) -> dict:
     return json.loads(text[start : end + 1])
 
 
-def _generate_outline(title: str, keyword: str, cluster: str, content_type: str) -> dict:
-    """Phase 1: outline JSON con sezioni + key points + word target."""
+def _generate_outline(
+    title: str,
+    keyword: str,
+    cluster: str,
+    content_type: str,
+    *,
+    gsc_queries: list[dict] | None = None,
+) -> dict:
+    """Phase 1: outline JSON con sezioni + key points + word target.
+
+    Phase 17 priming: se gsc_queries e' non-vuoto, inietta le top 5 query
+    reali GSC nel prompt per ancorare le H2 alle query che gia portano
+    impressions/clicks reali (graceful degrade quando assente).
+    """
     sys_prompt = "You are a senior BBQ editor. Output STRICT JSON only, no prose, no markdown fences."
+
+    gsc_block = ""
+    if gsc_queries:
+        # Supporta sia shape {"query": "..."} (content_generator main) che
+        # {"keys": ["..."]} (GSC raw rows da queries_for_page).
+        lines = []
+        for q in gsc_queries[:5]:
+            qtext = q.get("query") or (q.get("keys", [""])[0] if q.get("keys") else "")
+            if not qtext:
+                continue
+            lines.append(
+                f"- {qtext} (clicks {q.get('clicks', 0)}, "
+                f"pos {q.get('position', 0):.1f})"
+            )
+        if lines:
+            gsc_block = (
+                "\n\nREAL GOOGLE QUERIES (last 28d) bringing or trying to bring "
+                "traffic — use these to shape H2 sections AND mirror their phrasing:\n"
+                + "\n".join(lines) + "\n"
+            )
+
     user_prompt = f"""Generate an outline for a BBQ Experience article.
 
 Title: {title}
@@ -295,7 +328,7 @@ Target keyword: {keyword}
 Cluster: {cluster}
 Content type: {content_type}
 Total target: 1800-2200 words
-
+{gsc_block}
 Output ONLY valid JSON in this exact shape:
 {{
   "intro_angle": "1-sentence angle that hooks the pitmaster reader (no generic openings)",
@@ -404,12 +437,22 @@ def generate_article_multistep(
     keyword: str,
     cluster: str,
     content_type: str,
+    *,
+    gsc_queries: list[dict] | None = None,
 ) -> dict:
     """Pipeline: outline -> sezioni -> assembly. Stessa signature di generate_article single-shot.
+
+    Phase 17 priming (gsc_queries opzionale):
+    - Se presente: iniettato nel prompt outline (vedi _generate_outline) E le
+      top 3 query reali vengono prepended a faq_topics per ancorare l'assembly
+      alle vere query Google.
+    - Se assente/None/[]: comportamento identico a pre-Phase 17 (graceful degrade).
+
     Ritorna dict con keys: content, excerpt, seo_title, seo_description.
     """
     print("[multistep] phase 1/3: outline")
-    outline = _generate_outline(title, keyword, cluster, content_type)
+    outline = _generate_outline(title, keyword, cluster, content_type,
+                                 gsc_queries=gsc_queries)
     sections = outline.get("sections", [])
     print(f"[multistep] outline: {len(sections)} sezioni, faq={len(outline.get('faq_topics', []))}")
 
@@ -426,13 +469,26 @@ def generate_article_multistep(
                 html = html[4:].strip()
         sections_html.append(html)
 
+    # FAQ topics: se gsc_queries presenti, prepend top 3 query come candidate
+    # FAQ. Dedup mantenendo l'ordine (real queries first, original outline FAQ
+    # come fallback). Cap a 5 totali per non saturare l'assembly prompt.
+    faq_topics = outline.get("faq_topics", []) or []
+    if gsc_queries:
+        real_qs: list[str] = []
+        for q in gsc_queries[:3]:
+            qtext = q.get("query") or (q.get("keys", [""])[0] if q.get("keys") else "")
+            if qtext:
+                real_qs.append(qtext)
+        # dedup preserving order
+        faq_topics = list(dict.fromkeys(real_qs + faq_topics))[:5]
+
     print("[multistep] phase 3/3: assembly")
     final_html = _assemble_article(
         title=title,
         keyword=keyword,
         cluster=cluster,
         sections_html=sections_html,
-        faq_topics=outline.get("faq_topics", []),
+        faq_topics=faq_topics,
         intro_angle=outline.get("intro_angle", ""),
     )
     if "```" in final_html:

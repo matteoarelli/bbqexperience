@@ -132,13 +132,69 @@ def get_next_acceptable_queue_item(max_attempts: int = 15) -> dict | None:
     return None
 
 
+def _fetch_gsc_queries_for_keyword(keyword: str) -> list[dict] | None:
+    """Phase 17 priming: pesca le top 5 query GSC che contengono il keyword.
+
+    Best-effort: ogni errore (rete, auth, no rows) ritorna None per attivare il
+    graceful degrade nel multistep generator. NON deve mai bloccare la
+    generazione contenuto.
+    """
+    if not keyword:
+        return None
+    try:
+        from agents.lib import gsc_client
+        from datetime import date as _date, timedelta as _td
+        end = _date.today() - _td(days=3)
+        start = end - _td(days=28)
+        rows = gsc_client.search_analytics(
+            start_date=start.isoformat(),
+            end_date=end.isoformat(),
+            dimensions=["query"],
+            dimension_filter_groups=[{
+                "filters": [{
+                    "dimension": "query",
+                    "operator": "contains",
+                    "expression": keyword.lower(),
+                }],
+            }],
+            row_limit=10,
+        )
+    except Exception as e:
+        print(f"  GSC priming non disponibile (graceful degrade): {e}")
+        return None
+    if not rows:
+        return None
+    # Top 5 per clicks, normalizza shape per consumer (lib/claude_client)
+    rows_sorted = sorted(rows, key=lambda r: r.get("clicks", 0), reverse=True)[:5]
+    normalized = [
+        {
+            "query": r["keys"][0],
+            "clicks": r.get("clicks", 0),
+            "impressions": r.get("impressions", 0),
+            "ctr": r.get("ctr", 0),
+            "position": r.get("position", 0),
+        }
+        for r in rows_sorted
+    ]
+    print(f"  GSC priming: {len(normalized)} query reali per '{keyword}'")
+    return normalized
+
+
 def generate_article(title: str, keyword: str, cluster: str, content_type: str) -> dict:
     """Genera articolo completo in EN. Default single-shot Qwen.
-    Se env MULTI_STEP=1: usa pipeline outline -> sezioni -> assembly (qualità più alta)."""
+    Se env MULTI_STEP=1: usa pipeline outline -> sezioni -> assembly (qualità più alta).
+
+    Phase 17: quando MULTI_STEP attivo E keyword presente, pesca le top 5 GSC
+    query reali per ancorare l'outline + FAQ ai veri search intent.
+    """
 
     if os.environ.get("MULTI_STEP", "").strip() in ("1", "true", "yes"):
         print("  [generator] MULTI_STEP attivo")
-        return claude.generate_article_multistep(title, keyword, cluster, content_type)
+        gsc_queries = _fetch_gsc_queries_for_keyword(keyword)
+        return claude.generate_article_multistep(
+            title, keyword, cluster, content_type,
+            gsc_queries=gsc_queries,
+        )
 
     # --- Single-shot path (default) ---
 
