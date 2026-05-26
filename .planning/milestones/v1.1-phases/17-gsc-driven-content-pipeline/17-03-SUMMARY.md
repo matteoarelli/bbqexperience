@@ -283,6 +283,21 @@ Documentation of Task 5 outcomes will be appended to this SUMMARY post-checkpoin
 - **v2 deferred:** auto-revert mechanism — if traffic to refreshed page drops 50%+ in 7 days post-refresh, automatically restore the pre-refresh version from a snapshot.
 - **17-04 follow-up:** schema markup audit (FAQPage/HowTo/speakable) is the remaining Phase 17 plan.
 
+## Task 5 Checkpoint — Eseguito 2026-05-26 da orchestrator
+
+| Step | Risultato | Dettaglio |
+|------|-----------|-----------|
+| A — cron `.119` | ✓ INSTALLATO | `0 8 * * 0 /home/matteo/bbqexperience/run-agent.sh gsc_refresh.py >> logs/gsc_refresh.log 2>&1` appeso a crontab `.119` (sotto `TZ=UTC` già impostato in 17-02). Prima esecuzione: dom 31/05 08:00 UTC (10:00 CEST). |
+| B — Windows Task Scheduler | ✓ REGISTRATA | `schtasks /Create /TN "BBQ GSC Refresh Review" /SC WEEKLY /D SUN /ST 10:00 /TR ".\gsc_refresh_review.cmd" /F`. Prima esecuzione: dom 31/05 10:00 locale. |
+| C — dry-run selector `.119` | ✓ 10 CANDIDATI | `python3 scripts/agents/gsc_refresh.py` → `state/gsc_refresh_queue.jsonl` con 10 record reali. Top: weber-kettle-vs-big-green-egg (103k impr / 1 click / CTR 0.001% / branches [decay, ctr_opportunity]). Tutti EN. |
+| D — dry-run review (1 candidato) | ✓ QUALITY GATE FUNZIONA | Backup queue full10 → ridotta a 1 record (weber-kettle) → `python gsc_refresh_review.py --dry-run` su Windows. Multistep generation completato (7 sezioni + 5 FAQ + 3122 parole, 1 retry timeout recuperato). **Claude Opus review score 5/10 → `needs_human`** (NO auto-apply). |
+| E — quality issues catturati | ✓ ROBUSTO | Gate ha beccato 6+ fact_accuracy issues critical/major: pesi Weber Kettle contraddittori (50 vs 60 lbs, reale ~32), pesi BGE Mini contraddittori (30 vs 38 lbs), BGE warranty contraddittoria (10 anni vs Lifetime), section header "2024" mentre articolo è 2026, prezzi BGE MiniMax/Large/Traeger imprecisi. Auto-pubblicare sarebbe stato disastroso. |
+| F — restore + cleanup | ✓ | Queue ripristinata a 10 record originali, file test rimossi, queue sincronizzata su `.119` via scp. |
+
+**Caveat noto da propagare:** Alcune GSC queries dei candidati sono long-tail spurie ("big green egg basketball/banjo/electric kettle review"). Claude/Qwen le hanno trattate come keyword intent reale → 3 delle 7 sezioni generate erano off-topic. Il quality gate ha bloccato per `fact_accuracy` ma NON ha esplicitamente flaggato l'irrilevanza topical. Future iterazione: aggiungere `topical_relevance` come dimension nel prompt di review (cattura sezioni semanticamente fuori scope rispetto al titolo).
+
+**Decisione:** dry-run pattern preserve. Primo run live = domenica 31/05 10:00 locale via Windows Task Scheduler. Matteo controllerà `state/gsc_refresh_pending.jsonl` (needs_human) + `state/gsc_refresh_success.jsonl` (auto-published) PRIMA di lasciare l'automation girare ogni domenica.
+
 ## Self-Check: PASSED
 
 All 7 created files exist on disk. All 7 task commits present in git log. Full pytest suite 129 passed + 12 skipped (zero regression from baseline 84). Plan-level grep verifications all pass:
