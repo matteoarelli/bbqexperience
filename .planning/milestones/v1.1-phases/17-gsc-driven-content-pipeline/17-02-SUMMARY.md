@@ -254,7 +254,22 @@ No fix attempts spilled over the 3-per-task limit; all issues resolved on first 
 
 ## Known Stubs
 
-**None.** All deliverables fully functional. The first live meta_optimizer run will populate `state/meta_changes_pending.jsonl` with real proposals; meta_review will consume them. The cron + Windows Task Scheduler installation is the only remaining step (Task 5 checkpoint).
+**None.** All deliverables fully functional. The first live meta_optimizer run will populate `state/meta_changes_pending.jsonl` with real proposals; meta_review will consume them.
+
+## Task 5 Checkpoint — Eseguito 2026-05-26 da orchestrator
+
+| Step | Risultato | Dettaglio |
+|------|-----------|-----------|
+| A — cron `.119` | ✓ INSTALLATO | `TZ=UTC\n30 3 * * * /home/matteo/bbqexperience/run-agent.sh meta_optimizer.py >> /home/matteo/bbqexperience/logs/meta_optimizer.log 2>&1` aggiunto a crontab `.119`. Backup precedente in `/tmp/crontab-backup-20260526-phase17.txt` (97 righe). Prima esecuzione: domani 03:30 UTC (05:30 CEST). |
+| B — Hetzner `hooks.json` | ✓ MODIFICATO | Aggiunta seconda `not match` rule alla regola `bbqexperience-rebuild` (Phase 16 ab-experiment già presente). Backup in `/opt/webhooks/hooks.json.bak-phase17`. Webhook service restartato (`systemctl restart webhook` → active). |
+| C — control test | ⚠ scoperta config | TEST 1 (con skip_rebuild=True) e TEST 2 (senza) **entrambi** non hanno scatenato webhook. Investigato la DB Strapi: webhook "Rebuild site" registrato solo su `["entry.publish","entry.unpublish","entry.delete"]` — **NON su `entry.update`**. Quindi la modifica meta corrente di articoli published NON genera webhook a prescindere. La protezione X-Skip-Rebuild rimane valida come safety net se in futuro Strapi config venga estesa a `entry.update`. |
+| D — Windows Task Scheduler | ✓ REGISTRATA | `schtasks /Create /TN "BBQ Meta Review" /SC DAILY /ST 09:00 /TR ".\meta_review.cmd"` — task "BBQ Meta Review" creata, prima esecuzione: domani 09:00 locale. |
+| E — revert articolo test | ✓ COMPLETATO | `bo4s0mc4sbmmgb7q6uomtaj9` (deep-dive-indulge-in-a-smokehouse-feast-this-weekend) seo_title + seo_description ripristinati al valore originale via `s.update(..., skip_rebuild=True)`. |
+
+**Scoperta importante (da propagare in 17-03/17-04):** Strapi webhook su BBQ ascolta solo `entry.publish/unpublish/delete`, mai `entry.update`. Implicazioni:
+- `meta_optimizer` PUT su seo_* di articoli published → no rebuild (per design Strapi config attuale)
+- `gsc_refresh` regenerazione contenuto → se promuove via re-publish (toggle published_at) → rebuild **dovrebbe** scattare → X-Skip-Rebuild **non** applicabile (non vogliamo bloccare rebuild su nuovo contenuto), quindi gsc_refresh usa `skip_rebuild=False` (default)
+- Se in futuro vogliamo regenerazione live SENZA rebuild → aggiungere `entry.update` ai webhook events Strapi + tenere X-Skip-Rebuild come escape hatch
 
 ## Self-Check: PASSED
 
