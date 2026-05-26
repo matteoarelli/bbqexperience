@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Consolidation & Outcome Measurement
-status: executing
-stopped_at: v1.2 opened 2026-05-26 in autonomous-mode — 3 phases planned (18 GSC polish, 19 tech debt, 20 measurement framework), 9 requirements (SEO-13..15, DEBT-04..06, MEASURE-01..03)
-last_updated: "2026-05-26T14:00:00.000Z"
+status: complete
+stopped_at: v1.2 milestone CLOSED 2026-05-26 — 3/3 phases shipped (18 GSC polish, 19 tech debt, 20 outcome measurement framework). All 9 requirements complete (SEO-13/14/15, DEBT-04/05/06, MEASURE-01/02/03). Phase 20 ship: phase17_outcome_tracker.py weekly Mon 09:00 UTC + decision tree + Telegram report — cron install to-be-deployed on .119.
+last_updated: "2026-05-26T15:36:46.000Z"
 last_activity: 2026-05-26
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 3
+  total_plans: 3
+  completed_plans: 3
+  percent: 100
 ---
 
 # Project State
@@ -25,13 +25,13 @@ See: .planning/PROJECT.md (updated 2026-04-15 after starting v1.1)
 
 ## Current Position
 
-Milestone: v1.2 Consolidation & Outcome Measurement (Phases 18–20)
-Phase: 18 — gsc-pipeline-polish (planning next)
-Plan: Not started
-Status: Executing Phase 17 (Plan 17-04 — LAST plan of Phase 17)
+Milestone: v1.2 Consolidation & Outcome Measurement (Phases 18–20) — **COMPLETE**
+Phase: 20 — outcome-measurement-framework (shipped 2026-05-26)
+Plan: 20-01 autonomous-mode inline (shipped)
+Status: v1.2 milestone closed — ready for v1.3 planning
 Last activity: 2026-05-26
 
-Progress: v1.0 [██████████] 100% · v1.1 [█████░░░░░] ~50% (4/8 phases)
+Progress: v1.0 [██████████] 100% · v1.1 [██████████] 100% · v1.2 [██████████] 100%
 
 ## Performance Metrics
 
@@ -63,6 +63,9 @@ Progress: v1.0 [██████████] 100% · v1.1 [█████░
 | Phase 17 P02 | 16min | 4 tasks + 1 checkpoint | 20 files |
 | Phase 17 P03 | 12min | 4 tasks + 1 checkpoint | 11 files |
 | Phase 17 P04 | 12min | 4 tasks + 1 checkpoint | 13 files |
+| Phase 18 (autonomous) | ~10min | 3 requirements inline | 5 files |
+| Phase 19 (autonomous) | ~5min | 3 requirements inline | 4 files |
+| Phase 20 (autonomous) | ~5min | 3 requirements inline | 6 files |
 
 ## Accumulated Context
 
@@ -105,6 +108,10 @@ Recent decisions affecting current work (v1.1):
 - [Phase 17 P04]: HowTo emesso SOLO per contentType='tutorials' (recipes hanno Recipe schema, conflict evitato; reviews/blog non strutturalmente 'how to'). sweep_pages.check_schema flag-ga HowTo su recipe.
 - [Phase 17 P04]: m3 fix — cron_registry.md include NOTE esplicita che umami_feedback @ 04:00 UTC e' DENTRO finestra SDXL ma SAFE (HTTP-only, no Qwen). Regola: solo cron Qwen-dipendenti evitano la finestra.
 - [Phase 17 P04]: Telegram coverage verified — 12 chiamate send_agent_report distribuite ~3/agente (success+empty+error paths) sui 4 Phase 17 agents. >=8 required, excede.
+- [Phase 20]: Baseline 2026-05-25 (35 clicks/29k impr/0.12% CTR/pos 6.7) hardcoded come constant nel tracker — NON auto-fetched da GSC, preserva integrità storica del confronto across cron runs.
+- [Phase 20]: Decision tree as pure function `_decide_verdict(delta, weeks_elapsed)` — 4 verdicts (success/on-track/revisit_prompts/degraded_rollback) + monitoring catch-all per early phase. Priority order: degraded_rollback wins quando overlap con revisit_prompts (defense via week_elapsed >= 4 gate).
+- [Phase 20]: Top climbing/declining via `ctr_vs_benchmark_x` ratio (NOT raw CTR) — normalizza per position bias. Filter impressions >= 50 per escludere long-tail noise.
+- [Phase 20]: Live cron install DEFERRED post-merge — code+doc ready (crontab.txt snippet + cron_registry.md status `to-install`), install crontab .119 è Matteo or autonomous-mode trigger.
 
 ### Roadmap Evolution
 
@@ -135,6 +142,6 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-05-26T13:10:00Z
-Stopped at: Completed 17-04-PLAN.md automated tasks (Task 5 checkpoint pending Matteo git push + live sweep_pages.py --check schema verification)
-Resume file: .planning/milestones/v1.1-phases/17-gsc-driven-content-pipeline/17-04-SUMMARY.md (see "Task 5 Checkpoint — Awaiting Matteo" section for deploy + verify commands)
+Last session: 2026-05-26T15:36:46Z
+Stopped at: Completed v1.2 milestone — Phase 20 (Outcome Measurement Framework) shipped autonomous-mode inline. phase17_outcome_tracker.py + 20 tests passing + decision_tree.md doc + cron snippet documented for .119 install. All 9 v1.2 requirements complete (SEO-13/14/15 + DEBT-04/05/06 + MEASURE-01/02/03).
+Resume file: .planning/milestones/v1.2-phases/20-outcome-measurement-framework/20-SUMMARY.md (see "First Live Run" section for install commands + smoke test). Next: v1.3 planning or cron install deployment on .119.
