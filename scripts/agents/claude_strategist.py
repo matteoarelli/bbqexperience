@@ -11,7 +11,7 @@ Cron: Domenica 07:00 su 192.168.1.119 (prima del keyword_scout di lunedi).
 import os
 import sys
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from pathlib import Path
 from urllib.request import Request, urlopen
 
@@ -20,6 +20,9 @@ from agents.lib import strapi_client as strapi
 from agents.lib import telegram
 from agents.lib import claude_client as claude
 from agents.lib import ollama
+from agents.lib import gsc_client
+# B1 fix: shared source of truth (no try/except fallback, no inline duplicate)
+from agents.lib.ctr_benchmark import CTR_BENCHMARK, benchmark_for_position
 
 UMAMI_URL = os.environ.get("UMAMI_URL", "https://analytics.bbq-experience.com")
 UMAMI_PASSWORD = os.environ.get("UMAMI_PASSWORD", "")
@@ -160,6 +163,153 @@ def get_current_queue() -> str:
     return "\n".join(lines)
 
 
+def get_gsc_digest() -> dict:
+    """Digest GSC settimanale per il prompt strategist (Plan 17-03).
+
+    4 sezioni:
+    - summary_delta: 7d vs prev 7d (clicks/imp/ctr/pos + delta_clicks_pct + delta_pos)
+    - striking_top10: pos in [8,20] AND imp>=30
+    - ctr_opportunity_top10: pos in [1,10] AND ctr<benchmark, sorted by gap_pct desc
+    - declining_top10: decay>=30% AND imp_28d>=200
+
+    Graceful degrade: qualsiasi errore GSC -> dict con liste vuote, mai raise.
+    Caller (main) propaga al claude_client.generate_strategy via gsc_digest kwarg;
+    se vuoto, il prompt finale non include il blocco GSC WEEKLY DIGEST.
+    """
+    result = {
+        "summary_delta": {},
+        "striking_top10": [],
+        "ctr_opportunity_top10": [],
+        "declining_top10": [],
+    }
+    try:
+        end = date.today() - timedelta(days=3)
+        start_7 = end - timedelta(days=7)
+        start_prev = start_7 - timedelta(days=7)
+        start_28 = end - timedelta(days=28)
+
+        # Summary delta: aggrega clicks/imp/ctr/position 7d vs prev 7d
+        curr_7 = gsc_client.search_analytics(
+            start_date=start_7.isoformat(), end_date=end.isoformat(),
+            dimensions=["date"], row_limit=10,
+        )
+        prev_7 = gsc_client.search_analytics(
+            start_date=start_prev.isoformat(),
+            end_date=(start_7 - timedelta(days=1)).isoformat(),
+            dimensions=["date"], row_limit=10,
+        )
+
+        def _agg(rows):
+            if not rows:
+                return {"clicks": 0, "impressions": 0, "ctr": 0, "position": 0}
+            cl = sum(r.get("clicks", 0) for r in rows)
+            im = sum(r.get("impressions", 0) for r in rows)
+            ctr = (cl / im) if im else 0
+            pos = sum(r.get("position", 0) for r in rows) / len(rows)
+            return {"clicks": cl, "impressions": im, "ctr": ctr, "position": pos}
+
+        c = _agg(curr_7)
+        p = _agg(prev_7)
+        result["summary_delta"] = {
+            "total_clicks_7d": c["clicks"],
+            "total_clicks_prev_7d": p["clicks"],
+            "total_imp_7d": c["impressions"],
+            "total_imp_prev_7d": p["impressions"],
+            "avg_ctr_7d": c["ctr"],
+            "avg_ctr_prev_7d": p["ctr"],
+            "avg_pos_7d": c["position"],
+            "avg_pos_prev_7d": p["position"],
+            "delta_clicks_pct": ((c["clicks"] - p["clicks"]) / p["clicks"] * 100) if p["clicks"] else 0,
+            "delta_pos": c["position"] - p["position"],
+        }
+
+        # Striking distance (query level, 28d)
+        striking_rows = gsc_client.search_analytics(
+            start_date=start_28.isoformat(), end_date=end.isoformat(),
+            dimensions=["query"], row_limit=5000,
+        )
+        striking: list[dict] = []
+        for r in striking_rows:
+            pos = r.get("position", 0)
+            imp = r.get("impressions", 0)
+            if not (8 <= pos <= 20):
+                continue
+            if imp < 30:
+                continue
+            striking.append({
+                "query": r["keys"][0],
+                "position": round(pos, 1),
+                "impressions": imp,
+                "clicks": r.get("clicks", 0),
+                "ctr": r.get("ctr", 0),
+            })
+        striking.sort(key=lambda x: x["impressions"], reverse=True)
+        result["striking_top10"] = striking[:10]
+
+        # CTR opportunity (page level, 28d, pos 1-10 sotto benchmark)
+        pages_28 = gsc_client.search_analytics(
+            start_date=start_28.isoformat(), end_date=end.isoformat(),
+            dimensions=["page"], row_limit=2000,
+        )
+        opp: list[dict] = []
+        for r in pages_28:
+            pos = r.get("position", 0)
+            imp = r.get("impressions", 0)
+            if not (1 <= pos <= 10):
+                continue
+            if imp < 100:
+                continue
+            ctr = r.get("ctr", 0)
+            benchmark = benchmark_for_position(pos)  # shared helper, no fallback
+            if ctr >= benchmark:
+                continue
+            opp.append({
+                "url": r["keys"][0],
+                "position": round(pos, 1),
+                "impressions": imp,
+                "clicks": r.get("clicks", 0),
+                "ctr": ctr,
+                "benchmark_ctr": benchmark,
+                "gap_pct": (benchmark - ctr) / benchmark * 100,
+            })
+        opp.sort(key=lambda x: x["gap_pct"], reverse=True)
+        result["ctr_opportunity_top10"] = opp[:10]
+
+        # Declining (page level, decay 7d vs avg 28d)
+        pages_7 = gsc_client.search_analytics(
+            start_date=start_7.isoformat(), end_date=end.isoformat(),
+            dimensions=["page"], row_limit=2000,
+        )
+        pages_7_map = {r["keys"][0]: r for r in pages_7}
+        declining: list[dict] = []
+        for r in pages_28:
+            url = r["keys"][0]
+            imp_28 = r.get("impressions", 0)
+            cl_28 = r.get("clicks", 0)
+            if imp_28 < 200:
+                continue
+            avg_w = cl_28 / 4.0
+            if avg_w == 0:
+                continue
+            row7 = pages_7_map.get(url, {})
+            cl_7 = row7.get("clicks", 0)
+            decay = (avg_w - cl_7) / avg_w * 100
+            if decay < 30:
+                continue
+            declining.append({
+                "url": url,
+                "clicks_7d": cl_7,
+                "clicks_prev_7d_avg": round(avg_w, 1),
+                "decay_pct": round(decay, 1),
+                "position_drift": round(row7.get("position", 0) - r.get("position", 0), 1),
+            })
+        declining.sort(key=lambda x: x["decay_pct"], reverse=True)
+        result["declining_top10"] = declining[:10]
+    except Exception as e:
+        print(f"[strategist] get_gsc_digest fallita (graceful degrade): {e}")
+    return result
+
+
 def should_generate_pillar() -> dict | None:
     """Determina se e il momento di generare un pillar article.
     Ritorna info sul pillar da generare o None."""
@@ -269,12 +419,18 @@ def main():
     competitor = get_competitor_news()
     queue = get_current_queue()
     traffic_scores = get_traffic_scores()
+    # Plan 17-03: GSC weekly digest (graceful degrade su qualsiasi errore)
+    gsc_digest = get_gsc_digest()
 
     print("Dati raccolti, genero analisi strategica con Claude...")
 
-    # 2. Genera analisi strategica con Claude
+    # 2. Genera analisi strategica con Claude (GSC digest iniettato come kwarg
+    # backward-compat: gsc_digest=None mantiene il comportamento pre-Phase 17)
     try:
-        strategy = claude.generate_strategy(traffic, performance, competitor, queue, traffic_scores)
+        strategy = claude.generate_strategy(
+            traffic, performance, competitor, queue, traffic_scores,
+            gsc_digest=gsc_digest,
+        )
     except Exception as e:
         print(f"[ERRORE] Claude non disponibile: {e}")
         telegram.send_agent_report(

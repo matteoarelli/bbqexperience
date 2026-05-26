@@ -192,8 +192,21 @@ def generate_strategy(
     competitor_news: str,
     current_queue: str,
     traffic_scores: str = "",
+    *,
+    gsc_digest: dict | None = None,
 ) -> str:
-    """Genera analisi strategica settimanale. Ritorna report strutturato."""
+    """Genera analisi strategica settimanale. Ritorna report strutturato.
+
+    Phase 17 (PLAN 17-03): gsc_digest kwarg opzionale per iniettare GSC weekly
+    digest nel prompt. Backward compat preservata: caller esistenti continuano
+    a funzionare senza modifiche (default None -> nessun blocco GSC nel prompt).
+
+    gsc_digest shape (4 keys):
+      - summary_delta: dict con delta_clicks_pct/delta_pos vs prev 7d
+      - striking_top10: list of {query, position, impressions, clicks, ctr}
+      - ctr_opportunity_top10: list of {url, position, impressions, clicks, ctr, benchmark_ctr, gap_pct}
+      - declining_top10: list of {url, clicks_7d, clicks_prev_7d_avg, decay_pct, position_drift}
+    """
     traffic_section = ""
     if traffic_scores:
         traffic_section = f"""
@@ -204,6 +217,46 @@ Use this data to:
 - Prioritize refresh/expansion for underperforming content with high potential
 - Identify top performers to replicate their patterns
 - Flag content that has been declining (30d >> 7d*4 indicates downtrend)
+"""
+
+    gsc_block = ""
+    if gsc_digest:
+        sd = gsc_digest.get("summary_delta", {}) or {}
+        sd_text = (
+            f"Delta vs prev 7d: clicks {sd.get('delta_clicks_pct', 0):+.1f}%, "
+            f"avg pos {sd.get('delta_pos', 0):+.2f}"
+        )
+        striking_text = "\n".join(
+            f"  - \"{q['query']}\" pos {q['position']}, "
+            f"{q['impressions']} imp, {q['ctr']:.1%}"
+            for q in gsc_digest.get("striking_top10", [])[:10]
+        )
+        opp_text = "\n".join(
+            f"  - {o['url']} pos {o['position']}, "
+            f"gap {o.get('gap_pct', 0):.0f}% below benchmark"
+            for o in gsc_digest.get("ctr_opportunity_top10", [])[:10]
+        )
+        decl_text = "\n".join(
+            f"  - {d['url']} decay {d.get('decay_pct', 0)}% "
+            f"(clicks 7d {d.get('clicks_7d', 0)} vs avg {d.get('clicks_prev_7d_avg', 0)})"
+            for d in gsc_digest.get("declining_top10", [])[:10]
+        )
+        gsc_block = f"""
+
+=== GSC WEEKLY DIGEST ===
+{sd_text}
+
+Top 10 STRIKING DISTANCE (pos 8-20, imp>=30):
+{striking_text or "  (none)"}
+
+Top 10 CTR OPPORTUNITY (pos 1-10, below benchmark):
+{opp_text or "  (none)"}
+
+Top 10 DECLINING (decay >=30%, imp>=200):
+{decl_text or "  (none)"}
+
+REQUIREMENT: at least 3 recommendations MUST reference specific GSC metrics
+(clicks/impressions/CTR/position/striking/decay) when GSC WEEKLY DIGEST is non-empty.
 """
 
     prompt = f"""Sei lo strategy advisor di BBQ Experience (bbq-experience.com).
@@ -220,7 +273,7 @@ NOVITA COMPETITOR:
 
 CODA ATTUALE:
 {current_queue}
-
+{gsc_block}
 Genera un report con:
 1. TOP INSIGHT: la cosa piu importante emersa dai dati (1-2 frasi)
 2. CONTENUTI DA PRIORITIZZARE: 3 topic specifici con keyword e motivazione
