@@ -84,6 +84,8 @@ const difficultyColors: Record<string, string> = {
     dateModified={tutorial.updatedAt}
     imageUrl={coverImageUrl}
     locale={locale}
+    content={tutorial.content}
+    contentType="tutorials"
   />
 
   {Astro.locals.isPreview && (

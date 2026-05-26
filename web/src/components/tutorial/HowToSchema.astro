@@ -1,0 +1,53 @@
+---
+/**
+ * HowToSchema — Standalone JSON-LD HowTo emitter.
+ *
+ * USO PREFERITO (Phase 17-04): passare `content` + `contentType="tutorials"` ad
+ * ArticleSchema.astro — l'auto-detect HowTo e' centralizzato la' (M1 fix).
+ *
+ * Questo componente resta come escape hatch per pagine ad-hoc che NON usano
+ * ArticleSchema o per casi dove la nomenclatura "HowTo" non e' tutorial-driven.
+ *
+ * Schema.org HowTo: deprecated rich result Sep 2023 ma ancora consumato da AI
+ * search engines (Perplexity, ChatGPT, Gemini, Bing).
+ */
+import { extractHowToSteps, type Locale } from '../../lib/structured-data';
+
+interface Props {
+  markdownContent: string;
+  name: string;
+  description?: string;
+  locale?: Locale;
+  url?: string;
+}
+
+const {
+  markdownContent,
+  name,
+  description = '',
+  locale = 'en',
+  url,
+} = Astro.props;
+
+const howTo = extractHowToSteps(markdownContent, locale, name);
+
+const jsonLd = howTo
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: howTo.name,
+      description: description,
+      ...(url ? { url } : {}),
+      step: howTo.steps.map((s, idx) => ({
+        '@type': 'HowToStep',
+        position: idx + 1,
+        name: s.name,
+        text: s.text,
+      })),
+    }
+  : null;
+---
+
+{jsonLd && (
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+)}

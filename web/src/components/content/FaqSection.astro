@@ -1,40 +1,54 @@
 ---
 /**
- * FaqSection — Accordion FAQ con JSON-LD FAQPage schema integrato.
- * Usato in tutorial, guide e articoli generati da AI.
+ * FaqSection — Accordion FAQ.
+ *
+ * M1 fix (Phase 17-04): JSON-LD FAQPage e' ora emesso CENTRALMENTE da
+ * ArticleSchema.astro quando viene passato il prop `content`. Questo componente
+ * si occupa SOLO del rendering visibile (Google spam policy: schema-only without
+ * visible content vietato).
+ *
+ * Backward compat preservata: accetta ancora `faqs` prop esplicito (per usi
+ * legacy). Aggiunto `markdownContent` prop per auto-detect da markdown senza
+ * passare per ArticleSchema.
  */
-interface FaqItem {
-  question: string;
-  answer: string;
-}
+import {
+  detectFaqFromMarkdown,
+  type Faq,
+  type Locale,
+} from '../../lib/structured-data';
 
 interface Props {
-  faqs: FaqItem[];
+  // Path 1 (legacy): faqs passati esplicitamente.
+  faqs?: Faq[];
+  // Path 2 (Phase 17-04): markdown da auto-parsare.
+  markdownContent?: string;
+  locale?: Locale;
   title?: string;
 }
 
-const { faqs, title = "Frequently Asked Questions" } = Astro.props;
-const hasFaqs = faqs && faqs.length > 0;
+const {
+  faqs: explicitFaqs,
+  markdownContent,
+  locale = 'en',
+  title = 'Frequently Asked Questions',
+} = Astro.props;
 
-const faqSchema = hasFaqs ? {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": faqs.map(faq => ({
-    "@type": "Question",
-    "name": faq.question,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": faq.answer,
-    },
-  })),
-} : null;
+// Risolvi quali FAQ rendere: priorita' al prop esplicito, fallback su auto-detect.
+let faqs: Faq[] | null = explicitFaqs ?? null;
+if (!faqs && markdownContent) {
+  const detected = detectFaqFromMarkdown(markdownContent, locale);
+  faqs = detected?.questions ?? null;
+}
+const hasFaqs = !!(faqs && faqs.length > 0);
+// NB: JSON-LD FAQPage e' emesso centralmente da ArticleSchema.astro (M1 fix).
+// Qui rendiamo SOLO l'HTML visibile per evitare doppia emissione.
 ---
 
 {hasFaqs && (
   <section class="faq-section">
     <h2 class="faq-section__title">{title}</h2>
     <div class="faq-section__list">
-      {faqs.map((faq, i) => (
+      {faqs!.map((faq, i) => (
         <details class="faq-section__item" id={`faq-${i}`}>
           <summary class="faq-section__question">
             <span>{faq.question}</span>
@@ -47,10 +61,6 @@ const faqSchema = hasFaqs ? {
       ))}
     </div>
   </section>
-)}
-
-{faqSchema && (
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 )}
 
 <style>
