@@ -189,14 +189,26 @@ def _has_schema_type(blocks: list[dict], t: str) -> bool:
 
 
 def _speakable_selectors_resolve(soup) -> tuple[bool, str]:
-    """True se TUTTI gli SPEAKABLE_SELECTORS trovano >=1 node nel DOM."""
+    """True se ALMENO UNO degli SPEAKABLE_SELECTORS trova >=1 node nel DOM.
+
+    Schema.org cssSelector array NON impone che tutti i selectors matchino — basta
+    che almeno uno fornisca un targeting valido per il voice assistant. Articoli
+    short senza h2 strutturali sono validi se 'p:first-of-type' matcha.
+    """
+    matched_any = False
+    invalid = []
     for sel in SPEAKABLE_SELECTORS:
         try:
             nodes = soup.select(sel)
         except Exception as e:
-            return False, f"selector '{sel}' invalid: {e}"
-        if not nodes:
-            return False, f"selector '{sel}' matched 0 nodes"
+            invalid.append(f"selector '{sel}' invalid: {e}")
+            continue
+        if nodes:
+            matched_any = True
+    if invalid:
+        return False, "; ".join(invalid)
+    if not matched_any:
+        return False, f"all SPEAKABLE_SELECTORS matched 0 nodes ({SPEAKABLE_SELECTORS})"
     return True, "ok"
 
 
