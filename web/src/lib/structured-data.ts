@@ -19,6 +19,9 @@
 
 // FAQ heading patterns sono /im (NON /g) — .exec() su pattern non-global parte
 // sempre da inizio stringa, no stale lastIndex.
+// Strict end-of-line per evitare false-positive tipo "## FAQ at a barbecue" (narrative).
+// Trade-off: gli articoli reali con suffix legittimo ("## Frequently Asked Questions about Propane")
+// NON vengono rilevati → tracked come deferred-item per parser-iterazione futura su corpus reale.
 export const FAQ_HEADING_PATTERNS = {
   en: /^##\s+(FAQ|Frequently Asked Questions)\s*$/im,
   it: /^##\s+Domande frequenti\s*$/im,
