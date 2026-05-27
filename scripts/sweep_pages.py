@@ -152,7 +152,10 @@ def _has_visible_faq(soup) -> bool:
     SUFFIX = r"(\s*$|\s*[:—–-]\s*\S|\s+(about|on|for|regarding|concerning|sui|sull[oa]|sulle|riguardo|circa|sobre|acerca|para|de\s+los?)\b)"
     patterns = [_re.compile(rf"^{_re.escape(h)}{SUFFIX}", _re.I) for h in FAQ_VISIBLE_HEADINGS]
     for h in soup.find_all(["h2", "h3"]):
-        text = h.get_text(strip=True)
+        # Fix v1.2.1: usare separator=' ' per spazio tra nested <a> e text adjacente
+        # (es. "FAQ About <a>X</a> Cleaners" → "FAQ About X Cleaners", non "...AboutXCleaners")
+        text = h.get_text(separator=" ", strip=True)
+        text = _re.sub(r"\s+", " ", text)  # collapse multiple spaces
         for p in patterns:
             if p.match(text):
                 return True

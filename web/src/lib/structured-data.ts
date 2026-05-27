@@ -113,20 +113,27 @@ function detectFaqFromHtml(
   locale: Locale = 'en',
 ): FaqResult {
   // Locale-aware heading text patterns (mirror markdown FAQ_HEADING_PATTERNS).
+  // "FAQ"/"FAQs" e' acronimo internazionale → accettato per ogni locale (verificato live:
+  // articoli IT/ES su BBQ usano <h2>FAQ</h2> anziche traduzione literale).
+  const UNIVERSAL_FAQ = /^FAQs?(\s*$|\s*[:—–-]\s*\S|\s+\w+)/i;
   const HEADING_TEXT: Record<Locale, RegExp> = {
     en: /^(FAQs?|Frequently Asked Questions?)(\s*$|\s*[:—–-]\s*\S|\s+(about|on|for|regarding|concerning)\b)/i,
     it: /^Domande frequenti(\s*$|\s*[:—–-]\s*\S|\s+(sui|sull[oa]|sulle|riguardo|circa)\b)/i,
     es: /^Preguntas frecuentes(\s*$|\s*[:—–-]\s*\S|\s+(sobre|acerca|para|de\s+los?)\b)/i,
   };
-  const headingRe = HEADING_TEXT[locale];
+  const localeRe = HEADING_TEXT[locale];
+  const headingMatches = (text: string): boolean =>
+    localeRe.test(text) || UNIVERSAL_FAQ.test(text);
 
   // Cerca tutti gli <h2> nel content. matchAll per idempotence.
   const h2Re = /<h2[^>]*>([\s\S]*?)<\/h2>/gi;
   let faqStartIdx = -1;
   for (const m of html.matchAll(h2Re)) {
-    // Strip inner tags (es. <a id="faq">FAQ</a>) e whitespace.
-    const text = (m[1] || '').replace(/<[^>]+>/g, '').trim();
-    if (headingRe.test(text)) {
+    // Strip inner tags (es. <a id="faq">FAQ</a>) + spazio tra nested tags
+    // (es. "Frequently Asked Questions About <a>BBQ Grill</a> Cleaners"
+    // → "Frequently Asked Questions About   Cleaners" senza fix → fix con space).
+    const text = (m[1] || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (headingMatches(text)) {
       faqStartIdx = m.index + m[0].length;
       break;
     }
