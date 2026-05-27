@@ -62,33 +62,93 @@ export type SpeakableSpec = {
  * Rileva FAQ section nel markdown e ritorna Q-A pairs.
  * Richiede >= 2 coppie per emettere FAQPage (single Q non e' FAQ).
  * Guard anti-false-positive: regex /im richiede heading INTERA riga, no trailing text.
+ *
+ * Fix v1.2.1 (2026-05-27): se markdown detection ritorna null E il content sembra
+ * HTML diretto (es. Strapi rich-text che salva HTML rendered) → fallback a HTML parser.
+ * Pattern: <h2>...FAQ.../<h2> + <h3>Q?</h3><p>A</p> structure.
  */
 export function detectFaqFromMarkdown(
-  markdown: string,
+  content: string,
   locale: Locale = 'en',
 ): FaqResult {
+  // STEP 1: prova markdown standard
   const pattern = FAQ_HEADING_PATTERNS[locale];
-  // Pattern non-global — exec ritorna sempre da inizio (no stale lastIndex).
-  const match = pattern.exec(markdown);
-  if (!match) return null;
+  const match = pattern.exec(content);
+  if (match) {
+    const startIdx = match.index + match[0].length;
+    const restAfterFaq = content.slice(startIdx);
 
-  const startIdx = match.index + match[0].length;
-  const restAfterFaq = markdown.slice(startIdx);
+    // Trova la prossima H2 per limitare il range FAQ (evita catturare H3 di sezioni dopo).
+    const nextSection = /^##\s+/im.exec(restAfterFaq);
+    const faqSection = nextSection
+      ? restAfterFaq.slice(0, nextSection.index)
+      : restAfterFaq;
 
-  // Trova la prossima H2 per limitare il range FAQ (evita catturare H3 di sezioni dopo).
-  const nextSection = /^##\s+/im.exec(restAfterFaq);
-  const faqSection = nextSection
-    ? restAfterFaq.slice(0, nextSection.index)
-    : restAfterFaq;
+    // M6: matchAll, NON while+exec — no stato condiviso tra chiamate.
+    const qaRegex = /^###\s+(.+?)\s*\r?$([\s\S]*?)(?=^###\s+|$(?![\s\S]))/gim;
+    const questions: Faq[] = [];
+    for (const m of faqSection.matchAll(qaRegex)) {
+      const q = m[1].trim();
+      const a = (m[2] || '').trim();
+      if (q && a) {
+        questions.push({ question: q, answer: a.replace(/\s+/g, ' ') });
+      }
+    }
 
-  // M6: matchAll, NON while+exec — no stato condiviso tra chiamate.
-  const qaRegex = /^###\s+(.+?)\s*\r?$([\s\S]*?)(?=^###\s+|$(?![\s\S]))/gim;
+    if (questions.length >= 2) return { questions };
+  }
+
+  // STEP 2: fallback HTML — Strapi rich-text può salvare HTML direttamente
+  // (verificato live 2026-05-27 su best-bbq-grills-propane: content inizia con <p>...)
+  return detectFaqFromHtml(content, locale);
+}
+
+/**
+ * Fallback HTML parser per FAQ section (Strapi rich-text HTML content).
+ * Pattern: <h2>FAQ|Frequently Asked Questions|Domande frequenti|Preguntas frecuentes</h2>
+ * + <h3>Question?</h3><p>Answer</p> structure (>= 2 Q-A pairs required).
+ */
+function detectFaqFromHtml(
+  html: string,
+  locale: Locale = 'en',
+): FaqResult {
+  // Locale-aware heading text patterns (mirror markdown FAQ_HEADING_PATTERNS).
+  const HEADING_TEXT: Record<Locale, RegExp> = {
+    en: /^(FAQs?|Frequently Asked Questions?)(\s*$|\s*[:—–-]\s*\S|\s+(about|on|for|regarding|concerning)\b)/i,
+    it: /^Domande frequenti(\s*$|\s*[:—–-]\s*\S|\s+(sui|sull[oa]|sulle|riguardo|circa)\b)/i,
+    es: /^Preguntas frecuentes(\s*$|\s*[:—–-]\s*\S|\s+(sobre|acerca|para|de\s+los?)\b)/i,
+  };
+  const headingRe = HEADING_TEXT[locale];
+
+  // Cerca tutti gli <h2> nel content. matchAll per idempotence.
+  const h2Re = /<h2[^>]*>([\s\S]*?)<\/h2>/gi;
+  let faqStartIdx = -1;
+  for (const m of html.matchAll(h2Re)) {
+    // Strip inner tags (es. <a id="faq">FAQ</a>) e whitespace.
+    const text = (m[1] || '').replace(/<[^>]+>/g, '').trim();
+    if (headingRe.test(text)) {
+      faqStartIdx = m.index + m[0].length;
+      break;
+    }
+  }
+  if (faqStartIdx === -1) return null;
+
+  // Trova il prossimo <h2> per limitare il range FAQ.
+  const restAfter = html.slice(faqStartIdx);
+  const nextH2 = /<h2[^>]*>/i.exec(restAfter);
+  const faqSection = nextH2 ? restAfter.slice(0, nextH2.index) : restAfter;
+
+  // Q-A pairs: <h3>Question</h3> + content until next <h3> or end.
+  // matchAll su pattern lazy/greedy. NB: usiamo matchAll per evitare stale lastIndex.
+  const qaRegex = /<h3[^>]*>([\s\S]*?)<\/h3>([\s\S]*?)(?=<h3[^>]*>|$)/gi;
   const questions: Faq[] = [];
   for (const m of faqSection.matchAll(qaRegex)) {
-    const q = m[1].trim();
-    const a = (m[2] || '').trim();
+    // Strip HTML tags from question + answer, collapse whitespace.
+    const q = (m[1] || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    const aRaw = (m[2] || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ');
+    const a = aRaw.replace(/\s+/g, ' ').trim();
     if (q && a) {
-      questions.push({ question: q, answer: a.replace(/\s+/g, ' ') });
+      questions.push({ question: q, answer: a });
     }
   }
 

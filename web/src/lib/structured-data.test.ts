@@ -99,6 +99,48 @@ describe('detectFaqFromMarkdown', () => {
     expect(detectFaqFromMarkdown(md, 'it')).toBeNull();
   });
 
+  // v1.2.1 (2026-05-27) — HTML content fallback (Strapi rich-text save as HTML)
+  it('test_detectFaq_html_en_strict: <h2>FAQ</h2> + 2 Q-A pairs triggers', () => {
+    const html = '<p>Intro</p><h2>FAQ</h2><h3>Question 1?</h3><p>Answer one.</p><h3>Question 2?</h3><p>Answer two.</p><h2>Other section</h2>';
+    const result = detectFaqFromMarkdown(html, 'en');
+    expect(result).not.toBeNull();
+    expect(result!.questions).toHaveLength(2);
+    expect(result!.questions[0].question).toBe('Question 1?');
+    expect(result!.questions[0].answer).toBe('Answer one.');
+  });
+  it('test_detectFaq_html_en_full_heading: <h2>Frequently Asked Questions</h2> triggers', () => {
+    const html = '<h2>Frequently Asked Questions</h2><h3>Q1?</h3><p>A1</p><h3>Q2?</h3><p>A2</p>';
+    expect(detectFaqFromMarkdown(html, 'en')).not.toBeNull();
+  });
+  it('test_detectFaq_html_en_suffix_about: <h2>Frequently Asked Questions about Propane</h2> triggers', () => {
+    const html = '<h2>Frequently Asked Questions about Propane Grills</h2><h3>How hot?</h3><p>450F</p><h3>Setup?</h3><p>DIY</p>';
+    expect(detectFaqFromMarkdown(html, 'en')).not.toBeNull();
+  });
+  it('test_detectFaq_html_strips_inner_tags: <h2><a id="faq">FAQ</a></h2> triggers', () => {
+    const html = '<h2><a id="faq">FAQ</a></h2><h3>Q1?</h3><p>A1</p><h3>Q2?</h3><p>A2</p>';
+    expect(detectFaqFromMarkdown(html, 'en')).not.toBeNull();
+  });
+  it('test_detectFaq_html_it: <h2>Domande frequenti</h2> triggers', () => {
+    const html = '<h2>Domande frequenti</h2><h3>D1?</h3><p>R1</p><h3>D2?</h3><p>R2</p>';
+    expect(detectFaqFromMarkdown(html, 'it')).not.toBeNull();
+  });
+  it('test_detectFaq_html_single_qa_rejected: <h2>FAQ</h2> + only 1 Q-A returns null', () => {
+    const html = '<h2>FAQ</h2><h3>Only one?</h3><p>Yes</p>';
+    expect(detectFaqFromMarkdown(html, 'en')).toBeNull();
+  });
+  it('test_detectFaq_html_collapses_whitespace: multi-paragraph answer collapsed', () => {
+    const html = '<h2>FAQ</h2><h3>Q1?</h3><p>Line 1.</p><p>Line 2.</p><h3>Q2?</h3><p>A2</p>';
+    const result = detectFaqFromMarkdown(html, 'en');
+    expect(result).not.toBeNull();
+    expect(result!.questions[0].answer).toBe('Line 1. Line 2.');
+  });
+  it('test_detectFaq_html_called_twice_idempotent: same input returns same result', () => {
+    const html = '<h2>FAQ</h2><h3>Q1?</h3><p>A1</p><h3>Q2?</h3><p>A2</p>';
+    const r1 = detectFaqFromMarkdown(html, 'en');
+    const r2 = detectFaqFromMarkdown(html, 'en');
+    expect(r1).toEqual(r2);
+  });
+
   it('test_detectFaq_no_section: returns null when no FAQ heading present', () => {
     const md = '## Intro\nSome text.\n## Conclusion\nMore text.\n';
     const result = detectFaqFromMarkdown(md, 'en');
