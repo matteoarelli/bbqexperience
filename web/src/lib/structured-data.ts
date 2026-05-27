@@ -138,17 +138,34 @@ function detectFaqFromHtml(
   const nextH2 = /<h2[^>]*>/i.exec(restAfter);
   const faqSection = nextH2 ? restAfter.slice(0, nextH2.index) : restAfter;
 
-  // Q-A pairs: <h3>Question</h3> + content until next <h3> or end.
-  // matchAll su pattern lazy/greedy. NB: usiamo matchAll per evitare stale lastIndex.
-  const qaRegex = /<h3[^>]*>([\s\S]*?)<\/h3>([\s\S]*?)(?=<h3[^>]*>|$)/gi;
+  // Q-A pairs: due pattern alternativi
+  //   (1) <h3>Question</h3> + content until next <h3>
+  //   (2) <p><strong>Q: Question?</strong><br>A: Answer</p> — Strapi rich-text shortcut
+  // Provo pattern (1) prima, fallback (2). matchAll per idempotence.
   const questions: Faq[] = [];
-  for (const m of faqSection.matchAll(qaRegex)) {
-    // Strip HTML tags from question + answer, collapse whitespace.
+
+  // Pattern (1): <h3>...</h3>
+  const qaH3 = /<h3[^>]*>([\s\S]*?)<\/h3>([\s\S]*?)(?=<h3[^>]*>|$)/gi;
+  for (const m of faqSection.matchAll(qaH3)) {
     const q = (m[1] || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
     const aRaw = (m[2] || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ');
     const a = aRaw.replace(/\s+/g, ' ').trim();
     if (q && a) {
       questions.push({ question: q, answer: a });
+    }
+  }
+
+  // Pattern (2) fallback: <p><strong>Q: ...?</strong><br>A: ...</p>
+  // Triggered solo se pattern (1) ha trovato <2 questions.
+  if (questions.length < 2) {
+    questions.length = 0; // reset
+    const qaPQ = /<p[^>]*>\s*(?:<strong[^>]*>)?\s*Q\s*:?\s*([\s\S]*?)(?:<\/strong>)?\s*<br\s*\/?>\s*(?:<strong[^>]*>)?\s*A\s*:?\s*([\s\S]*?)<\/p>/gi;
+    for (const m of faqSection.matchAll(qaPQ)) {
+      const q = (m[1] || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      const a = (m[2] || '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+      if (q && a) {
+        questions.push({ question: q, answer: a });
+      }
     }
   }
 

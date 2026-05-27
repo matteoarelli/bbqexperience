@@ -141,12 +141,20 @@ def analyze(url: str, body_bytes: bytes, locale: str) -> dict:
 # ─── Phase 17-04: schema audit helpers ────────────────────────────────────────
 
 def _has_visible_faq(soup) -> bool:
-    """True se il body HTML contiene un H2/H3 con visible FAQ heading."""
+    """True se il body HTML contiene un H2/H3 con visible FAQ heading.
+
+    Fix v1.2.1 (2026-05-27): mirror del FAQ_HEADING_PATTERNS TS — accetta suffix
+    legittimi (about|on|for|regarding|sui|sobre|...) + separatori `: — – -`.
+    Trade-off: blocca ancora narrative tipo "FAQ at a barbecue" perche "at" non
+    e' nei prepositional whitelist.
+    """
+    import re as _re
+    SUFFIX = r"(\s*$|\s*[:—–-]\s*\S|\s+(about|on|for|regarding|concerning|sui|sull[oa]|sulle|riguardo|circa|sobre|acerca|para|de\s+los?)\b)"
+    patterns = [_re.compile(rf"^{_re.escape(h)}{SUFFIX}", _re.I) for h in FAQ_VISIBLE_HEADINGS]
     for h in soup.find_all(["h2", "h3"]):
         text = h.get_text(strip=True)
-        # Confronto strict: match esatto OR startswith piu' separator (es. "FAQ:").
-        for p in FAQ_VISIBLE_HEADINGS:
-            if text == p or text.startswith(p + ":") or text.startswith(p + " -"):
+        for p in patterns:
+            if p.match(text):
                 return True
     return False
 

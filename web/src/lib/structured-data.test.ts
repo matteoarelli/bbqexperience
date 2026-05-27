@@ -141,6 +141,19 @@ describe('detectFaqFromMarkdown', () => {
     expect(r1).toEqual(r2);
   });
 
+  // v1.2.1 — Pattern <p><strong>Q: ...?</strong><br>A: ...</p> (Strapi rich-text shortcut)
+  it('test_detectFaq_html_qa_p_strong: <p><strong>Q:</strong><br>A:</p> pattern triggers', () => {
+    const html = '<h2>Frequently Asked Questions</h2>' +
+      '<p><strong>Q: How often should I calibrate?</strong><br>A: Every 3 months minimum.</p>' +
+      '<p><strong>Q: Which probe is best?</strong><br>A: ThermoWorks Pro.</p>';
+    const result = detectFaqFromMarkdown(html, 'en');
+    expect(result).not.toBeNull();
+    expect(result!.questions).toHaveLength(2);
+    expect(result!.questions[0].question).toBe('How often should I calibrate?');
+    expect(result!.questions[0].answer).toBe('Every 3 months minimum.');
+    expect(result!.questions[1].question).toBe('Which probe is best?');
+  });
+
   it('test_detectFaq_no_section: returns null when no FAQ heading present', () => {
     const md = '## Intro\nSome text.\n## Conclusion\nMore text.\n';
     const result = detectFaqFromMarkdown(md, 'en');
