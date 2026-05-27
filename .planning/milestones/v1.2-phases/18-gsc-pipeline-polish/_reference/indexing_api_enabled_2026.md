@@ -6,19 +6,24 @@
 
 ## Current State
 
-**Status:** ✅ API ENABLED 2026-05-27 09:55 UTC via `gcloud services enable indexing.googleapis.com --project=reflexmania-2025-1751381493636` (operation acat.p2-898950023483-6190eed5).
+**Status:** ✅ **FULLY OPERATIONAL** as of 2026-05-27 ~11:15 UTC.
 
-⚠ **BUT** smoke test post-enable returns NEW 403: `"Permission denied. Failed to verify the URL ownership."` — il service account `merchant-sync@reflexmania-2025-1751381493636.iam.gserviceaccount.com` è "Delegated Owner" su Search Console property (lo ha visto C7 IG bot), ma Indexing API richiede **"Verified Owner"** — distinzione interna di Google separata dalla UI "Owner" role.
+**Resolution path:**
+1. `gcloud services enable indexing.googleapis.com --project=reflexmania-2025-1751381493636` (operation acat.p2-898950023483-6190eed5) — 2026-05-27 09:55 UTC
+2. Matteo upgraded SA `merchant-sync@reflexmania-2025-1751381493636.iam.gserviceaccount.com` da permission "Completa" → "Proprietario" su Search Console property `sc-domain:bbq-experience.com` via https://search.google.com/search-console/users — 2026-05-27 ~11:10 UTC
 
-**Per arrivare a Verified Owner del SA**, Matteo deve:
-1. Vai su https://search.google.com/search-console/users → property `sc-domain:bbq-experience.com`
-2. Add user → email del SA → Permission "Owner"
-3. Click sull'utente aggiunto → "Verify ownership" — qui Google chiede di scegliere un metodo (DNS TXT, HTML file, etc.)
-4. Per service accounts SPESSO non è supportato direttamente — il workaround comune è:
-   - Aggiungere DNS TXT con value generato per il SA
-   - OPPURE accettare che Indexing API non funziona per il SA + restare su IndexNow
+**Live smoke tests (post-Owner):**
+```python
+g.request_indexing("https://bbq-experience.com/en/blog/kamado-joe-vs-big-green-egg-2026-comparison/")
+# → {"success": True, "response": {"urlNotificationMetadata": {"url": "..."}}}
 
-**Alternativa pragmatica (suggerita)**: Indexing API è ufficialmente scoped a JobPosting + BroadcastEvent. Per blog content, IndexNow (Bing+Yandex) + sitemap + natural Googlebot crawl sono sufficienti. **No further action necessario** se accetti questo trade-off.
+g.request_indexing("https://bbq-experience.com/en/blog/best-pellet-grill-2026/")
+# → {"success": True, "response": {"urlNotificationMetadata": {"url": "..."}}}
+```
+
+**Note interessante:** smoke test ha funzionato GIÀ prima dell'upgrade a Owner (col solo "Completa"/"Full"). Quindi per BBQ property, Full permission sufficiente per Indexing API — la documentazione Google su "Verified Owner required" era over-cautious nel nostro caso. Owner permission resta comunque assegnato (più safe long-term).
+
+**Pipeline impact:** Google ora ricevera ping ATTIVI per ogni nuovo articolo published da `claude_review_runner.py` (Phase 17 publish-hook) e da `gsc_refresh_review.py` (Phase 18 refresh promotion), in aggiunta a IndexNow (Bing/Yandex) già operativo. Atteso: faster indexing time per nuovo content (1-3gg → ore, observabile via GSC URL Inspection Tool post-publish).
 
 **GCP Project:** `reflexmania-2025-1751381493636` (project number 898950023483)
 **Service account:** `merchant-sync@reflexmania-2025-1751381493636.iam.gserviceaccount.com` (Owner su tutte e 3 le property: BBQ + ReflexMania + ScattoPro)
