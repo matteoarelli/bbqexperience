@@ -211,6 +211,15 @@ Vedi docs/architecture.md per diagrammi completi. Sintesi:
 - **Strategy:** Windows dom 07:00 → claude_strategist.py → analisi + pillar content (integra traffic_score)
 - **A/B testing:** Hetzner sab → ab_tester.py → z-test settimanale + Brevo subject-line A/B
 - **Analytics loop:** Hetzner daily → analytics_loop.py → Umami → traffic_score su Strapi + Telegram digest
+
+### Growth Engine v3 — GSC-Driven Pipeline (aggiunto 2026-05-26/27 — v1.1 Phase 17 + v1.2 Phase 18/20)
+- **Meta optimizer:** `.119` daily 03:30 UTC → `meta_optimizer.py` → GSC top_pages 28d → seleziona articoli con `ctr < benchmark_for_position(pos) * 0.6` AND impressions ≥100/28gg → Qwen 27B draft seo_title/seo_description con power_words IT/ES + top 5 GSC queries reali → queue JSONL su .119
+- **Meta review (gate):** Windows Task Scheduler daily 09:00 locale → `meta_review.cmd` (scp queue .119 → Windows + Claude CLI sonnet gate + Strapi PUT con header X-Skip-Rebuild=1 + ssh truncate remote) → `state/meta_changes.jsonl` log + Indexing API + IndexNow ping
+- **GSC refresh:** `.119` Sun 08:00 UTC → `gsc_refresh.py` → top 10 pagine con decay ≥30% OR ctr_opportunity → queue JSONL
+- **GSC refresh review:** Windows Task Sun 10:00 locale → `gsc_refresh_review.py` → Claude Opus `generate_article_multistep(gsc_queries=...)` → quality gate (review_article + topical_relevance dimension) → Strapi PUT promote (skip_rebuild=False) + Indexing API + IndexNow re-ping
+- **Outcome tracker:** `.119` Mon 09:00 UTC → `phase17_outcome_tracker.py` → confronta GSC aggregato 28d vs baseline 2026-05-25 (35 clicks / 29k impressions / CTR 0.12% / pos 6.7) → atomic append `state/phase17_outcome.jsonl` → Telegram report + decision tree (4 trigger ranges)
+- **Indexing API:** GCP Web Search Indexing API enabled su project `reflexmania-2025-1751381493636` + SA `merchant-sync@...` upgraded "Proprietario" su Search Console property. Pipeline chiama BOTH `request_indexing()` AND `indexnow_client.ping()` per ogni publish/promotion (best-effort non-bloccante).
+- **Schema markup AI-search:** `web/src/components/content/ArticleSchema.astro` centralizza Article + Speakable + FAQPage (auto-detect MD + HTML content, 8 suffix locale-aware patterns) + HowTo (tutorials). Sweep `scripts/sweep_pages.py --check schema` 284/287 (98.96%). JSON-LD signal per Perplexity/Gemini/Bing/ChatGPT (Google FAQ rich-result deprecato 7 May 2026 ma schema valido).
 <!-- GSD:architecture-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->
