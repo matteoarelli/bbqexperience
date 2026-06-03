@@ -14,6 +14,37 @@ from agents.lib import telegram
 from agents.lib import ollama
 
 
+# Campi VARCHAR(255) in Strapi con limiti SEO sensati. content/editorial_*/verdict
+# sono rich-text (illimitati) e NON vanno vincolati. Phi-4 tende a "continuare"
+# generando un articolo sui metadati corti (title 23->1031 char) -> overflow 255 -> HTTP 500.
+BOUNDED_FIELDS = {
+    "title": 120,
+    "seo_title": 70,
+    "seo_description": 200,
+    "excerpt": 255,
+}
+SINGLE_LINE_FIELDS = {"title", "seo_title"}
+DB_VARCHAR_MAX = 255
+
+
+def _clean_translation(text: str) -> str:
+    """Rimuove code-fence/preamboli aggiunti dal modello."""
+    text = text.strip()
+    if text.startswith("```"):
+        lines = text.split("\n")
+        text = "\n".join(lines[1:-1] if lines and lines[-1].strip() == "```" else lines[1:]).strip()
+    return text
+
+
+def _truncate(text: str, limit: int) -> str:
+    """Tronca a limit caratteri su confine di parola quando ragionevole."""
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    sp = cut.rfind(" ")
+    return (cut[:sp] if sp > limit * 0.6 else cut).rstrip()
+
+
 def find_untranslated(content_type: str, target_locale: str) -> list[dict]:
     """Trova contenuti EN che non hanno traduzione nella locale target."""
     # Recupera tutti gli slug EN
@@ -76,19 +107,53 @@ def translate_content(content_type: str, doc_id: str, target_locale: str) -> boo
         if field_name.startswith("_"):
             continue
 
-        # Tronca contenuti lunghi per non superare il context window del 7b
+        # Tronca contenuti lunghi per non superare il context window
         value = field_value[:4000] if len(field_value) > 4000 else field_value
 
-        prompt = f"""Translate the following text to {lang_name}. {units_note}
+        limit = BOUNDED_FIELDS.get(field_name)
+        is_bounded = limit is not None
+
+        if is_bounded:
+            # Metadati corti: prompt rigido + temperatura 0 per evitare che il modello
+            # "continui" generando un articolo (bug Phi-4: title 23->1031 char).
+            prompt = f"""Translate the following short metadata text to {lang_name}. {units_note}
+Do not translate product names or brand names.
+Output ONLY the translation, on a SINGLE line, maximum {limit} characters.
+Do NOT add, expand, explain, or write any extra content. No HTML, no lists, no labels.
+
+{value}"""
+            gen_temp, gen_max = 0.0, 256
+        else:
+            prompt = f"""Translate the following text to {lang_name}. {units_note}
 Keep all HTML tags exactly as they are. Do not translate product names or brand names.
 Output ONLY the translated text, nothing else. No explanations, no labels.
 
 {value}"""
+            gen_temp, gen_max = 0.7, 6000
 
         try:
-            translated = ollama.generate(prompt, system=ollama.TRANSLATOR_SYSTEM, max_tokens=6000)
-            # Rimuovi eventuale prefisso/suffisso aggiunto dal modello
-            translated = translated.strip()
+            translated = ollama.generate(
+                prompt, system=ollama.TRANSLATOR_SYSTEM, temperature=gen_temp, max_tokens=gen_max
+            )
+            translated = _clean_translation(translated)
+
+            if field_name in SINGLE_LINE_FIELDS:
+                # Se il modello ha "continuato" oltre il titolo, la prima riga utile
+                # e' quasi sempre la traduzione corretta: tieni solo quella.
+                for line in translated.splitlines():
+                    if line.strip():
+                        translated = line.strip()
+                        break
+
+            if is_bounded:
+                # Guard anti-allucinazione: output spropositato vs input -> scarta il campo
+                # (meglio un campo non tradotto che spazzatura nella localizzazione).
+                if field_name not in SINGLE_LINE_FIELDS and len(translated) > max(limit, 3 * len(field_value)):
+                    print(f"  [WARN] {field_name}: traduzione sospetta scartata "
+                          f"({len(translated)} char, input {len(field_value)})")
+                    continue
+                translated = _truncate(translated, min(limit, DB_VARCHAR_MAX))
+
             if translated:
                 translated_data[field_name] = translated
         except Exception as e:
