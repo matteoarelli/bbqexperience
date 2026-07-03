@@ -126,14 +126,17 @@ class TestMetaReviewMain:
                      encoding="utf-8")
 
     def test_meta_review_no_pending(self, monkeypatch, tmp_path):
-        """Pending vuoto -> telegram noop + return senza errori."""
+        """Pending vuoto -> return senza errori e SENZA Telegram.
+
+        Il no-op routine e' stato silenziato il 2026-06-05 (niente report
+        "nessuna proposta"); il test ora verifica il silenzio.
+        """
         mr = _fresh_meta_review(monkeypatch, tmp_path)
         tg_calls = []
         monkeypatch.setattr(mr.telegram, "send_agent_report",
                              lambda *a, **kw: tg_calls.append((a, kw)) or True)
         mr.main()
-        assert len(tg_calls) == 1
-        assert "Nessuna proposta" in tg_calls[0][0][1]
+        assert len(tg_calls) == 0
 
     def test_meta_review_apply_on_approve(self, monkeypatch, tmp_path):
         """Claude approve -> strapi.update(skip_rebuild=True) + log + clear pending."""

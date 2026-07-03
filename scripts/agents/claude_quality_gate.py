@@ -321,6 +321,105 @@ def review_meta(
     )
 
 
+def review_meta_batch(
+    proposals: list[dict],
+    timeout_seconds: int = 300,
+) -> list[ReviewResult] | None:
+    """Valuta N proposte meta in UNA sola chiamata Claude CLI.
+
+    Aggiunto 3 lug 2026 (audit costi): 18 sessioni/giorno da ~47k token input
+    l'una per payload da ~500 token = ~25M token/mese di overhead harness.
+    Batch -> 1 sessione/giorno, ~10x in meno.
+
+    Ogni proposta e' un dict con chiavi: before{seo_title,seo_description},
+    proposed{seo_title,seo_description}, query_targets, locale, excerpt.
+    I pre-check length girano per-item PRIMA della chiamata (fail-fast locale).
+
+    Ritorna una lista di ReviewResult allineata all'input, oppure None se
+    l'output batch non e' parseabile -> il chiamante fa fallback al loop
+    per-proposta (review_meta singola).
+    """
+    results: dict[int, ReviewResult] = {}
+    to_review: list[dict] = []
+    for i, p in enumerate(proposals):
+        pt = p["proposed"]["seo_title"]
+        pm = p["proposed"]["seo_description"]
+        pre_issues: list[ReviewIssue] = []
+        if len(pt) > 60:
+            pre_issues.append(ReviewIssue(
+                severity="critical", category="length",
+                description=f"title > 60 chars ({len(pt)})"))
+        if len(pm) > 155:
+            pre_issues.append(ReviewIssue(
+                severity="critical", category="length",
+                description=f"meta > 155 chars ({len(pm)})"))
+        if pre_issues:
+            results[i] = ReviewResult(
+                approved=False, score=0,
+                summary=f"Pre-check fail: {pre_issues[0].description}",
+                corrected_html="", issues=pre_issues)
+        else:
+            to_review.append({
+                "index": i,
+                "locale": p["locale"],
+                "current_title": p["before"]["seo_title"],
+                "current_meta": p["before"]["seo_description"],
+                "excerpt": (p.get("excerpt") or "")[:500],
+                "proposed_title": pt,
+                "proposed_meta": pm,
+                "query_targets": p.get("query_targets", []),
+            })
+
+    if to_review:
+        template = (ROOT / "prompts" / "claude_meta_review_batch.md").read_text(encoding="utf-8")
+        user_prompt = template.format(
+            proposals_json=json.dumps(to_review, ensure_ascii=False, indent=1))
+        cmd = [
+            CLAUDE_BIN, "-p", "--output-format", "json",
+            "--append-system-prompt",
+            "You are reviewing SEO meta changes for accuracy and length compliance.",
+            "--model", "sonnet",
+        ]
+        try:
+            res = subprocess.run(
+                cmd, input=user_prompt, capture_output=True,
+                text=True, encoding="utf-8", timeout=timeout_seconds)
+        except subprocess.TimeoutExpired:
+            return None
+
+        arr = None
+        try:
+            outer = json.loads(res.stdout)
+            raw = outer.get("result", "") if isinstance(outer, dict) else ""
+            if isinstance(raw, list):
+                arr = raw
+            elif isinstance(raw, str):
+                clean = re.sub(r"^```(?:json)?\s*\n", "", raw.strip())
+                clean = re.sub(r"\n```\s*$", "", clean)
+                arr = json.loads(clean)
+        except (json.JSONDecodeError, AttributeError):
+            arr = None
+        if not isinstance(arr, list):
+            return None  # fallback per-proposta nel chiamante
+
+        by_index = {v.get("index"): v for v in arr if isinstance(v, dict)}
+        for item in to_review:
+            i = item["index"]
+            v = by_index.get(i)
+            if v is None:
+                return None  # verdict mancante: batch inaffidabile, fallback
+            approved = v.get("decision") == "approve"
+            reasoning = v.get("reasoning", "")
+            issues = [] if approved else [ReviewIssue(
+                severity="major", category="semantic",
+                description=reasoning or "Claude rejected")]
+            results[i] = ReviewResult(
+                approved=approved, score=(10 if approved else 0),
+                summary=reasoning, corrected_html="", issues=issues)
+
+    return [results[i] for i in range(len(proposals))]
+
+
 def decide_next_step(result: ReviewResult) -> str:
     """Pipeline decision logic post-review.
 

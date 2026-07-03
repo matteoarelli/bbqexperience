@@ -39,7 +39,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agents.lib import strapi_client as strapi
 from agents.lib import telegram
 from agents.lib import atomic_io
-from agents.claude_quality_gate import review_meta
+from agents.claude_quality_gate import review_meta, review_meta_batch
 
 # ─── Configurazione ───────────────────────────────────────────────────────
 
@@ -76,25 +76,20 @@ def _clear_pending() -> None:
 # ─── Per-proposal review ──────────────────────────────────────────────────
 
 
-def process_proposal(p: dict) -> dict:
-    """Esegue review_meta su una proposta + applica via Strapi se approve.
+def is_noop(p: dict) -> bool:
+    """True se la proposta e' identica ai valori attuali (zero miglioramento).
 
-    Ritorna il record aggiornato con review:{decision, reasoning, timestamp}
-    + applied:bool (+ apply_error in caso di fail di Strapi PUT).
+    Audit 3 lug 2026: 61/546 chiamate Claude (11%) valutavano proposte
+    identiche ai valori live. String compare gratis, Claude non serve.
     """
-    result = review_meta(
-        current_title=p["before"]["seo_title"],
-        current_meta=p["before"]["seo_description"],
-        proposed_title=p["proposed"]["seo_title"],
-        proposed_meta=p["proposed"]["seo_description"],
-        queries=p.get("query_targets", []),
-        locale=p["locale"],
-        # excerpt non e' nel pending record — il review_meta gate vive con
-        # quello che ha; per accuracy check Claude considera solo i campi
-        # disponibili. Future enhancement: ri-fetch excerpt da Strapi prima
-        # del gate per claim-check piu' rigoroso.
-        excerpt="",
+    return (
+        p["proposed"]["seo_title"].strip() == p["before"]["seo_title"].strip()
+        and p["proposed"]["seo_description"].strip() == p["before"]["seo_description"].strip()
     )
+
+
+def _apply_and_log(p: dict, result) -> dict:
+    """Applica via Strapi se approve; ritorna il record con review annotata."""
     decision = "approve" if result.approved else "reject"
     out = {
         **p,
@@ -135,21 +130,67 @@ def process_proposal(p: dict) -> dict:
 def main() -> None:
     pending = _read_pending()
     if not pending:
-        telegram.send_agent_report(
-            "Meta Review",
-            "Nessuna proposta da revisionare oggi.",
-        )
+        # Routine: nessuna proposta -> niente Telegram (silenziato 2026-06-05).
+        print("Meta Review: nessuna proposta da revisionare oggi.")
         return
 
     applied = 0
     rejected = 0
     failed = 0
+    skipped_noop = 0
+
+    # 1) Skip no-op senza Claude (string compare, audit 3 lug: era l'11% delle chiamate)
+    to_review: list[dict] = []
     for p in pending:
+        if is_noop(p):
+            skipped_noop += 1
+            rejected += 1
+            atomic_io.append_jsonl_atomic(LOG_FILE, {
+                **p,
+                "review": {
+                    "decision": "reject",
+                    "reasoning": "no_change: proposta identica ai valori attuali (skip senza Claude)",
+                    "timestamp": datetime.now().isoformat(),
+                },
+                "applied": False,
+            })
+        else:
+            to_review.append(p)
+
+    # 2) Review batch: UNA chiamata Claude per tutte le proposte (~10x meno
+    #    token dei 18 run singoli). Fallback per-proposta se unparseable.
+    #    Batch solo con >=2 proposte: con 1 sola il costo e' identico e il
+    #    path singolo resta quello esercitato dai test.
+    results = None
+    if len(to_review) >= 2:
         try:
-            result = process_proposal(p)
-            atomic_io.append_jsonl_atomic(LOG_FILE, result)
-            d = result["review"]["decision"]
-            if d == "approve" and result.get("applied"):
+            results = review_meta_batch(to_review)
+        except Exception as e:
+            print(f"[WARN] review_meta_batch exception: {e} -> fallback per-proposta")
+            results = None
+        if results is None:
+            print("[WARN] batch unparseable -> fallback review singole")
+
+    for idx, p in enumerate(to_review):
+        try:
+            if results is not None:
+                result = results[idx]
+            else:
+                result = review_meta(
+                    current_title=p["before"]["seo_title"],
+                    current_meta=p["before"]["seo_description"],
+                    proposed_title=p["proposed"]["seo_title"],
+                    proposed_meta=p["proposed"]["seo_description"],
+                    queries=p.get("query_targets", []),
+                    locale=p["locale"],
+                    # excerpt nel pending record dal 3 lug 2026 (meta_optimizer
+                    # lo fetchava gia' da Strapi ma non lo serializzava).
+                    excerpt=p.get("excerpt", ""),
+                )
+            record = _apply_and_log(p, result)
+            atomic_io.append_jsonl_atomic(LOG_FILE, record)
+            d = record["review"]["decision"]
+            if d == "approve" and record.get("applied"):
                 applied += 1
             elif d == "apply_failed":
                 failed += 1
@@ -172,14 +213,19 @@ def main() -> None:
 
     msg = (
         f"Pending: {len(pending)} | Applicati: {applied} | "
-        f"Rifiutati: {rejected} | Fail: {failed}"
+        f"Rifiutati: {rejected} (di cui {skipped_noop} no-op skip) | Fail: {failed}"
     )
     next_step = (
         "Verifica meta_changes.jsonl per i rifiutati (needs_human)."
         if rejected > 0
         else "Tutti applicati con successo. Webhook rebuild suppresso."
     )
-    telegram.send_agent_report("Meta Review", msg, details=[next_step])
+    # Notifica solo se serve intervento umano (rifiutati) o ci sono fallimenti.
+    # Routine "tutto applicato" silenziata (2026-06-05).
+    if rejected > 0 or failed > 0:
+        telegram.send_agent_report("Meta Review", msg, details=[next_step])
+    else:
+        print(f"Meta Review: {msg} — tutto applicato, Telegram suppresso")
 
 
 if __name__ == "__main__":

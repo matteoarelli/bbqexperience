@@ -371,6 +371,12 @@ def process_page(row: dict, recent_urls: set[str]) -> bool:
     if not parsed:
         print(f"  Qwen output unparseable per {url}")
         return False
+    # Skip no-op alla fonte (3 lug 2026): se Qwen ripropone i valori attuali
+    # identici, accodarla sprecherebbe una review Claude (era l'11% dei run).
+    if (parsed.get("seo_title", "").strip() == current["current_title"].strip()
+            and parsed.get("seo_description", "").strip() == current["current_meta"].strip()):
+        print(f"  skip (proposta identica ai valori attuali): {url}")
+        return False
     record = {
         "url": url,
         "locale": locale,
@@ -381,6 +387,10 @@ def process_page(row: dict, recent_urls: set[str]) -> bool:
             "seo_title": current["current_title"],
             "seo_description": current["current_meta"],
         },
+        # Excerpt nel record (3 lug 2026): _fetch_current_meta lo recuperava
+        # gia' da Strapi ma non veniva serializzato -> il gate Windows valutava
+        # ACCURACY con excerpt vuoto (auto-reject "unverifiable claims").
+        "excerpt": current.get("excerpt", ""),
         "proposed": parsed,
         "query_targets": [q["keys"][0] for q in queries[:5]],
         "metrics": {
