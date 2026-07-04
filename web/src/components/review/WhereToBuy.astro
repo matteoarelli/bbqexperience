@@ -10,9 +10,10 @@ interface Props {
   affiliateUrl: string | null;
   affiliateLinks: AffiliateLink[] | null;
   translations: Record<string, any>;
+  price?: number | null;
 }
 
-const { productName, affiliateUrl, affiliateLinks, translations } = Astro.props;
+const { productName, affiliateUrl, affiliateLinks, translations, price = null } = Astro.props;
 
 const links: AffiliateLink[] = [];
 if (affiliateLinks && affiliateLinks.length > 0) {
@@ -22,6 +23,11 @@ if (affiliateLinks && affiliateLinks.length > 0) {
 }
 
 const hasLinks = links.length > 0;
+
+// Etichetta prezzo — mostrata solo se price valorizzato (> 0). Valuta EUR (coerente con filters.ts).
+const showPrice = typeof price === 'number' && price > 0;
+const fromLabel = translations?.review?.fromPrice || 'From';
+const priceLabel = showPrice ? `${fromLabel} EUR ${price}` : null;
 ---
 
 {hasLinks && (
@@ -29,6 +35,9 @@ const hasLinks = links.length > 0;
     <h3 class="where-to-buy__title">
       {translations?.review?.whereToBuy || "Where to Buy"}
     </h3>
+    {priceLabel && (
+      <p class="where-to-buy__price">{priceLabel}</p>
+    )}
     <div class="where-to-buy__links">
       {links.map((link) => (
         <a
@@ -68,6 +77,13 @@ const hasLinks = links.length > 0;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--color-text-primary);
+    margin-bottom: var(--space-4);
+  }
+  .where-to-buy__price {
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--color-accent-fire);
     margin-bottom: var(--space-4);
   }
   .where-to-buy__links {
