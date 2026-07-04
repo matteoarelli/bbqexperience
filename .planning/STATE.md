@@ -139,6 +139,7 @@ None yet. Todos captured during execution land in `.planning/todos/pending/`.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260522-goj | Dedup topic ContentQueue — guard slug duplicati (evita 400 slug must be unique al gate) | 2026-05-22 | 3a71930 | [260522-goj-dedup-topic-contentqueue-guard-slug-dupl](./quick/260522-goj-dedup-topic-contentqueue-guard-slug-dupl/) |
+| 260704-qwr | Affiliate price surfacing su review — prezzo EUR nel box Where to Buy + Offer JSON-LD con price/priceCurrency (sblocca rich result Product) | 2026-07-04 | d91defe | [260704-qwr-affiliate-price-surfacing-su-review-wher](./quick/260704-qwr-affiliate-price-surfacing-su-review-wher/) |
 
 ## Session Continuity
 
