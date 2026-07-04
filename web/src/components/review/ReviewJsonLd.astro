@@ -69,6 +69,10 @@ if (review.product?.category) {
   jsonLd.category = review.product.category;
 }
 
+// Prezzo prodotto (EUR) — emesso negli Offer solo se valorizzato (> 0)
+const productPrice = review.product?.price;
+const hasPrice = typeof productPrice === 'number' && productPrice > 0;
+
 // Aggiungi offers con affiliate links
 const affiliateLinks = review.product?.affiliate_links;
 if (affiliateLinks && affiliateLinks.length > 0) {
@@ -80,12 +84,14 @@ if (affiliateLinks && affiliateLinks.length > 0) {
       name: link.retailer,
     },
     availability: 'https://schema.org/InStock',
+    ...(hasPrice ? { price: String(productPrice), priceCurrency: 'EUR' } : {}),
   }));
 } else if (review.product?.affiliate_url) {
   jsonLd.offers = {
     '@type': 'Offer',
     url: review.product.affiliate_url,
     availability: 'https://schema.org/InStock',
+    ...(hasPrice ? { price: String(productPrice), priceCurrency: 'EUR' } : {}),
   };
 }
 ---
