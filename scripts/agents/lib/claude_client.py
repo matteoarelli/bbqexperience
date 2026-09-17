@@ -70,7 +70,12 @@ def ask(
     system: str = "",
     max_tokens: int = 8192,
     timeout: int = 300,
-    enable_thinking: bool = True,
+    # DEFAULT FALSE dal 17/09/2026: Qwen e' un modello 'thinking'. Con il
+    # ragionamento acceso consuma tutti i max_tokens a pensare e restituisce
+    # contenuto VUOTO -> il generator falliva con 'Articolo troppo corto: 0
+    # parole' ogni notte dal 3 set (22 run persi). Vedi CLAUDE.md, regola
+    # "Non chiamare Qwen senza enable_thinking:false".
+    enable_thinking: bool = False,
 ) -> str:
     """Invia prompt al backend LLM (Qwen3.6 locale o Claude CLI fallback)."""
     backend = LLM_BACKEND
@@ -285,7 +290,7 @@ Genera un report con:
 When recommending content for the queue, note which items were selected based on traffic_score data.
 
 Sii conciso e pratico. Zero fuffa."""
-    return ask(prompt, timeout=300, enable_thinking=True)
+    return ask(prompt, timeout=300, enable_thinking=False)
 
 
 def generate_pillar_content(
@@ -316,7 +321,7 @@ REQUISITI:
 - Questo deve essere IL contenuto di riferimento su internet per questo topic
 
 Genera SOLO il contenuto HTML (no html/head/body wrapper)."""
-    return ask(prompt, timeout=900, max_tokens=8192, enable_thinking=True)
+    return ask(prompt, timeout=900, max_tokens=8192, enable_thinking=False)
 
 
 # ─── Multi-step generation (outline -> sezioni -> assembly) ───
