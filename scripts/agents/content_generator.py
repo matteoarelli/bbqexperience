@@ -34,6 +34,7 @@ from agents.lib import telegram
 from agents.lib import claude_client as claude
 from agents.lib.slugify import slugify
 from agents.keyword_scout import is_acceptable_topic
+from agents import queue_quality_audit as queue_audit
 
 # ─── Mappe content type Strapi ────────────────────────────────────────────────
 
@@ -101,6 +102,17 @@ def get_next_acceptable_queue_item(max_attempts: int = 15) -> dict | None:
         target = item.get("target_keyword", "") or title
         doc_id = item.get("documentId", "")
         ok, reason = is_acceptable_topic(target)
+
+        # Secondo filtro (17/09/2026): is_acceptable_topic lasciava passare le
+        # caption Instagram copiate come titolo ("Deep Dive: ARTERIAL
+        # APOCALYPSE.", "Ever thought your brisket could dance...") e non aveva
+        # nessuna difesa contro gli argomenti sovrapposti — 47 voci su 54 in
+        # coda erano da buttare. verifica_topic aggiunge il filtro spazzatura e
+        # il confronto semantico con gli articoli gia' pubblicati.
+        if ok:
+            motivo = queue_audit.verifica_topic(title or target)
+            if motivo:
+                ok, reason = False, motivo
 
         # Guard slug duplicato: se lo slug derivato dal titolo esiste già
         # pubblicato, generare sarebbe sprecato (Qwen+Claude) e il gate

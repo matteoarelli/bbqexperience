@@ -9,6 +9,7 @@ Flusso: sync-instagram → Strapi (instagram-posts) → questo agente → Conten
 Cron: Daily 10:00 su 192.168.1.119 (dopo sync-instagram delle */6h).
 """
 
+import json
 import os
 import sys
 import re
@@ -19,6 +20,8 @@ from agents.lib import strapi_client as strapi
 from agents.lib import telegram
 from agents.lib.slugify import slugify
 from agents.keyword_scout import is_acceptable_topic
+from agents.lib import claude_client as llm
+from agents import queue_quality_audit as queue_audit
 
 # Mappa content_type -> plural Strapi (allineata a content_generator.STRAPI_CONTENT_TYPES)
 STRAPI_CONTENT_TYPES = {
@@ -92,6 +95,52 @@ def extract_topic(caption: str) -> str:
     return topic
 
 
+def sintetizza_topic(caption: str) -> dict | None:
+    """Dal post Instagram ricava un VERO argomento da articolo: {title, keyword}.
+
+    La caption e' lo spunto, non il titolo. Il modello deve capire di cosa parla
+    il post (taglio di carne, tecnica, attrezzo) e proporre un titolo da guida e
+    la ricerca corrispondente. Ritorna None se dal post non esce niente di
+    utile: meglio nessun articolo che un articolo su una didascalia.
+    """
+    testo = " ".join(l for l in caption.split("\n") if not l.strip().startswith("#"))[:900].strip()
+    if len(testo) < 25:
+        return None
+    prompt = f"""Sei l'editor di bbq-experience.com (barbecue, affumicatura, griglie).
+Questo e' il testo di un post Instagram che ha funzionato bene:
+
+\"\"\"{testo}\"\"\"
+
+Ricava UN argomento da articolo del sito. Il post e' solo lo spunto: NON copiare la
+frase. Chiediti di cosa parla davvero (taglio di carne, tecnica, attrezzo, ricetta) e
+proponi il titolo di una guida utile e la ricerca Google corrispondente.
+
+Regole:
+- titolo in inglese, 4-10 parole, senza emoji, senza due punti iniziali, senza slogan
+- keyword in inglese minuscolo, 2-6 parole, come la scriverebbe una persona su Google
+- se il post non riguarda barbecue/griglia/affumicatura, o e' solo una foto senza un
+  argomento (slogan, saluti, promozione), rispondi con usable=false
+
+Rispondi SOLO con JSON:
+{{"usable": true, "title": "...", "keyword": "..."}}"""
+    try:
+        raw = llm.ask(prompt, max_tokens=300, timeout=120)
+        blocco = re.search(r"\{.*\}", raw, re.DOTALL)
+        if not blocco:
+            return None
+        dati = json.loads(blocco.group(0))
+    except Exception as e:
+        print(f"  [WARN] sintesi topic fallita: {e}")
+        return None
+    if not dati.get("usable"):
+        return None
+    title = (dati.get("title") or "").strip().strip('"')
+    keyword = (dati.get("keyword") or "").strip().lower()
+    if not title or not keyword:
+        return None
+    return {"title": title, "keyword": keyword}
+
+
 def get_high_engagement_posts() -> list[dict]:
     """Recupera post IG con engagement sopra la soglia."""
     posts = strapi.find_all_pages(
@@ -131,7 +180,19 @@ def create_content_from_ig(post: dict) -> dict | None:
     comments = post.get("comments_count", 0)
     permalink = post.get("permalink", "")
 
-    topic = extract_topic(caption)
+    # SINTESI, NON COPIA (17/09/2026). Prima qui c'era extract_topic(), che
+    # prendeva la prima riga della caption come titolo: in coda erano finiti
+    # "Deep Dive: ARTERIAL APOCALYPSE." e "Ever thought your brisket could
+    # dance Wiggle wiggle wiggle... Discover the". Su 54 voci in coda, 47 erano
+    # da buttare. Ora il post Instagram e' solo lo SPUNTO: il titolo e la
+    # keyword li costruisce il modello, e se non ne esce un argomento sensato
+    # il post viene saltato invece di diventare un articolo.
+    sintesi = sintetizza_topic(caption)
+    if not sintesi:
+        print(f"  [skip ig_id:{ig_id}] nessun argomento sensato ricavabile dalla caption")
+        return None
+    topic = sintesi["keyword"]
+    titolo_sintetico = sintesi["title"]
     cluster = detect_cluster(caption)
 
     # Filtro qualità condiviso con keyword_scout: stop ai topic stagionali fuori
@@ -139,6 +200,12 @@ def create_content_from_ig(post: dict) -> dict | None:
     ok, reason = is_acceptable_topic(topic)
     if not ok:
         print(f"  [skip ig_id:{ig_id}] {topic!r}: {reason}")
+        return None
+
+    # Filtro spazzatura + sovrapposizione con gli articoli gia' pubblicati.
+    motivo = queue_audit.verifica_topic(titolo_sintetico)
+    if motivo:
+        print(f"  [skip ig_id:{ig_id}] {titolo_sintetico!r}: {motivo}")
         return None
 
     # Determina il content type basandosi sul contenuto
@@ -151,7 +218,9 @@ def create_content_from_ig(post: dict) -> dict | None:
     elif any(w in caption_lower for w in ["review", "tested", "score", "verdict"]):
         content_type = "blog"  # Reviews manuali, blog per espansioni
 
-    title = f"Deep Dive: {topic}" if not topic.startswith(("How", "The", "Best", "Why")) else topic
+    # Niente piu' prefisso "Deep Dive:": era il marchio di fabbrica delle
+    # caption incollate. Il titolo arriva dalla sintesi ed e' gia' un titolo.
+    title = titolo_sintetico
 
     # Dedup a monte: se lo slug derivato esiste già pubblicato, non accodare
     # (eviterebbe poi il 400 "slug must be unique" al gate).
