@@ -139,7 +139,17 @@ def main() -> int:
         try:
             media = strapi.upload_file(dati, nome, mime="image/jpeg")
             media_id = media[0]["id"] if isinstance(media, list) else media["id"]
+            # Strapi 5 tiene DUE versioni di ogni documento, bozza e pubblicata:
+            # scrivendo solo sulla bozza (il default) l'articolo online resta
+            # senza immagine. Va valorizzata anche la versione pubblicata, che
+            # per un articolo appena creato puo' non esistere ancora: in quel
+            # caso l'errore si ignora, la copertina e' gia' nella bozza.
             strapi.update(m["tipo"], m["documentId"], {"cover_image": media_id})
+            try:
+                strapi.update(m["tipo"], m["documentId"], {"cover_image": media_id},
+                              status="published")
+            except Exception as e:
+                print(f"  [nota] {m['slug'][:40]}: versione pubblicata non aggiornata ({e})")
         except Exception as e:
             falliti.append(f"{m['title'][:40]}: upload/aggancio fallito ({e})")
             continue
