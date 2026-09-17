@@ -150,6 +150,17 @@ def is_acceptable_topic(keyword: str, today: datetime | None = None) -> tuple[bo
     return True, ""
 
 
+def _cluster_da_keyword(keyword: str) -> str:
+    """Deduce il cluster dalla ricerca. Deve tornare un valore ammesso da Strapi."""
+    kw = (keyword or "").lower()
+    punteggi = {}
+    for cluster, semi in CLUSTERS.items():
+        parole = {p for seme in semi for p in seme.split() if len(p) > 3}
+        punteggi[cluster] = sum(1 for p in parole if p in kw)
+    migliore = max(punteggi, key=punteggi.get) if punteggi else ""
+    return migliore if punteggi.get(migliore, 0) > 0 else "uncategorized"
+
+
 def get_google_suggestions(query: str) -> list[str]:
     """Recupera suggerimenti da Google Suggest API."""
     url = f"http://suggestqueries.google.com/complete/search?client=firefox&q={quote_plus(query)}"
@@ -438,9 +449,39 @@ def main():
         if "keyword" not in m:
             m["keyword"] = m.get("query", "")
         if "cluster" not in m:
-            m["cluster"] = "gsc-striking"
+            # "gsc-striking" NON e' un valore ammesso da Strapi: il campo e' un
+            # enum (smoking, grills, thermometers, brisket, sauces,
+            # uncategorized) e ogni candidato da GSC faceva fallire l'intero run
+            # con un 400 (scoperto il 17/09/2026 — la fonte GSC non ha mai
+            # accodato niente da quando e' stata aggiunta). Si deduce il cluster
+            # dalle parole della ricerca, con "uncategorized" come ripiego.
+            m["cluster"] = _cluster_da_keyword(m.get("keyword") or m.get("query") or "")
         if "content_type" not in m:
             m["content_type"] = "blog"
+
+    # Filtro qualita' prima di accodare (17/09/2026). Senza, in coda finivano
+    # 5 varianti di "How To Cook Brisket" gia' coperte da articoli online: su
+    # 54 voci pronte, 47 erano da buttare. verifica_topic mette insieme il
+    # filtro spazzatura e il confronto semantico con quanto e' gia' pubblicato.
+    from agents import queue_quality_audit as queue_audit
+    prima = len(merged)
+    tenuti = []
+    for m in merged:
+        motivo = queue_audit.verifica_topic(m.get("keyword") or m.get("query") or "")
+        if motivo:
+            print(f"  [scarto] {m.get('keyword')}: {motivo}")
+        else:
+            tenuti.append(m)
+    merged = tenuti
+    # ...e confronto tra i candidati dello stesso giro, sennO' si accodano
+    # insieme tre varianti dello stesso argomento.
+    scarti_interni = dict(queue_audit.dedup_tra_candidati(
+        [m.get("keyword") or m.get("query") or "" for m in merged]))
+    if scarti_interni:
+        for i, motivo in list(scarti_interni.items())[:10]:
+            print(f"  [scarto interno] {merged[i].get('keyword')}: {motivo}")
+        merged = [m for i, m in enumerate(merged) if i not in scarti_interni]
+    print(f"Dopo il filtro qualita': {len(merged)} candidati su {prima}")
 
     created = prioritize_and_create_queue(merged, max_items=7)
     print(f"Create {len(created)} entry in ContentQueue")

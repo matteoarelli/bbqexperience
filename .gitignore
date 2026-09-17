@@ -54,3 +54,8 @@ scripts/batch*.mjs
 
 # Phase 17 _reference snapshots (capture-only, not source-of-truth)
 .planning/milestones/*/17-*/_reference/
+
+# Chiavi service account (GSC/Indexing API) - MAI nel repo
+secrets/
+*gsc-sa.json
+*gsc-merchant-sync.json

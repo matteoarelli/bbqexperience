@@ -32,7 +32,11 @@ EMBED_URL = os.environ.get("EMBED_URL", "http://192.168.1.124:8082/v1/embeddings
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "bge-m3")
 # Soglie tarate sul corpus reale (vedi output del report prima di --apply)
 SIM_PUBLISHED = 0.86   # troppo simile a un articolo gia' online -> scarta
-SIM_QUEUE = 0.90       # due voci in coda quasi identiche -> tieni la prima
+# 0.80 tra candidati dello stesso giro: con 0.90 restavano in coda insieme
+# "Smoking Wood Chips Types", "Smoking Meat Wood Types" e "Smoking Wood Types
+# Chart" (misurato il 17/09/2026). Su ScattoPro la stessa soglia e' 0.70, ma li'
+# si confrontano keyword corte in italiano; qui sono titoli in inglese.
+SIM_QUEUE = 0.80
 
 STOPWORD_FINALI = {
     "the", "a", "an", "and", "or", "of", "for", "with", "to", "in", "on", "at",
@@ -111,6 +115,37 @@ def norm(v: list[float]) -> list[float]:
 
 def cos(a: list[float], b: list[float]) -> float:
     return sum(x * y for x, y in zip(a, b))
+
+
+def dedup_tra_candidati(titoli: list[str], soglia: float = SIM_QUEUE) -> list[tuple[int, str]]:
+    """Indici da scartare perche' doppioni di un altro candidato dello stesso giro.
+
+    verifica_topic() confronta solo con gli articoli GIA' pubblicati: senza
+    questo, nello stesso piano finivano "Smoking Wood Chips Types", "Smoking
+    Meat Wood Types" e "Smoking Wood Types Chart" (17/09/2026). Ritorna
+    [(indice, motivo)].
+    """
+    if len(titoli) < 2:
+        return []
+    try:
+        emb = [norm(e) for e in embed(titoli)]
+    except Exception as e:
+        print(f"  [WARN] confronto tra candidati non eseguito ({e})")
+        return []
+    scartati: list[tuple[int, str]] = []
+    tenuti: list[int] = []
+    for i, e in enumerate(emb):
+        doppio = None
+        for j in tenuti:
+            s = cos(e, emb[j])
+            if s >= soglia:
+                doppio = (j, s)
+                break
+        if doppio:
+            scartati.append((i, f"doppione di '{titoli[doppio[0]][:40]}' ({doppio[1]:.2f})"))
+        else:
+            tenuti.append(i)
+    return scartati
 
 
 _CACHE_PUB: tuple[list[str], list[list[float]]] | None = None
