@@ -80,7 +80,19 @@ def motivo_scarto(titolo: str) -> str | None:
     return None
 
 
+def _normalizza(t: str) -> str:
+    """Minuscolo e spazi compattati PRIMA dell'embedding.
+
+    Misurato su ScattoPro il 17/09/2026: le maiuscole spostano la somiglianza
+    di 0.17 ("velocita' otturatore" ~ "Velocita' Otturatore Video" da' 0.734
+    grezzo e 0.908 normalizzato). Senza questo, il confronto perde proprio i
+    doppioni quando le due fonti scrivono i titoli in modo diverso.
+    """
+    return " ".join((t or "").lower().split())
+
+
 def embed(testi: list[str]) -> list[list[float]]:
+    testi = [_normalizza(t) for t in testi]
     out: list[list[float]] = []
     for i in range(0, len(testi), 32):
         body = json.dumps({"model": EMBED_MODEL, "input": testi[i:i + 32]}).encode()

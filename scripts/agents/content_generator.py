@@ -314,7 +314,12 @@ def publish_article(
     - Translation IT/ES: translation_agent.py su .119 (TODO follow-up Phase 17 v2:
       hookare _notify_search_engines anche li' quando promuove le traduzioni).
     """
-    title = queue_item.get("title", "Untitled")
+    # Il titolo della voce in coda e' la keyword in Title Case ("Bbq Sauce
+    # Recipe For Pulled Pork"): scritta male e con le preposizioni maiuscole.
+    # Il modello produce anche un seo_title vero ("Best BBQ Sauce Recipe for
+    # Pulled Pork"): usiamo quello come titolo dell'articolo quando c'e'
+    # (17/09/2026). La keyword target resta quella della coda.
+    title = (article.get("seo_title") or "").strip() or queue_item.get("title", "Untitled")
     slug = generate_slug(title)
     keyword = queue_item.get("target_keyword", "")
 
