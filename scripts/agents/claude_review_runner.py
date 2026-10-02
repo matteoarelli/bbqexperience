@@ -143,7 +143,8 @@ def fetch_published_content(queue_item: dict) -> dict | None:
         return None
 
 
-def apply_review(content: dict, review: ReviewResult, queue_doc_id: str) -> str:
+def apply_review(content: dict, review: ReviewResult, queue_doc_id: str,
+                 queue_item_log: str = "") -> str:
     """Apply corrected HTML to the content entry + transition queue status.
 
     Returns the next-step label: 'auto_publish' | 'preview_first' | 'human_required'
@@ -196,7 +197,21 @@ def apply_review(content: dict, review: ReviewResult, queue_doc_id: str) -> str:
     elif next_step == "preview_first":
         new_queue_status = "published"
     else:  # human_required
-        new_queue_status = "failed"
+        # SECONDA PASSATA (2 ott 2026). Il gate CORREGGE il testo e poi lo
+        # giudica: se trova un critico nel testo ORIGINALE lo parcheggia, ma le
+        # correzioni restano scritte sulla bozza e nessuno la riguarda piu'.
+        # Risultato: 26 articoli finiti e corretti fermi in "failed". Rivalutati
+        # a mano, lo stesso testo passava da 6 a 8 e da 5 a 9, approvato.
+        # Quindi: la prima volta si rimette in coda (il gate rivedra' il testo
+        # GIA' corretto); se anche la seconda passata trova un critico, allora
+        # e' un problema vero e serve una persona.
+        passata = 2 if "passata=2" not in (queue_item_log or "") else 3
+        if passata == 2:
+            new_queue_status = "draft_review"
+            print(f"  [gate] parcheggiato alla prima passata: rimesso in coda "
+                  f"per una seconda valutazione del testo corretto")
+        else:
+            new_queue_status = "failed"
 
     log_line = (
         f"Claude gate {datetime.now().isoformat()}: "
@@ -204,6 +219,10 @@ def apply_review(content: dict, review: ReviewResult, queue_doc_id: str) -> str:
         f"issues={len(review.issues)} crit={sum(1 for i in review.issues if i.severity == 'critical')} "
         f"-> {next_step}"
     )
+    if new_queue_status == "draft_review":
+        log_line += " | passata=2 (rivaluto il testo corretto)"
+    elif "passata=2" in (queue_item_log or ""):
+        log_line += " | passata=2 confermata: serve una persona"
     try:
         strapi.update("content-queues", queue_doc_id, {
             "status": new_queue_status,
@@ -338,8 +357,14 @@ def process_one(queue_item: dict, catalog: list[dict], blog_wl: list[dict]) -> b
         return False
 
     print(f"  score={result.score} approved={result.approved} issues={len(result.issues)}")
-    next_step = apply_review(content, result, queue_doc_id)
-    telegram_report(title, queue_item, content, result, next_step)
+    next_step = apply_review(content, result, queue_doc_id,
+                             queue_item.get("generation_log") or "")
+    # Notifica solo se serve intervento umano (preview/human). Gli auto-pubblicati
+    # sono routine -> Telegram suppresso (2026-06-05).
+    if next_step != "auto_publish":
+        telegram_report(title, queue_item, content, result, next_step)
+    else:
+        print("  auto-published: Telegram report suppresso")
     return True
 
 
