@@ -14,6 +14,8 @@ REM   Senza questo step la queue non viaggia mai cross-machine e meta_review
 REM   legge sempre file vuoto.
 
 cd /d C:\Progetti\bbqexperience\scripts\agents
+REM Token Claude degli automatismi (21 ott 2026): non dipende dal login interattivo.
+call C:\Progetti\_shared\claude-auth.cmd
 if not exist C:\Progetti\bbqexperience\logs mkdir C:\Progetti\bbqexperience\logs
 
 echo. >> C:\Progetti\bbqexperience\logs\meta-review.log

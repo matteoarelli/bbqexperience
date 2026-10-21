@@ -6,6 +6,8 @@ REM Logs to C:\Progetti\bbqexperience\logs\claude-gate.log
 
 setlocal
 cd /d "%~dp0..\.."
+REM Token Claude degli automatismi (21 ott 2026): non dipende dal login interattivo.
+call C:\Progetti\_shared\claude-auth.cmd
 if not exist logs mkdir logs
 
 set LOG=logs\claude-gate.log

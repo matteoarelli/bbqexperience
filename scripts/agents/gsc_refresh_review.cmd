@@ -9,5 +9,7 @@ REM gsc_refresh.py (.119 cron Sun 08:00 UTC), Claude Opus rewrite + quality gate
 REM (review_article) + Strapi PUT (NO skip_rebuild — refresh deve rebuildare)
 REM + re-index (Indexing API + IndexNow). Vedi gsc_refresh_review.py docstring.
 cd /d C:\Progetti\bbqexperience\scripts\agents
+REM Token Claude degli automatismi (21 ott 2026): non dipende dal login interattivo.
+call C:\Progetti\_shared\claude-auth.cmd
 if not exist C:\Progetti\bbqexperience\logs mkdir C:\Progetti\bbqexperience\logs
 python gsc_refresh_review.py >> C:\Progetti\bbqexperience\logs\gsc-refresh-review.log 2>&1
