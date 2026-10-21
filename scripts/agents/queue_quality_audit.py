@@ -54,6 +54,19 @@ SEGNALI_CAPTION = [
 ]
 
 
+# Il sito e' in inglese ma Google Suggest e GSC restituiscono anche ricerche
+# fatte da italiani o spagnoli. Il 21/10/2026 lo scout ha accodato "Charcoal
+# Grill Traduzione", "Smoke Ring Roma" (un locale di Roma) e "Limpiador De
+# Parrillas": 3 argomenti su 7. Parole che in un titolo inglese non compaiono.
+SEGNALI_ALTRA_LINGUA = re.compile(
+    r"\b(traduzione|traduccion|significato|significado|ricett[ae]|receta|"
+    r"come|cosa|dove|quale|migliore|prezzo|precio|"
+    r"del|della|dello|delle|degli|il|gli|per|para|los|las|el|de|con|una|uno|"
+    r"roma|milano|napoli|torino|firenze|bologna|madrid|barcelona|"
+    r"griglia|affumicat\w*|parrillas?|limpiador)\b"
+)
+
+
 def motivo_scarto(titolo: str) -> str | None:
     """Ritorna il motivo per cui il titolo NON e' utilizzabile, o None se va bene."""
     t = (titolo or "").strip()
@@ -77,6 +90,11 @@ def motivo_scarto(titolo: str) -> str | None:
     for pat in SEGNALI_CAPTION:
         if re.search(pat, low):
             return "sembra una didascalia Instagram, non una ricerca"
+    if any(ord(c) > 127 and c.isalpha() for c in t):
+        return "lettere accentate: ricerca non in inglese"
+    m = SEGNALI_ALTRA_LINGUA.search(low)
+    if m:
+        return f"'{m.group(0)}': ricerca non in inglese o legata a un luogo"
     if t.isupper():
         return "tutto maiuscolo"
     if sum(c.isalpha() for c in t) < len(t) * 0.6:
@@ -201,7 +219,8 @@ deve riguardare barbecue/griglia/affumicatura E somigliare a qualcosa che una pe
 cerca davvero su Google.
 
 BOCCIA: argomenti di altri settori (pipe da fumo, sigari, cucina non barbecue), slogan e
-frasi da social, titoli troppo vaghi, pura offerta commerciale senza contenuto.
+frasi da social, titoli troppo vaghi, pura offerta commerciale senza contenuto,
+ricerche non in inglese, ricerche legate a un locale o a una citta' precisa.
 
 {elenco}
 

@@ -481,6 +481,16 @@ def main():
         for i, motivo in list(scarti_interni.items())[:10]:
             print(f"  [scarto interno] {merged[i].get('keyword')}: {motivo}")
         merged = [m for i, m in enumerate(merged) if i not in scarti_interni]
+    # ...e giudizio di Qwen su quello che i filtri meccanici non vedono
+    # (21/10/2026: "Smoke Ring Roma" e' un locale, non un argomento). A blocchi
+    # di 40: con 120 titoli in una chiamata la risposta veniva troncata.
+    kw = [m.get("keyword") or m.get("query") or "" for m in merged]
+    bocciati: dict[str, str] = {}
+    for i in range(0, len(kw), 40):
+        bocciati.update(queue_audit.giudizio_llm(kw[i:i + 40]))
+    for k, motivo in list(bocciati.items())[:15]:
+        print(f"  [bocciato] {k}: {motivo}")
+    merged = [m for m, k in zip(merged, kw) if k not in bocciati]
     print(f"Dopo il filtro qualita': {len(merged)} candidati su {prima}")
 
     created = prioritize_and_create_queue(merged, max_items=7)
